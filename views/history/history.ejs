@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><title>Code History - CheckOut</title>
+    <%- include('../global/head'); %>
+    <meta property="og:url" content="https://rejectdopamine.com/history">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Code History">
+    <meta property="og:description" content="Access statistics and manage your past submissions to CheckOut.">
+    <meta property="og:image" content="https://rejectdopamine.com/1.3-min.png">
+    <style>
+    <%- include('../history/style.css'); %>
+    </style>
+      </head><body>
+        <%- include('../global/navbar'); %>
+        <!-- Loading Overlay -->
+        <div id="loading-overlay">
+          <div id="loading-content">
+              <svg id="loading-svg" width="100" height="100">
+                  <defs>
+                      <clipPath id="reveal-clip">
+                          <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+                      </clipPath>
+                  </defs>
+                  <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
+              </svg>
+              <div id="loading-spinner" class="loader" style="display: none;"></div>
+          </div>
+        </div>
+        <div class="sub-table-info" id="message-container"><h3 style="padding-left: 15px;">Code History:</h3>
+          
+          <div id="activeClasses">
+            <p>0 codes found, from 0 different IP's, 0 different deviceID's and 0 different accounts.</p>
+            <div class="history-skeleton">
+              <div class="skeleton skeleton-box"></div>
+          </div>
+          </div>
+
+
+            <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+
+          <script>
+            <%- include('../loading.js'); %>
+            <%- include('../history/history.js'); %>
+        </script>
+        
+        
+        </div></body></html>

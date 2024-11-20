@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../global/head'); %>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <title>Manage - CheckOut</title>
+        <style>
+            body {
+                font-size: 19px;
+                background: #0D1116;
+                display: block;
+            }
+
+            .tool-option p {
+                margin-block-start: 0;
+                margin-block-end: 0;
+            }
+
+            .error-box {
+                margin-bottom: 18px;
+            }
+
+            .mainContent {
+                display: block;
+                position: relative;
+                text-align: center;
+                max-width: 400px;
+                margin: 0 auto;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                padding: 20px;
+                background: linear-gradient(105.36deg, #253054 0.61%, rgba(51, 48, 61, 0.5) 169.87%);
+                ;
+                color: #ffffff;
+                border-radius: 8px;
+                /* border: 1px solid #3dcbff; */
+                border: 1px solid var(--accent-colour);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                transition: background-color 0.5s;
+            }
+
+            .headerWelcome {
+                text-align: center;
+                font-size: 1.4em;
+            }
+
+            .headerDiv {
+                margin-top: 10px;
+                margin-bottom: 5px;
+                text-align: center;
+            }
+
+            .topIcon {
+                float: right;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .subtitle {
+                white-space: pre-line;
+                font-size: 17px;
+                margin-bottom: 20px;
+            }
+
+            .account-manage-text {
+                text-decoration: none;
+                font-size: 15px;
+                color: #AFAFAF;
+                margin-bottom: 10px;
+            }
+
+            .termsText {
+                text-decoration: none;
+                font-size: 15px;
+                color: #AFAFAF;
+                margin-bottom: 10px;
+            }
+
+            .tosLink,
+            .tosLink:visited,
+            .tosLink:active {
+                color: #58A6FF;
+                text-decoration: none;
+            }
+
+            .tosLink:hover {
+                color: #58A6FF;
+                text-decoration: underline;
+            }
+
+            .tool-option {
+                flex-grow: 1;
+                text-align: center;
+                padding: 5px 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                background-color: rgba(67, 79, 143, 0.52);
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+                vertical-align: middle;
+                position: relative;
+            }
+
+            .selectTick {
+                height: 15px;
+                position: absolute;
+                top: 8px;
+                right: 8px;
+            }
+
+            .tool-info {
+                color: #b3b3b3;
+                font-size: 15px;
+            }
+        </style>
+</head>
+
+<body>
+
+    <%- include('../global/navbar'); %>
+
+        <div class="mainContent">
+            <div id="overlay">
+                <div class="loader"></div>
+            </div>
+            <div id="headerDiv" class="headerDiv">
+                <img class="topIcon"
+                    src="data:image/webp;base64,UklGRoAGAABXRUJQVlA4WAoAAAAQAAAAYwAATwAAQUxQSB0EAAABCUZtI0lSJvUs/oTn3EUQ0f8J4Ic2B9pOZaB1Gk1cAuQDQk9OGQrSNmBW/8b3BEREyuRVOKhpZCvafP8GqBFwqbhb8k3Q0WHhl5BETEBS3v/PcDyv6fPtyjD42fZpbdu2bdxs23vi3bZ3j7bt3VEm6UkmaVXV99Df4OlUREwA8Uv0l9AIHLf64K3nerWrt1UOGzjxcABYtO+Zh89z1sDFs9By/gblKCpZtFvxnUQK7YcvNxxEoA7w9EvuIQ8df32Rdg0zOv/78AnXdFWRdstgP3ejCbeWFnrMXfhxyCmqACLmjvhtONUDQGQ7+upvl+QIac904j8Ih84uQOTEMFMb1buUQ2gQomkGQRgpAogAjNyl4E4P8rTJWw0VGAIz8OtdBHd6JFV0AV5fYhIiIovoAbiThnIQk8Y8ZT3VVwIAz1ZDOHR+HiIny42xJllJQt5HhgvL1s7R//75j+meQtqWpxtkTU4thzhnGbK74Ih9ClE/B6MfPPdmsztEEMtf/1lOPFXYCHIO2d39QkbL8Jnru6Igh6M/ff1HPp/fGNk/6hC0/dnWnVHOEzis+f7oP5i5G0STpb0OQodDuU5yOYIYTtar1er4RAzRnwJlZvm5kBMtITezPbWwD6IJJ6uNuO5biBwgw6cjrd97/pBj7/1fwIx8O+QppONaIwrKExEbyB44O/MPSQV3fYuHXnruhd+EtikHkf1avRbWy3XIxiLLG61LPfEnxPGoBUlDAyRwEjSm60FoWLIGlKV1eQDRy2gZjEmel+pfqJC2SRSFSW0q8CD6BowszwYA32+F0AggBcCDyJq1DmwTDDGuI+M2NdhfG9j6+G1zAMBaAJ2oIDf8UGvdNIMFiAaZP+NRALj5i9tG3r9vx34A4GacwpcrJV1u6DhhzR5E3QNbvkEAfopHLp+lirMJAIJRm9oUoo5tbHRiLWTDyP7QY3MAYME9swBQzADBaEZrjmOTJCaykD305H57pDBTIa0IBMDoFqG12tqEPRJ0TVFP9O1dTLXUyIEYdqQp1MvMxloMe0hztUbozeKsVgw2iQdYwAYWgA6NscZycRBpjsG9AliWAFgdaUY6/r4RWTDDhg2FNLNGD9ukhTVWN2t1BgjY+IoKGAz4TaRNZLmXwGEiwMRBrTpRMSDGx+NI5WZAjH2L3kI4bgXoqanqdLUCgIAUCsMCB4bQ61azgOb4SHX0d6vAKTBkawyj91mzAFMZ++ePSY8gJhIbghtrdQF27N+RCdtMUn0sgeBIPWEERM3//5sq/wvMLBHSlq0zgLguoJBv1n5/f90Buw4iXa+A4dDxQMDs3U8/5epbt/eQ1tMWbtVaaH8xcG7jX6YOCgfkHJQ/PX9xO1eQgeHg6manHbxUCcfkway3ZvOtFhd4UwrGlQeBFwIAVlA4IDwCAACQEACdASpkAFAAPm0yk0ckIz+hJ1QMu/ANiWUA1aTrnn6M9tnz/+mS7ybfoH4AfoBBRuUnIqxKgTPTU+6ObusSd+zEKPpXA4zM39XBMVkerwhA4s4wn8bGWMItZ9bdqJ53dXyYDmhn51wl+ilvOzImSA761/Ue8UQ44V84TrKSq2n/5gCnEK4h4rmb+oAA/v02aGrr0yEkUL/MOePVkv73r5nDANH6amKC4D3DIQvkxGwzfLRSFd0nIMPYbAIh4MFG6XQhJafui+PjjOhL+/z8Bfu7VOYVpED7p18Kghd2tIXJAfTGzY7TuoD4Dj+7vGtE/6lZSFXrZH//aaHOMxSJFhfF64DrPBJ9NEsihr9l8rcEx4gm7Ob6gG+Kz6aiM/TUgAmv16gZ2s5GK8IHTmP6zqaNN1TLGXfBKQRKzoR7XHEP3446AJ02LwPuKn5vbR2pNJvZPOjHwFrGCm5HT+uWncAV0ev4gHvAOEMmvAZ9nlpPAZgOKFpIaOOboB7qWe4qIogRUy47pt1QtK1Coxn/AXWf/7QR//fUf//s2/MfXpEpJSkyn18XnVM4++HsohGUI7lt+2DSBzNscH2bzlQ624WdDH2UsRS7CLNwa6k4HnMRWbhUP8zLz2xJiLtFDGEO6AoxUjsvwzdo2o+GyfkbfY93EvCMPTggeFtN8g4W0Q8hQXcvjDYa6SpUDEWwh1Jv+z4jf/+unXVFqI1UfkvSPxIJTDFAvxLOGRyKK40X6rqRrX/0h4zWYQAAAA=="
+                    height="35px" alt=""><br>
+                <h3 class="headerWelcome">Manage CheckOut</h3>
+                <p class="subtitle">One stop portal for moderation and analytical tools.</p>
+            </div>
+            <div onclick="location.href='/manage/users';" id="tool-option" class="tool-option">
+                Users
+                <img class="selectTick" src="/static/tick-white-min2.svg" alt="">
+                <br>
+                <p class="tool-info">
+                    Monitor, edit and simulate users
+                </p>
+            </div>
+            <div onclick="location.href='/manage/courses';" id="tool-option" class="tool-option">
+                Courses
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Create and edit courses
+                </p>
+            </div>
+            <div onclick="location.href='/manage/timetables';" id="tool-option" class="tool-option">
+                Timetables
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Upload and edit .tibl's
+                </p>
+            </div>
+            <div onclick="location.href='/manage/permissions';" id="tool-option" class="tool-option">
+                Permissions
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Assign roles and access control
+                </p>
+            </div>
+            <div onclick="location.href='/manage/code-log';" id="tool-option" class="tool-option">
+                Code Log
+                <img class="selectTick" src="/static/tick-white-min2.svg" alt="">
+                <br>
+                <p class="tool-info">
+                    Realtime code log with moderation tools
+                </p>
+            </div>
+            <div onclick="location.href='/manage/request-log';" id="tool-option" class="tool-option">
+                Request Log
+                <img class="selectTick" src="/static/tick-white-min2.svg" alt="">
+                <br>
+                <p class="tool-info">
+                    Complete in-depth traffic log
+                </p>
+            </div>
+            <div onclick="location.href='/manage/analytics';" id="tool-option" class="tool-option">
+                Analytics
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Sitewide analytics (requires account)
+                </p>
+            </div>
+            <div onclick="location.href='/manage/ban';" id="tool-option" class="tool-option">
+                IP/Device Bans
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Bans and appeals management
+                </p>
+            </div>
+            <div onclick="location.href='/manage/audit-log';" id="tool-option" class="tool-option">
+                Audit Log
+                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+                <br>
+                <p class="tool-info">
+                    Transparency log for admins
+                </p>
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+                <p id="termsText" class="termsText">By using these tools, you agree to
+                    CheckOut's&nbsp;<a class="tosLink" href="/terms">Terms of
+                        Service</a>&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink"
+                        href="/terms#privacy">privacy and cookies policy</a>.</p>
+                <p id="versionText" class="footerText" hidden>v5.3.iOS<br><a id="startAgain"
+                        class="footerText footerTextLink" href="javascript:location.reload()" hidden>Change email</a>
+                </p>
+            </div>
+            <div class="account-manage-text">
+                <a class="account-manage-text" href="/account">
+                    Manage your account
+                </a>
+            </div>
+        </div>
+
+
+
+
+</body>
+
+</html>

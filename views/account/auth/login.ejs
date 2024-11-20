@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../global/head'); %>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <title>Login - CheckOut</title>
+        <style>
+            body {
+                font-size: 19px;
+                background: var(--page-background);
+                display: block;
+            }
+
+            .error-box {
+                margin-bottom: 18px;
+            }
+
+            .mainContent {
+                display: block;
+                position: relative;
+                text-align: center;
+                max-width: 400px;
+                margin: 0 auto;
+                margin-top: 20px;
+                padding: 20px;
+                background: var(--content-background);
+                border-radius: 8px;
+                border: var(--box-accent-width) solid #3dcbff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                transition: background-color 0.5s;
+            }
+
+            .headerWelcome {
+                text-align: center;
+                font-size: 1.4em;
+            }
+
+            .headerDiv {
+                margin-top: 10px;
+                margin-bottom: 5px;
+                text-align: center;
+            }
+
+            .topIcon {
+                background-image: var(--tick-image);
+                background-repeat: no-repeat;
+                background-size: 34px;
+                float: right;
+                height: 34px;
+                width: 34px;
+            }
+
+            .setup-form {
+                margin-bottom: 30px;
+            }
+
+            input[type="text"],
+            select {
+                width: 70%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #cccccc94;
+                border-radius: 5px;
+                background-color: #3B3B3B;
+            }
+
+            button {
+                font-size: 19px;
+                width: 70%;
+                padding: 10px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .next-button {
+                width: 70%;
+                padding: 10px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            .footerText,
+            .footerText:visited,
+            .footerText:active {
+                font-size: 10px;
+                text-align: right;
+                margin-bottom: 8px;
+                color: #AFAFAF;
+                text-decoration: none;
+            }
+
+            .termsText {
+                font-size: 11px;
+                text-align: center;
+                margin-bottom: 8px;
+                color: #AFAFAF;
+                text-decoration: none;
+            }
+
+            .footerTextLink,
+            .footerTextLink:active,
+            .footerTextLink:visited {
+                font-size: 15px;
+            }
+
+            .footerTextLink:hover {
+                color: #ffffff;
+                text-decoration: underline;
+            }
+
+            .tosLink,
+            .tosLink:visited,
+            .tosLink:active {
+                color: #58A6FF;
+                text-decoration: none;
+            }
+
+            .tosLink:hover {
+                color: #58A6FF;
+                text-decoration: underline;
+            }
+
+            .select2 {
+                width: 100%;
+                padding: 1px;
+                margin-bottom: 10px;
+                border: 1px solid #cccccc94;
+                border-radius: 5px;
+                background-color: #3B3B3B;
+                color: white;
+                /* Text color */
+            }
+
+            .select2-selection__rendered {
+                font-size: 14px;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            #overlay {
+                display: none;
+                position: absolute;
+                /* Changed from fixed to absolute */
+                top: 0;
+                left: 0;
+                right: 0;
+                /* Ensure it spans the entire form area */
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.7);
+                z-index: 1000;
+            }
+
+            .loader {
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #3498db;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 2s linear infinite;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin: -25px 0 0 -25px;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .container {
+                max-width: 400px;
+                margin: 5px auto;
+                padding: 20px;
+                padding-bottom: 10px;
+                padding-top: 10px;
+                /* border: 1px solid #ccc; */
+                border-radius: 5px;
+                /* background-color: #f9f9f9; */
+            }
+
+            input[type="email"],
+            input[type="number"] {
+                width: calc(100% - 130px);
+                /* Adjusted width */
+                padding: 10px 20px;
+                /* Adjusted padding */
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            .btn-primary {
+                background-color: #007bff;
+                color: #fff;
+            }
+
+            .btn-secondary {
+                background-color: #ccc;
+                color: #000000;
+            }
+
+            .or-divider {
+                display: flex;
+                width: 70%;
+                align-items: center;
+                text-align: center;
+                margin: 20px 0;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .or-divider hr {
+                flex-grow: 1;
+                height: 1px;
+                background-color: #ccc;
+                border: none;
+            }
+
+            .or-divider p {
+                margin: 0 10px;
+                color: #777;
+            }
+
+            .error-message {
+                background-color: #ffcccc;
+                border: 1px solid #ff0000;
+                color: #ff0000;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+
+            .hidden {
+                display: none !important;
+                /* Ensure it overrides other styles */
+            }
+
+            #loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                visibility: hidden;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+
+            #loading-content {
+                text-align: center;
+                position: relative;
+            }
+
+            #loading-svg {
+                opacity: 1;
+            }
+
+            .loader {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3498db;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                animation: spin 2s linear infinite;
+                position: absolute;
+                top: calc(100% + 20px);
+                left: 50%;
+                margin: 5px 0 0 -20px;
+            }
+
+            .cancelLoadingBtn {
+                cursor: pointer;
+                padding: 10px 40px 10px 10px;
+                background-color: #253054;
+                color: #fff;
+                border: solid;
+                border-radius: 4px;
+                border-width: 1.5px;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .center-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .google-auth-button-container {
+                width: 100%;
+                max-width: 400px;
+                /* Set a max-width if needed */
+                padding: 0 20px;
+                /* Optional padding for better appearance */
+                display: flex;
+                justify-content: center;
+            }
+
+            #googleAuthButton {
+                width: 100%;
+            }
+
+            /* Ensure iframe is full width */
+            #googleAuthButton iframe {
+                width: 100% !important;
+                display: block;
+            }
+
+            .other-sign-in-options {
+                text-decoration: none;
+                font-size: 15px;
+                color: #AFAFAF;
+                margin-bottom: 10px;
+            }
+        </style>
+</head>
+
+<body>
+
+    <%- include('../../global/navbar'); %>
+        <!-- Loading Overlay -->
+        <div id="loading-overlay">
+            <div id="loading-content">
+                <svg id="loading-svg" width="100" height="100">
+                    <defs>
+                        <clipPath id="reveal-clip">
+                            <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+                        </clipPath>
+                    </defs>
+                    <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
+                </svg>
+                <div id="loading-spinner" class="loader" style="display: none;"></div>
+                <br>
+                <button class="cancelLoadingBtn" onclick="window.endLoadingOverlay();" id="cancelText">cancel</button>
+            </div>
+        </div>
+
+        <div class="mainContent">
+            <div id="overlay">
+                <div class="loader"></div>
+            </div>
+            <div id="headerDiv" class="headerDiv">
+                <div class="topIcon" role="img" alt="CheckOut Tick"></div><br>
+                <h3 class="headerWelcome">Welcome to CheckOut </h3>
+                <p class="subtext" style="white-space: pre-line" id="action-text1"><%- msg %>
+                </p>
+                <!-- <p id="action-text">Enter your .ac.uk email:</p> -->
+            </div>
+            <div id="touchbox-login" class="container">
+
+                <div id="error-container"></div>
+
+                <div class="center-container">
+                    <div id="google-auth-button-container" class="google-auth-button-container">
+                        <div id="googleAuthButton"></div>
+                    </div>
+                </div>
+
+                <%if (guestState==true) { %>
+                    <div class="or-divider" id="orDivider">
+                        <hr>
+                        <p>OR</p>
+                        <hr>
+                    </div>
+                    <form id="guestForm">
+                        <button type="submit" class="btn btn-secondary" id="guestButton">Continue as guest</button>
+                    </form>
+                    <% } %>
+            </div>
+            <div class="other-sign-in-options">
+                <a class="other-sign-in-options" href="/api/auth/legacy">
+                    Other ways to sign in
+                </a>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <p id="termsText" class="termsText">Signing in means that you agree with
+                    CheckOut's&nbsp;<a class="tosLink" href="/terms-privacy">Terms of
+                        Service</a>&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink"
+                        href="/terms-privacy">privacy and cookies policy</a>.</p>
+                <p id="versionText" class="footerText" hidden>v0<br><a id="startAgain"
+                        class="footerText footerTextLink" href="javascript:location.reload()" hidden>Change email</a>
+                </p>
+            </div>
+        </div>
+
+
+
+        <script>
+
+<%if (guestState == true) { %>
+                document.getElementById("guestForm").addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    // Save secret token to local storage
+                    localStorage.setItem('secret_token', "guest");
+                    // Calculate an expiry date far in the future (here, one year)
+                    let now = new Date();
+                    let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+
+                    // Create the cookie string
+                    document.cookie = "logintoken=guest; expires=" + expiryDate.toUTCString() + "; path=/";
+                    // Redirect to onboarding page
+                    window.location.href = '<%= intent  %>';
+                });
+        <% } %>
+
+        </script>
+
+        <script>
+                function showErrorBox(message, targetId) {
+                    const targetDiv = document.getElementById(targetId);
+                    if (!targetDiv) {
+                        console.error(`No element found with id ${targetId}`);
+                        return;
+                    } else {
+                        //console.error(message);
+                    }
+
+                    const errorBox = document.createElement('div');
+                    errorBox.className = 'error-box';
+                    // class is in global head
+
+                    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>`;
+
+                    errorBox.innerHTML = svgIcon + '<p>' + message + '</p>';
+                    targetDiv.innerHTML = ''; // Clear the existing content
+                    targetDiv.appendChild(errorBox);
+                };
+
+            function handleCredentialResponse(response) {
+                // Send the token to your backend
+                fetch('/api/auth/google/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: response.credential })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            // If the response status is not in the range 200-299
+                            return response.json().then(data => {
+                                throw new Error(data.msg || 'Unknown error');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('User signed in:', data);
+                        if (typeof window.endLoadingOverlay === 'function') {
+                            window.endLoadingOverlay();
+                        }
+                        location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error.message);
+                        showErrorBox(error.message, 'error-container');
+                        if (typeof window.endLoadingOverlay === 'function') {
+                            window.endLoadingOverlay();
+                        }
+                    });
+            }
+
+            window.onload = function () {
+                google.accounts.id.initialize({
+                    client_id: '573147530533-998o78a3tvhoo9ijemmghr9l6c154kks.apps.googleusercontent.com',
+                    callback: handleCredentialResponse
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById('googleAuthButton'),
+                    { theme: 'outline', size: 'large', width: '300px', type: 'standard', theme: 'filled_black', logo_alignment: "center", click_listener: googleAuthClicked }  // customization attributes
+                );
+
+                google.accounts.id.prompt(); // Display the One Tap prompt
+            };
+
+            function googleAuthClicked() {
+                {
+                    console.log("lo")
+                    showLoadingOverlay(1);
+                }
+            }
+
+            function showLoadingOverlay(duration) {
+                const overlay = document.getElementById('loading-overlay');
+                const clipRect = document.getElementById('clip-rect');
+                const spinner = document.getElementById('loading-spinner');
+
+                overlay.style.visibility = 'visible';
+                overlay.style.opacity = '1';
+
+                clipRect.setAttribute('width', '0');
+
+                let startTime = null;
+                let animationCompleted = false;
+
+                function animateReveal(time) {
+                    if (!startTime) startTime = time;
+                    const elapsed = time - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    clipRect.setAttribute('width', `${progress * 100}%`);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateReveal);
+                    } else {
+                        animationCompleted = true;
+                        if (window.overlayDone) {
+                            removeOverlay();
+                        } else {
+                            spinner.style.display = 'block';
+                        }
+                    }
+                }
+
+                requestAnimationFrame(animateReveal);
+
+                window.endLoadingOverlay = function () {
+                    window.overlayDone = true;
+                    if (animationCompleted) {
+                        removeOverlay();
+                    }
+                }
+
+                function removeOverlay() {
+                    overlay.style.opacity = '0';
+                    overlay.style.visibility = 'hidden';
+                    clipRect.setAttribute('width', '0');
+                    spinner.style.display = 'none';
+                    window.overlayDone = false;
+                    animationCompleted = false;
+                }
+
+                window.overlayDone = false;
+            }
+        </script>
+</body>
+
+</html>

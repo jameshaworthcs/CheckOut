@@ -1,0 +1,182 @@
+<style>
+  /* @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"); */
+
+  body {
+  /* font-family: "Poppins", sans-serif; */
+  background: url(/static/tile-v1.png);
+  background-position: center;
+  position: relative;
+  z-index: 1; /* Make sure body content is above the ::before */
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Dark overlay with 50% opacity */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Ensure support for Safari */
+  z-index: -1; /* Place behind the body content */
+  pointer-events: none; /* Ensure it doesn't block interaction */
+}
+
+
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+    /* Ensure the body and html take the full height */
+    overflow-x: hidden;
+    /* Prevent horizontal overflow */
+  }
+
+  h1,
+  h2 {
+    text-align: center;
+  }
+
+  .container p {
+    margin-bottom: 10px;
+    opacity: .9;
+  }
+
+  .container {
+    width: 60%;
+    max-width: 1200px;
+    margin: 50px auto 50px;
+    /* background-color: #17182db3; */
+    background-color: var(--content-background);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  form {
+    margin-top: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 150px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+    margin-left: 10px;
+  }
+
+  .deviceID-text {
+    text-align: center;
+    font-size: small;
+    opacity: .65;
+  }
+
+  .section-box {
+    background: var(--content-background);
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: Arial, sans-serif;
+    width: 70%;
+    margin: 0 auto;
+    margin-top: 20px;
+  }
+
+  .section-title {
+    display: flex;
+    opacity: .6;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .section-details {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+    gap: 5px; /* Space between the buttons */
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .section-details button {
+      flex: 0 1 auto; /* Ensure buttons take only as much width as they need */
+      margin-bottom: 5px; /* Optional: additional space between rows */
+  }
+
+
+  .section-title svg {
+    width: 16px;
+    height: 16px;
+    fill: rgb(155, 155, 155);
+    margin-right: 5px;
+    /* Icon color */
+  }
+
+  .section-details svg {
+    width: 16px;
+    height: 16px;
+    fill: rgb(155, 155, 155);
+    /* Icon color */
+  }
+
+  .box-link,
+  .box-link:active,
+  .box-link:visited {
+    /* color: #58a6ff; */
+    text-decoration: none;
+    margin-left: auto;
+  }
+
+  .account-buttons-container {
+    margin-top: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      width: 90%;
+    }
+    
+    .section-box {
+      width: 95%;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>

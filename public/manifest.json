@@ -1,0 +1,16 @@
+{
+    "name": "CheckOut",
+    "short_name": "CheckOut",
+    "description": "Effortlessly find CheckOut codes and submit your own. Use the form to submit a CheckOut code anonymously for others to view.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0A0520",
+    "theme_color": "#0A0520",
+    "icons": [
+      {
+        "src": "/static/tick-white-2.png",
+        "sizes": "1024x1024",
+        "type": "image/png"
+      }
+    ]
+  }

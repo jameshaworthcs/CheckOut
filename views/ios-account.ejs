@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <style>.select2-container{box-sizing:border-box;display:inline-block;margin:0;position:relative;vertical-align:middle}.select2-container .select2-selection--single{box-sizing:border-box;cursor:pointer;display:block;height:28px;user-select:none;-webkit-user-select:none}.select2-container .select2-selection--single .select2-selection__rendered{display:block;padding-left:8px;padding-right:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.select2-container .select2-selection--single .select2-selection__clear{position:relative}.select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered{padding-right:8px;padding-left:20px}.select2-container .select2-selection--multiple{box-sizing:border-box;cursor:pointer;display:block;min-height:32px;user-select:none;-webkit-user-select:none}.select2-container .select2-selection--multiple .select2-selection__rendered{display:inline-block;overflow:hidden;padding-left:8px;text-overflow:ellipsis;white-space:nowrap}.select2-container .select2-search--inline{float:left}.select2-container .select2-search--inline .select2-search__field{box-sizing:border-box;border:none;font-size:100%;margin-top:5px;padding:0}.select2-container .select2-search--inline .select2-search__field::-webkit-search-cancel-button{-webkit-appearance:none}.select2-dropdown{background-color:white;border:1px solid #aaa;border-radius:4px;box-sizing:border-box;display:block;position:absolute;left:-100000px;width:100%;z-index:1051}.select2-results{display:block}.select2-results__options{list-style:none;margin:0;padding:0}.select2-results__option{padding:6px;user-select:none;-webkit-user-select:none}.select2-results__option[aria-selected]{cursor:pointer}.select2-container--open .select2-dropdown{left:0}.select2-container--open .select2-dropdown--above{border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0}.select2-container--open .select2-dropdown--below{border-top:none;border-top-left-radius:0;border-top-right-radius:0}.select2-search--dropdown{display:block;padding:4px}.select2-search--dropdown .select2-search__field{padding:4px;width:100%;box-sizing:border-box}.select2-search--dropdown .select2-search__field::-webkit-search-cancel-button{-webkit-appearance:none}.select2-search--dropdown.select2-search--hide{display:none}.select2-close-mask{border:0;margin:0;padding:0;display:block;position:fixed;left:0;top:0;min-height:100%;min-width:100%;height:auto;width:auto;opacity:0;z-index:99;background-color:#fff;filter:alpha(opacity=0)}.select2-hidden-accessible{border:0 !important;clip:rect(0 0 0 0) !important;-webkit-clip-path:inset(50%) !important;clip-path:inset(50%) !important;height:1px !important;overflow:hidden !important;padding:0 !important;position:absolute !important;width:1px !important;white-space:nowrap !important}.select2-container--default .select2-selection--single{background-color:#fff;border:1px solid #aaa;border-radius:4px}.select2-container--default .select2-selection--single .select2-selection__rendered{color:#444;line-height:28px}.select2-container--default .select2-selection--single .select2-selection__clear{cursor:pointer;float:right;font-weight:bold}.select2-container--default .select2-selection--single .select2-selection__placeholder{color:#999}.select2-container--default .select2-selection--single .select2-selection__arrow{height:26px;position:absolute;top:1px;right:1px;width:20px}.select2-container--default .select2-selection--single .select2-selection__arrow b{border-color:#888 transparent transparent transparent;border-style:solid;border-width:5px 4px 0 4px;height:0;left:50%;margin-left:-4px;margin-top:-2px;position:absolute;top:50%;width:0}.select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__clear{float:left}.select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__arrow{left:1px;right:auto}.select2-container--default.select2-container--disabled .select2-selection--single{background-color:#eee;cursor:default}.select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__clear{display:none}.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b{border-color:transparent transparent #888 transparent;border-width:0 4px 5px 4px}.select2-container--default .select2-selection--multiple{background-color:white;border:1px solid #aaa;border-radius:4px;cursor:text}.select2-container--default .select2-selection--multiple .select2-selection__rendered{box-sizing:border-box;list-style:none;margin:0;padding:0 5px;width:100%}.select2-container--default .select2-selection--multiple .select2-selection__rendered li{list-style:none}.select2-container--default .select2-selection--multiple .select2-selection__clear{cursor:pointer;float:right;font-weight:bold;margin-top:5px;margin-right:10px;padding:1px}.select2-container--default .select2-selection--multiple .select2-selection__choice{background-color:#e4e4e4;border:1px solid #aaa;border-radius:4px;cursor:default;float:left;margin-right:5px;margin-top:5px;padding:0 5px}.select2-container--default .select2-selection--multiple .select2-selection__choice__remove{color:#999;cursor:pointer;display:inline-block;font-weight:bold;margin-right:2px}.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover{color:#333}.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice,.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-search--inline{float:right}.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice{margin-left:5px;margin-right:auto}.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice__remove{margin-left:2px;margin-right:auto}.select2-container--default.select2-container--focus .select2-selection--multiple{border:solid black 1px;outline:0}.select2-container--default.select2-container--disabled .select2-selection--multiple{background-color:#eee;cursor:default}.select2-container--default.select2-container--disabled .select2-selection__choice__remove{display:none}.select2-container--default.select2-container--open.select2-container--above .select2-selection--single,.select2-container--default.select2-container--open.select2-container--above .select2-selection--multiple{border-top-left-radius:0;border-top-right-radius:0}.select2-container--default.select2-container--open.select2-container--below .select2-selection--single,.select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple{border-bottom-left-radius:0;border-bottom-right-radius:0}.select2-container--default .select2-search--dropdown .select2-search__field{border:1px solid #aaa}.select2-container--default .select2-search--inline .select2-search__field{background:transparent;border:none;outline:0;box-shadow:none;-webkit-appearance:textfield}.select2-container--default .select2-results>.select2-results__options{max-height:200px;overflow-y:auto}.select2-container--default .select2-results__option[role=group]{padding:0}.select2-container--default .select2-results__option[aria-disabled=true]{color:#999}.select2-container--default .select2-results__option[aria-selected=true]{background-color:#ddd}.select2-container--default .select2-results__option .select2-results__option{padding-left:1em}.select2-container--default .select2-results__option .select2-results__option .select2-results__group{padding-left:0}.select2-container--default .select2-results__option .select2-results__option .select2-results__option{margin-left:-1em;padding-left:2em}.select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option{margin-left:-2em;padding-left:3em}.select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option{margin-left:-3em;padding-left:4em}.select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option{margin-left:-4em;padding-left:5em}.select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option{margin-left:-5em;padding-left:6em}.select2-container--default .select2-results__option--highlighted[aria-selected]{background-color:#5897fb;color:white}.select2-container--default .select2-results__group{cursor:default;display:block;padding:6px}.select2-container--classic .select2-selection--single{background-color:#f7f7f7;border:1px solid #aaa;border-radius:4px;outline:0;background-image:-webkit-linear-gradient(top, #fff 50%, #eee 100%);background-image:-o-linear-gradient(top, #fff 50%, #eee 100%);background-image:linear-gradient(to bottom, #fff 50%, #eee 100%);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0)}.select2-container--classic .select2-selection--single:focus{border:1px solid #5897fb}.select2-container--classic .select2-selection--single .select2-selection__rendered{color:#444;line-height:28px}.select2-container--classic .select2-selection--single .select2-selection__clear{cursor:pointer;float:right;font-weight:bold;margin-right:10px}.select2-container--classic .select2-selection--single .select2-selection__placeholder{color:#999}.select2-container--classic .select2-selection--single .select2-selection__arrow{background-color:#ddd;border:none;border-left:1px solid #aaa;border-top-right-radius:4px;border-bottom-right-radius:4px;height:26px;position:absolute;top:1px;right:1px;width:20px;background-image:-webkit-linear-gradient(top, #eee 50%, #ccc 100%);background-image:-o-linear-gradient(top, #eee 50%, #ccc 100%);background-image:linear-gradient(to bottom, #eee 50%, #ccc 100%);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFCCCCCC', GradientType=0)}.select2-container--classic .select2-selection--single .select2-selection__arrow b{border-color:#888 transparent transparent transparent;border-style:solid;border-width:5px 4px 0 4px;height:0;left:50%;margin-left:-4px;margin-top:-2px;position:absolute;top:50%;width:0}.select2-container--classic[dir="rtl"] .select2-selection--single .select2-selection__clear{float:left}.select2-container--classic[dir="rtl"] .select2-selection--single .select2-selection__arrow{border:none;border-right:1px solid #aaa;border-radius:0;border-top-left-radius:4px;border-bottom-left-radius:4px;left:1px;right:auto}.select2-container--classic.select2-container--open .select2-selection--single{border:1px solid #5897fb}.select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow{background:transparent;border:none}.select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow b{border-color:transparent transparent #888 transparent;border-width:0 4px 5px 4px}.select2-container--classic.select2-container--open.select2-container--above .select2-selection--single{border-top:none;border-top-left-radius:0;border-top-right-radius:0;background-image:-webkit-linear-gradient(top, #fff 0%, #eee 50%);background-image:-o-linear-gradient(top, #fff 0%, #eee 50%);background-image:linear-gradient(to bottom, #fff 0%, #eee 50%);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0)}.select2-container--classic.select2-container--open.select2-container--below .select2-selection--single{border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0;background-image:-webkit-linear-gradient(top, #eee 50%, #fff 100%);background-image:-o-linear-gradient(top, #eee 50%, #fff 100%);background-image:linear-gradient(to bottom, #eee 50%, #fff 100%);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFFFFFFF', GradientType=0)}.select2-container--classic .select2-selection--multiple{background-color:white;border:1px solid #aaa;border-radius:4px;cursor:text;outline:0}.select2-container--classic .select2-selection--multiple:focus{border:1px solid #5897fb}.select2-container--classic .select2-selection--multiple .select2-selection__rendered{list-style:none;margin:0;padding:0 5px}.select2-container--classic .select2-selection--multiple .select2-selection__clear{display:none}.select2-container--classic .select2-selection--multiple .select2-selection__choice{background-color:#e4e4e4;border:1px solid #aaa;border-radius:4px;cursor:default;float:left;margin-right:5px;margin-top:5px;padding:0 5px}.select2-container--classic .select2-selection--multiple .select2-selection__choice__remove{color:#888;cursor:pointer;display:inline-block;font-weight:bold;margin-right:2px}.select2-container--classic .select2-selection--multiple .select2-selection__choice__remove:hover{color:#555}.select2-container--classic[dir="rtl"] .select2-selection--multiple .select2-selection__choice{float:right;margin-left:5px;margin-right:auto}.select2-container--classic[dir="rtl"] .select2-selection--multiple .select2-selection__choice__remove{margin-left:2px;margin-right:auto}.select2-container--classic.select2-container--open .select2-selection--multiple{border:1px solid #5897fb}.select2-container--classic.select2-container--open.select2-container--above .select2-selection--multiple{border-top:none;border-top-left-radius:0;border-top-right-radius:0}.select2-container--classic.select2-container--open.select2-container--below .select2-selection--multiple{border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0}.select2-container--classic .select2-search--dropdown .select2-search__field{border:1px solid #aaa;outline:0}.select2-container--classic .select2-search--inline .select2-search__field{outline:0;box-shadow:none}.select2-container--classic .select2-dropdown{background-color:#fff;border:1px solid transparent}.select2-container--classic .select2-dropdown--above{border-bottom:none}.select2-container--classic .select2-dropdown--below{border-top:none}.select2-container--classic .select2-results>.select2-results__options{max-height:200px;overflow-y:auto}.select2-container--classic .select2-results__option[role=group]{padding:0}.select2-container--classic .select2-results__option[aria-disabled=true]{color:grey}.select2-container--classic .select2-results__option--highlighted[aria-selected]{background-color:#3875d7;color:#fff}.select2-container--classic .select2-results__group{cursor:default;display:block;padding:6px}.select2-container--classic.select2-container--open .select2-dropdown{border-color:#5897fb}</style>
+  <script defer data-domain="rejectdopamine.com" src="https://t.ldn.jemedia.xyz/js/script.js"></script>
+  <link rel="shortcut icon" href="/checkin-ios/icon.png" />
+  <title>CheckOut iOS Onboarding</title>
+  <style>
+body {
+    font-family: "Inter", sans-serif;
+    color: #1d1d1d;
+    font-size: 19px;
+    background: #0D1116;
+    display: block;
+    margin: 8px;
+}
+.mainContent {
+    display: block;
+    position: relative;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--form-bg-color);
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.5s;
+}
+.headerWelcome {
+    text-align: center;
+    font-size: 1.4em;
+}
+.headerDiv {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+.topIcon {
+    float: right;text-align: center;vertical-align: middle;
+}
+.setup-form {
+  margin-bottom: 30px;
+}
+
+input[type="text"],
+select {
+  width: 70%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc94;
+  border-radius: 5px;
+  background-color: #3B3B3B;
+}
+
+button {
+  font-size: 19px;
+  width: 70%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.next-button {
+  width: 70%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+.footerText,.footerText:visited,.footerText:active {
+    font-size: 10px;
+    text-align: right;
+    margin-bottom: 8px;
+    color: #AFAFAF;
+    text-decoration: none;
+}
+.termsText {
+    font-size: 11px;
+    text-align: left;
+    margin-bottom: 8px;
+    color: #AFAFAF;
+    text-decoration: none;
+}
+.footerTextLink, .footerTextLink:active, .footerTextLink:visited {
+    font-size: 15px;
+}
+.footerTextLink:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.tosLink, .tosLink:visited, .tosLink:active {
+    color: #58A6FF;
+    text-decoration: none;
+}
+.tosLink:hover {
+    color: #58A6FF;
+    text-decoration: underline;
+}
+.select2 {
+    width: 100%;
+    padding: 1px;
+    margin-bottom: 10px;
+    border: 1px solid #cccccc94;
+    border-radius: 5px;
+    background-color: #3B3B3B;
+    color: white; /* Text color */
+}
+.select2-selection__rendered {
+    font-size: 14px;
+}
+.hidden {
+  display: none;
+}
+
+#overlay {
+  display: none;
+  position: absolute; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  right: 0; /* Ensure it spans the entire form area */
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1000;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.container {
+        max-width: 400px;
+        margin: 5px auto;
+        padding: 20px;
+        padding-top: 5px;
+        /* border: 1px solid #ccc; */
+        border-radius: 5px;
+        /* background-color: #f9f9f9; */
+    }
+    input[type="email"], input[type="number"] {
+        width: calc(100% - 130px); /* Adjusted width */
+        padding: 10px 20px; /* Adjusted padding */
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .btn-secondary {
+        background-color: #ccc;
+        color: #000000;
+    }
+    .or-divider {
+        display: flex;
+        width: 70%;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .or-divider hr {
+        flex-grow: 1;
+        height: 1px;
+        background-color: #ccc;
+        border: none;
+    }
+    .or-divider p {
+        margin: 0 10px;
+        color: #777;
+    }
+    .error-message {
+        background-color: #ffcccc;
+        border: 1px solid #ff0000;
+        color: #ff0000;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .hidden {
+        display: none !important; /* Ensure it overrides other styles */
+    }
+  </style>
+  </head>
+<body>
+<div class="mainContent">
+    <div id="overlay">
+        <div class="loader"></div>
+    </div>
+    <div class="headerDiv">
+<img class="topIcon" src="data:image/webp;base64,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" height="35px" alt=""><br>
+<h3 class="headerWelcome">Welcome to CheckOut </h3>
+    <p style="white-space: pre-line" id="action-text1">Let's setup your CheckOut app.
+
+    </p>
+    <p id="action-text">Enter your .ac.uk email:</p>
+</div>
+<div class="container">
+    <form id="emailForm">
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <input type="email" id="emailInput" name="email" placeholder="Enter your email">
+        <button type="submit" class="btn btn-primary" id="submitButton">Next</button>
+    </form>
+    <form id="verificationForm" class="hidden">
+        <div id="verificationErrorMessage" class="error-message" style="display: none;"></div>
+        <input type="number" id="verificationCodeInput" name="verificationCode" placeholder="Enter verification code">
+        <button type="submit" class="btn btn-primary" id="verifyButton">Verify</button>
+    </form>
+    <div class="or-divider" id="orDivider">
+        <hr>
+        <p>OR</p>
+        <hr>
+    </div>
+    <form id="guestForm">
+    <button type="submit" class="btn btn-secondary" id="guestButton">Continue as guest</button>
+</form>
+</div>
+<div style="display: flex; justify-content: space-between;">
+<p id="termsText" class="termsText" hidden>Clicking&nbsp;<b>Next</b>&nbsp;means that you agree with CheckOut's&nbsp;<a class="tosLink" href="https://rejectdopamine.com/terms">Terms of Service</a>&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink" href="https://rejectdopamine.com/terms#privacy">privacy and cookies policy</a>.</p>
+  <p id="versionText" class="footerText" hidden >v5.3.iOS<br><a id="startAgain" class="footerText footerTextLink" href="javascript:location.reload()" hidden>Change email</a></p>
+</div>
+</div>
+<script><%- include('../views/jquery'); %></script>
+<script><%- include('../views/select2'); %></script>
+
+<script>
+    document.getElementById("emailInput").focus();
+document.getElementById("emailForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    var email = document.getElementById("emailInput").value;
+
+    // Email format validation using regular expression
+    var emailPattern = /^[^\s@]+@(j-h\.ai|[^.]+\.ac\.uk)$/;
+    if (!emailPattern.test(email)) {
+        document.getElementById("errorMessage").textContent = "Please enter a valid .ac.uk email address.";
+        document.getElementById("errorMessage").style.display = "block";
+        return;
+    }
+
+    // Show overlay
+    document.getElementById('overlay').style.display = 'block';
+    
+
+    fetch('/checkin-ios/api/app/account/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(function(response) {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(function(data) {
+        // Change input type to number
+        document.getElementById("emailInput").type = "number";
+        // Change placeholder text
+        document.getElementById("emailInput").placeholder = "Enter one time code";
+        // Show numerical keyboard
+        document.getElementById("emailInput").setAttribute("inputmode", "numeric");
+        // Focus on the one time code input
+        document.getElementById("emailInput").focus();
+        // Change button text to 'Verify'
+        document.getElementById("submitButton").textContent = "Verify";
+        document.getElementById("action-text").textContent = "Enter one time verification code sent to "+email+":";
+        // Hide error message if shown
+        document.getElementById("errorMessage").style.display = "none";
+        // Hide OR divider and guest button, and email form
+        document.getElementById("orDivider").classList.add("hidden");
+        document.getElementById("guestButton").classList.add("hidden");
+        document.getElementById("emailForm").classList.add("hidden");
+        // Show verification form and store email
+        document.getElementById("verificationForm").classList.remove("hidden");
+        //document.getElementById("startAgain").classList.remove("hidden");
+        document.getElementById("verificationForm").dataset.email = email;
+        // Hide overlay
+        document.getElementById('overlay').style.display = 'none';
+        $('#termsText').show();
+        $('#versionText').show();
+        $('#startAgain').show();
+    })
+    .catch(function(error) {
+        // Show error message
+        document.getElementById("errorMessage").textContent = error.message;
+        document.getElementById("errorMessage").style.display = "block";
+        document.getElementById('overlay').style.display = 'none';
+    });
+});
+document.getElementById("verificationForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    // Show overlay
+    document.getElementById('overlay').style.display = 'block';
+    var email = document.getElementById("verificationForm").dataset.email;
+    var code = document.getElementById("verificationCodeInput").value;
+
+    if (code.length !== 6 || isNaN(code)) {
+        // Hide overlay
+    document.getElementById('overlay').style.display = 'none';
+        document.getElementById("verificationErrorMessage").textContent = "Please enter a valid 6-digit code.";
+        document.getElementById("verificationErrorMessage").style.display = "block";
+        return;
+    }
+
+    fetch('/checkin-ios/api/app/account/verify', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email, code: code })
+    })
+    .then(function(response) {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('One time code incorrect.');
+    })
+    .then(function(data) {
+        // Save secret token to local storage
+        localStorage.setItem('secret_token', data.secret_token);
+        // Redirect to onboarding page
+        window.location.href = '/checkin-ios/api/app/onboarding2/ios';
+    })
+    .catch(function(error) {
+        // Show error message
+        document.getElementById("verificationErrorMessage").textContent = error.message;
+        document.getElementById("verificationErrorMessage").style.display = "block";
+        // Hide overlay
+    document.getElementById('overlay').style.display = 'none';
+    });
+});
+document.getElementById("guestForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    // Save secret token to local storage
+    localStorage.setItem('secret_token', "guest");
+    // Calculate an expiry date far in the future (here, one year)
+    let now = new Date();
+    let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+
+    // Create the cookie string
+    document.cookie = "logintoken=guest; expires=" + expiryDate.toUTCString() + "; path=/";
+    // Redirect to onboarding page
+    window.location.href = '/checkin-ios/api/app/onboarding2/ios';
+});
+
+</script>
+</body></html>

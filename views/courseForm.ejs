@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <%- include('../views/courseFormcss'); %>
+  </head>
+  <body>
+    <div id="hero-area" class="header-area header-eight">
+  <form action="https://<%= rootDomain %>/api/app/submit">
+    <div id="overlay" class="hidden">
+        <div class="loader"></div>
+    </div>
+    <div id="messageContainer" class="hidden"></div>
+    <br>
+      <h3>Submit CheckOut code <img style="float: right;" src="/tick-white.png" height="35px" alt="">
+      </h3>
+      <label for="md">Module:</label>
+        <div id="moduleSelection">
+          <%- moduleOptionsHTML %>
+        </div>
+        <input type="hidden" name="md" id="md" required>
+      <input type="hidden" name="tk" value="<%= randomString %>">
+      <br>
+      <label for="grp">Group Number:</label>
+        <div id="groupSelection">
+            <!-- Add 'selected' class to pre select -->
+            <div class="groupOption" data-value="Lecture">Lecture</div>
+            <div class="groupOption" data-value="1">1</div>
+            <div class="groupOption" data-value="2">2</div>
+            <div class="groupOption" data-value="3">3</div>
+            <div class="groupOption" data-value="4">4</div>
+            <div class="groupOption" data-value="5">5</div>
+            <div class="groupOption" data-value="6">6</div>
+        </div>
+        <input type="hidden" name="grp" id="grp" required>
+      <br>
+      <label for="chc">Check-out Code:</label>
+      <input type="tel" style="letter-spacing: 5px;" name="chc" id="chc" pattern="\d{6}" maxlength="6" oninput="validateInput(this)" required>
+      <!-- <div class="digit-container">
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+    </div> -->
+    <input type="hidden" name="inst" value="<%= inst %>">
+    <input type="hidden" name="crs" value="<%= crs %>">
+    <input type="hidden" name="yr" value="<%= yr %>">
+      <!-- <input type="tel" style="letter-spacing: 5px;" name="chc" id="chc" pattern="\d{6}" maxlength="6" oninput="validateInput(this)" required> -->
+      <br><br>
+      <input style="font-weight: bold;" type="submit" value="SUBMIT">
+      <br><br>
+      <p class="footertext"><%= code %><br><a class="footertext" target="_parent" style="color: #AFAFAF;" href="/api/app/onboarding">Change course</a></p>
+    </form>
+</div>
+    <!-- <script>document.getElementById("chc").focus()</script> -->
+    <script>
+    //   function validateInput(input) {
+    //     // Allow only numbers
+    //     input.value = input.value.replace(/\D/g, '');
+  
+    //     // Limit to 6 digits
+    //     if (input.value.length > 6) {
+    //       input.value = input.value.slice(0, 6);
+    //     }
+    //   }
+  
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('myForm');
+  var inputs = document.getElementsByClassName('digit-input');
+  
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('input', function() {
+      var index = Array.prototype.indexOf.call(inputs, this);
+      
+      // Allow only numbers
+      this.value = this.value.replace(/\D/g, '');
+      
+      if (this.value.length === 1) {
+        if (index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      }
+    });
+    
+    inputs[i].addEventListener('keydown', function(e) {
+      var index = Array.prototype.indexOf.call(inputs, this);
+      
+      if (e.key === 'Backspace' && index > 0 && this.value.length === 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  }
+})
+
+      function setupSelectableOptions(className, inputId) {
+    document.querySelectorAll('.' + className).forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.' + className).forEach(div => {
+                div.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            document.getElementById(inputId).value = this.getAttribute('data-value');
+        });
+    });
+}
+
+setupSelectableOptions('moduleOption', 'md');
+setupSelectableOptions('groupOption', 'grp');
+
+function showMessage(message, type) {
+    var messageContainer = document.getElementById('messageContainer');
+    messageContainer.innerHTML = message;
+    messageContainer.className = ''; // Clear previous classes
+    messageContainer.classList.add(type); // Add new class for message type
+    messageContainer.style.display = 'block'; // Show the message container
+}
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    var inputs = document.getElementsByClassName('digit-input');
+    e.preventDefault();
+
+    // Validation for module selection
+    var selectedModule = document.getElementById('md').value;
+    if (!selectedModule) {
+        showMessage('Please select a module before submitting.', 'message-error');
+        return;
+    }
+    var selectedGroup = document.getElementById('grp').value;
+    if (!selectedGroup) {
+        showMessage('Please select a group before submitting.', 'message-error');
+        return;
+    }
+
+    // Validation for checkout code length
+    // var inputs = document.getElementsByClassName('digit-input');
+    // var checkoutCode = Array.from(inputs).map(input => input.value).join('');
+
+    // if (checkoutCode.length !== 6) {
+    //     showMessage('The check-out code must be exactly 6 digits.', 'message-error');
+    //     return;
+    // }
+
+    // Delayed overlay display
+    var overlayTimeout = setTimeout(function() {
+        document.getElementById('overlay').style.display = 'block';
+    }, 500); // 500 milliseconds delay
+
+    // Construct the GET request URL with form parameters
+    var form = this;
+    //var params = Array.from(new FormData(form)).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+    var formData = new FormData(form);
+    //formData.append('chc', checkoutCode);
+
+    // Convert FormData to JSON object
+    var jsonData = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+
+    // Create request URL
+    var requestUrl = form.getAttribute('action');
+
+    fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Remove overlay
+        clearTimeout(overlayTimeout); // Clear the timeout
+        document.getElementById('overlay').style.display = 'none';
+
+        // Handle response
+        if (data.success === "true") {
+            var messageHtml = `Success! <a target="_blank" class="successlink" href="${data.next}">Show submission</a>. <a target="_blank" class="successlink" href="${data.undo}">View History</a>.`;
+            showMessage(messageHtml, 'message-success');
+        } else {
+            showMessage(data.message, 'message-error');
+        }
+    })
+    .catch(error => {
+        // Handle error
+        clearTimeout(overlayTimeout); // Clear the timeout
+        document.getElementById('overlay').style.display = 'none';
+        showMessage('An error occurred. Please try again.', 'message-error');
+    });
+});
+</script>
+
+
+    
+  </body></html>

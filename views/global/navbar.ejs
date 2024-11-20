@@ -1,0 +1,82 @@
+<% if (typeof site_notice !== 'undefined') { %>
+    <div class="navbar-wrapper">
+        <div class="navbar">
+            <p class="site-notice"><%- site_notice %></p>
+        </div>
+    </div>
+<% } %>
+<!-- <% if (typeof userData != 'undefined' && typeof userData.beta != 'undefined' && userData.beta === true) { %>
+    <div class="navbar-wrapper">
+        <div class="navbar">
+            <p class="site-notice"><b>Development site:</b> Expect some glitches. Not all features may function correctly.</p>
+        </div>
+    </div>
+<% } %> -->
+<div class="navbar-wrapper">
+<div class="navbar">
+    <div>
+        <a id="logo-link" class="logo-link" href="/">
+            <!-- <img src="<%- include('../global/icons/logo'); %>" alt="Logo" class="logo"> -->
+            <div src="" alt="Logo" class="logo" role="img" aria-label="Logo"></div>
+        </a>
+        <% if (typeof userData != 'undefined' && typeof userData.beta != 'undefined' && userData.beta === true) { %>
+            <!-- beta -->
+        <% } %>
+    </div>
+    <div class="navbar-links">
+        <a id="autocheckin-link" href="/auto">
+            <%- include('../global/icons/sparkle'); %>
+            AutoCheckin</a>
+        <a id="history-link" href="/history">
+            <%- include('../global/icons/history'); %>
+            History</a>
+        <a id="navbar-cta-button" href="#" class="cta-button">
+            <div class="menu-icon" id="menu-icon">
+                <%- include('../global/icons/menu'); %>
+            </div>
+            <% if(typeof cacheUsername != 'undefined' || typeof userData == 'undefined' || typeof userData.username == 'undefined'){%>
+                <span id="name-text">Hello, Anon</span>
+                <!-- <div class="skeleton-name"></div> -->
+            <%}else{%>
+                <span id="name-text">Hello, <%- userData.username %></span>
+            <%}%>
+            <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
+                <div class="cta-tooltip">
+                    <span id="darkTooltip" class="cta-tooltiptext">Prefer dark mode? Sign in to unlock it, plus device syncing and more exclusive features. <span id="darkTooltipClose">Hide</span></span>
+                </div>
+            <%}else{%>
+                <!-- No tooltip needed for logged in user -->
+            <%}%>
+        </a>
+    </div>
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a class="menu-item menu-item-desktop" href="/auto">
+            <%- include('../global/icons/sparkle'); %>
+            AutoCheckin
+        </a>
+        <a class="menu-item menu-item-desktop" href="/history">
+            <%- include('../global/icons/history'); %>
+            History
+        </a>
+        <a id="settings-link" class="menu-item" href="/settings">
+            <!-- removed `typeof cacheUsername != 'undefined' || ` -->
+            <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
+                Settings & <b><u>Sign in</u></b>
+            <%}else{%>
+                Settings & Account
+            <%}%>
+        </a>
+        <a class="menu-item" href="/learn-faq">
+            Learn & FAQ
+        </a>
+        <a class="menu-item" href="/terms-privacy">
+            Terms & Privacy
+        </a>
+        <% if (typeof userData != 'undefined' && typeof userData.sysop != 'undefined' && userData.sysop === true) { %>
+            <a id="manage-link" class="menu-item" href="/manage">
+                Management Tools
+            </a>
+        <% } %>
+    </div>
+</div>
+</div>

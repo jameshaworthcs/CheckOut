@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CheckOut</title>
+    <%- include('../global/head'); %>
+
+    <style>
+ul {
+    padding-inline-start: 0;
+}
+
+.sessionOption {
+    flex-grow: 1;
+    padding: 5px 10px;
+    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+    box-shadow: var(--shadow2);
+    background: var(--code-background);
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    margin-bottom: 10px;
+    padding: 8px;
+    color: var(--code-colour);
+}
+
+.sessionOption.warning {
+    background-color: #ffd5001a;
+}
+
+.sessionOptionWarningSVG {
+    height: 30px;
+    fill: #929231;
+    margin-block-start: 9px;
+    margin-right: 7px;
+    margin-left: 6px;
+}
+
+.sessionOption.verified {
+    background-color: #22ff001a;
+}
+
+.toprowdiv {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 20px;
+    margin-left: 5px;
+}
+
+.toprowclass {
+    margin-block-start: .5em;
+    margin-block-end: 0;
+}
+
+.sessionInfo {
+    color: #b3b3b3;
+}
+
+table {
+    margin-top: 10px;
+    margin-left: 15px;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+
+.code-content {
+    margin-left: 14px;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid rgb(68, 68, 68);
+    text-align: left;
+}
+
+td:last-child, th:last-child {
+    border: none;
+  }
+
+h4 {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    font-weight: 400;
+}
+
+.chc-code {
+    letter-spacing: 0.7px;
+    font-weight: 500;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.code-container {
+  /* Container to maintain consistent height */
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.code-wrapper {
+  /* Reset paragraph margin to prevent layout shifts */
+  margin: 0;
+  /* Use flexbox for horizontal alignment */
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Equal spacing between elements */
+}
+
+.code-label {
+  /* Style for the "CheckOut code:" text */
+  white-space: nowrap;
+}
+
+.chc-code {
+  /* Style for the code */
+  padding: 4px 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.share-button {
+    cursor: pointer;
+    /* padding: 5px 13px; */
+    background-color: var(--copy-code-background);
+    color: var(--copy-code-colour);
+    border: var(--copy-code-border);
+    border-radius: 4px;
+    margin-left: 5px;
+    font-weight: 550;
+    height: 27px;
+    width: fit-content;
+}
+
+.share-button.chc {
+    letter-spacing: .7px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between text and icon */
+    padding: 8px 12px;
+}
+
+.share-button.chc svg {
+  width: 14px; /* Adjust size as needed */
+  height: 14px;
+  display: block; /* Removes any default inline spacing */
+}
+
+.share-button.chc .chctick {
+  width: 70px; /* Adjust size as needed */
+  height: 35px;
+  display: block; /* Removes any default inline spacing */
+}
+
+button.share-button.verified {
+    background-color: var(--submit-success-background);
+    color: var(--submit-success-colour);
+}
+
+button.share-button.un-verified {
+    background-color: var(--submit-fail-background);
+    color: var(--submit-fail-colour);
+}
+
+.more-codes-button {
+    cursor: pointer;
+    padding: 3px 8px;
+    background-color: #253054b5;
+    color: #ffffffcf;
+    border: solid;
+    border-radius: 4px;
+    border-width: 1.5px;
+}
+
+.whitetick {
+    background-image: var(--tick-image);
+    background-repeat: no-repeat;
+    background-size: 34px;
+    float: right;
+    /* transform: translateY(-0px); */
+    height: 34px;
+    width: 34px;
+}
+
+.s-form {
+    position: relative;
+    /* max-width: 400px; */
+    margin: 0 auto;
+    /* padding: 20px; */
+    /* background-color: rgba(0, 0, 0, 0.4); */
+    border-radius: 8px;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); */
+    transition: background-color 0.5s;
+}
+
+#sessionSelection {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    vertical-align: middle;
+    border-radius: 5px;
+}
+
+.sessionOptionForm {
+    flex-grow: 1;
+    text-align: center;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+    background-color: var(--secondary-background);
+    border-radius: 5px;
+    box-shadow: var(--shadow2);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    vertical-align: middle;
+    position: relative; /* Add this line */
+}
+
+.sessionOptionForm.selected {
+    background-color: var(--secondary-selected-background);
+    border-color: var(--secondary-selected-border-colour);
+}
+
+.selectTick {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: var(--cta-background);
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: var(--cta-button-colour);
+}
+
+
+.formLabel {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Non-tibl */
+#groupSelection-NonTibl, #moduleSelection-NonTibl {
+    justify-content: space-between;
+    margin-bottom: 10px;
+    vertical-align: middle;
+}
+#groupSelection-NonTibl, #moduleSelection-NonTibl {
+    display: flex;
+}
+.groupOption-NonTibl, .moduleOption-NonTibl {
+    flex-grow: 1;
+    text-align: center;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+    background-color: var(--secondary-background);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color .3s, color .3s;
+    vertical-align: middle;
+}
+.moduleOption-NonTibl.selected, .groupOption-NonTibl.selected {
+    background-color: rgba(61, 82, 197, 0.52);
+    border-color: #007bff;
+}
+
+.chc-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    background-color: var(--secondary-background);
+    color: var(--input-text-color);
+    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+    border-radius: 4px;
+    font-size: 20px !important;
+    letter-spacing: 5px;
+    text-align: center;
+    box-shadow: var(--shadow2);
+}
+
+.chc-input:focus {
+    background-color: var(--input-focus);
+    outline: 1px solid var(--secondary-accent-colour);
+}
+
+.qr-btn {
+    float: right;
+    padding: 10px 20px;
+    padding-inline-start: .75rem;
+    padding-inline-end: .75rem;
+    background-color: var(--secondary-background);
+    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+    border-radius: 5px;
+    color: var(--subtext-colour);
+    font-size: .87rem;
+    font-weight: 550;
+    cursor: pointer;
+}
+
+.qr-svg {
+    fill: var(--subtext-colour);
+    vertical-align: middle;
+    margin-left: 5px;
+    transform: translateY(-2px);
+}
+
+/* .magicSubmit {
+    border: calc(0.05* 2rem) solid transparent;
+    position: relative;
+    color: #F3F3F3;
+    font-family: var(--normal-font), "Inter", sans-serif;
+    font-size: 1.1em;
+    border-radius: calc(0.3* 2rem);
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    background: linear-gradient(#252E54, #252E54), linear-gradient(#252E54 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)), linear-gradient(90deg, orange, yellow, green, blue, purple, pink, red);
+    background-origin: border-box;
+    background-clip: padding-box, border-box, border-box;
+    background-size: 200%;
+    animation: animate 2s infinite linear;
+}
+
+.magicSubmit:hover, .magicSubmit:hover::before {
+  animation: animate 0.5s infinite linear;
+}
+
+@keyframes animate {
+  0% {background-position: 0}
+  100% {background-position: 200%}
+} */
+
+.hidden {
+    display: none;
+}
+
+.activityModalOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    animation: fadeInActivityModel 0.1s ease-out;
+}
+
+.activityModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--page-background);
+    color: var(--text-colour);
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    overflow: hidden;
+    animation: fadeInActivityModel 0.3s ease-out;
+}
+
+.activityModal-content {
+    padding: 20px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.activityModal-body {
+    margin-top: 20px;
+}
+
+.activityModal-esc {
+    font-size: small !important;
+    opacity: .7;
+    transform: translateX(-11px);
+}
+
+.activityModal-table {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 20px;
+}
+
+/* some css for the verification modal */
+
+.verification-label {
+    align-self: center;
+    font-weight: bold;
+}
+
+.verification-status {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    width: fit-content;
+    font-weight: 550;
+}
+
+.verification-explanation {
+    grid-column: 2; /* Align explanation text under the status */
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.activityAPI-ref {
+    opacity: .7;
+    font-size: smaller;
+}
+
+.activity-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 17px;
+}
+
+.activity-button {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    /* border: 1px solid #b3b3b3; */
+    border: none;
+    color: #b3b3b3;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.activity-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.activity-button:hover {
+    background-color: #1a1a2e;
+    color: white;
+}
+
+/* Spinner CSS */
+.spinner {
+    border: 4px solid #ffffff00;
+    border-top: 4px solid #003cff;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Spin Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Maintain button size */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+@keyframes fadeInActivityModel {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+    .activityModal {
+        width: 90%;
+        height: auto;
+    }
+    .activityModel-esc {
+        display: none;
+    }
+}
+
+.code-box-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.code-refresh-container {
+    transform: translate(11px, -11px);
+    opacity: 0.7;
+    margin-block-end: -100px;
+}
+
+.code-refresh-loader {
+    width: 48px;
+    height: 48px;
+    scale: 0.5;
+    display: none;
+    position: relative;
+    border: 6px solid;
+    border-color:var(--refresh-background1) #0000 var(--refresh-background2) #0000;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: 1s code-refresh-rotate linear infinite;
+ }
+ .code-refresh-loader:before , .code-refresh-loader:after{
+    content: '';
+    top: 0;
+    left: 0;
+    position: absolute;
+    border: 10px solid transparent;
+    border-bottom-color:var(--refresh-background2);
+    transform: translate(-13px, 17px) rotate(-45deg);
+  }
+ .code-refresh-loader:after {
+    border-color: var(--refresh-background1) #0000 #0000 #0000 ;
+    transform: translate(29px, 0px) rotate(-42deg);
+  }
+   @keyframes code-refresh-rotate {
+    100%{    transform: rotate(360deg)}
+  }
+
+.upnext-fieldset {
+    position: relative;
+    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+    background: var(--code-background);
+    padding: 10px;
+    box-shadow: var(--shadow2);
+    border-radius: 5px;
+    margin-top: 10px;
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+.newfeature-legend {
+    color: var(--subtext-colour);
+}
+
+.autoSplashBackground {
+    width: 100%;
+    background: linear-gradient(90deg, #34364c 25%, #3b3e5e 50%, #34364c 75%);
+    background-size: 200% 100%;
+    animation: loading .6s infinite;
+    border-radius: 4px;
+}
+
+.auto-loading-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-152%);
+    background: linear-gradient(45deg, #ff007f, #ffae00, #5dd1ff, #7c4dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 2.1em;
+    text-align: center;
+    width: max-content;
+}
+
+/* For confetti on submit */
+@keyframes bang {
+  from {
+    transform: translate3d(0,0,0);
+    opacity: 1;
+  }
+}
+
+.confetti {
+    position: absolute;
+    display: block;
+    bottom: 14px;
+    width: 3px;
+    height: 8px;
+    background: red;
+    opacity: 0;
+  }
+
+.submit-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.auto-checkin-message {
+    margin-left: 15px !important;
+}
+
+
+
+    </style>
+
+
+</head>
+<body> <!-- data-instant-intensity="viewport-all"> -->
+    <%- include('../global/navbar'); %>
+
+    <div class="main-content">
+        <div class="activityModalOverlay" id="activityModalOverlay"></div>
+        <div class="left-column">
+            <div class="pre-box">
+                <h1>Welcome to CheckOut</h1>
+                <p class="subtext">Discover and share CheckOut codes easily.</p>
+                <a class="promo-link" href="/auto">Learn about AutoCheckin</a><svg class="promo-arrow" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.47 4.22c-.3.3-.3.77 0 1.06L15.19 12l-6.72 6.72a.75.75 0 1 0 1.06 1.06l7.25-7.25c.3-.3.3-.77 0-1.06L9.53 4.22a.75.75 0 0 0-1.06 0Z"></path></svg>
+            </div>      
+            <div class="box-container">
+                <div class="box">
+                    <h2>Submit CheckOut code <div class="whitetick" role="img" alt="White tick"></div></h2>
+                    <div class="submit-skeleton">
+                        <div class="skeleton skeleton-header"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-half-box"></div>
+                    </div>
+                    <div id="submit-form" class="submit-form hidden">
+                        <p>Something went wrong.</p>
+                    </div>
+                    <noscript>JavaScript is needed to use this website.</noscript>
+                </div>
+                <div class="box">
+                    <div class="code-box-header">
+                        <h2>Current classes</h2>
+                        <div class="code-refresh-container">
+                            <span id="code-refresh-loader" class="code-refresh-loader"></span>
+                        </div>
+                    </div>
+                    <div class="classes-skeleton">
+                        <div class="skeleton skeleton-header"></div>
+                    </div>
+                    <div id="classes-content" class="classes-content">
+                        <p>Something went wrong.</p>
+                    </div>
+                    <noscript>JavaScript is needed to use this website.</noscript>
+                </div>
+            </div>
+        </div>
+        <div class="right-column">
+            
+        </div>
+    </div>
+
+    
+    <!-- <script src="/static/js/home-v1.1.js"></script> -->
+    <%- include('../home/home-js'); %>
+    
+</body>
+</html>

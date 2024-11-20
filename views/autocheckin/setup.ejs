@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../global/head'); %>
+        <title>Welcome to AutoCheckin</title>
+        <style>
+            /* :root {
+        --font: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    } */
+
+            /* html {
+        scrollbar-color: #222744 #0A0520;
+    } */
+
+            body {
+                margin: 0 auto;
+                /* font-family: var(--font);
+        background-color: #0A0520; */
+                /* color: white; */
+                display: flex;
+                flex-direction: column;
+                /* min-height: 100vh; */
+                width: 100%;
+                max-width: 500px;
+            }
+
+            /* button {
+        font-family: var(--font);
+    } */
+
+            .header {
+                /* background-color: var(--page-background); */
+                padding: 20px;
+                text-align: center;
+                font-size: 21px;
+                border-bottom: 0;
+                /* Remove default border */
+            }
+
+            .header-content {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                /* transform: translate(13px, -4px); */
+                margin-top: 10px;
+            }
+
+            .header-content svg {
+                margin-left: -1px;
+                height: 25px;
+                transform: translate(0, -7px);
+                fill: var(--text-colour);
+            }
+
+            .content {
+                padding: 20px;
+                overflow-y: auto;
+                box-sizing: border-box;
+            }
+
+            .sub-text {
+                text-align: center;
+                line-height: 15px;
+                margin-block-start: 0;
+            }
+
+            .footer {
+                background-color: var(--page-background);
+                padding: 10px 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            }
+
+            #errorText {
+                color: rgb(255, 80, 80);
+                margin-block-start: 0;
+                margin-block-end: 0;
+            }
+
+            .termsText {
+                text-align: center;
+                margin-bottom: 10px;
+                font-size: 14px;
+                color: #ccc;
+            }
+
+            .tosLink,
+            .tosLink:active,
+            .tosLink:visited {
+                /* color: #58a6ff; */
+                text-decoration: none;
+            }
+
+            #continue-btn {
+                background-color: var(--action-colour);
+                color: var(--cta-button-colour);
+                border: none;
+                padding: 15px;
+                font-size: .87rem;
+                font-weight: 550;
+                cursor: pointer;
+                width: 100%;
+                box-sizing: border-box;
+                border-radius: 5px;
+                /* Rounded button */
+            }
+
+            #continue-btn:hover {
+                background-color: var(--action-highlight-colour);
+            }
+
+            #continue-btn.grey,
+            #continue-btn.grey:hover {
+                background-color: lightgrey;
+                cursor: not-allowed;
+            }
+
+
+            #loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                visibility: hidden;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+
+            #loading-content {
+                text-align: center;
+                position: relative;
+            }
+
+            #loading-svg {
+                opacity: 1;
+            }
+
+            .loader {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3498db;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                animation: spin 2s linear infinite;
+                position: absolute;
+                top: calc(100% + 20px);
+                left: 50%;
+                margin: 5px 0 0 -20px;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+
+            /* Promo container with colorful gradient border like btn-55 */
+            .promo-container {
+                background: linear-gradient(145deg, #947e57, #00bdff);
+                border-radius: 19px;
+                box-sizing: border-box;
+                display: block;
+                overflow: hidden;
+                position: relative;
+                padding: 1.8rem 5rem;
+                transition: transform 0.3s ease;
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                height: 527px;
+            }
+
+            /* Inner promo div to hold the content */
+            .promo-inner {
+                background: #1e293b;
+                border-radius: 19px;
+                color: #fff;
+                position: absolute;
+                inset: 1.5px;
+                /* Inset to create the same border effect */
+                padding: 10px;
+                transition: background 0.3s;
+            }
+
+            /* Header styling with stacked text */
+            .promo-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .intro-text {
+                color: #ffae00;
+                font-size: 1.5em;
+                text-align: left;
+                /* width: 100%;
+  padding-left: 10px; */
+                margin-left: -200px;
+                margin-top: 10px;
+            }
+
+            .autocheckin-text {
+                background: linear-gradient(45deg, #ff007f, #ffae00, #5dd1ff, #7c4dff);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: bold;
+                font-size: 2.1em;
+                text-align: center;
+                width: 100%;
+                /* padding-right: 10px; */
+            }
+
+            /* Content section with feature bubbles styled as buttons */
+            .promo-content {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            .styled-list {
+    list-style-type: none; /* Remove default numbering */
+    padding-left: 0; /* Remove default padding */
+    counter-reset: list-counter; /* Reset custom counter */
+}
+
+.styled-list li {
+    counter-increment: list-counter; /* Increment custom counter */
+    position: relative;
+    margin-bottom: 20px; /* Add space between instructions */
+    padding-left: 40px; /* Space for the circle number */
+}
+
+.styled-list li::before {
+    content: counter(list-counter);
+    /* Removed counter-reset from here */
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    border: 1.7px solid #dedede70; /* Hollow circle with border */
+    color: #dbdbdb; /* Text color */
+    text-align: center;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: transparent; /* Make the circle hollow */
+}
+
+.webstore-img {
+    height: 50px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+
+
+
+
+
+            /* Add [ENTER] text and adjust styles for desktop */
+            @media (min-width: 601px) {
+                #continue-btn:not(.grey)::after {
+                    content: " [ENTER]";
+                    font-size: 0.87rem;
+                    font-weight: 550;
+                    color: #0A0520;
+                }
+
+
+                .footer {
+                    background-color: transparent;
+                }
+            }
+
+            @media (max-width: 600px) {
+                .content {
+                    flex: 1;
+                    max-width: 100%;
+                    padding: 10px;
+                }
+
+                #continue-btn {
+                    max-width: 100%;
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <div id="loading-overlay">
+        <div id="loading-content">
+            <svg id="loading-svg" width="100" height="100">
+                <defs>
+                    <clipPath id="reveal-clip">
+                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+                    </clipPath>
+                </defs>
+                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
+            </svg>
+            <div id="loading-spinner" class="loader" style="display: none;"></div>
+        </div>
+    </div>
+    <div class="header">
+        <div class="header-content">
+            <span>Let's setup <b>AutoCheckin</b></span>
+            <%- include('../global/icons/sparkle'); %>
+        </div>
+    </div>
+    <div class="content">
+        <p class="sub-text"><b>Congratulations, you've been accepted.</b><br><br><span class="subtext">This won't take long.</span></p>
+        <div class="promo-container">
+            <div class="promo-inner">
+                Instructions
+                <ol class="styled-list">
+                    <li>Use a laptop or PC with a Chrome-based browser:<br><small>You'll need to be using a laptop or PC with a browser like Google Chrome, Microsoft Edge, or Brave.</small></li>
+                    <li style="margin-bottom: 5px;">Install the extension: <br><small>Click the link below to install the extension from the Chrome Web Store.</small></li>
+                    <a target="_blank" href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"><img class="webstore-img" src="/static/images/webstore.svg" alt="Chrome webstore link" srcset=""></a>
+                    <li>Sign into checkin: <br><small>After installing the extension, open a new tab and navigate to <a target="_blank" href="https://checkin.york.ac.uk/">checkin.york.ac.uk</a><br>Sign in, and you should land on the 'Self Registration' page.</small></li>
+                    <li>Run the AutoCheckin extension: <br><small>On the 'Self Registration' page, click the AutoCheckin extension icon you just installed.</small></li>
+                </ol>
+            </div>
+            
+        </div>
+
+
+
+
+
+
+    </div>
+    <div class="footer">
+            <p id="termsText" class="termsText">
+                Need help? <a class="tosLink" href="mailto:checkout@jemedia.xyz">Get in touch</a>
+                    <br><br>
+                    <a class="tosLink" href="/">return to CheckOut</a>
+            </p>
+    </div>
+
+    <script>
+        function adjustFooterPosition() {
+            const content = document.querySelector('.content');
+            const footer = document.querySelector('.footer');
+            const contentHeight = content.scrollHeight;
+            const viewportHeight = window.innerHeight;
+            const headerHeight = document.querySelector('.header').offsetHeight;
+            const footerHeight = footer.offsetHeight;
+
+            if (contentHeight + headerHeight + footerHeight > viewportHeight) {
+                footer.style.position = 'sticky';
+                footer.style.bottom = '0';
+                footer.style.marginTop = 'auto';
+            } else {
+                footer.style.position = 'relative';
+                footer.style.bottom = 'auto';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', adjustFooterPosition);
+        window.addEventListener('resize', adjustFooterPosition);
+
+
+    </script>
+</body>
+
+</html>

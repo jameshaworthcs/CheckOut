@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: 
+Disallow: /manage
+Disallow: /auto
+Disallow: /account

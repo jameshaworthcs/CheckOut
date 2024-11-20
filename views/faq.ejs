@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Learn & FAQ - CheckOut</title>
+    <meta name="description" content="Frequently asked questions (FAQ) for CheckOut. Learn about CheckOut's processes and how to use the site.">
+    <%- include('./global/head'); %>
+</head>
+
+<body>
+    <%- include('./global/navbar'); %>
+
+        <style>
+            .homecontent {
+                font-size: 20px;
+            }
+
+            @media (max-width: 768px) {
+                .homecontent {
+                    padding: 20px;
+                }
+            }
+
+            @media (min-width: 769px) {
+                .homecontent {
+                    width: 70%;
+                    margin: 0 auto;
+                    /* Center the body horizontally */
+                    padding: 20px;
+                    /* Equal room left and right */
+                }
+            }
+
+            a {
+                text-decoration: underline;
+                color: #66A4E1;
+            }
+        </style>
+
+        <div class="homecontent">
+            <h1>Frequently asked questions</h1>
+            <p>
+            <ul>
+                <li>How can I spot a verified code?<br>
+                    <small>Codes with the <%- include('../views/repeatVerified'); %> have been verified through
+                            AutoCheckin or by a moderator. Submitters with high-repuation scores may also receive
+                            verification.</small>
+                </li><br>
+
+                <li>What is the rate limit?<br>
+                    <small>A unique IP/account/device can make <%= ipRateLimit %> submission(s) / per class / per
+                            day.</small>
+                </li><br>
+
+                <li>What is a device ID?<br>
+                    <small>
+                        Displayed in the footer of the <a class="sub-table-link" href="/account">account and
+                            settings</a> page, your
+                        device ID is linked to the cookie that CheckOut stores in your browser or mobile device. It
+                        enables reputation building and account functionality.
+                    </small>
+                </li><br>
+
+
+                <li>Is an account required to use CheckOut?<br>
+                    <small>Currently authentication is set to <i>
+                            <%= authReq %>
+                        </i>. If set to true, an account is required for all pages on the site and mobile app. Usually,
+                        an account is not needed to access codes, however an account-only restriction may be set for
+                        submissions.</small>
+                </li><br>
+
+                <li>How do I submit a check-in code?<br>
+                    <small>Visit the <a class="sub-table-link" href="/">homepage</a>, select the module and session
+                        type. Then enter the 6 digit code and press submit. Easy right?</small>
+                </li><br>
+
+                <li>What modules/classes does the site support?<br>
+                    <small>Contact your institution representative for access.</small>
+                </li><br>
+
+                <li>My code has not appeared on the site?<br>
+                    <small>While quality control checks and caching is taking place, your code may take up to a minute
+                        to appear on the site. This could take longer in peak times.</small>
+
+                </li><br>
+
+                <li>The Infrastructure Behind CheckOut<br>
+                    <small>At CheckOut, we prioritize traditional and robust web-server applications. Our infrastructure
+                        is powered by a classic stack comprising nginx, Varnish, and Node.js. For enhanced security, we
+                        have implemented a non-cloudflare security proxy to protect against DDoS attacks. We
+                        intentionally avoid using modern technologies like serverless solutions, Next.js, or React,
+                        focusing instead on proven, reliable methods to ensure the stability and security of our
+                        services.</small>
+
+                </li><br>
+
+                <li>You have more questions?<br>
+                    <small>
+                        <!-- <a class="sub-table-link" href="mailto:9wghu78y@anonaddy.me">9wghu78y@anonaddy.me</a></small> -->
+                        <a class="sub-table-link" href="mailto:checkout@jemedia.xyz">CheckOut@jemedia.xyz</a></small>
+                </li><br>
+                <br><br>
+
+            </ul>
+            This site has a <a class="sub-table-link" href="/terms">terms of service and disclaimer</a>.
+            </p>
+        </div>
+</body>
+</html>

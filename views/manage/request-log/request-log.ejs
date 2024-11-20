@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../global/head'); %>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <title>Request Log - CheckOut</title>
+
+        <!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+<!-- jQuery and DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<style>
+
+.sorting_1 {
+        background-color: #2a2a2a !important;
+        color: var(--text-colour) !important;
+    }
+
+    table.dataTable thead th {
+        background-color: #1f1f1f;
+        color: #ffffff;
+    }
+
+    table.dataTable tbody td {
+        background-color: #2a2a2a;
+        color: #ffffff;
+    }
+
+    table.dataTable {
+        border: 1px solid #333333;
+    }
+
+    table.dataTable tr:hover {
+        background-color: #333333;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #ffffff !important;
+        background-color: #333333 !important;
+        border: none;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background-color: #1f1f1f !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        background-color: #1f1f1f;
+        color: #ffffff;
+        border: 1px solid #333333;
+    }
+
+    .custom-select {
+        background-color: #1f1f1f;
+        color: #ffffff;
+        border: 1px solid #333333;
+    }
+</style>
+
+</head>
+
+<body>
+
+    <%- include('../../global/navbar'); %>
+
+    <div class="filter-container">
+        <form id="filterForm">
+            <label for="startTime">Start Time:</label>
+            <input type="datetime-local" id="startTime" name="startTime">
+            
+            <label for="endTime">End Time:</label>
+            <input type="datetime-local" id="endTime" name="endTime">
+            
+            <label for="ip">IP Address:</label>
+            <input type="text" id="ip" name="ip">
+            
+            <label for="method">HTTP Method:</label>
+            <input type="text" id="method" name="method">
+            
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username">
+            
+            <label for="path">Path:</label>
+            <input type="text" id="path" name="path">
+            
+            <label for="device_id">Device ID:</label>
+            <input type="text" id="device_id" name="device_id">
+            
+            <label for="limit">Number of Logs:</label>
+            <input type="number" id="limit" name="limit" value="100" min="1">
+            
+            <button type="button" id="applyFilters">Apply Filters</button>
+        </form>
+    </div>
+    
+    <table id="logsTable" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Path</th>
+                <th>IP</th>
+                <th>Username</th>
+                <th>Method</th>
+                <th>Spoofed IP</th>
+                <th>Host</th>
+                <th>User ID</th>
+                <th>Device ID</th>
+                <th>User Agent</th>
+                <th>Referer</th>
+                <th>Post Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically populated here -->
+        </tbody>
+    </table>
+    
+    
+
+   <script>
+    $(document).ready(function() {
+    let table = $('#logsTable').DataTable({
+        "ajax": {
+            "url": "/manage/api/request-log/logs",
+            "dataSrc": "",
+            "data": function(d) {
+                return $('#filterForm').serializeArray().reduce((obj, item) => {
+                    if (item.value) obj[item.name] = item.value;
+                    return obj;
+                }, {});
+            }
+        },
+        "columns": [
+            { "data": "timestamp", "priority": 1 },
+            { "data": "path", "priority": 2 },
+            { "data": "ip", "priority": 3 },
+            { "data": "username", "priority": 4 },
+            { "data": "method", "priority": 5 },
+            { "data": "spoofed_ip", "priority": 6 },
+            { "data": "host", "priority": 7 },
+            { "data": "user_id", "priority": 8 },
+            { "data": "device_id", "priority": 9 },
+            { "data": "user_agent", "priority": 10 },
+            { "data": "referer", "priority": 11 },
+            { "data": "post_data", "priority": 12 }
+        ],
+        "order": [[0, 'desc']],
+        "pageLength": 100, // Initial value, but this will be overridden by the limit input
+        "responsive": {
+            details: {
+                type: 'column',
+                target: -1
+            }
+        },
+        "dom": '<"top"f>rt<"bottom"lp><"clear">',
+        "initComplete": function() {
+            $('#applyFilters').on('click', function() {
+                table.ajax.reload();
+            });
+
+            $('#limit').on('change', function() {
+                table.ajax.reload();
+            });
+        }
+    });
+});
+
+   </script>
+    
+            
+</body>
+
+</html>

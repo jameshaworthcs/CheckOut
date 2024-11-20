@@ -1,0 +1,311 @@
+<script>
+// JS Global Helpers
+
+///////////////////
+// Dropdown menu //
+///////////////////
+
+document.addEventListener('DOMContentLoaded', function() {
+    const menuIcon = document.getElementById('menu-icon');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const ctaButton = document.getElementById('navbar-cta-button');
+
+    function createSVG(isOpen) {
+        const svgProps = {
+            width: "18px",
+            height: "18px",
+            viewBox: "0 0 23 21",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg"
+        };
+
+        const paths = {
+            open: [
+                { d: "M4 18L20 18", stroke: "#000000", strokeWidth: "2.5", strokeLinecap: "round" },
+                { d: "M4 12L20 12", stroke: "#000000", strokeWidth: "2.5", strokeLinecap: "round" },
+                { d: "M4 6L20 6", stroke: "#000000", strokeWidth: "2.5", strokeLinecap: "round" }
+            ],
+            close: [
+                { x1: "4", y1: "4", x2: "20", y2: "20", stroke: "#000000", strokeWidth: "2.5", strokeLinecap: "round" },
+                { x1: "4", y1: "20", x2: "20", y2: "4", stroke: "#000000", strokeWidth: "2.5", strokeLinecap: "round" }
+            ]
+        };
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        Object.keys(svgProps).forEach(key => svg.setAttribute(key, svgProps[key]));
+
+        const elements = isOpen ? paths.open : paths.close;
+        elements.forEach(attr => {
+            const el = document.createElementNS("http://www.w3.org/2000/svg", isOpen ? "path" : "line");
+            Object.keys(attr).forEach(key => {
+                const attrName = key === 'strokeWidth' ? 'stroke-width' : key === 'strokeLinecap' ? 'stroke-linecap' : key;
+                el.setAttribute(attrName, attr[key]);
+            });
+            svg.appendChild(el);
+        });
+
+        svg.classList.add('menu-icon-svg');
+        return svg;
+    }
+
+    function updateDropdownPosition() {
+        const buttonRect = ctaButton.getBoundingClientRect();
+        const dropdownWidth = dropdownMenu.offsetWidth;
+        const leftPosition = buttonRect.left + (buttonRect.width / 2) - (dropdownWidth / 2);
+        dropdownMenu.style.left = `${leftPosition}px`;
+        dropdownMenu.style.top = `${buttonRect.bottom + 11}px`; // Position it directly below the button
+    }
+
+    if (ctaButton) {
+        ctaButton.addEventListener('click', function() {
+            const isOpen = dropdownMenu.style.display === 'flex';
+            dropdownMenu.style.display = isOpen ? 'none' : 'flex';
+            menuIcon.innerHTML = '';
+            menuIcon.appendChild(createSVG(isOpen));
+
+            dropdownMenu.style.animation = isOpen ? 'slideUp 0.5s forwards' : 'slideDown 0.5s forwards';
+
+            if (!isOpen) {
+                dropdownMenu.style.display = 'flex';
+                menuItems.forEach(item => item.style.display = 'block');
+                updateDropdownPosition();
+            }
+        });
+    }
+
+    if (dropdownMenu) {
+        dropdownMenu.addEventListener('animationend', function(event) {
+            if (event.animationName === 'slideUp') {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        // Listen for window resize and scroll to adjust dropdown position
+        window.addEventListener('resize', function() {
+            if (dropdownMenu.style.display === 'flex') {
+                updateDropdownPosition();
+            }
+        });
+
+        window.addEventListener('scroll', function() {
+            if (dropdownMenu.style.display === 'flex') {
+                updateDropdownPosition();
+            }
+        });
+    }
+});
+
+
+
+////////////////////////
+// Keyboard Shortcuts //
+////////////////////////
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Array of shortcuts
+    const shortcuts = [
+        { key: "q", elementId: "navbar-cta-button" },
+        { key: "i", elementId: "logo-link" },
+        { key: "m", elementId: "manage-link" },
+        { key: "s", elementId: "submit-button" },
+        { key: "/", elementId: "settings-link" },
+        { key: "h", elementId: "history-link" },
+        { key: "a", elementId: "autocheckin-link" }
+    ];
+
+    // Function to handle key press
+    function handleKeyPress(event) {
+        const key = event.key;
+        const shortcut = shortcuts.find(s => s.key === key);
+
+        // Check if the focused element is an input, textarea, or contenteditable element
+        const activeElement = document.activeElement;
+        const isTextInput = activeElement.tagName === 'INPUT' ||
+                            activeElement.tagName === 'TEXTAREA' ||
+                            activeElement.isContentEditable;
+
+        if (!isTextInput && shortcut) {
+            const element = document.getElementById(shortcut.elementId);
+            if (element) {
+                element.click();
+            }
+        }
+    }
+
+    // Add event listener for keydown
+    document.addEventListener("keydown", handleKeyPress);
+});
+
+/////////////////////////
+// Notification banner //
+/////////////////////////
+
+function displayNotice(message, type = 'success', headerText = '', duration = 5000) {
+    let bannerTimeout;
+    // Remove any existing notification banner first
+    const existingBanner = document.getElementById('notification-banner');
+    if (existingBanner) {
+        existingBanner.remove();
+        if (typeof bannerTimeout != undefined) {
+            clearTimeout(bannerTimeout)
+        }
+    }
+
+    // Define colors based on type
+    const colors = {
+        success: '#4CAF50', // Green
+        warning: '#FFC107', // Yellow
+        error: '#F44336'    // Red
+    };
+
+    const defaultHeaders = {
+        success: 'Success',
+        warning: 'Warning',
+        error: 'Error'
+    };
+
+    // Set the header text if not provided
+    headerText = headerText || defaultHeaders[type];
+
+    // Create banner div
+    const banner = document.createElement('div');
+    banner.id = 'notification-banner';
+    banner.style.position = 'fixed';
+    banner.style.top = '20px';
+    banner.style.right = '20px';
+    banner.style.width = '450px';
+    banner.style.maxWidth = '90%';
+    banner.style.borderRadius = '8px';
+    banner.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+    banner.style.zIndex = '1000';
+    banner.style.overflow = 'hidden';
+    banner.style.backgroundColor = '#333';
+    banner.style.color = '#fff';
+    banner.style.border = `3px solid ${colors[type]}`;
+
+    // Create header
+    const header = document.createElement('div');
+    header.style.backgroundColor = colors[type];
+    header.style.color = '#fff';
+    header.style.padding = '5px 15px';
+    header.style.fontSize = '16px';
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    
+    const headerTextElement = document.createElement('span');
+    headerTextElement.textContent = headerText;
+
+    const closeButton = document.createElement('span');
+    closeButton.textContent = '×';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '32px';
+    closeButton.style.lineHeight = '16px';
+    closeButton.style.transform = 'translate(7px, -4px)';
+    closeButton.onclick = () => hideNotice();
+
+    header.appendChild(headerTextElement);
+    header.appendChild(closeButton);
+
+    // Create message area
+    const messageArea = document.createElement('div');
+    messageArea.innerHTML = message;
+    messageArea.style.padding = '15px';
+    messageArea.style.fontSize = '14px';
+    messageArea.style.backgroundColor = '#444';
+
+    // Append header and message to banner
+    banner.appendChild(header);
+    banner.appendChild(messageArea);
+
+    // Append banner to body
+    document.body.appendChild(banner);
+
+    // Fade in the banner
+    banner.style.opacity = '0';
+    banner.style.transition = 'opacity 0.5s ease-in-out';
+    setTimeout(() => {
+        banner.style.opacity = '1';
+    }, 10);
+
+    // Automatically hide the banner after the specified duration (if not 0)
+    if (duration > 0) {
+        bannerTimeout = setTimeout(() => {
+            hideNotice();
+        }, duration);
+    }
+}
+
+function hideNotice() {
+    const banner = document.getElementById('notification-banner');
+    if (banner) {
+        // Fade out the banner
+        banner.style.opacity = '0';
+        setTimeout(() => {
+            if (banner) banner.remove();
+        }, 500); // Match this to the fade-out duration
+    }
+}
+
+/////////////////////////
+// Dark mode tooltip ////
+/////////////////////////
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltip = document.getElementById('darkTooltip');
+    
+    if (tooltip) {
+        // Check if user prefers dark mode
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Check if tooltip has been shown before
+        const tooltipShown = localStorage.getItem('darkTooltip') === '1';
+        
+        if (prefersDarkMode && !tooltipShown) {
+            // Make tooltip visible and add class for fade in
+            tooltip.style.visibility = 'visible';
+            tooltip.classList.add('visible');
+        }
+
+        // Add click handler for close button
+        const closeButton = document.getElementById('darkTooltipClose');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(event) {
+                // Prevent event from bubbling up to parent elements
+                event.stopPropagation();
+                
+                // Hide tooltip
+                tooltip.style.visibility = 'hidden';
+                tooltip.classList.remove('visible');
+                
+                // Mark tooltip as shown in localStorage
+                localStorage.setItem('darkTooltip', '1');
+            });
+        }
+    }
+});
+
+
+
+
+// No longer needed as account always results in dropdown
+
+// function updateLinkHref() {
+//     var link = document.querySelector('.cta-button');
+//     if (window.innerWidth <= 768) {
+//         link.setAttribute('href', '#');
+//     } else {
+//         link.setAttribute('href', '/account');
+//     }
+// }
+
+// // Update link on load
+// window.addEventListener('load', updateLinkHref);
+
+// // Update link on window resize
+// window.addEventListener('resize', updateLinkHref);
+
+
+
+</script>

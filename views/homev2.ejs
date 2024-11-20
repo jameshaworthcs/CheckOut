@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <style>
+    body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 1000;
+  }
+  
+  .overlay-content {
+    max-width: 80%;
+  }
+  
+  .overlay-instructions {
+    margin-top: 20px;
+  }
+  
+  .dismiss-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    color: #bebebe; /* Set the text color */
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: none;
+    outline: none; /* Remove the default focus outline */
+  }
+  
+  .dismiss-button:hover {
+    text-decoration: underline; /* Add underline on hover if desired */
+  }
+  
+  </style>
+  <script>if(!(localStorage.getItem('inst'))&&!(localStorage.getItem('yr'))&&!(localStorage.getItem('crs'))) {
+
+    // Extract query parameters
+    var queryParams = window.location.search;
+
+    // Construct the redirect URL by appending the query parameters
+    var redirectUrl = '/api/app/on/yrk' + queryParams;
+
+    // Redirect to the new URL
+    window.location.href = redirectUrl;
+  }
+  
+
+  // iOS testflight is in ejs now-
+
+  </script>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="View & Submit Check-out codes"><meta property="og:url" content="https://<%- rootDomain %>/"><meta property="og:type" content="website"><meta property="og:title" content="CheckOut"><meta property="og:description" content="View & Submit Check-out codes"><meta property="og:image" content="https://<%- rootDomain %>/1.3-min.png"><meta name="twitter:card" content="summary_large_image"><meta property="twitter:domain" content="<%- rootDomain %>"><meta property="twitter:url" content="https://<%- rootDomain %>/"><meta name="twitter:title" content="CheckOut"><meta name="twitter:description" content="View & Submit Check-out codes"><meta name="twitter:image" content="https://<%- rootDomain %>/1.3-min.png">
+  
+  <!--====== Title ======-->
+  <title>CheckOut</title>
+
+  <!--====== Favicon Icon ======-->
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+  <!--====== Bootstrap css ======-->
+  <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
+
+  <!--====== Line Icons css ======-->
+  <link rel="stylesheet" href="/assets/css/lineicons.css" />
+
+  <!--====== Tiny Slider css ======-->
+  <link rel="stylesheet" href="/assets/css/tiny-slider.css" />
+
+  <!--====== gLightBox css ======-->
+  <link rel="stylesheet" href="/assets/css/glightbox.min.css" />
+
+  <!-- <link rel="stylesheet" href="/style.1.1.1.css" /> -->
+  <%- include('../views/home-tmpcss'); %>
+  <script defer data-domain="<%- rootDomain %>" src="https://t.ldn.jemedia.xyz/js/script.js"></script>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "l9odme8lu0");
+</script>
+</head>
+
+<%if (redirectNotice == 1) { %>
+
+<%- include('../views/notices/checkout-redirect'); %>
+
+<% } %>
+
+<body>
+
+  <!--====== NAVBAR NINE PART START ======-->
+
+  <section class="navbar-area navbar-nine">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <nav class="navbar navbar-expand-lg">
+            <a class="navbar-brand" href="/">
+              <img src="/static/images/1.3-white.png" width="200px" alt="Logo" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNine"
+              aria-controls="navbarNine" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="toggler-icon"></span>
+              <span class="toggler-icon"></span>
+              <span class="toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
+              <ul class="navbar-nav me-auto">
+              </ul>
+            </div>
+
+            <div class="navbar-btn d-none d-lg-inline-block">
+              <a class="menu-bar" href="#side-menu-left"><i class="lni lni-menu"></i></a>
+            </div>
+          </nav>
+          <!-- navbar -->
+        </div>
+      </div>
+      <!-- row -->
+    </div>
+    <!-- container -->
+  </section>
+
+  <!--====== NAVBAR NINE PART ENDS ======-->
+
+  <!--====== SIDEBAR PART START ======-->
+
+  <div class="sidebar-left">
+    <div class="sidebar-close">
+      <a class="close" href="#close"><i class="lni lni-close"></i></a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-logo">
+        <a href="/"><img src="/static/images/1.3-min.png" alt="Logo" /></a>
+      </div>
+      <p class="text">Welcome to the home of CheckOut. Submit and view codes with ease.</p>
+      <!-- logo -->
+      <div class="sidebar-menu">
+        <h5 class="menu-title">Modules</h5>
+        <ul class="sidebarLinks">
+        </ul>
+        <br>
+        <h5 class="menu-title" style="font-size: 14px;">Other</h5>
+        <ul class="sidebarLinks2">
+        </ul>
+      </div>
+      <!-- menu -->
+      <!-- <div class="sidebar-social align-items-center justify-content-center">
+        <h5 class="social-title">Follow Us On</h5>
+        <ul>
+          <li>
+            <a href="javascript:void(0)"><i class="lni lni-facebook-filled"></i></a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"><i class="lni lni-twitter-original"></i></a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"><i class="lni lni-linkedin-original"></i></a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"><i class="lni lni-youtube"></i></a>
+          </li>
+        </ul>
+      </div> -->
+      <!-- sidebar social -->
+    </div>
+    <!-- content -->
+  </div>
+  <div class="overlay-left"></div>
+
+  <!--====== SIDEBAR PART ENDS ======-->
+
+  <!-- Start header Area -->
+  <section id="hero-area" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;height: auto;background-color: rgba(6, 16, 29, 0.99);" class="header-area header-eight">
+    <div class="container">
+      <div class="row align-items-center">
+
+        <% if(typeof currentCodesView !=='undefined'){%><%- currentCodesView %>
+<script>
+   function resizeIframe() {
+    var iframe = document.getElementById("currentClasses");
+    if (iframe) {
+        iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 1) + "px";
+    }
+}
+
+// Call resizeIframe initially and whenever the window resizes
+window.onload = resizeIframe;
+window.onresize = resizeIframe;
+
+// Observe mutations within the iframe content
+var observer = new MutationObserver(resizeIframe);
+observer.observe(document.getElementById('currentClasses').contentWindow.document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true
+});
+function reloadIFrame() {
+            var iframe = document.getElementById('currentClasses');
+            iframe.src = iframe.src; // Reload iframe by setting its src to itself
+            setTimeout(function() {
+              resizeIframe()
+}, 200);
+        }
+
+        // Reload the iframe every 10 seconds
+        setInterval(reloadIFrame, 10000); // 10 seconds
+</script>
+          <%}else{%><%}%>
+
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="header-content">
+            <h1>Welcome to CheckOut.</h1>
+            <p>
+               Effortlessly find CheckOut codes and submit your own. Use the form to submit a CheckOut code anonymously for others to view.
+            </p>
+            <%if (frame == "iframesubmit") { %>
+              <div class="button">
+                <!-- <a href="#side-menu-left" class="menu-bar btn primary-btn" id="view-codes">View codes</a> -->
+                <a href="/codes" class="menu-bar btn primary-btn" id="view-codes">View codes</a>
+                <!-- <a href="https://www.youtube.com/watch?v=r44RKWyfcFw&fbclid=IwAR21beSJORalzmzokxDRcGfkZA1AtRTE__l5N4r09HcGS5Y6vOluyouM9EM"
+                  class="glightbox video-button">
+                  <span class="btn icon-btn rounded-full">
+                    <i class="lni lni-play"></i>
+                  </span>
+                  <span class="text">Watch Intro</span>
+                </a> -->
+              </div>
+              <% } %>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-12">
+          <div class="header-image">  
+            <style>
+.circle {
+	/* width: 100%;
+	min-height: 480px;
+  height: 477px;
+	-moz-border-radius: 5%;
+	-webkit-border-radius: 5%;
+	border-radius: 5%;
+	overflow:hidden;
+	position:relative; */
+  border: 10px #000;
+}
+@media (min-width:801px)  { .circle{
+  width: 450px;
+} }
+            </style>
+            <div class="circle" id="iframeContainer">
+              <%if (frame == "submit") { %>
+                <%- include('../views/tiblForm'); %>
+                <% } %>
+                <%if (frame == "codes") { %>
+                  <%- include('../views/classv4'); %>
+                  <% } %>
+
+              <!-- <iframe id="myIframe" src="https://<%- rootDomain %>/api/app/form/yrk/cs/1" style="border:0px #000000 none; max-width:400px;" name="myiFrame" scrolling="no" frameborder="0" marginheight="0px" marginwidth="0px" width="100%" allowfullscreen></iframe>
+           -->
+            </div>
+          <script>
+            <%- include('../views/jquery'); %>
+          </script>
+          <script>
+            function appendAdditionalSidebarLinks(sidebarLinks) {
+              // Create Submit code link
+    var SubmitListItem = document.createElement('li');
+    var SubmitLink = document.createElement('a');
+    SubmitLink.href = '/';
+    SubmitLink.textContent = 'Submit code';
+    SubmitLink.style.fontSize = "13px";
+    SubmitListItem.appendChild(SubmitLink);
+    sidebarLinks.appendChild(SubmitListItem);
+    // Create Change Course link
+    var CourseChangeListItem = document.createElement('li');
+    var CourseChangeLink = document.createElement('a');
+    CourseChangeLink.href = '/api/app/onboarding';
+    CourseChangeLink.textContent = 'Change course';
+    CourseChangeLink.style.fontSize = "13px";
+    CourseChangeListItem.appendChild(CourseChangeLink);
+    sidebarLinks.appendChild(CourseChangeListItem);
+    // Create FAQ link
+    var faqListItem = document.createElement('li');
+    var faqLink = document.createElement('a');
+    faqLink.href = '/faq';
+    faqLink.textContent = 'FAQ';
+    faqLink.style.fontSize = "13px";
+    faqListItem.appendChild(faqLink);
+    sidebarLinks.appendChild(faqListItem);
+
+    // Create Terms link
+    var termsListItem = document.createElement('li');
+    var termsLink = document.createElement('a');
+    termsLink.href = '/terms';
+    termsLink.textContent = 'Terms';
+    termsLink.style.fontSize = "13px";
+    termsListItem.appendChild(termsLink);
+    sidebarLinks.appendChild(termsListItem);
+    // Create API link
+    var APIListItem = document.createElement('li');
+    var APILink = document.createElement('a');
+    APILink.href = '/api/docs';
+    APILink.textContent = 'API';
+    APILink.style.fontSize = "13px";
+    APIListItem.appendChild(APILink);
+    sidebarLinks.appendChild(APIListItem);
+
+    
+}
+
+function fetchModulesAndPopulateNav() {
+    // Check if all values are present in local storage
+    var institutionID = localStorage.getItem('inst');
+    var year = localStorage.getItem('yr');
+    var course = localStorage.getItem('crs');
+
+    // Check if all values are present
+    if (institutionID && year && course) {
+        // Make API request
+        var apiUrl = `https://<%- rootDomain %>/api/app/find/${institutionID}/${year}/${course}/md`;
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing items from the navbar
+                var navbar = document.querySelector('.navbar-nav');
+                navbar.innerHTML = '';
+                var sidebarLinks2 = document.querySelector('.sidebarLinks2');
+                sidebarLinks2.innerHTML = '';
+                // Clear existing items from the sidebar links
+                var sidebarLinks = document.querySelector('.sidebarLinks');
+                sidebarLinks.innerHTML = '';
+
+                // Create new list items for each module
+                data.modules.forEach(module => {
+                    var listItem = document.createElement('li');
+
+                    var link = document.createElement('a');
+                    link.href = `https://<%- rootDomain %>/api/app/class/${institutionID}/${course}/${year}/${module.module_code}`;
+                    link.textContent = module.module_name;
+
+                    listItem.appendChild(link);
+                    sidebarLinks.appendChild(listItem);
+                });
+                // Clear existing items from the sidebar links
+                var footerModules = document.querySelector('.footerModules');
+                footerModules.innerHTML = '';
+
+                // Create new list items for each module
+                data.modules.forEach(module => {
+                    var listItem = document.createElement('li');
+
+                    var link = document.createElement('a');
+                    link.href = `https://<%- rootDomain %>/api/app/class/${institutionID}/${course}/${year}/${module.module_code}`;
+                    link.textContent = module.module_name;
+
+                    listItem.appendChild(link);
+                    footerModules.appendChild(listItem);
+                });
+                if (institutionID=="yrk" && year=="1" && course=="cs") {
+                  var listItem = document.createElement('li');
+                  listItem.classList.add('nav-item');
+
+                  var link = document.createElement('a');
+                  link.classList.add('page-scroll');
+                  link.href = `https://<%- rootDomain %>/codes`;
+                  link.textContent = "View Codes";
+
+                  // Prefetching Logic
+                  const prefetchLink = document.createElement('link');
+                  prefetchLink.rel = 'prefetch';
+                  prefetchLink.href = "https://<%- rootDomain %>/codes"; // Use the dynamically generated href
+                  document.head.appendChild(prefetchLink);
+                  listItem.appendChild(link);
+                  navbar.appendChild(listItem);
+                } else {
+                  // Create new list items for each module
+                  data.modules.forEach(module => {
+                    var listItem = document.createElement('li');
+                    listItem.classList.add('nav-item');
+
+                    var link = document.createElement('a');
+                    link.classList.add('page-scroll');
+                    link.href = `https://<%- rootDomain %>/api/app/class/${institutionID}/${course}/${year}/${module.module_code}`;
+                    link.textContent = module.module_name;
+
+                    // Prefetching Logic
+                    const prefetchLink = document.createElement('link');
+                    prefetchLink.rel = 'prefetch';
+                    prefetchLink.href = link.href; // Use the dynamically generated href
+                    document.head.appendChild(prefetchLink);
+                    var frameLink = `https://<%- rootDomain %>/api/app/classframe/${institutionID}/${course}/${year}/${module.module_code}`
+                    const prefetchLink2 = document.createElement('link');
+                    prefetchLink2.rel = 'prefetch';
+                    prefetchLink2.href = frameLink; // Use the dynamically generated href
+                    document.head.appendChild(prefetchLink2);
+
+                    listItem.appendChild(link);
+                    navbar.appendChild(listItem);
+                  });
+                }
+                // Append additional links regardless
+                appendAdditionalSidebarLinks(sidebarLinks2);
+            })
+            .catch(error => console.error('Error fetching modules:', error));
+    } else {
+        console.error('Not all values are present in local storage');
+    }
+}
+// Check if all required values are present in local storage
+var institutionId = localStorage.getItem('inst');
+var year = localStorage.getItem('yr');
+var course = localStorage.getItem('crs');
+
+if (institutionId && year && course) {fetchModulesAndPopulateNav()};
+
+// Check if frame true, only then do iframe
+<%if (frame == "iframesubmit") { %>
+if (institutionId && year && course) {
+    // All values are present, construct the URL for the iframe
+    var iframeUrl = 'https://<%- rootDomain %>/api/app/form/' + institutionId + '/' + course + '/' + year;
+
+    // Create the iframe element
+    var iframe = $('<iframe>', {
+        id: 'myIframe',
+        src: iframeUrl,
+        style: 'border:2px solid rgb(189 189 189); max-width:400px;min-height:480px; overflow: hidden',
+        name: 'myiFrame',
+        scrolling: 'no',
+        frameborder: 0,
+        marginheight: '0px',
+        marginwidth: '0px',
+        width: '100%',
+        allowfullscreen: true
+    });
+
+    // Append the iframe to the container
+    $('#iframeContainer').append(iframe);
+    resizeIframe()
+}
+
+function resizeIframe() {
+    var iframe = document.getElementById("myIframe");
+    var container = document.getElementById("iframeContainer");
+    //var circle = document.getElementsByClassName("circle")
+    if (iframe && container) {
+        iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 1) + "px";
+
+        if ((iframe.contentWindow.document.body.scrollHeight + 1) > 450) {
+          container.style.height = (iframe.contentWindow.document.body.scrollHeight + 1) + "px";
+        }
+    }
+}
+setTimeout(function() { // Wait .3 second before getting iframe info
+  // Call resizeIframe initially and whenever the window resizes
+  window.onload = resizeIframe;
+  window.onresize = resizeIframe;
+
+  // Observe mutations within the iframe content
+  var observer = new MutationObserver(resizeIframe);
+  observer.observe(document.getElementById('myIframe').contentWindow.document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true
+  });
+}, 300);
+<% } %>
+          </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End header Area -->
+
+  <!--====== ABOUT FIVE PART START ======-->
+
+  <!-- <section class="about-area about-five">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 col-12">
+          <div class="about-image-five">
+            <svg class="shape" width="106" height="134" viewBox="0 0 106 134" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <circle cx="1.66654" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="1.66654" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="16.3333" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="16.3333" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="16.3333" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="16.3333" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="16.333" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="30.9998" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6665" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="30.9998" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6665" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="30.9998" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6665" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="30.9998" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6665" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="31" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="74.6668" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="45.6665" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="89.3333" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="60.3333" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="1.66679" r="1.66667" fill="#DADADA" />
+              <circle cx="60.3333" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="16.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="60.3333" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="31.0001" r="1.66667" fill="#DADADA" />
+              <circle cx="60.3333" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="45.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="60.3335" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="88.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="117.667" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="74.6668" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="103" r="1.66667" fill="#DADADA" />
+              <circle cx="60.333" cy="132" r="1.66667" fill="#DADADA" />
+              <circle cx="104" cy="132" r="1.66667" fill="#DADADA" />
+            </svg>
+            <img src="/assets/images/about/about-img1.jpg" alt="about" />
+          </div>
+        </div>
+        <div class="col-lg-6 col-12">
+          <div class="about-five-content">
+            <h6 class="small-title text-lg">HOW IT WORKS</h6>
+            <h2 class="main-title fw-bold">Experience the Ease of Distributing CheckOut Codes</h2>
+            <div class="about-five-tab">
+              <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                  <button class="nav-link active" id="nav-who-tab" data-bs-toggle="tab" data-bs-target="#nav-who"
+                    type="button" role="tab" aria-controls="nav-who" aria-selected="true">Submitting Codes</button>
+                  <button class="nav-link" id="nav-vision-tab" data-bs-toggle="tab" data-bs-target="#nav-vision"
+                    type="button" role="tab" aria-controls="nav-vision" aria-selected="false">Viewing Codes</button>
+                  <button class="nav-link" id="nav-history-tab" data-bs-toggle="tab" data-bs-target="#nav-history"
+                    type="button" role="tab" aria-controls="nav-history" aria-selected="false">Even More</button>
+                </div>
+              </nav>
+              <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-who" role="tabpanel" aria-labelledby="nav-who-tab">
+                  <p>It is a pain to manually distribute CheckOut codes, this point of this site is to facilitate the process. The form above makes it easy to select the module, group, and enter the magical code.</p>
+                  <p>For assistance with this process, watch the video above or contact us using the link in the footer.</p>
+                </div>
+                <div class="tab-pane fade" id="nav-vision" role="tabpanel" aria-labelledby="nav-vision-tab">
+                  <p>Do you know the class and group number of the session you're meant to be in? Select the class above (or below!) and easily browse submitted codes.</p>
+                  <p>If there are no codes visible, no one has submitted a valid code for that session :( you'll need to prompt them to do so.</p>
+                </div>
+                <div class="tab-pane fade" id="nav-history" role="tabpanel" aria-labelledby="nav-history-tab">
+                  <p>The mobile app makes it easy to access CheckOut quickly across a variety of devices. We're working on push notifications too.</p>
+                  <p>Download the app from the links below.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+  <!--====== ABOUT FIVE PART ENDS ======-->
+
+  
+
+
+  <!-- Start Cta Area -->
+  <!-- <section id="call-action" class="call-action">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-xxl-6 col-xl-7 col-lg-8 col-md-9">
+          <div class="inner-content">
+            <h2>CheckOut is now available <br />for your iPhone</h2>
+            <p>
+              Download the app to effortlessly find CheckOut codes and submit your own. The app makes it easy to submit a CheckOut code anonymously for others to view.<br />
+            </p>
+            <div class="light-rounded-buttons">
+              <a href="https://testflight.apple.com/join/J0g5rCJJ" class="btn primary-btn-outline">Download with TestFlight</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> -->
+  <!-- End Cta Area -->
+
+  <!-- Start Footer Area -->
+  <footer class="footer-area footer-eleven">
+    <!-- Start Footer Top -->
+    <div class="footer-top">
+      <div class="container">
+        <div class="inner-content">
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-12">
+              <!-- Single Widget -->
+              <div class="footer-widget f-about">
+                <div class="logo">
+                  <a href="/">
+                    <img src="/1.3-white.png" width=290px alt="#" class="img-fluid" />
+                  </a>
+                </div>
+                <p>
+                  Making the world a better place through distributing CheckOut codes :)
+                </p>
+                <p class="copyright-text">
+                  <span>© 2024 checkout.ac.</span>Provided with the
+                  <a href="/terms" rel="nofollow"> terms of service and disclaimer. </a>
+                </p>
+              </div>
+              <!-- End Single Widget -->
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+              <!-- Single Widget -->
+              <div class="footer-widget f-link">
+                <h5>Modules</h5>
+                <ul class="footerModules">
+                </ul>
+              </div>
+              <!-- End Single Widget -->
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+              <!-- Single Widget -->
+              <div class="footer-widget f-link">
+                <h5>Support</h5>
+                <ul>
+                    <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/api/docs">API</a></li>
+                </ul>
+              </div>
+              <!-- End Single Widget -->
+            </div>
+            <div class="col-lg-4 col-md-6 col-12">
+              <!-- Single Widget -->
+              <div class="footer-widget newsletter">
+                <h5>Account</h5>
+                <p>Login to view past submissions and manage your account.</p><br>
+                <!-- <form action="/admin" method="get" target="_blank" class="newsletter-form">
+                  <input name="password" placeholder="Password" required="required" type="password" />
+                  <div class="button">
+                    <button class="sub-btn">
+                      <i class="lni lni-lock-alt"></i>
+                    </button>
+                  </div>
+                </form> -->
+                <a href="/account">
+                  <% if(typeof userState !=='undefined'){%>
+                    <% if(userState !=='anon'){%>
+                      <button class="magicbutton">View account</button>
+                      <%}else{%>
+                        <button class="magicbutton">Login</button>
+                        <%}%>
+                  <%}else{%>
+                    <button class="magicbutton">Login</button>
+                  <%}%>
+              </a>
+              </div>
+              <!-- End Single Widget -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ End Footer Top -->
+  </footer>
+  <!--/ End Footer Area -->
+
+  <!-- <a href="#" class="scroll-top btn-hover">
+    <i class="lni lni-chevron-up"></i>
+  </a> -->
+
+  <!--====== js ======-->
+  <script src="/assets/js/bootstrap.bundle.min.js"></script>
+  <!-- <script src="/assets/js/glightbox.min.js"></script> -->
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/tiny-slider.js"></script>
+
+  <script>
+
+    //===== close navbar-collapse when a clicked
+let navbarTogglerNine = document.querySelector(
+  ".navbar-nine .navbar-toggler"
+);
+navbarTogglerNine.addEventListener("click", function () {
+  navbarTogglerNine.classList.toggle("active");
+});
+
+// ==== left sidebar toggle
+let sidebarLeft = document.querySelector(".sidebar-left");
+let overlayLeft = document.querySelector(".overlay-left");
+let sidebarClose = document.querySelector(".sidebar-close .close");
+
+overlayLeft.addEventListener("click", function () {
+  sidebarLeft.classList.toggle("open");
+  overlayLeft.classList.toggle("open");
+});
+sidebarClose.addEventListener("click", function () {
+  sidebarLeft.classList.remove("open");
+  overlayLeft.classList.remove("open");
+});
+
+// ===== navbar nine sideMenu
+let sideMenuLeftNine = document.querySelector(".navbar-nine .menu-bar");
+
+sideMenuLeftNine.addEventListener("click", function () {
+  sidebarLeft.classList.add("open");
+  overlayLeft.classList.add("open");
+});
+
+// Selecting the button
+if (document.getElementById("view-codes")) {
+  const viewCodesButton = document.getElementById("view-codes");
+
+  // Adding an event listener to the button
+  viewCodesButton.addEventListener("click", function (event) {
+    // Preventing the default behavior of the link
+    event.preventDefault();
+
+    // Adding classes to show the sidebar and overlay
+    sidebarLeft.classList.add("open");
+    overlayLeft.classList.add("open");
+  });
+};
+    //========= glightbox
+    // GLightbox({
+    //   'href': 'https://www.youtube.com/watch?v=IAXcT5ZRzq8&fbclid=IwAR21beSJORalzmzokxDRcGfkZA1AtRTE__l5N4r09HcGS5Y6vOluyouM9EM',
+    //   'type': 'video',
+    //   'source': 'youtube', //vimeo, youtube or local
+    //   'width': 900,
+    //   'autoplayVideos': true,
+    // });
+  </script>
+</body>
+
+</html>

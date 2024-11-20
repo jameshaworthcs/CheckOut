@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="/static/css/select2.css">
+  <title>CheckOut Onboarding</title>
+  <style>
+    body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 1000;
+  }
+  
+  .overlay-content {
+    max-width: 80%;
+  }
+  
+  .overlay-instructions {
+    margin-top: 20px;
+  }
+  
+  .dismiss-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    color: #bebebe; /* Set the text color */
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: none;
+    outline: none; /* Remove the default focus outline */
+    opacity: 0;   /* Initially hidden */
+  transition: opacity 0.5s ease-in-out; /* Add the transition */
+  }
+  .dismiss-button.show { /* Class to apply when you want it visible */
+  opacity: 1 !important;   /* Fully visible */
+}
+  .dismiss-button:hover {
+    text-decoration: underline; /* Add underline on hover if desired */
+  }
+  
+  </style>
+  <script>
+  
+//   document.addEventListener('DOMContentLoaded', function () {
+//     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+//     if (isIOS && !hasSeenOverlayToday()) { // Only target iOS users, if overlay not seen today
+//       const overlay = document.createElement('div');
+//       overlay.classList.add('overlay');
+
+//       overlay.innerHTML = `
+//         <div class="overlay-content">
+//           <h2 style="color: white;">Get our iOS App!</h2><br>
+//           <p style="color: white;">Experience the best CheckOut experience with the dedicated iOS app. Download it now from TestFlight:</p>
+//           <br>
+//           <a href="https://testflight.apple.com/join/J0g5rCJJ" class="download-button">
+//             img removed
+//           </a>
+//           <br>
+//           <button style="color:#bebebe;" class="dismiss-button" onclick="dismissOverlay()">Use web version</button>
+//         </div>
+//       `;
+
+//       document.body.appendChild(overlay);
+//       overlay.style.display = 'flex';
+//       // Initially hide the "Use web version" button
+//   const webVersionButton = document.querySelector('.dismiss-button');
+//   webVersionButton.style.opacity = '0';  
+
+//   // After a short delay, fade it in  
+//   setTimeout(function() {
+//       webVersionButton.classList.add('show'); 
+//   }, 1500); // Fade in after 1 second (adjust delay if needed)
+//     }
+//   });
+
+//   function dismissOverlay() {
+//     const overlay = document.querySelector('.overlay');
+//     overlay.style.display = 'none';
+//     markOverlayAsSeen();
+//     $('.select2-selection__arrow').trigger('click');
+//             var inputField = document.querySelector('.select2-search__field');
+//             if (inputField) {
+//                 inputField.focus();
+//                 inputField.setAttribute('placeholder', 'Search universities..');
+//             }
+//   }
+  
+//   function hasSeenOverlayToday() {
+//     const lastSeenDate = getCookie('lastSeenDate');
+//     if (lastSeenDate) {
+//       const today = new Date().toDateString();
+//       console.log(today)
+//       return today === new Date(lastSeenDate).toDateString();
+//     }
+//     return false;
+//   }
+  
+//   function markOverlayAsSeen() {
+//     const oneHour = 1 / 24; // 1 hour in days
+//     const expires = new Date();
+//     expires.setTime(expires.getTime() + oneHour * 60 * 60 * 1000);
+//     setCookie('lastSeenDate', expires.toUTCString(), oneHour);
+//   }
+  
+//   function setCookie(name, value, days) {
+//     const expires = new Date();
+//     expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+//     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+//   }
+  
+//   function getCookie(name) {
+//     const match = document.cookie.match(new RegExp(`${name}=([^;]+)`));
+//     return match ? match[1] : null;
+//   }
+  
+  
+  </script>
+  <style>
+body {
+    font-family: "Inter", sans-serif;
+    color: #1d1d1d;
+    font-size: 19px;
+    background: #0D1116;
+    display: block;
+    margin: 8px;
+}
+.mainContent {
+    display: block;
+    position: relative;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--form-bg-color);
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.5s;
+}
+.headerWelcome {
+    text-align: center;
+    font-size: 1.4em;
+}
+.headerDiv {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+.topIcon {
+    float: right;text-align: center;vertical-align: middle;
+}
+.setup-form {
+  margin-bottom: 30px;
+}
+
+input[type="text"],
+select {
+  width: 70%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc94;
+  border-radius: 5px;
+  background-color: #3B3B3B;
+}
+
+button {
+  font-size: 19px;
+  width: 70%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.next-button {
+  width: 70%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+.footerText,.footerText:visited,.footerText:active {
+    font-size: 10px;
+    text-align: right;
+    margin-bottom: 8px;
+    color: #AFAFAF;
+    text-decoration: none;
+}
+.termsText {
+    font-size: 11px;
+    text-align: left;
+    margin-bottom: 8px;
+    color: #AFAFAF;
+    text-decoration: none;
+}
+.footerTextLink, .footerTextLink:active, .footerTextLink:visited {
+    font-size: 15px;
+}
+.footerTextLink:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.tosLink, .tosLink:visited, .tosLink:active {
+    color: #58A6FF;
+    text-decoration: none;
+}
+.tosLink:hover {
+    color: #58A6FF;
+    text-decoration: underline;
+}
+.select2 {
+    width: 100%;
+    padding: 1px;
+    margin-bottom: 10px;
+    border: 1px solid #cccccc94;
+    border-radius: 5px;
+    background-color: #3B3B3B;
+    color: white; /* Text color */
+}
+.select2-selection__rendered {
+    font-size: 14px;
+}
+.hidden {
+  display: none;
+}
+
+#overlay {
+  display: none;
+  position: absolute; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  right: 0; /* Ensure it spans the entire form area */
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1000;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  </style>
+  </head>
+<body>
+<div class="mainContent">
+    <div id="overlay" class="hidden">
+        <div class="loader"></div>
+    </div>
+    <div class="headerDiv">
+<img class="topIcon" src="data:image/webp;base64,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" height="35px" alt=""><br>
+<h3 class="headerWelcome">Welcome to CheckOut </h3>
+    <p style="white-space: pre-line" id="action-text1">Let's setup your CheckOut experience.
+
+    </p>
+    <p id="action-text">Select institution:</p>
+</div>
+<div class="setup-form">
+    <select id="selectionBox"></select> <!-- Updated select box -->
+    <button id="nextButton">Next</button>
+</div>
+<div style="display: flex; justify-content: space-between;">
+<p id="termsText" class="termsText" hidden>Clicking&nbsp;<b>Next</b>&nbsp;means that you agree with CheckOut's&nbsp;<a class="tosLink" href="/terms-privacy">Terms of Service</a>&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink" href="/terms-privacy">privacy and cookies policy</a>.</p>
+  <p id="versionText" class="footerText" hidden >v2.30.beta<br><a id="startAgain" class="footerText footerTextLink" href="javascript:location.reload()"></a></p>
+</div>
+</div>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/select2.js"></script>
+
+<script>
+//document.getElementById('overlay').style.display = 'block';
+$(document).ready(function() {
+    // Initialize Select2 with empty data initially
+    $('#selectionBox').select2({
+        data: [],
+        minimumResultsForSearch: Infinity // Disable search box
+    });
+
+    // Function to fetch years for the selected institution
+    function fetchYears(institutionId) {
+        document.getElementById("action-text").innerText = "Select year of study:";
+        $.ajax({
+            url: '/api/app/find/' + institutionId + '/yr',
+            dataType: 'json',
+            success: function(data) {
+                if (data.years.length === 0) {
+                    // No results found
+                    $('#nextButton').remove();
+                    $('.setup-form').remove();
+                    document.getElementById("action-text1").innerHTML = "<br>University not registered. ❌<br><br><small>Please get in contact via the link below if you would like to use CheckOut at your university.</small>";
+                    document.getElementById("action-text").innerText = "";
+                    var buttonContainer = $('<div>', {
+                        class: 'button-container'
+                    }).insertAfter('#action-text');
+                    $('<br>').appendTo(buttonContainer);
+                    var button1 = $('<a>', {
+                        text: 'FAQ & Contact',
+                        class: 'next-button',
+                        href: '/faq',
+                        target: '_parent'
+                    }).appendTo(buttonContainer);
+                    return; // Stop further execution
+                }
+
+                var yearOptions = $.map(data.years, function(year) {
+                    return {
+                        id: year,
+                        text: year.toString()
+                    };
+                });
+
+                // Update the Select2 dropdown with the fetched years
+                $('#selectionBox').empty().select2({
+                    data: yearOptions,
+                    minimumResultsForSearch: Infinity,
+                    minimumInputLength: 0, // Require user input to select an item
+                }).val(null).trigger('change');
+
+                // Set the placeholder dynamically
+                $('#select2-selectionBox-container').text('');
+
+                setTimeout(function() {
+                    // Trigger the 'select2:open' event to open the search
+                    $('.select2-selection__arrow').trigger('click');
+                }, 1);
+
+                setTimeout(function() {
+                    var inputField = document.querySelector('.select2-search__field');
+                    if (inputField) {
+                        inputField.focus();
+                    }
+                }, 50);
+            },
+            error: function() {
+                console.error('Error fetching years for institution: ' + institutionId);
+            }
+        });
+    }
+
+
+    // Function to fetch courses for the selected institution and year
+    function fetchCourses(institutionId, year) {
+        document.getElementById("action-text").innerText = "Select your course:";
+        $.ajax({
+            url: '/api/app/find/' + institutionId + '/' + year + '/crs',
+            dataType: 'json',
+            success: function(data) {
+                if (data.courses.length === 0) {
+                    // No results found
+                    $('#nextButton').remove();
+                    $('.setup-form').remove();
+                    document.getElementById("action-text1").innerHTML = "<br>No courses registered. ❌<br><br><small>Please get in contact via the link below if you would like to use CheckOut for your course.</small>";
+                    document.getElementById("action-text").innerText = "";
+                    var buttonContainer = $('<div>', {
+                        class: 'button-container'
+                    }).insertAfter('#action-text');
+                    $('<br>').appendTo(buttonContainer);
+                    var button1 = $('<a>', {
+                        text: 'FAQ & Contact',
+                        class: 'next-button',
+                        href: '/faq',
+                        target: '_parent'
+                    }).appendTo(buttonContainer);
+                return; // Stop further execution
+                }
+                var courseOptions = $.map(data.courses, function(course) {
+                    return {
+                        id: course.course_code,
+                        text: course.course_name
+                    };
+                });
+
+                // Update the Select2 dropdown with the fetched courses
+                $('#selectionBox').empty().select2({
+                    data: courseOptions,
+                    selectOnClose: false,
+                    minimumInputLength: 0 // Require user input to select an item
+                }).val(null).trigger('change');
+
+                /// Set the placeholder dynamically
+                $('#select2-selectionBox-container').text('');
+
+                setTimeout(function() {
+                    // Trigger the 'select2:open' event to open the search
+                    $('.select2-selection__arrow').trigger('click');
+                }, 1);
+                setTimeout(function() {
+                var inputField = document.querySelector('.select2-search__field');
+                if (inputField) {
+                    inputField.focus();
+                    inputField.setAttribute('placeholder', 'Search courses..');
+                }
+            }, 50);
+            },
+            error: function() {
+                console.error('Error fetching courses for institution: ' + institutionId + ' and year: ' + year);
+            }
+        });
+    }
+
+    // Fetch the list of university names and populate the Select2 dropdown
+    var instData = <%- JSON.stringify(instData) %>; // Parse JSON object
+    $(document).ready(function() {
+        var universityNames = $.map(instData, function(item) {
+            return {
+                id: item.institution_id,
+                text: item.name
+            };
+        });
+
+        // Initialize Select2 with the data and prevent automatic selection
+        $('#selectionBox').empty().select2({
+            data: universityNames,
+            selectOnClose: false,
+            minimumInputLength: 0 // Require user input to select an item
+        }).val(null).trigger('change');
+
+        // Set the placeholder dynamically
+        $('#select2-selectionBox-container').text('');
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (!(isIOS && !hasSeenOverlayToday())) {
+            $('.select2-selection__arrow').trigger('click');
+            var inputField = document.querySelector('.select2-search__field');
+            if (inputField) {
+                inputField.focus();
+                inputField.setAttribute('placeholder', 'Search universities..');
+            }
+        }
+
+        // Open Select2 dropdown on click
+        $(document).on('click', '.select2', function() {
+            var select = $(this).siblings('select');
+            select.select2('open'); // Open the Select2 dropdown
+        });
+        //document.getElementById('overlay').style.display = 'none';
+        
+        // Create a MutationObserver to watch for changes in the span
+        var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    // Check if the span's content is not empty
+                    if ($('#select2-selectionBox-container').text().trim() !== '') {
+                        $('#termsText').show();
+                        $('#versionText').show();
+                    }
+                });
+            });
+
+            // Configuration of the MutationObserver
+            var config = { childList: true, subtree: true };
+
+            // Start observing the target node for configured mutations
+            observer.observe(document.getElementById('select2-selectionBox-container'), config);
+    });
+
+
+    $(document).on('click', '.select2', function() {
+        var select = $(this).siblings('select');
+        select.select2('open'); // Open the Select2 dropdown
+    });
+
+    // Add event listener for the next button
+    $('#nextButton').on('click', function() {
+        var selectedValue = $('#selectionBox').val();
+        if (selectedValue) {
+            // Check if this is the first or second step
+            if ($('#nextButton').text() === 'Next') {
+                // Store the institution ID in local storage
+                localStorage.setItem('inst', selectedValue);
+                let now = new Date();
+                let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+                document.cookie = "inst=" + selectedValue + "; expires=" + expiryDate.toUTCString() + "; path=/";
+                document.getElementById("startAgain").innerText = "Start Again";
+                document.getElementById("termsText").innerText = "";
+                // Fetch years for the selected institution
+                fetchYears(selectedValue);
+                // Update button text for the next step
+                $('#nextButton').text('Select Course');
+            } else if ($('#nextButton').text() === 'Select Course') {
+                // Retrieve the stored institution ID from local storage
+                var institutionID = localStorage.getItem('inst');
+                // Fetch courses for the selected institution and year
+                var selectedYear = $('#selectionBox').val();
+                // set yr value
+                localStorage.setItem('yr', selectedYear);
+                let now = new Date();
+                let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+                document.cookie = "yr=" + selectedYear + "; expires=" + expiryDate.toUTCString() + "; path=/";
+                fetchCourses(institutionID, selectedYear);
+                // Update button text for the final step
+                $('#nextButton').text('Finish');
+            } else {
+                document.getElementById("action-text1").innerHTML = 'Loading..'
+                var selectedCourse = $('#selectionBox').val();
+                localStorage.setItem('crs', selectedCourse);
+                let now = new Date();
+                let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+                document.cookie = "crs=" + selectedCourse + "; expires=" + expiryDate.toUTCString() + "; path=/";
+
+                const courseData = {
+                    inst: localStorage.getItem('inst'),
+                    yr: localStorage.getItem('yr'),
+                    crs: localStorage.getItem('crs')
+                };
+
+                // First API call to save course information
+                fetch('/api/course-select/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(courseData)
+                })
+
+                // Then get nice names to save for welcome, using local storage
+
+                fetch(`/api/app/find/${courseData.inst}/${courseData.yr}/${courseData.crs}/md`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Save the institution_name and course_name in localStorage
+                    localStorage.setItem('inst_name', data.institution_name);
+                    localStorage.setItem('crs_name', data.course_name);
+
+                    // You can also log the data or use it further as needed
+                    console.log('Institution Name:', data.institution_name);
+                    console.log('Course Name:', data.course_name);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+                document.getElementById("action-text1").innerHTML = "<br>Setup complete! ✅<br><br><small>Course information is saved for this browser.</small>";
+                document.getElementById("action-text").innerText = "";
+                $('#nextButton').remove();
+                $('.setup-form').remove();
+                // Create a div to contain the buttons
+                var buttonContainer = $('<div>', {
+                    class: 'button-container'
+                }).insertAfter('#action-text');
+                $('<br>').appendTo(buttonContainer);
+
+                // Create the first button
+                var button1 = $('<a>', {
+                    text: 'Continue',
+                    class: 'next-button',
+                    href: '/',
+                    target: '_parent'
+                }).appendTo(buttonContainer);
+
+                // Add some spacing between buttons
+                $('<br><br><br>').appendTo(buttonContainer);
+
+                // // Create the second button
+                // var button2 = $('<a>', {
+                //     text: 'View Codes',
+                //     class: 'next-button',
+                //     href: '/',
+                //     target: '_parent'
+                // }).appendTo(buttonContainer);
+                // $('<br><br><br>').appendTo(buttonContainer);
+            }
+        } else {
+            alert('Please select an option.');
+        }
+    });
+});
+
+// Listen for the keydown event on the document
+document.addEventListener('keydown', function(event) {
+    // Check if the Tab key is pressed
+    if (event.key === 'Tab') {
+        // Prevent the default Tab behavior
+        event.preventDefault();
+
+        // Simulate clicking on the select2 span
+        const select2Span = document.querySelector('.select2-selection');
+        if (select2Span) {
+            select2Span.click();
+
+            // Add a delay before selecting the first option
+            setTimeout(function() {
+                // Get the first item in the search results dropdown
+                const firstResult = document.querySelector('.select2-results__option');
+
+                // Check if a result is found
+                if (firstResult) {
+                    // Simulate a click on the first result to select it
+                    firstResult.click();
+                }
+            }, 200); // Adjust the delay time as needed
+        }
+    }
+});
+
+</script>
+</body></html>

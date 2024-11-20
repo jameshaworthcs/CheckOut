@@ -1,0 +1,254 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #121212;
+    color: #e0e0e0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    color: #ffffff;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.filters input {
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    -webkit-appearance: none; /* Remove default styling in WebKit */
+    -moz-appearance: none; /* Remove default styling in Firefox */
+    appearance: none; /* Remove default styling */
+}
+
+.filters button {
+    padding: 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    -webkit-appearance: none; /* Remove default styling in WebKit */
+    -moz-appearance: none; /* Remove default styling in Firefox */
+    appearance: none; /* Remove default styling */
+}
+
+.filters button:hover {
+    background-color: #218838;
+}
+
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on WebKit */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1e1e1e;
+    white-space: nowrap;
+}
+
+table, th, td {
+    border: 1px solid #333;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #333333;
+    color: #e0e0e0;
+}
+
+tbody tr:nth-child(4n+1),
+tbody tr:nth-child(4n+2) {
+    background-color: #2e2e2e; /* Lighter background color for 2 rows */
+}
+
+tbody tr:nth-child(4n+3),
+tbody tr:nth-child(4n+4) {
+    background-color: #1e1e1e; /* Original background color for the next 2 rows */
+}
+
+tr.row-spanned td {
+    border-top: none;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+
+    .filters input {
+        margin-right: 0;
+    }
+
+    th, td {
+        font-size: 12px;
+    }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #333333;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    color: #e0e0e0;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#editForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#editForm label {
+    margin-top: 10px;
+}
+
+#editForm input,
+#editForm textarea,
+#editForm select {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    -webkit-appearance: none; /* Remove default styling in WebKit */
+    -moz-appearance: none; /* Remove default styling in Firefox */
+    appearance: none; /* Remove default styling */
+}
+
+#editForm button {
+    padding: 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    -webkit-appearance: none; /* Remove default styling in WebKit */
+    -moz-appearance: none; /* Remove default styling in Firefox */
+    appearance: none; /* Remove default styling */
+}
+
+#editForm button:hover {
+    background-color: #218838;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+}
+
+.actions button {
+    width: 100%;
+    white-space: nowrap; /* Ensure buttons don't break lines */
+    font-size: 18px;
+}
+
+.actions button.edit {
+    grid-column: span 2;
+}
+
+button.view-token {
+    background-color: #007bff;
+}
+
+button.view-token:hover {
+    background-color: #0056b3;
+}
+
+button.edit {
+    background-color: #ffc107;
+}
+
+button.edit:hover {
+    background-color: #e0a800;
+}
+
+button.delete {
+    background-color: #dc3545;
+}
+
+button.delete:hover {
+    background-color: #c82333;
+}
+
+button.generate-onetime {
+    background-color: #17a2b8;
+}
+
+button.generate-onetime:hover {
+    background-color: #138496;
+}
+
+button.refresh-api {
+    background-color: #6f42c1;
+}
+
+button.refresh-api:hover {
+    background-color: #5936a2;
+}
+
+button.session-refresh {
+    background-color: #fd7e14;
+}
+
+button.session-refresh:hover {
+    background-color: #e96a07;
+}

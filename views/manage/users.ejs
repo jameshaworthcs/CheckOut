@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../global/head'); %>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <title>Users - CheckOut</title>
+        <style>
+            <%- include('./users.css');
+            %>
+        </style>
+</head>
+
+<body>
+
+    <%- include('../global/navbar'); %>
+
+            <div class="container">
+                <h1>User Management</h1>
+                <div class="filters">
+                    <input type="text" id="searchId" placeholder="Search by ID...">
+                    <input type="text" id="searchEmail" placeholder="Search by email...">
+                    <input type="text" id="searchUsername" placeholder="Search by username...">
+                    <input type="text" id="searchName" placeholder="Search by name...">
+                    <input type="text" id="searchState" placeholder="Search by userstate (permissions)...">
+                    <input type="text" id="searchAutoState" placeholder="Search by AutoCheckin state (1/0)...">
+                    <button id="searchButton">Search</button>
+                </div>
+                <div class="table-container">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>User State</th>
+                                <th>Check-in State</th>
+                                <th>AutoCheckin</th>
+                                <th>Username (Name)</th>
+                                <th>Note</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- User rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="viewModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="modalContent">
+                        <!-- Modal content will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <form id="editForm">
+                        <h2>Edit User</h2>
+                        <input type="hidden" id="editUserId">
+                        <label for="editUsername">Username:</label>
+                        <input type="text" id="editUsername">
+                        <label for="editUserState">User State:</label>
+                        <input type="text" id="editUserState">
+                        <label for="editCheckinState">Check-in State:</label>
+                        <select id="editCheckinState">
+                            <option value="0">Off</option>
+                            <option value="1">On</option>
+                        </select>
+                        <label for="editCheckinToken">Check-in Token:</label>
+                        <input type="text" id="editCheckinToken">
+                        <label for="editNote">Note:</label>
+                        <textarea id="editNote" rows="4"></textarea>
+                        <button type="submit">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <script><%- include('./users.js'); %></script>
+</body>
+
+</html>
+
+
+</body>
+
+</html>

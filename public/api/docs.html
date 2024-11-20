@@ -1,0 +1,139 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+        function replaceSVGWithImage() {
+    // Check if SVG exists
+    var svgElement = document.querySelector('svg[xmlns="http://www.w3.org/2000/svg"]');
+    
+    if (svgElement) {
+        // Wait for 0.005 seconds
+        setTimeout(function() {
+            // Create image element
+            var imgElement = document.createElement("img");
+            imgElement.src = "/static/images/1.3-white.png";
+            imgElement.width = "110"; // Set width without 'px' unit
+            imgElement.alt = "#";
+            imgElement.className = "img-fluid";
+
+            // Create link element
+            var linkElement = document.createElement("a");
+            linkElement.href = "/";
+            
+            // Append image to link
+            linkElement.appendChild(imgElement);
+
+            // Replace SVG with link containing image
+            svgElement.parentNode.replaceChild(linkElement, svgElement);
+        }, 5);
+    } else {
+        // If SVG not found, continue checking recursively
+        setTimeout(replaceSVGWithImage, 5); // Check every 10ms
+    }
+}
+
+
+// Start checking for SVG presence
+replaceSVGWithImage();
+    </script>
+    	<!-- HTML Meta Tags -->
+<title>CheckOut API Docs</title>
+<link rel="shortcut icon" href="/static/fav.svg">
+<link rel="manifest" href="/manifest.json">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="description" content="API documentation for the CheckOut app. All endpoints here are public.">
+
+<!-- Facebook Meta Tags -->
+<meta property="og:url" content="https://rejectdopamine.com/api/docs">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CheckOut API Docs">
+<meta property="og:description" content="API documentation for the CheckOut app. All endpoints here are public.">
+<meta property="og:image" content="https://rejectdopamine.com/1.3-min.png">
+
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="twitter:domain" content="rejectdopamine.com">
+<meta property="twitter:url" content="https://rejectdopamine.com/api/docs">
+<meta name="twitter:title" content="CheckOut API Docs">
+<meta name="twitter:description" content="API documentation for the CheckOut app. All endpoints here are public.">
+<meta name="twitter:image" content="https://rejectdopamine.com/1.3-min.png">
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+
+    <style>
+    @font-face {
+        font-family: Minecraft;
+        src: url(/static/fonts/minecraft.woff2);
+    }
+
+    .swagger-ui .info li, .swagger-ui .info p, .swagger-ui .info table {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+        font-size: 16px;
+    }
+
+    .swagger-ui .info a {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+        font-size: 16px;
+    }
+
+    .swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+        font-size: 16px;
+    }
+
+    .swagger-ui {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .response-col_links {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+    
+    .swagger-ui .btn {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .opblock .opblock-summary-description {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .opblock-tag small {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .info .title {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui select {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .topbar .download-url-wrapper .download-url-button {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+    
+    
+    .swagger-ui button, .swagger-ui input, .swagger-ui optgroup, .swagger-ui select, .swagger-ui textarea {
+        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+    .swagger-ui .opblock .opblock-summary-operation-id, .swagger-ui .opblock .opblock-summary-path, .swagger-ui .opblock .opblock-summary-path__deprecated {
+        font-family: Minecraft;
+        font-weight: 400;
+    }
+    </style>
+    </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="./swagger-initializer.js" charset="UTF-8"> </script>
+  </body>
+  
+</html>

@@ -1,0 +1,2583 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CheckOut API Explorer",
+    "description": "Welcome to the API documentation for the CheckOut app. Please note that some or all endpoints may require authentication; refer to the guidance below for more information.<br><br>Submitting codes outside of the CheckOut website or app UI is strictly <b>forbidden</b>, except through a pre-approved application. Before making any API code submissions, ensure that your <a href='/account'>account</a> has the <i>submit-api</i> permission.<br><br>To maintain the reliable operation of your application, authentication is highly recommended. Include <a href='/account'>your API key</a> in the <b><i>X-CheckOut-Key</i></b> header with every request.<br><br>By using this API, you agree to the <a href='/terms-privacy'>terms of service</a>.",
+    "contact": {
+      "url": "https://checkout.ac/learn-faq",
+      "email": "checkout@jemedia.xyz"
+    },
+    "version": "1.1.3"
+  },
+  "servers": [
+    {
+      "url": "https://checkout.ac",
+      "description": "Production server"
+    },
+    {
+      "url": "https://beta.checkout.ac",
+      "description": "Live development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Information",
+      "description": "Authoritative status of CheckOut's apps"
+    },
+    {
+      "name": "Welcome",
+      "description": "Consent on the welcome screen"
+    },
+    {
+      "name": "Codes",
+      "description": "Fetching and submitting codes"
+    },
+    {
+      "name": "Courses",
+      "description": "Find and create institutions, courses, modules"
+    },
+    {
+      "name": "Settings",
+      "description": "Get and update settings"
+    },
+    {
+      "name": "Account",
+      "description": "Account management (Must be authenticated)"
+    },
+    {
+      "name": "Data",
+      "description": "Endpoints behind the data request tool"
+    },
+    {
+      "name": "Manage",
+      "description": "Accessible to moderators/sysops"
+    },
+    {
+      "name": "Retired",
+      "description": "Archived endpoints - these may still work but are not actively maintained."
+    }
+  ],
+  "paths": {
+    "/api/app/state": {
+      "get": {
+        "tags": ["Information"],
+        "summary": "Get Global App State",
+        "description": "Fetches general information about the CheckOut app.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "iosState": 1,
+                    "androidState": 0,
+                    "iosMessage": "Example message for when iOS app is disabled, to display to users",
+                    "iosMsgLink": "https://example-learn-more-url.com",
+                    "androidMessage": "Example message for when android app is disabled, to display to users",
+                    "androidMsgLink": "Example message for when android app is disabled, to display to users",
+                    "moduleCodes": "https://example-learn-more-url.com",
+                    "yearCodes": "1,2,3,4,5",
+                    "siteCodes": "yrk,ysj,oxf,sta,hrt,imp,ucl",
+                    "defaultSiteCode": "yrk",
+                    "forceSiteCode": 1,
+                    "revID": 80,
+                    "webState": 1,
+                    "boycottState": 0,
+                    "boycottMsg": "Message to display to all users during a boycott",
+                    "boycottLink": "https://boycott-example-learn-more.com",
+                    "rootDomain": "rejectdopamine.com",
+                    "passWord": "deprecated",
+                    "undoState": 0,
+                    "authState": 0,
+                    "rateLimit": "420",
+                    "bedtimeState": 0,
+                    "dayStart": "09:30",
+                    "dayEnd": "18:30",
+                    "webStateMsg": "Message shown to users while webState is off, may affect mobile applications",
+                    "webStateLink": "https://learn-more-for-web-state.com"
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/welcome/consent": {
+      "post": {
+        "tags": ["Welcome"],
+        "summary": "Submit User Consent",
+        "description": "Records the user's consent and sets up their session if the device ID matches the session ID.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deviceID": {
+                    "type": "string",
+                    "description": "The device ID associated with the user's session."
+                  }
+                },
+                "required": ["deviceID"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Consent submission status",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Set up complete. (course-select-api)"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Consent submission failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "Failed to set up. Check cookies are being saved correctly. (course-select-api)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/app/everything": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Fetch all data from modules upwards",
+        "description": "Fetches all data related to institutions, years, courses, and modules.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Institutions": {
+                      "type": "object",
+                      "description": "All data related to institutions and their respective years, courses, and modules."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/everything/pretty": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Fetch all data from modules upwards (Pretty JSON)",
+        "description": "Fetches all data related to institutions, years, courses, and modules and displays it in pretty JSON format.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Institutions": {
+                      "type": "object",
+                      "description": "All data related to institutions and their respective years, courses, and modules."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/find/inst": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Retrieve a JSON array of institutions.",
+        "description": "This endpoint retrieves a JSON array containing information about all institutions stored in the database.",
+        "responses": {
+          "200": {
+            "description": "Successful response containing an array of institutions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "institution_id": {
+                        "type": "string",
+                        "description": "The unique identifier of the institution."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the institution."
+                      }
+                    },
+                    "example": [
+                      {
+                        "institution_id": "ark",
+                        "name": "Anglia Ruskin University"
+                      },
+                      {
+                        "institution_id": "yrk",
+                        "name": "University of York"
+                      },
+                      {
+                        "institution_id": "ysj",
+                        "name": "York St John University"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/api/app/find/{inst}/yr": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Retrieve JSON array of years given institution",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inst",
+            "required": true,
+            "description": "The institution code",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with the list of years for the institution",
+            "content": {
+              "application/json": {
+                "example": {
+                  "institution_id": "yrk",
+                  "years": [1, 2]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing institution ID"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/find/{inst}/{yr}/crs": {
+      "parameters": [
+        {
+          "name": "inst",
+          "in": "path",
+          "description": "The institution ID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "yr",
+          "in": "path",
+          "description": "The year number",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Retrieve JSON array of courses given a year and institution",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "institution_id": {
+                      "type": "string",
+                      "description": "The institution ID"
+                    },
+                    "year": {
+                      "type": "integer",
+                      "description": "The year number"
+                    },
+                    "courses": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "course_code": {
+                            "type": "string",
+                            "description": "The course code"
+                          },
+                          "course_name": {
+                            "type": "string",
+                            "description": "The course name"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "institution_id": "ysj",
+                  "year": 1,
+                  "courses": [
+                    {
+                      "course_code": "history_y1_ysj",
+                      "course_name": "History"
+                    },
+                    {
+                      "course_code": "psych_y1_ysj",
+                      "course_name": "Psychology"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/find/{inst}/{yr}/{crs}/md": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Retrieve JSON array of modules given a course, year, and institution",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year number",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modules retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "institution_id": {
+                      "type": "string"
+                    },
+                    "institution_name": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "integer"
+                    },
+                    "course_code": {
+                      "type": "string"
+                    },
+                    "course_name": {
+                      "type": "string"
+                    },
+                    "modules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "module_code": {
+                            "type": "string"
+                          },
+                          "module_name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "institution_id": "yrk",
+                  "institution_name": "University of York",
+                  "year": 1,
+                  "course_code": "cs_y1_uoy",
+                  "course_name": "Computer Science",
+                  "modules": [
+                    {
+                      "module_code": "y1-sd",
+                      "module_name": "Systems and Devices"
+                    },
+                    {
+                      "module_code": "y1-soft-2",
+                      "module_name": "Software"
+                    },
+                    {
+                      "module_code": "y1-theory-2",
+                      "module_name": "Theory"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/course/find/{inst}/{crs}/{yr}": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Get Modules for a Specific Course, Year, and Institution",
+        "description": "Retrieves all modules for a specific course, year, and institution based on the provided parameters.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "required": true,
+            "description": "Institution ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "required": true,
+            "description": "Course code",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "required": true,
+            "description": "Year number",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modules retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "institution_id": "yrk",
+                  "institution_name": "University of York",
+                  "year": 1,
+                  "course_code": "cs",
+                  "course_name": "Computer Science",
+                  "tibl": false,
+                  "modules": [
+                    {
+                      "module_code": "soft2",
+                      "module_name": "Software",
+                      "module_tibl_code": null
+                    },
+                    {
+                      "module_code": "theory2",
+                      "module_name": "Theory",
+                      "module_tibl_code": null
+                    },
+                    {
+                      "module_code": "sd",
+                      "module_name": "Systems and Devices",
+                      "module_tibl_code": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Missing required parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "reason": "Missing required parameters in request path."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "reason": "Internal server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/course-select/save": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Save Course Selection (Session)",
+        "description": "Saves the selected course information in the user's session.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inst": {
+                    "type": "string",
+                    "description": "Institution ID"
+                  },
+                  "yr": {
+                    "type": "integer",
+                    "description": "Year number"
+                  },
+                  "crs": {
+                    "type": "string",
+                    "description": "Course code"
+                  }
+                },
+                "required": ["inst", "yr", "crs"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Course information saved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "deviceID": "example_device_id",
+                  "msg": "Saved course information. (course-select-api)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/app/codes/{inst}/{crs}/{yr}/{md}": {
+      "get": {
+        "tags": ["Codes"],
+        "summary": "Get Codes API",
+        "description": "Gets the days codes for a given institution, course, year, and module code.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "md",
+            "in": "path",
+            "description": "Module code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "groupCode": "Lecture (VFD3)",
+                    "checkinCode": 111111,
+                    "count": 3
+                  },
+                  {
+                    "groupCode": "1",
+                    "checkinCode": 222222,
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/active/{inst}/{crs}/{yr}": {
+      "get": {
+        "tags": ["Codes"],
+        "summary": "Active Codes API, enabled for timetabled courses",
+        "description": "Gets the current classes's codes for a given institution, course and year.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response, given the timetabled course has an active class",
+            "content": {
+              "application/json": {
+                "example": {
+                  "sessionCount": 2,
+                  "msg": "",
+                  "api": "active-codes (v.1.1.1)",
+                  "sessions": [
+                    {
+                      "startDate": "2024-02-27T00:00:00.000Z",
+                      "startTime": "15:30",
+                      "endTime": "16:30",
+                      "description": "Practical Grp 5",
+                      "moduleName": "Software",
+                      "moduleCode": "soft2",
+                      "rejectID": 100058,
+                      "codesCount": 0,
+                      "codes": []
+                    },
+                    {
+                      "startDate": "2024-02-27T00:00:00.000Z",
+                      "startTime": "15:30",
+                      "endTime": "16:30",
+                      "description": "Seminar Grp 6",
+                      "moduleName": "Software",
+                      "moduleCode": "soft2",
+                      "rejectID": 100059,
+                      "codesCount": 1,
+                      "codes": [
+                        {
+                          "groupCode": "100059",
+                          "checkinCode": 862885,
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The course requested is not timetabled",
+            "content": {
+              "application/json": {
+                "example": {"sessionCount": 0, "msg": "The specified course does not support timetabled codes", "api":"active-codes (v.1.1.1)"}
+              }
+            }
+          },
+          "503": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/classframe/{inst}/{crs}/{yr}/{md}": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Codes View (HTML Frame)",
+        "description": "Gets the days codes in pretty HTML frame output for a given institution, course, year, and module code.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "md",
+            "in": "path",
+            "description": "Module code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML Frame Output"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/classframe/ios/{inst}/{crs}/{yr}/{md}": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Codes View for iOS (HTML Frame)",
+        "description": "Gets the days codes in pretty HTML frame output for a given institution, course, year, and module code. Designed for the iOS app.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "md",
+            "in": "path",
+            "description": "Module code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML Frame Output"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/class/{inst}/{crs}/{yr}/{md}": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Web Codes View (HTML Page)",
+        "description": "Gets the days codes in full HTML page output for a given institution, course, year, and module code.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "md",
+            "in": "path",
+            "description": "Module code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML Page Output"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/form/{inst}/{crs}/{yr}": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Generate Submission Form (HTML Page)",
+        "description": "Creates the code submission form for a given institution, course, and year.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML Page Output"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/form/ios/{inst}/{crs}/{yr}": {
+      "get": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Generate Submission Form for iOS (HTML Page)",
+        "description": "Creates the code submission form for a given institution, course, and year. Designed for iOS app.",
+        "parameters": [
+          {
+            "name": "inst",
+            "in": "path",
+            "description": "Institution code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "crs",
+            "in": "path",
+            "description": "Course code",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "yr",
+            "in": "path",
+            "description": "Year",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML Page Output"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/extension/codes": {
+      "post": {
+        "tags": ["Retired"],
+        "summary": "Fetch codes for extension",
+        "description": "Takes a POST body input as described below, which is matched against available timetable data to return codes matching the session. Codes returned as array of sets.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extension_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                      "groupCode": "2",
+                      "checkinCode": 444444,
+                      "count": 1
+                  }
+              ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Your request was flagged. Try reloading the page."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "You've made too many submissions today."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Something went wrong."
+                }
+              }
+            }
+          }
+          
+        },
+        "deprecated": true
+      }
+    },
+    "/api/app/submit": {
+      "post": {
+        "tags": ["Codes"],
+        "summary": "Submit Code (Approved applications only)",
+        "description": "Takes a POST body input with a new code. This endpoint is subject to rate limits and the tk value may be validated by the server. You may be blocked, or reputation-score reduced by using this endpoint. Please submit codes through the web forms on the official site.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app_submit_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "next": "https://rejectdopamine.com/api/app/class/inst/crs/yr/md",
+                  "undo": "https://rejectdopamine.com/undo?tk=tk&md=md"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Your request was flagged. Try reloading the page."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "You've made too many submissions today."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Something went wrong."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/app/add/institution": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Add an institution (Private API)",
+        "description": "Add a new institution with the given institution code and name.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inst": {
+                    "type": "string",
+                    "description": "Institution code"
+                  },
+                  "institutionName": {
+                    "type": "string",
+                    "description": "Institution name"
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "API key (private)"
+                  }
+                },
+                "required": ["inst", "institutionName", "apiKey"]
+              },
+              "example": {
+                "inst": "yrk",
+                "institutionName": "University of York",
+                "apiKey": "your-api-key"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Institution added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "databaseresponse": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing parameters"
+          },
+          "403": {
+            "description": "Forbidden - Invalid API key"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/add/year": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Add a year to an institution (Private API)",
+        "description": "Add a new year to an existing institution.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inst": {
+                    "type": "string",
+                    "description": "Institution code"
+                  },
+                  "yr": {
+                    "type": "string",
+                    "description": "Year number"
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "API key (private)"
+                  }
+                },
+                "required": ["inst", "yr", "apiKey"]
+              },
+              "example": {
+                "inst": "yrk",
+                "yr": "1",
+                "apiKey": "your-api-key"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Year added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing parameters"
+          },
+          "403": {
+            "description": "Forbidden - Invalid API key"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/add/course": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Add a course to an institution's year (Private API)",
+        "description": "Add a new course to an existing institution's year.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inst": {
+                    "type": "string",
+                    "description": "Institution code"
+                  },
+                  "yr": {
+                    "type": "string",
+                    "description": "Year number"
+                  },
+                  "newCourseName": {
+                    "type": "string",
+                    "description": "New course name"
+                  },
+                  "crs": {
+                    "type": "string",
+                    "description": "New course code"
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "API key (private)"
+                  }
+                },
+                "required": ["inst", "yr", "newCourseName", "crs", "apiKey"]
+              },
+              "example": {
+                "inst": "yrk",
+                "yr": "1",
+                "newCourseName": "Computer Science",
+                "crs": "cs_y1_uoy",
+                "apiKey": "your-api-key"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Course added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing parameters"
+          },
+          "403": {
+            "description": "Forbidden - Invalid API key"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/app/add/module": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Add a module to an institution's course (Private API)",
+        "description": "Add a new module to an existing institution's course.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inst": {
+                    "type": "string",
+                    "description": "Institution code"
+                  },
+                  "yr": {
+                    "type": "string",
+                    "description": "Year number"
+                  },
+                  "newModuleName": {
+                    "type": "string",
+                    "description": "New module name"
+                  },
+                  "crs": {
+                    "type": "string",
+                    "description": "Course code"
+                  },
+                  "md": {
+                      "type": "string",
+                      "description": "New module code"
+                    },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "API key (private)"
+                  }
+                },
+                "required": ["inst", "yr", "newModuleName", "md", "crs", "apiKey"]
+              },
+              "example": {
+                "inst": "yrk",
+                "yr": "1",
+                "newModuleName": "Software",
+                "crs": "cs_y1_uoy",
+                "md": "soft",
+                "apiKey": "your-api-key"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Module added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing parameters"
+          },
+          "403": {
+            "description": "Forbidden - Invalid API key"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/settings/account": {
+      "get": {
+        "tags": ["Settings"],
+        "summary": "Retrieve Account Settings",
+        "description": "Retrieves the account settings for the current user, including their consent timestamp and obscured email address if they are signed in.",
+        "responses": {
+          "200": {
+            "description": "Account settings retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "account": true,
+                  "birthday": "2024-09-02 13:17:05",
+                  "accountInfo": {
+                    "email": "u***@example.com",
+                    "username": "exampleUser"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/token": {
+      "get": {
+        "tags": ["Account"],
+        "summary": "Get Account Token",
+        "description": "Retrieves the API token associated with the user's account.",
+        "responses": {
+          "200": {
+            "description": "API token retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "apiKey": "example_api_token"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "An error occurred while retrieving the API token."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/token/refresh": {
+      "post": {
+        "tags": ["Account"],
+        "summary": "Refresh Account Token",
+        "description": "Generates a new API token for the user's account and updates it in the database.",
+        "responses": {
+          "200": {
+            "description": "API token refreshed successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "API token refreshed."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "An error occurred while refreshing the API token."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/app/account/delete": {
+      "delete": {
+        "deprecated": true,
+        "tags": ["Retired"],
+        "summary": "Delete user account",
+        "description": "Deletes a user account based on the provided secret token.",
+        "requestBody": {
+          "description": "The secret token of the user to delete.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "secret_token": {
+                    "type": "string",
+                    "description": "The secret token of the user to delete."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "A success message indicating the account deletion."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An error message indicating the cause of the error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/session": {
+      "get": {
+        "tags": ["Data"],
+        "summary": "Retrieve Session Data",
+        "description": "Retrieves the current session data, including a unique device ID.",
+        "responses": {
+          "200": {
+            "description": "Session data retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cookie": {
+                    "originalMaxAge": 31536000000,
+                    "expires": "2025-09-02T13:17:18.696Z",
+                    "secure": true,
+                    "httpOnly": true,
+                    "path": "/"
+                  },
+                  "deviceID": "example_device_id",
+                  "course": {
+                    "inst": "example_inst",
+                    "yr": "2",
+                    "crs": "example_course_code"
+                  },
+                  "consent": {
+                    "consented": true,
+                    "timestamp": "2024-09-02 13:17:05"
+                  },
+                  "user": {
+                    "id": 38
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/session/delete": {
+      "post": {
+        "tags": ["Data"],
+        "summary": "Delete Session Data",
+        "description": "Deletes the current session data.",
+        "responses": {
+          "200": {
+            "description": "Session data deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Session information deleted."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/account": {
+      "get": {
+        "tags": ["Data"],
+        "summary": "Retrieve Account Data",
+        "description": "Retrieves account data for the currently authenticated user based on session or API token.",
+        "responses": {
+          "200": {
+            "description": "Account data retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 123,
+                  "email": "user@example.com",
+                  "code": null,
+                  "api_token": "example_api_token",
+                  "userstate": "active",
+                  "checkintoken": "example_checkin_token",
+                  "checkinstate": 0,
+                  "username": "example_username",
+                  "note": "",
+                  "fullName": "Example User",
+                  "checkinReport": "Enabled",
+                  "checkinReportTime": "2024-09-02T18:29:57.000Z",
+                  "accountCreationTime": "2023-01-15T12:00:00.000Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/account/delete": {
+      "delete": {
+        "tags": ["Data"],
+        "summary": "Delete User Account",
+        "description": "Deletes the user account associated with the current session or API token.",
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Account deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/tk": {
+      "get": {
+        "tags": ["Data"],
+        "summary": "Retrieve TK Log Data",
+        "description": "Retrieves the TK log data for the current user based on session ID or user email.",
+        "responses": {
+          "200": {
+            "description": "TK log data retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "codeID": 12345,
+                    "inst": "example_inst",
+                    "crs": "example_course_code",
+                    "yr": "2",
+                    "md": "example_md",
+                    "codeDay": "2024-09-03",
+                    "groupCode": "3",
+                    "checkinCode": 987654,
+                    "timestamp": "2024-09-03 14:44:43",
+                    "ip": "192.0.2.1",
+                    "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "tk": "example_tk",
+                    "deviceID": "example_device_id",
+                    "username": "user@example.com",
+                    "codeState": "1",
+                    "codeDesc": "",
+                    "codeReps": "0",
+                    "visState": "1",
+                    "source": "Web/App"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/tk/delete": {
+      "post": {
+        "tags": ["Data"],
+        "summary": "Request TK Log Deletion",
+        "description": "Submits a request to delete the TK log data associated with the current user.",
+        "responses": {
+          "200": {
+            "description": "TK log deletion request submitted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Request submitted. If you are signed in, please check your emails for a confirmation. It can take up to 7 days to process a deletion request."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/requests": {
+      "get": {
+        "tags": ["Data"],
+        "summary": "Retrieve Request Logs",
+        "description": "Retrieves the request logs for the current user based on session ID or user ID.",
+        "responses": {
+          "200": {
+            "description": "Request logs retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 12345,
+                    "timestamp": "2024-09-03T19:09:18.000Z",
+                    "ip": "192.0.2.1",
+                    "spoofed_ip": null,
+                    "host": "example.checkout.ac",
+                    "method": "GET",
+                    "path": "/api/data/requests",
+                    "username": "anon@example.com",
+                    "user_id": null,
+                    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "referer": null,
+                    "post_data": "{}",
+                    "device_id": "example_device_id"
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch logs",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to fetch logs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/requests/delete": {
+      "post": {
+        "tags": ["Data"],
+        "summary": "Request Request Logs Deletion",
+        "description": "Submits a request to delete the request logs associated with the current user.",
+        "responses": {
+          "200": {
+            "description": "Request logs deletion request submitted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Request submitted. If you are signed in, please check your emails for a confirmation. It can take up to 7 days to process a deletion request."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/auto": {
+      "get": {
+        "tags": ["Data"],
+        "summary": "Retrieve AutoCheckin Logs",
+        "description": "Retrieves the AutoCheckin logs for the current user based on their email.",
+        "responses": {
+          "200": {
+            "description": "AutoCheckin logs retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "logID": 12345,
+                    "email": "user@example.com",
+                    "state": "Disabled",
+                    "message": "Disabled AutoCheckin",
+                    "timestamp": "2024-09-02T18:29:57.000Z"
+                  },
+                  {
+                    "logID": 12344,
+                    "email": "user@example.com",
+                    "state": "Enabled",
+                    "message": "Activated AutoCheckin",
+                    "timestamp": "2024-09-02T18:29:49.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data/auto/delete": {
+      "post": {
+        "tags": ["Data"],
+        "summary": "Request AutoCheckin Logs Deletion",
+        "description": "Submits a request to delete the AutoCheckin logs associated with the current user.",
+        "responses": {
+          "200": {
+            "description": "AutoCheckin logs deletion request submitted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "msg": "Request submitted. Please check your emails for a confirmation. It can take up to 7 days to process a deletion request."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request failed due to user not being signed in",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "You need to be signed in to make this request."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/code-log/data": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "View TK Data Log",
+        "description": "Retrieves the TK data log, with optional limit on the number of records returned. The logs are sorted by timestamp in descending order.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "The maximum number of log records to return.",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TK data log retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "codeID": 12345,
+                    "inst": "example_inst",
+                    "crs": "example_course_code",
+                    "yr": "2",
+                    "md": "example_md",
+                    "codeDay": "Tue",
+                    "groupCode": "3",
+                    "checkinCode": 987654,
+                    "timestamp": "2024-09-03 14:44:43",
+                    "ip": "192.0.2.1",
+                    "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "tk": "example_tk",
+                    "deviceID": "example_device_id",
+                    "username": "user@example.com",
+                    "codeState": "1",
+                    "codeDesc": "",
+                    "codeReps": "0",
+                    "visState": "1",
+                    "source": "Web/App"
+                  },
+                  {
+                    "codeID": 12344,
+                    "inst": "example_inst",
+                    "crs": "example_course_code",
+                    "yr": "2",
+                    "md": "example_md",
+                    "codeDay": "Tue",
+                    "groupCode": "Lecture",
+                    "checkinCode": 987654,
+                    "timestamp": "2024-09-03 12:29:02",
+                    "ip": "198.51.100.1",
+                    "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "tk": "another_example_tk",
+                    "deviceID": "another_example_device_id",
+                    "username": "user@example.com",
+                    "codeState": "0",
+                    "codeDesc": "Mod-Rm-38",
+                    "codeReps": "0",
+                    "visState": "0",
+                    "source": "Web/App"
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Unauthorized access or server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized user tried to access logdata, was rejected"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/request-log/logs": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "Retrieve Request Logs",
+        "description": "Fetches request logs with optional filtering by various parameters such as time range, IP address, method, username, path, and device ID.",
+        "parameters": [
+          {
+            "name": "startTime",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs from this timestamp onwards",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-09-03T00:00:00Z"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs until this timestamp",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-09-03T23:59:59Z"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs by IP address",
+            "schema": {
+              "type": "string",
+              "example": "192.0.2.1"
+            }
+          },
+          {
+            "name": "method",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs by HTTP method",
+            "schema": {
+              "type": "string",
+              "example": "GET"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs by username",
+            "schema": {
+              "type": "string",
+              "example": "user@example.com"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs by request path",
+            "schema": {
+              "type": "string",
+              "example": "/manage/api/request-log/logs"
+            }
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter logs by device ID",
+            "schema": {
+              "type": "string",
+              "example": "example_device_id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Limit the number of logs returned",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request logs retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 12345,
+                    "timestamp": "2024-09-03T19:29:23.000Z",
+                    "ip": "192.0.2.1",
+                    "spoofed_ip": null,
+                    "host": "example.checkout.ac",
+                    "method": "GET",
+                    "path": "/manage/request-log",
+                    "username": "user@example.com",
+                    "user_id": 38,
+                    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "referer": "https://example.checkout.ac/",
+                    "post_data": "{}",
+                    "device_id": "example_device_id"
+                  },
+                  {
+                    "id": 12344,
+                    "timestamp": "2024-09-03T19:29:22.000Z",
+                    "ip": "192.0.2.1",
+                    "spoofed_ip": null,
+                    "host": "example.checkout.ac",
+                    "method": "GET",
+                    "path": "/manage/api/request-log/logs?limit=100&_=1725391762844",
+                    "username": "user@example.com",
+                    "user_id": 38,
+                    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "referer": "https://example.checkout.ac/",
+                    "post_data": "{}",
+                    "device_id": "example_device_id"
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch logs",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to fetch logs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/find": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "Find Users",
+        "description": "Fetches user details based on various query parameters such as id, email, username, fullName, userstate, and checkinstate.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user ID",
+            "schema": {
+              "type": "integer",
+              "example": 18
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user email",
+            "schema": {
+              "type": "string",
+              "example": "user@example.com"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "description": "Filter by username",
+            "schema": {
+              "type": "string",
+              "example": "Alex"
+            }
+          },
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Filter by full name",
+            "schema": {
+              "type": "string",
+              "example": "Alex Johnson"
+            }
+          },
+          {
+            "name": "userstate",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user state",
+            "schema": {
+              "type": "string",
+              "example": "normal"
+            }
+          },
+          {
+            "name": "checkinstate",
+            "in": "query",
+            "required": false,
+            "description": "Filter by check-in state",
+            "schema": {
+              "type": "integer",
+              "example": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 18,
+                    "email": "jasmine@example.com",
+                    "code": "078768",
+                    "api_token": "example_api_token",
+                    "userstate": "normal",
+                    "checkintoken": "0",
+                    "checkinstate": 0,
+                    "username": "",
+                    "note": "",
+                    "fullName": null,
+                    "checkinReport": null,
+                    "checkinReportTime": null,
+                    "accountCreationTime": null
+                  },
+                  {
+                    "id": 19,
+                    "email": "alex@example.com",
+                    "code": "385982",
+                    "api_token": null,
+                    "userstate": "moderator",
+                    "checkintoken": "0",
+                    "checkinstate": 0,
+                    "username": "Alex",
+                    "note": "",
+                    "fullName": null,
+                    "checkinReport": null,
+                    "checkinReportTime": null,
+                    "accountCreationTime": null
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access or error fetching user details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "Error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/update": {
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Update User Information",
+        "description": "Updates user details such as username, user state, check-in state, check-in token, and note based on user ID.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "User ID",
+                    "example": 18
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "Username",
+                    "example": "new_username"
+                  },
+                  "userstate": {
+                    "type": "string",
+                    "description": "User state",
+                    "example": "normal"
+                  },
+                  "checkinstate": {
+                    "type": "integer",
+                    "description": "Check-in state",
+                    "example": 0
+                  },
+                  "checkintoken": {
+                    "type": "string",
+                    "description": "Check-in token",
+                    "example": "new_checkin_token"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "Additional note",
+                    "example": "User is active."
+                  }
+                },
+                "required": ["id"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User information updated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error updating user information",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "Error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/delete/{id}": {
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete User Account",
+        "description": "Deletes a user account based on the provided user ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "integer",
+              "example": 18
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User account deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error deleting user account",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "Error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/generate-onetime/{id}": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "Generate One-Time Token",
+        "description": "Generates a one-time token for a user based on the provided user ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "integer",
+              "example": 18
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One-time token generated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 18
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/refresh-api-token/{id}": {
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Refresh API Token",
+        "description": "Generates and updates the API token for a user based on the provided user ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "integer",
+              "example": 18
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API token refreshed successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 18,
+                  "api_token": "new_api_token"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error refreshing API token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "msg": "Error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manage/api/users/session-refresh/{id}": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "Refresh User Session",
+        "description": "Refreshes the session for a user based on the provided user ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "integer",
+              "example": 18
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session refreshed successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 18
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "app_submit_body": {
+        "type": "object",
+        "properties": {
+          "inst": {
+            "type": "string",
+            "description": "Institution code"
+          },
+          "crs": {
+            "type": "string",
+            "description": "Course code"
+          },
+          "yr": {
+            "type": "string",
+            "description": "Year code"
+          },
+          "md": {
+            "type": "string",
+            "description": "Module code"
+          },
+          "grp": {
+            "type": "string",
+            "description": "Group code"
+          },
+          "chc": {
+            "type": "string",
+            "description": "Checkout code"
+          },
+          "tk": {
+            "type": "string",
+            "description": "Token"
+          }
+        }
+      },
+      "extension_body": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in format example 'Sunday 18 February'"
+          },
+          "time": {
+            "type": "string",
+            "description": "Start time or time range of session. Example '15:30 - 16:30'"
+          },
+          "space": {
+            "type": "string",
+            "description": "Physical address space of session"
+          },
+          "activity": {
+            "type": "string",
+            "description": "Title of activity e.g. 'Lecture'"
+          }
+        }
+      }
+    }
+  }
+}

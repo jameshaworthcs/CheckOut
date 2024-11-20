@@ -1,0 +1,116 @@
+body {
+    /* background-color: #0A0520; */
+    /* color: #E0E0E0; */
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    text-align: center;
+    margin: 20px 0;
+}
+
+a {
+    text-decoration: underline;
+    /* color: #66A4E1; */
+}
+
+
+.lighthouse {
+    max-width: 100%;
+    height: auto;
+}
+
+.accordion-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.accordion {
+    background: linear-gradient(105.36deg, #253054 0.61%, rgba(51, 48, 61, 0.5) 169.87%);
+    border: 1px solid #3dcbff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background: linear-gradient(105.36deg, rgba(37, 48, 84, 0.9) 0.61%, rgba(51, 48, 61, 0.7) 169.87%);
+    font-size: 1.1em;
+    color: #E0E0E0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.accordion-header:hover {
+    background: linear-gradient(105.36deg, rgba(37, 48, 84, 1) 0.61%, rgba(51, 48, 61, 0.8) 169.87%);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background: linear-gradient(105.36deg, rgba(20, 20, 35, 1) 0.61%, rgba(51, 48, 61, 0.4) 169.87%);
+    font-size: 0.9em;
+    color: #B0B0B0;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.accordion-content p {
+    padding: 15px;
+    margin: 0;
+    font-size: 16px;
+}
+
+.accordion.active .accordion-content {
+    max-height: 600px;
+}
+
+.accordion:not(.active) .accordion-header {
+    border-radius: 8px;
+}
+
+.chevron {
+    width: 20px;
+    height: 20px;
+    fill: #E0E0E0;
+    transition: transform 0.3s ease;
+}
+
+.accordion.active .chevron {
+    transform: rotate(180deg);
+}
+
+.footer-help {
+    width: 80%; /* Adjust the width as needed */
+    max-width: 400px;
+    margin: 20px auto; /* Center horizontally with margin above and below */
+    margin-bottom: 40px;
+    text-align: center; /* Center the text */
+    padding: 20px; /* Add padding inside the container */
+    border: 1px solid #ccc; /* Optional: Add a border for visual separation */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+.footer-help-title {
+    margin-bottom: 10px; /* Spacing between title and content */
+    font-size: 1.5em; /* Increase font size for the title */
+    font-weight: bold; /* Make the title bold */
+}
+
+.footer-help-content {
+    margin-top: 10px; /* Add margin above the content */
+}
+
+.footer-help p {
+    margin: 0; /* Remove default margin from paragraph */
+    padding: 5px 0; /* Add spacing around the text */
+}

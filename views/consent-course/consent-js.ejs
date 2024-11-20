@@ -1,0 +1,296 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve values from localStorage
+    const inst = localStorage.getItem('inst');
+    const crs = localStorage.getItem('crs');
+    const yr = localStorage.getItem('yr');
+    const instName = localStorage.getItem('inst_name');
+    const crsName = localStorage.getItem('crs_name');
+
+    // Get the course-details div and its associated elements
+    const courseDetailsDiv = document.querySelector('.course-details');
+    const instNameSpan = document.getElementById('inst_name');
+    const yrSpan = courseDetailsDiv.querySelector('#yr');
+    const crsNameSpan = document.getElementById('crs_name');
+
+    // Update the data attributes and text content if localStorage values are available
+    if (inst) {
+        courseDetailsDiv.setAttribute('data-inst', inst);
+    }
+    if (yr) {
+        courseDetailsDiv.setAttribute('data-yr', yr);
+        yrSpan.textContent = yr;
+    }
+    if (crs) {
+        courseDetailsDiv.setAttribute('data-crs', crs);
+    }
+    if (instName) {
+        instNameSpan.textContent = instName;
+    }
+    if (crsName) {
+        crsNameSpan.textContent = crsName;
+    }
+});
+
+function adjustFooterPosition() {
+    const content = document.querySelector('.content');
+    const footer = document.querySelector('.footer');
+    const contentHeight = content.scrollHeight;
+    const viewportHeight = window.innerHeight;
+    const headerHeight = document.querySelector('.header').offsetHeight;
+    const footerHeight = footer.offsetHeight;
+
+    if (contentHeight + headerHeight + footerHeight > viewportHeight) {
+        footer.style.position = 'sticky';
+        footer.style.bottom = '0';
+        footer.style.marginTop = 'auto';
+    } else {
+        footer.style.position = 'relative';
+        footer.style.bottom = 'auto';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', adjustFooterPosition);
+window.addEventListener('resize', adjustFooterPosition);
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        let activeElement = document.activeElement;
+        if (!activeElement || (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))) {
+            document.getElementById('continue-btn').click();
+        }
+    }
+});
+
+function showLoadingOverlay(duration) {
+    const overlay = document.getElementById('loading-overlay');
+    const clipRect = document.getElementById('clip-rect');
+    const spinner = document.getElementById('loading-spinner');
+
+    overlay.style.visibility = 'visible';
+    overlay.style.opacity = '1';
+
+    clipRect.setAttribute('width', '0');
+
+    let startTime = null;
+    let animationCompleted = false;
+
+    function animateReveal(time) {
+        if (!startTime) startTime = time;
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        clipRect.setAttribute('width', `${progress * 100}%`);
+
+        if (progress < 1) {
+            requestAnimationFrame(animateReveal);
+        } else {
+            animationCompleted = true;
+            if (window.overlayDone) {
+                removeOverlay();
+            } else {
+                spinner.style.display = 'block';
+            }
+        }
+    }
+
+    requestAnimationFrame(animateReveal);
+
+    window.endLoadingOverlay = function() {
+        window.overlayDone = true;
+        if (animationCompleted) {
+            removeOverlay();
+        }
+    }
+
+    function removeOverlay() {
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        clipRect.setAttribute('width', '0');
+        spinner.style.display = 'none';
+        window.overlayDone = false;
+        animationCompleted = false;
+    }
+
+    window.overlayDone = false;
+}
+
+document.getElementById('continue-btn').addEventListener('click', function() {
+    // Show the loading overlay
+    showLoadingOverlay(450);
+
+    // Get the course details from the DOM
+    const courseDetailsDiv = document.querySelector('.course-details');
+    const courseData = {
+        inst: courseDetailsDiv.getAttribute('data-inst'),
+        yr: courseDetailsDiv.getAttribute('data-yr'),
+        crs: courseDetailsDiv.getAttribute('data-crs')
+    };
+
+    // const themeSelectionDiv = document.getElementById('theme-selection');
+    // const themeID = themeSelectionDiv.getAttribute('data-selected');
+
+    const themeID = "2";
+
+    // First API call to save course information
+    fetch('/api/course-select/save', { // First save course details
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(courseData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && themeID != "null") {
+            // If the first API call is successful, proceed to the second API call
+            return fetch('/api/welcome/consent', { // Secondly save consent
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ deviceID: data.deviceID, themeID })
+            });
+        } else {
+            if (themeID == "null") {
+                throw new Error("Select theme")
+            } else {
+                // If the second API call fails, throw an error
+                throw new Error(data.msg || 'Failed to save course information.');
+            }
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Function to remove the 'theme' query parameter from the URL
+        function removeThemeFromURL(url) {
+            let parsedURL = new URL(url);
+            parsedURL.searchParams.delete('theme');  // Remove the 'theme' query parameter
+            return parsedURL.href;
+        }
+
+        // Update the current page URL without reloading
+        let updatedURL = removeThemeFromURL(window.location.href);
+        window.history.replaceState(null, '', updatedURL);
+
+        if (data.success && themeID != "null") {
+            // Preload the current page in the background
+            let preloadedPage;
+
+            // Use the Fetch API to preload the page
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    preloadedPage = html;
+                })
+                .catch(error => {
+                    console.error('Error preloading the page:', error);
+                });
+
+            // Wait 500ms, then swap the page content with the preloaded content
+            setTimeout(() => {
+                if (preloadedPage) {
+                    document.open();
+                    document.write(preloadedPage);
+                    document.close();
+                } else {
+                    // Fallback to a regular reload if preloading fails
+                    location.reload();
+                }
+            }, 300);
+        } else {
+            if (themeID == "null") {
+                throw new Error("Select theme")
+            } else {
+                // If the second API call fails, throw an error
+                throw new Error(data.msg || 'Failed to complete setup.');
+            }
+        }
+    })
+    .catch(error => {
+        // If any of the API calls fail, hide the loading overlay and show the error message
+        window.endLoadingOverlay();
+        
+        const errorText = document.getElementById('errorText');
+        if (error.message) {
+            // If there's a response from the server with an error message
+            errorText.innerHTML = error.message;
+        } else {
+            // For network errors or other unexpected issues
+            errorText.textContent = 'A network error occurred. Please try again later.';
+        }
+    });
+});
+
+////////////
+// Themes //
+////////////
+
+//document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("disabled", function () {
+  const themeSelectionDiv = document.getElementById('theme-selection');
+  const blueThemeColumn = document.getElementById('blue-theme');
+  const modernThemeColumn = document.getElementById('modern-theme');
+  const minecraftThemeColumn = document.getElementById('minecraft-theme');
+
+  // Helper function to set selected theme
+  function setSelectedTheme(theme) {
+    const currentSelected = document.querySelector('.selected');
+    if (currentSelected) {
+      currentSelected.classList.remove('selected');
+    }
+
+    if (theme === '1') {
+      blueThemeColumn.classList.add('selected');
+    } else if (theme === '2') {
+      modernThemeColumn.classList.add('selected');
+    }
+
+    themeSelectionDiv.setAttribute('data-selected', theme);
+
+    // Only update the URL and reload if the theme has changed
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('theme') !== theme) {
+      urlParams.set('theme', theme);
+      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+      window.location.href = newUrl;
+    }
+  }
+
+  // Check URL for theme parameter on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedTheme = urlParams.get('theme');
+  if (selectedTheme) {
+    setSelectedTheme(selectedTheme);
+  }
+
+  // Add click listeners to Blue and Modern themes
+  blueThemeColumn.addEventListener('click', function () {
+    setSelectedTheme('1');
+  });
+
+  modernThemeColumn.addEventListener('click', function () {
+    setSelectedTheme('2');
+  });
+
+  // Minecraft column click handler (no selection allowed)
+  minecraftThemeColumn.addEventListener('click', function () {
+    const minecraftLabel = minecraftThemeColumn.querySelector('.theme-label');
+    const originalText = minecraftLabel.textContent;
+
+    // Change text to "Coming soon!" and add red flash
+    minecraftLabel.textContent = 'Coming soon!';
+    minecraftLabel.classList.add('red-flash');
+
+    // Revert the text and red flash after 2 seconds
+    setTimeout(function () {
+      minecraftLabel.textContent = originalText;
+      minecraftLabel.classList.remove('red-flash');
+    }, 2000);
+  });
+});
+
+
+
+
+
+</script>

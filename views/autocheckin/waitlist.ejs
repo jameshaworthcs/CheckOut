@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../global/head'); %>
+    <title>Welcome to AutoCheckin</title>
+    <style>
+    /* :root {
+        --font: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    } */
+
+    /* html {
+        scrollbar-color: #222744 #0A0520;
+    } */
+
+    body {
+        margin: 0 auto;
+        /* font-family: var(--font);
+        background-color: #0A0520; */
+        /* color: white; */
+        display: flex;
+        flex-direction: column;
+        /* min-height: 100vh; */
+        width: 100%;
+        max-width: 500px;
+    }
+
+    /* button {
+        font-family: var(--font);
+    } */
+
+    .header {
+        /* background-color: var(--page-background); */
+        padding: 20px;
+        text-align: center;
+        font-size: 21px;
+        border-bottom: 0;
+        /* Remove default border */
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* transform: translate(13px, -4px); */
+        margin-top: 10px;
+    }
+
+    .header-content svg {
+        margin-left: -1px;
+        height: 25px;
+        transform: translate(0, -7px);
+        fill: var(--text-colour);
+    }
+
+    .content {
+        padding: 20px;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .sub-text {
+        text-align: center;
+        line-height: 15px;
+        margin-block-start: 0;
+    }
+
+    .footer {
+        background-color: var(--page-background);
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    #errorText {
+        color: rgb(255, 80, 80);
+        margin-block-start: 0;
+        margin-block-end: 0;
+    }
+
+    .termsText {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #ccc;
+    }
+
+    .tosLink,
+    .tosLink:active,
+    .tosLink:visited {
+        /* color: #58a6ff; */
+        text-decoration: none;
+    }
+
+    #continue-btn {
+        background-color: var(--action-colour);
+        color: var(--cta-button-colour);
+        border: none;
+        padding: 15px;
+        font-size: .87rem;
+        font-weight: 550;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 5px;
+        /* Rounded button */
+    }
+
+    #continue-btn:hover {
+        background-color: var(--action-highlight-colour);
+    }
+
+    #continue-btn.grey,
+    #continue-btn.grey:hover {
+        background-color: lightgrey;
+        cursor: not-allowed;
+    }
+
+
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    #loading-content {
+        text-align: center;
+        position: relative;
+    }
+
+    #loading-svg {
+        opacity: 1;
+    }
+
+    .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: calc(100% + 20px);
+        left: 50%;
+        margin: 5px 0 0 -20px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+
+/* Promo container with colorful gradient border like btn-55 */
+.promo-container {
+  background: linear-gradient(145deg, #947e57, #00bdff);
+  border-radius: 19px;
+  box-sizing: border-box;
+  display: block;
+  overflow: hidden;
+  position: relative;
+  padding: 1.8rem 5rem;
+  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 527px;
+}
+
+/* Inner promo div to hold the content */
+.promo-inner {
+  background: #1e293b;
+  border-radius: 19px;
+  color: #fff;
+  position: absolute;
+  inset: 1.5px;  /* Inset to create the same border effect */
+  padding: 10px;
+  transition: background 0.3s;
+}
+
+/* Header styling with stacked text */
+.promo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.intro-text {
+  color: #ffae00;
+  font-size: 1.5em;
+  text-align: left;
+  /* width: 100%;
+  padding-left: 10px; */
+  margin-left: -200px;
+  margin-top: 10px;
+}
+
+.autocheckin-text {
+  background: linear-gradient(45deg, #ff007f, #ffae00, #5dd1ff, #7c4dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  font-size: 2.1em;
+  text-align: center;
+  width: 100%;
+  /* padding-right: 10px; */
+}
+
+/* Content section with feature bubbles styled as buttons */
+.promo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-55 {
+  background: linear-gradient(145deg, #3e3ea6, #a75858);
+  border-radius: 999px;
+  box-sizing: border-box;
+  color: #000;
+  display: block;
+  /* font-weight: 900; */
+  overflow: hidden;
+  padding: 1.8rem 5rem;
+  position: relative;
+  /* text-transform: uppercase; */
+  transition: transform 0.3s ease;
+  /* z-index: 1; */
+  /* width: 80%;
+  max-width: 300px; */
+  /* margin: 0 auto; */
+}
+
+.btn-55 span {
+  background: #1e293b;
+  border-radius: 999px;
+  color: #fff;
+  display: grid;
+  inset: 1.5px;
+  place-items: center;
+  position: absolute;
+  transition: background 0.3s;
+  padding: 0px 17px;
+  text-align: center;
+}
+
+.btn-55:hover span {
+  background: none;
+}
+
+.bubble-left {
+  align-self: flex-start;
+}
+
+.bubble-right {
+  align-self: flex-end;
+}
+
+.btn-55:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+}
+
+
+
+
+    /* Add [ENTER] text and adjust styles for desktop */
+    @media (min-width: 601px) {
+        #continue-btn:not(.grey)::after {
+            content: " [ENTER]";
+            font-size: 0.87rem;
+            font-weight: 550;
+            color: #0A0520;
+        }
+
+        
+        .footer {
+            background-color: transparent;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .content {
+            flex: 1;
+            max-width: 100%;
+            padding: 10px;
+        }
+
+        #continue-btn {
+            max-width: 100%;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div id="loading-content">
+            <svg id="loading-svg" width="100" height="100">
+                <defs>
+                    <clipPath id="reveal-clip">
+                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+                    </clipPath>
+                </defs>
+                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
+            </svg>
+            <div id="loading-spinner" class="loader" style="display: none;"></div>
+        </div>
+      </div>
+    <div class="header">
+        <div class="header-content">
+            <span>Welcome to <b>AutoCheckin</b></span>
+            <%- include('../global/icons/sparkle'); %>
+        </div>
+    </div>
+    <div class="content">
+        <p class="sub-text"><b>You'll love what AutoCheckin can do for you.</b><br><br><span class="subtext">Say hello to <b>the most effortless</b> way to checkin.</span></p>
+        <div class="promo-container">
+            <div class="promo-inner">
+                <div class="promo-content">
+                    <div class="btn-55 bubble-right" style="width: 268px;">
+                        <span>Skip Duo Authentication and the check-in site entirely.</span>
+                    </div>
+                    <div class="btn-55 bubble-left" style="width: 280px;">
+                        <span>Set up once, and remain logged in for as long as you need.</span>
+                    </div>
+                    <div class="btn-55 bubble-right" style="width: 290px;">
+                        <span>AutoCheckin keeps a record of your timetable and sessions.</span>
+                    </div>
+                </div>
+        
+                <div class="promo-header">
+                    <div class="intro-text">Introducing</div>
+                    <div class="autocheckin-text">AutoCheckin</div>
+                </div>
+        
+                <div class="promo-content">
+                    <div class="btn-55 bubble-left" style="width: 308px;">
+                        <span>You’re in control: share check-in codes or keep them private.</span>
+                    </div>
+                    <div class="btn-55 bubble-right" style="width: 293px;">
+                        <span>Impossible for us to access anything outside of CheckIn.</span>
+                    </div>
+                    <div class="btn-55 bubble-left" style="width: 295px;">
+                        <span>Login can’t be used for e:Vision, VLE, email, or other services.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+          
+          
+          
+          
+                
+    </div>
+    <div class="footer">
+        <p id="errorText"></p>
+        <% 
+        let waitlistButtonText;
+        let subtext;
+        let actionType;
+        let greyButton = "";
+        
+        if (typeof userData === 'undefined' || typeof userData.checkinReport === 'undefined') {
+            actionType = "1";
+            waitlistButtonText = "Register or sign in to join Waitlist"
+            subtext = `Set up already? <a class="tosLink" href="?login">Sign in</a> to access your AutoCheckin.`
+        } else if (userData.checkinReport === "Waitlist") {
+            actionType = "2";
+            greyButton = "grey";
+            waitlistButtonText = "You're on the Waitlist"
+            subtext = `Thanks for joining the waitlist, ${userData.username||"name"}. You'll need to activate AutoCheckin later. Expect an email if you're accepted. <a id="leave-waitlist" class="tosLink" href="">Leave waitlist.</a>`
+        } else {
+            actionType = "3";
+            waitlistButtonText = "Join the Waitlist"
+            subtext = `Joining the waitlist won't activate AutoCheckin until you choose. We'll notify you by email if accepted.`
+        }        
+        %>
+
+        <button id="continue-btn" class="<%- greyButton %>" data-action="<%- actionType %>"><%- waitlistButtonText %></button>
+        <p id="termsText" class="termsText">
+            <%- subtext %>
+            <br><br>
+            <a class="tosLink" href="/">return to CheckOut</a>
+        </p>
+    </div>
+
+    <script>
+function adjustFooterPosition() {
+    const content = document.querySelector('.content');
+    const footer = document.querySelector('.footer');
+    const contentHeight = content.scrollHeight;
+    const viewportHeight = window.innerHeight;
+    const headerHeight = document.querySelector('.header').offsetHeight;
+    const footerHeight = footer.offsetHeight;
+
+    if (contentHeight + headerHeight + footerHeight > viewportHeight) {
+        footer.style.position = 'sticky';
+        footer.style.bottom = '0';
+        footer.style.marginTop = 'auto';
+    } else {
+        footer.style.position = 'relative';
+        footer.style.bottom = 'auto';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', adjustFooterPosition);
+window.addEventListener('resize', adjustFooterPosition);
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        let activeElement = document.activeElement;
+        if (!activeElement || (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))) {
+            document.getElementById('continue-btn').click();
+        }
+    }
+});
+
+function showLoadingOverlay(duration) {
+    const overlay = document.getElementById('loading-overlay');
+    const clipRect = document.getElementById('clip-rect');
+    const spinner = document.getElementById('loading-spinner');
+
+    overlay.style.visibility = 'visible';
+    overlay.style.opacity = '1';
+
+    clipRect.setAttribute('width', '0');
+
+    let startTime = null;
+    let animationCompleted = false;
+
+    function animateReveal(time) {
+        if (!startTime) startTime = time;
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        clipRect.setAttribute('width', `${progress * 100}%`);
+
+        if (progress < 1) {
+            requestAnimationFrame(animateReveal);
+        } else {
+            animationCompleted = true;
+            if (window.overlayDone) {
+                removeOverlay();
+            } else {
+                spinner.style.display = 'block';
+            }
+        }
+    }
+
+    requestAnimationFrame(animateReveal);
+
+    window.endLoadingOverlay = function() {
+        window.overlayDone = true;
+        if (animationCompleted) {
+            removeOverlay();
+        }
+    }
+
+    function removeOverlay() {
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        clipRect.setAttribute('width', '0');
+        spinner.style.display = 'none';
+        window.overlayDone = false;
+        animationCompleted = false;
+    }
+
+    window.overlayDone = false;
+}
+
+function updateQueryParameter(url, key, value) {
+        let urlObj = new URL(url);
+        urlObj.searchParams.set(key, value);
+        return urlObj.toString();
+    }
+
+document.getElementById('continue-btn').addEventListener('click', function() {
+    // Function to preload the page and then swap the content or reload the page
+    function preloadAndSwapPage(url) {
+        let preloadedPage;
+
+        // Use the Fetch API to preload the page with the updated URL
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                preloadedPage = html;
+            })
+            .catch(error => {
+                console.error('Error preloading the page:', error);
+            });
+
+        // Wait 500ms, then swap the page content with the preloaded content
+        setTimeout(() => {
+            if (preloadedPage) {
+                document.open();
+                document.write(preloadedPage);
+                document.close();
+            } else {
+                // Fallback to a regular reload if preloading fails
+                window.location.href = url;
+            }
+        }, 300);
+    }
+
+    // Get 1,2 or 3
+    const actionType = document.getElementById('continue-btn').getAttribute('data-action');
+
+    if (actionType === "1") {
+        // Sign in
+        showLoadingOverlay(450);
+        let currentUrl = window.location.href;
+        let updatedUrl = updateQueryParameter(currentUrl, 'login', '');
+        preloadAndSwapPage(updatedUrl);
+    } else if (actionType === "2") {
+        // Already on waitlist
+        document.getElementById('continue-btn').textContent = "You're ALREADY ON on the waitlist";
+    } else {
+        // To join waitlist
+        showLoadingOverlay(450);
+        fetch('/api/account/waitlist', { // First save course details
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({"action": "join", "waitlist": "AutoCheckin"})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.endLoadingOverlay();
+                let parsedURL = new URL(window.location.href);
+                parsedURL.searchParams.delete('login');
+                parsedURL.searchParams.delete('left');
+                preloadAndSwapPage(parsedURL);
+            } else {
+                throw new Error(data.msg || 'Failed to join waitlist.');
+            }
+        })
+        
+        .catch(error => {
+            // If any of the API calls fail, hide the loading overlay and show the error message
+            window.endLoadingOverlay();
+            if (error.message) {
+                // If there's a response from the server with an error message
+                displayNotice(error.message, "error")
+            } else {
+                // For network errors or other unexpected issues
+                displayNotice("Unable to join waitlist.", "error")
+            }
+        });
+    }
+});
+
+<% if (actionType === "2") { %>
+
+    var leaveWaitlistButton = document.getElementById('leave-waitlist');
+    if (leaveWaitlistButton) {
+        leaveWaitlistButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        showLoadingOverlay(450);
+
+        // Function to preload the page and then swap the content or reload the page
+        function preloadAndSwapPage(url) {
+            let preloadedPage;
+
+            // Use the Fetch API to preload the page with the updated URL
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    preloadedPage = html;
+                })
+                .catch(error => {
+                    console.error('Error preloading the page:', error);
+                });
+
+            // Wait 500ms, then swap the page content with the preloaded content
+            setTimeout(() => {
+                if (preloadedPage) {
+                    document.open();
+                    document.write(preloadedPage);
+                    document.close();
+                    // Update the browser's address bar with the new URL without reloading the page
+                    history.pushState(null, '', url);
+                    displayWaitlistNotice();
+                } else {
+                    // Fallback to a regular reload if preloading fails
+                    window.location.href = url;
+                }
+            }, 300);
+        }
+
+        // To leave waitlist
+        showLoadingOverlay(450);
+        fetch('/api/account/waitlist', { // First save course details
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({"action": "leave", "waitlist": "AutoCheckin"})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.endLoadingOverlay();
+                let parsedURL = new URL(window.location.href);
+                parsedURL.searchParams.delete('login');
+                parsedURL = updateQueryParameter(parsedURL, 'left', 'true');
+                preloadAndSwapPage(parsedURL);
+                console.log(parsedURL)
+            } else {
+                throw new Error(data.msg || 'Failed to leave waitlist.');
+            }
+        })
+        
+        .catch(error => {
+            // If any of the API calls fail, hide the loading overlay and show the error message
+            window.endLoadingOverlay();
+            if (error.message) {
+                // If there's a response from the server with an error message
+                displayNotice(error.message, "error")
+            } else {
+                // For network errors or other unexpected issues
+                displayNotice("Unable to leave waitlist.", "error")
+            }
+        });
+    });
+    }
+
+    function displayWaitlistNotice() {
+        const queryString = window.location.href;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.has('left') || true) {
+            displayNotice("You've left the waitlist");
+        }
+    }
+<% } %>
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+html-minify/
+.vscode/
+
+# Logs and Build Artifacts
+*.log
+build/
+dist/
+old/
+
+# Config Files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+ecosystem*
+
+# Package stuff
+node_modules
+node_modules/
+node_modules.new
+ecosystem*
+
+# OS-specific files
+.DS_Store

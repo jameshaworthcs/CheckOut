@@ -1,0 +1,1659 @@
+<script>
+///////////////
+// Error Box //
+///////////////
+
+function showErrorBox(message, targetId) {
+        const targetDiv = document.getElementById(targetId);
+        if (!targetDiv) {
+            console.error(`No element found with id ${targetId}`);
+            return;
+        } else {
+            console.error(message);
+        }
+
+        const errorBox = document.createElement('div');
+        errorBox.className = 'error-box';
+
+        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>`;
+
+        errorBox.innerHTML = svgIcon + '<p>'+message+'</p>';
+        targetDiv.innerHTML = ''; // Clear the existing content
+        targetDiv.appendChild(errorBox);
+
+        // Show error on submit form
+        document.querySelector('.submit-skeleton').classList.add('hidden');
+        document.querySelector('.submit-form').classList.remove('hidden');
+
+        // Show error on classes content
+        const classesSkeleton = document.querySelector('.classes-skeleton');
+        const classesContent = document.querySelector('.classes-content');
+        classesSkeleton.style.display = 'none';
+        classesContent.style.display = 'block';
+    }
+
+/////////////////////
+// Start API calls //
+/////////////////////
+
+function setup(refreshSubmit = true) {
+    lastSetupCall = Date.now();
+    resetRefreshTimer();
+    getV2().then(data => {
+        const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
+        const username = userInfo.username; // Extract the username here
+        fillUsername(username);
+        if (refreshSubmit) {
+            if (tibl) {
+                fillSubmitForm(sessionCount, msg, sessions);
+            } else {
+                fillSubmitFormNonTibl(legacy_modules);
+            }
+        }
+        fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+    }).catch(error => {
+        console.error(error);
+        // Handle error and display error message
+        if (error.response && error.response.msg) {
+            displayNotice(error.response.msg, 'error', 'Network error', 0);
+            if (refreshSubmit) {
+                showErrorBox(error.response.msg, 'submit-form');
+            }
+            showErrorBox(error.response.msg, 'classes-content');
+        } else {
+            //displayNotice('Something went wrong. Unable to connect to API.', 'error', 'Network error', 0);
+            if (refreshSubmit) {
+                showErrorBox("Something went wrong. Unable to connect to authoritative servers.", 'submit-form');
+            }
+            showErrorBox("Something went wrong. Retrying...", 'classes-content');
+        }
+    });
+}
+
+function setupCached() {
+    // Import cached v2Data from the server-side
+    const data = <% if (typeof v2Data !== 'undefined') { %><%- v2Data %><% } else { %>{}<% } %>;
+
+    // Simulate the API call with the cached data
+    Promise.resolve(data).then(data => {
+        const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
+        if (tibl) {
+            fillSubmitForm(sessionCount, msg, sessions);
+        } else {
+            fillSubmitFormNonTibl(legacy_modules);
+        }
+        fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+    }).catch(error => {
+        console.error(error);
+        // Handle error and display error message
+        if (error.response && error.response.msg) {
+            displayNotice(error.response.msg, 'error', 'Network error', 0);
+            showErrorBox(error.response.msg, 'submit-form');
+            showErrorBox(error.response.msg, 'classes-content');
+        } else {
+            displayNotice(error.response.msg, 'error', 'Network error', 0);
+            showErrorBox("Something went wrong. Unable to connect to API.", 'submit-form');
+            showErrorBox("Something went wrong. Unable to connect to API.", 'classes-content');
+        }
+    });
+}
+
+// Main setup function
+setupCached();
+
+// Refresh the page every 5 seconds
+let lastSetupCall = Date.now();
+let refreshInterval = 5000; // 5 seconds
+let refreshTimer;
+let refreshEnabled = true;
+let blockAllRefresh = false;
+let lastUserInteraction = 0;
+let interactionDelay = 15000; // 15 seconds
+
+function resetRefreshTimer() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(checkIfShouldRefresh, refreshInterval);
+}
+
+function checkIfShouldRefresh() {
+    const now = Date.now();
+    if (blockAllRefresh) {
+        console.log('No refresh');
+        return;
+    } else if (!refreshEnabled) {
+        showRefreshLoader();
+        setup(false); // Setup without refreshing the submit form
+    } else if ((now - lastUserInteraction > interactionDelay)) {
+        showRefreshLoader();
+        setup(); // Call setup only if no user interaction in the last 15 seconds
+    } else {
+        resetRefreshTimer(); // Reschedule the refresh check if user interaction was recent
+    }
+}
+
+function cancelRefresh(hardCancel = false) {
+    if (hardCancel) {
+        blockAllRefresh = true;
+    }
+    refreshEnabled = false;
+    clearTimeout(refreshTimer);
+}
+
+// Track user interactions and update the last interaction time
+function userInteraction() {
+    lastUserInteraction = Date.now();
+    resetRefreshTimer(); // Reset the timer whenever there's user interaction
+}
+
+function showRefreshLoader() {
+    // Show the loader
+    document.getElementById('code-refresh-loader').style.display = 'inline-block';
+    // Hide the refresh button after 1 second delay
+    setTimeout(() => {
+        document.getElementById('code-refresh-loader').style.display = 'none';
+    }, 1000);
+}
+
+// Call setup on page load
+document.addEventListener('DOMContentLoaded', function () {
+    setup();
+});
+
+// Handle visibility change when user switches tabs
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && refreshEnabled) {
+        let now = Date.now();
+        if (now - lastSetupCall >= refreshInterval && now - lastUserInteraction > interactionDelay) {
+            setup();
+        } else {
+            resetRefreshTimer();
+        }
+    }
+});
+
+// Listen for user interaction (clicks, key presses, etc.)
+document.addEventListener('click', userInteraction);
+document.addEventListener('keydown', userInteraction);
+
+// Example of calling `cancelRefresh()` from elsewhere in the page
+// This function disables further refreshing for the current visit
+// cancelRefresh();
+
+////////////////
+// GET v2 API //
+////////////////
+
+async function getV2() {
+    try {
+        const response = await fetch('/api/app/v2');
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            throw { status: response.status, response: errorResponse };
+        }
+        const jsonResponse = await response.json();
+        const { userInfo, sessionCount, msg, userPerms, sessions, tibl, legacy_modules, nextSessions } = jsonResponse;
+        return { userInfo, sessionCount, msg, userPerms, sessions, tibl, legacy_modules, nextSessions };
+    } catch (error) {
+        if (error.response) {
+            console.error('Error response from API:', error.response);
+            throw error;
+        } else {
+            console.error('Error fetching API:', error);
+            throw new Error('Failed to fetch data from API');
+        }
+    }
+}
+
+///////////////////
+// Fill username //
+///////////////////
+
+// Initial check for stored username
+const storedUsername = localStorage.getItem('username');
+if (storedUsername) {
+    // If username exists in localStorage, call function without updating storage
+    fillUsername(storedUsername, false);
+} 
+
+function fillUsername(username, shouldStore = true) {
+    // Find the span element by its ID
+    const nameTextSpan = document.getElementById('name-text');
+    
+    // Find the div with the class 'skeleton-name'
+    const skeletonNameDiv = document.querySelector('.skeleton-name');
+    
+    // Remove the skeletonNameDiv if it exists
+    if (skeletonNameDiv) {
+        skeletonNameDiv.remove();
+    }
+    
+    // Replace the span text with 'Hello, $username'
+    if (nameTextSpan) {
+        nameTextSpan.textContent = `Hello, ${username}`;
+    }
+    
+    // Save to localStorage only if shouldStore is true
+    if (shouldStore) {
+        localStorage.setItem('username', username);
+    }
+}
+
+/////////////////////////////////
+// Fill submit form (Non-tibl) //
+/////////////////////////////////
+
+function fillSubmitFormNonTibl(legacy_modules) {
+    const submitFormElement = document.getElementById('submit-form');
+    submitFormElement.innerHTML = '';  // Clear existing content
+
+    if (false) {
+        showErrorBox("Submissions are currently disabled.", 'submit-form');
+        return;
+    } else {
+        var moduleOptionsHTML = '';
+        legacy_modules.forEach(module => {
+            moduleOptionsHTML += `<div class="moduleOption-NonTibl" data-value="${module.module_code}">${module.module_name}</div>`;
+        });
+        submitFormElement.innerHTML = `
+        <form class="s-form" id="submitForm">
+      <label class="formLabel" for="md">Module:</label>
+        <div id="moduleSelection-NonTibl">
+            ${moduleOptionsHTML}
+        </div>
+        <input type="hidden" name="md" id="md" required>
+      <br>
+      <label class="formLabel" for="grp">Group Number:</label>
+        <div id="groupSelection-NonTibl">
+            <!-- Add 'selected' class to pre select -->
+            <div class="groupOption-NonTibl" data-value="Lecture">Lecture</div>
+            <div class="groupOption-NonTibl" data-value="1">1</div>
+            <div class="groupOption-NonTibl" data-value="2">2</div>
+            <div class="groupOption-NonTibl" data-value="3">3</div>
+            <div class="groupOption-NonTibl" data-value="4">4</div>
+            <div class="groupOption-NonTibl" data-value="5">5</div>
+            <div class="groupOption-NonTibl" data-value="6">6</div>
+        </div>
+        <input type="hidden" name="grp" id="grp" required>
+      <br>
+      <label class="formLabel" for="chc">Check-out Code:</label>
+      <input class="chc-input" type="tel" placeholder="******" name="chc" id="chc" pattern="\\d{6}" maxlength="6" oninput="validateInput(this)" required>
+    <input type="hidden" name="inst" value="">
+    <input type="hidden" name="crs" value="">
+    <input type="hidden" name="yr" value="">
+    <br><br>
+      <button id="submit-button" class="cta-button" type="submit" value="SUBMIT" data-form-type="action">SUBMIT</button>
+    </form>
+    `
+        document.querySelector('.submit-skeleton').classList.add('hidden');
+        document.querySelector('.submit-form').classList.remove('hidden');
+
+        setupSubmit()
+
+        document.getElementById("chc").focus();
+        setupSelectableOptionsNonTibl('moduleOption-NonTibl', 'md');
+        setupSelectableOptionsNonTibl('groupOption-NonTibl', 'grp');
+    }
+}
+
+function setupSelectableOptionsNonTibl(className, inputId) {
+    document.querySelectorAll('.' + className).forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.' + className).forEach(div => {
+                div.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            document.getElementById(inputId).value = this.getAttribute('data-value');
+        });
+    });
+}
+
+//////////////////////
+// Fill submit form //
+//////////////////////
+
+function fillSubmitForm(sessionCount, msg, sessions) {
+    const submitFormElement = document.getElementById('submit-form');
+    submitFormElement.innerHTML = '';  // Clear existing content
+
+    if (sessionCount === 0) {
+        submitFormElement.textContent = 'No classes are in progress, come back later.';
+    } else if (false) {
+        showErrorBox("Submissions are currently disabled.", 'submit-form');
+        return;
+    } else {
+        const form = document.createElement('form');
+        form.className = 's-form';
+        form.id = 'submitForm';
+        //form.method = 'POST';
+        //form.action = '/api/app/submit';
+
+        const overlayDiv = document.createElement('div');
+        overlayDiv.id = 'overlay';
+        overlayDiv.className = 'hidden';
+
+        const loaderDiv = document.createElement('div');
+        loaderDiv.className = 'loader';
+        overlayDiv.appendChild(loaderDiv);
+
+        const messageContainerDiv = document.createElement('div');
+        messageContainerDiv.id = 'messageContainer';
+        messageContainerDiv.className = 'hidden';
+
+        const autoSplashContainerDiv = document.createElement('div');
+        autoSplashContainerDiv.id = 'autoSplashContainer';
+
+        const label = document.createElement('label');
+        label.htmlFor = 'md';
+        label.className = 'subtext'
+        label.textContent = sessionCount === 1 ? "One activity in session is pre-selected." : `Select from ${sessionCount} activities currently in session:`;
+
+        const sessionSelectionDiv = document.createElement('div');
+        sessionSelectionDiv.id = 'sessionSelection';
+
+        sessions.forEach(session => {
+            const sessionOptionDiv = document.createElement('div');
+            sessionOptionDiv.id = 'sessionOption';
+            sessionOptionDiv.className = 'sessionOptionForm';
+            sessionOptionDiv.dataset.module = session.moduleCode;
+            sessionOptionDiv.dataset.activityid = session.rejectID;
+            sessionOptionDiv.textContent = session.description;
+
+            const img = document.createElement('div'); // div to use background image
+            img.className = 'selectTick hidden';
+            img.textContent = 'Selected';
+
+            const sessionInfoP = document.createElement('p');
+            sessionInfoP.className = 'sessionInfo';
+            sessionInfoP.textContent = `${session.moduleName} • ${session.startTime} - ${session.endTime}`;
+
+            sessionOptionDiv.appendChild(img);
+            sessionOptionDiv.appendChild(document.createElement('br'));
+            sessionOptionDiv.appendChild(sessionInfoP);
+
+            sessionSelectionDiv.appendChild(sessionOptionDiv);
+        });
+
+        autoSplashContainerDiv.appendChild(label);
+        autoSplashContainerDiv.appendChild(sessionSelectionDiv);
+
+        const hiddenInputs = [
+            { name: 'md', id: 'md', required: true },
+            { name: 'grp', id: 'grp', required: true },
+            { name: 'tk', value: 'random2' },
+            { name: 'inst', value: 'yrk' },
+            { name: 'crs', value: 'cs' },
+            { name: 'yr', value: '1' }
+        ];
+
+        hiddenInputs.forEach(inputData => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = inputData.name;
+            input.id = inputData.id || '';
+            input.required = inputData.required || false;
+            input.value = inputData.value || '';
+            form.appendChild(input);
+        });
+
+        const chcLabel = document.createElement('label');
+        chcLabel.className = 'formLabel';
+        chcLabel.htmlFor = 'chc';
+        chcLabel.textContent = 'Enter CheckOut Code:';
+
+        const chcInput = document.createElement('input');
+        chcInput.className = 'chc-input';
+        chcInput.type = 'tel';
+        chcInput.placeholder = '******';
+        chcInput.style.letterSpacing = '5px';
+        chcInput.style.textAlign = 'center';
+        chcInput.name = 'chc';
+        chcInput.id = 'chc';
+        chcInput.pattern = '\\d{6}';
+        chcInput.maxLength = 6;
+        chcInput.autocomplete = 'off';
+        chcInput.required = true;
+        chcInput.oninput = function() { validateInput(this); };
+
+        autoSplashContainerDiv.appendChild(chcLabel);
+        autoSplashContainerDiv.appendChild(chcInput);
+
+        form.appendChild(autoSplashContainerDiv);
+
+        const submitFooter = document.createElement('div');
+        submitFooter.id = 'submitFooter';
+        submitFooter.className = 'submit-footer';
+
+        const submitButton = document.createElement('button');
+        submitButton.id = 'submit-button';
+        submitButton.className = 'cta-button';
+        submitButton.type = 'submit';
+        submitButton.value = 'SUBMIT';
+        submitButton.dataset.formType = 'action';
+        submitButton.textContent = 'Submit Code';
+
+        submitFooter.appendChild(submitButton);
+
+        const submitInfoArea = document.createElement('div');
+        submitInfoArea.id = 'submitInfoArea';
+
+        const qr_btn = document.createElement('button');
+        qr_btn.id = 'qr-button';
+        qr_btn.className = 'qr-btn';
+        qr_btn.type = 'button';
+        qr_btn.value = 'Scan QR Code';
+        qr_btn.dataset.formType = 'action';
+
+        // Create a span to hold the text
+        const qr_text = document.createElement('span');
+        qr_text.textContent = 'Scan QR Code';
+
+        // Create the SVG element
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svg.setAttribute("width", "20");
+        svg.setAttribute("height", "20");
+        svg.setAttribute("viewBox", "0 0 321.73334 322.79166");
+        svg.setAttribute("version", "1.1");
+        svg.setAttribute("id", "svg5");
+        svg.setAttribute("xml:space", "preserve");
+        svg.setAttribute("class", "qr-svg");
+
+        // Create the <g> element
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("id", "layer1");
+        g.setAttribute("transform", "translate(47.503468,9.5701218)");
+
+        // Create the path element for the SVG
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("style", "stroke-width:0.264583");
+        path.setAttribute("d", "m 135.71989,277.43468 c -2.61119,-0.51316 -4.95086,-2.23525 -5.87121,-4.32144 -1.05371,-2.3885 -1.0652,-2.97894 -0.98659,-50.69136 0.0711,-43.12746 0.10652,-46.25885 0.5382,-47.52136 0.85261,-2.49355 2.70643,-4.29402 5.22641,-5.07602 1.31497,-0.40806 3.29102,-0.45158 20.50521,-0.45158 h 19.05 l 1.56589,0.63099 c 1.97536,0.79598 3.62405,2.45681 4.43724,4.46992 l 0.61145,1.51368 0.0759,19.38072 0.0759,19.38073 h 17.32046 17.32047 l 0.002,-18.1901 c 7.9e-4,-10.271 0.11134,-18.86058 0.25376,-19.73018 0.47569,-2.90454 2.0373,-5.39383 4.03022,-6.42441 0.43438,-0.22462 1.61237,-0.57993 2.61776,-0.78955 1.59133,-0.33181 2.06462,-0.33181 3.65596,0 1.00539,0.20962 2.19305,0.56993 2.63927,0.80069 1.47725,0.7639 2.88978,2.50931 3.53052,4.36252 l 0.60118,1.73874 v 24.34167 24.34167 l -0.5807,1.41751 c -1.12136,2.73728 -2.14368,3.75959 -4.88096,4.88095 l -1.41756,0.5807 -26.45833,0.0755 c -17.77168,0.0507 -27.05633,-0.017 -28.27974,-0.20634 -3.52041,-0.54471 -5.59927,-1.97575 -6.87351,-4.73155 -0.55758,-1.20587 -0.56736,-1.49936 -0.69779,-20.93447 l -0.1323,-19.71146 -8.65959,-0.0698 -8.6596,-0.0697 -0.0717,42.1385 -0.0717,42.13851 -0.5807,1.4175 c -1.25745,3.06949 -2.97255,4.54398 -6.04172,5.19412 -2.04791,0.43378 -2.15389,0.43698 -3.79376,0.11472 z M 13.31524,273.07242 C 0.17257352,271.2865 -8.4057851,262.36298 -9.8480501,248.9771 c -0.1868909,-1.73458 -0.2475039,-11.66525 -0.1806489,-29.59793 0.09036,-24.23875 0.1462669,-27.17614 0.5488909,-28.83958 1.677826,-6.93195 4.811681,-12.18552 9.23397212,-15.47976 4.03312578,-3.00434 8.80156798,-4.91021 13.82565998,-5.52589 3.292107,-0.40344 53.59331,-0.40344 56.885417,0 4.975149,0.60969 9.851578,2.55774 13.82566,5.52313 4.658381,3.476 8.108606,9.52363 9.361228,16.40856 0.290232,1.59525 0.36103,7.48403 0.36103,30.03021 0,26.16642 -0.0324,28.19654 -0.483519,30.29479 -2.636557,12.26325 -10.661597,19.66756 -23.080919,21.29557 -4.250622,0.55721 -53.018046,0.54544 -57.133481,-0.0138 z M 71.455894,255.4043 c 1.752719,-0.68052 3.701355,-2.51464 4.463521,-4.2012 l 0.631243,-1.39685 v -28.44823 -28.44823 l -0.8769,-1.78128 c -1.036762,-2.106 -2.559471,-3.4092 -4.791303,-4.10058 -1.357614,-0.42056 -3.653642,-0.45709 -28.727631,-0.45709 -29.727901,0 -28.878192,-0.0415 -31.245559,1.52656 -1.392262,0.9222 -2.7708678,2.91342 -3.2478851,4.69115 -0.2423901,0.90334 -0.30108,7.92592 -0.2432262,29.10416 l 0.076253,27.91354 0.6083697,1.32292 c 0.6648236,1.44568 2.1536136,3.13412 3.2889826,3.73005 2.173994,1.14108 2.102517,1.1386 31.15994,1.08421 26.157524,-0.049 27.716669,-0.078 28.904195,-0.53913 z");
+
+        // Append elements
+        g.appendChild(path);
+        svg.appendChild(g);
+
+        // Append the text and SVG to the button
+        qr_btn.appendChild(qr_text);
+        qr_btn.appendChild(svg);
+        // Disable QR code button
+        //submitInfoArea.appendChild(qr_btn);
+
+        submitFooter.appendChild(submitInfoArea);
+
+        form.appendChild(overlayDiv);
+        form.appendChild(messageContainerDiv);
+        //form.appendChild(label);
+        //form.appendChild(sessionSelectionDiv);
+        //form.appendChild(chcLabel);
+        //form.appendChild(chcInput);
+        form.appendChild(autoSplashContainerDiv);
+        form.appendChild(document.createElement('br'));
+        form.appendChild(document.createElement('br'));
+        form.appendChild(submitFooter);
+        submitFormElement.appendChild(form);
+    }
+
+    document.querySelector('.submit-skeleton').classList.add('hidden');
+    document.querySelector('.submit-form').classList.remove('hidden');
+
+    if (sessionCount !== 0) {
+        setupSelectableOptions('sessionOptionForm', 'md');
+        setupSubmit()
+    }
+    if (sessionCount === 1) {
+        document.getElementById('sessionOption').click();
+        document.getElementById("chc").focus();
+    }
+}
+
+function validateInput(input) {
+    // Allow only numbers
+    input.value = input.value.replace(/\D/g, '');
+
+    // Limit to 6 digits
+    if (input.value.length > 6) {
+        input.value = input.value.slice(0, 6);
+    }
+}
+
+function setupSelectableOptions(className, inputId) {
+    const selectedOption = document.querySelector('.' + className + '.selected');
+    if (selectedOption) {
+        document.getElementById(inputId).value = selectedOption.getAttribute('data-module');
+        document.getElementById("grp").value = selectedOption.getAttribute('data-activityid');
+        const selectedImg = selectedOption.querySelector('div.selectTick');
+        if (selectedImg) {
+            selectedImg.classList.remove('hidden');
+        }
+    }
+
+    document.querySelectorAll('.' + className).forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.' + className).forEach(div => {
+                div.classList.remove('selected');
+                const img = div.querySelector('div.selectTick');
+                if (img) {
+                    img.classList.add('hidden');
+                }
+            });
+            this.classList.add('selected');
+            const img = this.querySelector('div.selectTick');
+            if (img) {
+                img.classList.remove('hidden');
+            }
+            document.getElementById("chc").focus();
+            document.getElementById(inputId).value = this.getAttribute('data-module');
+            document.getElementById("grp").value = this.getAttribute('data-activityid');
+        });
+    });
+}
+
+
+
+
+
+////////////////////////
+// Fill codes display //
+////////////////////////
+
+function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
+    const codesDisplayElement = document.getElementById('classes-content');
+    // To preserve the height of the codes display while updating
+    // console.log(codesDisplayElement.innerText != 'Something went wrong.');
+    // if (codesDisplayElement.innerText != 'Something went wrong.') {
+    //     preserveCodesHeightWhileUpdating();
+    // }
+    if (sessionCount === 0) {
+        codesDisplayElement.innerHTML = 'No classes are in progress, come back later.<div id="upnext-container"></div>';
+    } else {
+        const codeInfo = generateCodeInfo(sessionCount, sessions);
+        let hasCodes = false;
+
+        const createSvgIcon = () => {
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('width', '24');
+            svg.setAttribute('height', '24');
+            svg.setAttribute('viewBox', '0 0 640 512');
+            const path = document.createElementNS(svgNS, 'path');
+            path.setAttribute('fill', '#b3b3b3');
+            path.setAttribute('d', 'M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z');
+            svg.appendChild(path);
+            return svg;
+        };
+
+        function createButton(text, onClickHandler) {
+            const button = document.createElement('button');
+            button.innerHTML = text;
+
+            // Directly set the onClick attribute as a string
+            if (typeof onClickHandler === 'string') {
+                button.setAttribute('onClick', onClickHandler);
+            }
+
+            return button;
+        }
+
+        const classesHtml = sessions.map(session => {
+            const sessionDiv = document.createElement('div');
+            sessionDiv.className = 'sessionOption selected';
+            sessionDiv.dataset.module = session.moduleCode;
+            sessionDiv.dataset.activityid = session.rejectID;
+
+            const toprowdiv = document.createElement('div');
+            toprowdiv.className = 'toprowdiv';
+
+            const toprowclassDescription = document.createElement('p');
+            toprowclassDescription.className = 'toprowclass';
+            toprowclassDescription.textContent = `• ${session.description}`;
+
+            const sessionInfo = document.createElement('p');
+            sessionInfo.className = 'sessionInfo toprowclass';
+            sessionInfo.style.textAlign = 'right';
+            sessionInfo.innerHTML = `${session.startTime} - ${session.endTime}<br>${session.moduleName}`;
+
+            toprowdiv.appendChild(toprowclassDescription);
+            toprowdiv.appendChild(sessionInfo);
+
+            const codeContent = document.createElement('div');
+            codeContent.className = 'code-content';
+
+            let codesHtml;
+            if (!session.codes || session.codes.length === 0) {
+                codesHtml = document.createElement('p');
+                codesHtml.textContent = 'Code not provided.';
+            } else {
+                hasCodes = true;
+                const firstCode = session.codes[0];
+                const additionalCodes = session.codes.slice(1);
+
+                const codeP = document.createElement('p');
+                codeP.className = 'code-wrapper';
+                const chcLabelSpan = document.createElement('span');
+                chcLabelSpan.className = 'code-label';
+                chcLabelSpan.textContent = 'CheckOut code: ';
+
+                // const chcCodeSpan = document.createElement('span');
+                // chcCodeSpan.className = 'chc-code';
+                // chcCodeSpan.textContent = firstCode.checkinCode;
+                // codeP.innerHTML = `CheckOut code: <span class="chc-code">${firstCode.checkinCode}</span>`;
+                
+                const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/></svg>`, `copyText('${firstCode.checkinCode}', this)`);
+                copyButton.className = 'share-button chc';
+
+                codeP.appendChild(chcLabelSpan);
+                //codeP.appendChild(chcCodeSpan);
+                codeP.appendChild(copyButton);
+                
+                let verifiedCode = false;
+                if (firstCode.verifiedInfo.reputation || firstCode.verifiedInfo.autocheckin) {
+                    verifiedCode = true
+                }
+
+                if (verifiedCode) {
+                    const verifiedButton = createButton('Verified', `showVerificationModal('${JSON.stringify(firstCode)}')`);
+                    verifiedButton.className = 'share-button verified';
+                    codeP.appendChild(verifiedButton);
+                } else {
+                    const unverifiedButton = createButton('Unverified', `showVerificationModal('${JSON.stringify(firstCode)}')`);
+                    unverifiedButton.className = 'share-button un-verified';
+                    codeP.appendChild(unverifiedButton);
+                }
+
+                codesHtml = document.createElement('div');
+                codesHtml.className = 'code-container';
+                codesHtml.appendChild(codeP);
+
+                if (additionalCodes.length > 0) {
+                    const moreCodesButton = createButton('Show other codes', `showOtherCodes('${session.rejectID}')`)
+                    moreCodesButton.className = 'more-codes-button';
+                    moreCodesButton.id = `showOtherCodes_${session.rejectID}`;
+                    codesHtml.appendChild(moreCodesButton);
+
+                    const otherCodesDiv = document.createElement('div');
+                    otherCodesDiv.id = `otherCodes_${session.rejectID}`;
+                    otherCodesDiv.style.display = 'none';
+
+                    const table = document.createElement('table');
+                    const tbody = document.createElement('tbody');
+
+                    additionalCodes.forEach(code => {
+                        const tr = document.createElement('tr');
+                        const tdCode = document.createElement('td');
+                        tdCode.textContent = code.checkinCode;
+
+                        const tdButton = document.createElement('td');
+                        const button = createButton('Copy', `copyText('${code.checkinCode}', this)`);
+                        button.className = 'share-button';
+                        tdButton.appendChild(button);
+
+                        tr.appendChild(tdCode);
+                        tr.appendChild(tdButton);
+                        tbody.appendChild(tr);
+                    });
+
+                    table.appendChild(tbody);
+                    otherCodesDiv.appendChild(table);
+                    codesHtml.appendChild(otherCodesDiv);
+                }
+            }
+
+            codeContent.appendChild(codesHtml);
+            sessionDiv.appendChild(toprowdiv);
+            sessionDiv.appendChild(codeContent);
+
+            const activityButtonContainer = document.createElement('div');
+            activityButtonContainer.className = 'activity-button-container';
+
+            const activityButton = createButton('', `openActivityModal('${session.rejectID}')`);
+
+            activityButton.className = 'activity-button';
+            activityButton.ariaLabel = `Open activity details modal for ${session.description}`;
+            activityButton.appendChild(createSvgIcon());
+            activityButtonContainer.appendChild(activityButton);
+
+            sessionDiv.appendChild(activityButtonContainer);
+
+            const activityModal = document.createElement('div');
+            activityModal.className = 'activityModal';
+            activityModal.id = `activityModal-${session.rejectID}`;
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'activityModal-content';
+
+            const closeButton = document.createElement('span');
+            closeButton.className = 'close';
+            closeButton.innerHTML = '&times;<br><p class="activityModal-esc">[ESC]</p>';
+            closeButton.addEventListener('click', () => closeActivityModal(session.rejectID));
+
+            const modalHeader = document.createElement('h2');
+            modalHeader.innerHTML = `<i>${session.description}</i> details`;
+
+            const modalBody = document.createElement('div');
+            modalBody.className = 'activityModal-body';
+
+            const modalTable = document.createElement('div');
+            modalTable.className = 'activityModal-table';
+            const modalData = [
+                { label: 'Name:', value: session.description },
+                { label: 'Module:', value: session.moduleName },
+                { label: 'Module code:', value: session.moduleCode },
+                { label: 'rejectID:', value: session.rejectID },
+                { label: 'Start date:', value: session.startDate },
+                { label: 'Start time:', value: session.startTime },
+                { label: 'End date:', value: session.endDate },
+                { label: 'End time:', value: session.endTime },
+                { label: 'Location:', value: session.location },
+            ];
+
+            modalData.forEach(data => {
+                const divLabel = document.createElement('div');
+                divLabel.innerHTML = `${data.label}<br><span class="activityAPI-ref">${data.label.toLowerCase()}</span>`;
+                const divValue = document.createElement('div');
+                divValue.textContent = data.value;
+
+                modalTable.appendChild(divLabel);
+                modalTable.appendChild(divValue);
+            });
+
+            modalBody.appendChild(modalTable);
+            modalBody.innerHTML += '<br><p>Visit the <a href="/api/docs">API reference</a>.</p>';
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(modalBody);
+            activityModal.appendChild(modalContent);
+
+            sessionDiv.appendChild(activityModal);
+
+            if (!session.codes || session.codes.length === 0 && session.rejectID == 120) {
+                const sessionDivWarning = document.createElement('div');
+                sessionDivWarning.className = 'sessionOption warning';
+                sessionDivWarning.style.display = 'flex';
+                sessionDivWarning.innerHTML = `<svg class="sessionOptionWarningSVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg><div class="toprowdiv"><p class="toprowclass">Session has been cancelled. <a href="#" onclick="event.preventDefault(); if (navigator.share) { navigator.share({ title: document.title, text: 'Check out this site!', url: window.location.href }).then(() => console.log('Successfully shared')).catch((error) => console.log('Error sharing:', error)); } else { alert('Share API not supported in your browser.'); }">Share this service with others</a>.</p></div>`;
+                sessionDiv.appendChild(sessionDivWarning);
+            }
+
+            if (session.rejectID == 86) {
+                const sessionDivWarning = document.createElement('div');
+                sessionDivWarning.className = 'sessionOption verified';
+                sessionDivWarning.style.display = 'flex';
+                sessionDivWarning.innerHTML = `<div class="toprowdiv"><p class="toprowclass">Verified by AutoCheckin</p></div>`;
+                sessionDiv.appendChild(sessionDivWarning);
+            }
+
+            return sessionDiv.outerHTML;
+        }).join('');
+
+        codesDisplayElement.innerHTML = `<p class="subtext">${codeInfo}</p><ul>${classesHtml}</ul><div id="upnext-container"></div>`;
+        if (hasCodes) {
+            const checkinLink = document.createElement('p');
+            checkinLink.innerHTML = `Don't have <a class="checkin-link" href="/auto">AutoCheckin</a>? Submit at <a class="checkin-link" href="https://checkin.york.ac.uk">checkin.york.ac.uk</a>`;
+            codesDisplayElement.appendChild(checkinLink);
+        }
+    }
+
+    document.querySelector('.classes-skeleton').style.display = 'none';
+    document.querySelector('.classes-content').style.display = 'block';
+    fetchUpNext(nextSessions);
+}
+
+function showVerificationModal(codeInfoString) {
+    const codeInfo = JSON.parse(codeInfoString);
+    console.log(codeInfo);
+    const verifiedInfo = codeInfo.verifiedInfo;
+
+    // Create modal if it doesn't exist
+    if (!document.getElementById('activityModal-verified')) {
+        const modal = document.createElement('div');
+        modal.className = 'activityModal';
+        modal.id = 'activityModal-verified';
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'activityModal-content';
+
+        const closeButton = document.createElement('span');
+        closeButton.className = 'close';
+        closeButton.innerHTML = '&times;<br><p class="activityModal-esc">[ESC]</p>';
+        closeButton.addEventListener('click', () => closeActivityModal('verified'));
+
+        const modalHeader = document.createElement('h2');
+        modalHeader.innerHTML = 'Code transparency';
+
+        const subHeader = document.createElement('h4');
+        subHeader.className = 'activityModal-subheader';
+        subHeader.textContent = 'Find out the source of this code\'s verification label:';
+
+        const modalBody = document.createElement('div');
+        modalBody.className = 'activityModal-body';
+
+        const modalTable = document.createElement('div');
+        modalTable.className = 'activityModal-table';
+
+        // Create verification status messages
+        const verificationData = [];
+        
+        if (verifiedInfo.hasOwnProperty('autocheckin')) {
+            verificationData.push({
+                label: 'Auto Check-in:',
+                value: verifiedInfo.autocheckin ? 'Enabled' : 'Disabled',
+                explanation: verifiedInfo.autocheckin ? 'Code is genuine.' : 'AutoCheckin failed to recognise this code.'
+            });
+        }
+
+        if (verifiedInfo.hasOwnProperty('reputation')) {
+            verificationData.push({
+                label: 'Reputation Check:',
+                value: verifiedInfo.reputation ? 'Verified' : 'Unverified',
+                explanation: verifiedInfo.reputation ? 'The submitter(s) have a consistent record of accurate submissions.' : 'The submitter(s) lack a history of reliable submissions.'
+            });
+        }
+
+        // If neither property exists
+        if (verificationData.length === 0) {
+            const message = document.createElement('p');
+            message.textContent = 'No verification information available.';
+            modalBody.appendChild(message);
+        } else {
+            // Create table with verification data
+            verificationData.forEach(data => {
+                const divLabel = document.createElement('div');
+                divLabel.className = 'verification-label';
+                divLabel.textContent = data.label;
+
+                const divValue = document.createElement('div');
+                divValue.className = 'verification-status';
+                divValue.textContent = data.value;
+                divValue.style.setProperty('--bg-color', data.value === 'Verified' || data.value === 'Enabled' ? 'var(--submit-success-background)' : 'var(--submit-fail-background)');
+                divValue.style.setProperty('--text-color', data.value === 'Verified' || data.value === 'Enabled' ? 'var(--submit-success-colour)' : 'var(--submit-fail-colour)');
+
+                const explanationText = document.createElement('p');
+                explanationText.className = 'verification-explanation';
+                explanationText.textContent = data.explanation;
+
+                modalTable.appendChild(divLabel);
+                modalTable.appendChild(divValue);
+                modalTable.appendChild(explanationText);
+            });
+            modalBody.appendChild(modalTable);
+        }
+
+        const footer = document.createElement('div');
+        footer.className = 'activityModal-footer';
+        const codeInfoParagraph = document.createElement('p');
+        codeInfoParagraph.className = 'code-info-paragraph';
+
+        const checkOutCode = document.createElement('strong');
+        checkOutCode.textContent = 'CheckOut Code: ';
+        codeInfoParagraph.appendChild(checkOutCode);
+        codeInfoParagraph.appendChild(document.createTextNode(`${codeInfo.checkinCode}`));
+        codeInfoParagraph.appendChild(document.createElement('br'));
+
+        const codeIDsLabel = document.createElement('strong');
+        codeIDsLabel.textContent = 'Code ID(s): ';
+        codeInfoParagraph.appendChild(codeIDsLabel);
+        const codeIDsText = document.createElement('i');
+        codeIDsText.textContent = codeInfo.codeIDs.join(', ');
+        codeInfoParagraph.appendChild(codeIDsText);
+        codeInfoParagraph.appendChild(document.createElement('br'));
+
+        const rejectScoreLabel = document.createElement('strong');
+        rejectScoreLabel.textContent = 'Reject Score (Reputation): ';
+        codeInfoParagraph.appendChild(rejectScoreLabel);
+        codeInfoParagraph.appendChild(document.createTextNode(`${codeInfo.rejectScore}`));
+        codeInfoParagraph.appendChild(document.createElement('br'));
+
+        const submissionCountLabel = document.createElement('strong');
+        submissionCountLabel.textContent = 'Submission count: ';
+        codeInfoParagraph.appendChild(submissionCountLabel);
+        codeInfoParagraph.appendChild(document.createTextNode(`${codeInfo.count}`));
+
+        footer.appendChild(codeInfoParagraph);
+
+        modalContent.appendChild(closeButton);
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(subHeader);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(footer);
+        modal.appendChild(modalContent);
+
+        // Ensure overlay exists
+        if (!document.getElementById('activityModalOverlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'activityModalOverlay';
+            overlay.className = 'modal-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        document.body.appendChild(modal);
+    }
+
+    // Use existing open function
+    openActivityModal('verified');
+}
+
+
+function preserveCodesHeightWhileUpdating() {
+    const classesContent = document.getElementById('classes-content');
+    const originalHeight = classesContent.offsetHeight + 'px';
+    classesContent.style.height = originalHeight;
+
+    // Perform layout changes here
+    // ...
+
+    // After 500ms, reset the height
+    setTimeout(() => {
+        classesContent.style.height = '';
+    }, 2000);
+}
+
+async function fetchUpNext(nextSessions) {
+    try {
+        const sessions = nextSessions;
+
+        if (sessions.length === 0) {
+            return;
+        }
+
+        const startTime = new Date(`1970-01-01T${sessions[0].startTime}Z`);
+        const startDate = new Date(sessions[0].startDate);
+        const currentDate = new Date();
+        const isToday = startDate.toDateString() === currentDate.toDateString();
+        const isTomorrow = startDate.toDateString() === new Date(currentDate.getTime() + 24 * 60 * 60 * 1000).toDateString();
+
+        let timeString;
+        const hours = startTime.getUTCHours();
+        const minutes = startTime.getUTCMinutes();
+
+        if (minutes === 30) {
+            timeString = `at half ${hours % 12 || 12}`;
+        } else if (minutes === 0) {
+            timeString = `at ${hours % 12 || 12} o'clock`;
+        } else {
+            timeString = `at ${hours % 12 || 12}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        if (isToday) {
+            timeString += hours < 12 ? ' this morning' : ' this afternoon';
+        } else if (isTomorrow) {
+            timeString += hours < 12 ? ' tomorrow morning' : ' tomorrow afternoon';
+        } else {
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = daysOfWeek[startDate.getDay()];
+            timeString += ` on ${dayName}`;
+        }
+
+        const activityReferences = sessions.map((session, index) => {
+            if (index === sessions.length - 1 && sessions.length > 1) {
+                return `and <i>${session.activityReference}</i>`;
+            }
+            return `<i>${session.activityReference}</i>`;
+        }).join(', ').replace(/, ([^,]*)$/, ' $1');
+
+        const upNextDiv = document.createElement('div');
+        upNextDiv.className = 'upnext';
+        upNextDiv.innerHTML = `<fieldset class="upnext-fieldset"><legend class="newfeature-legend">Upcoming</legend>${activityReferences} ${timeString}.</fieldset>`;
+
+        const upNextContainer = document.getElementById('upnext-container');
+        upNextContainer.innerHTML = ''; // Clear existing content
+        upNextContainer.appendChild(upNextDiv);
+    } catch (error) {
+        displayNotice(`Can't fetch upcoming classes.`, 'warning', 'Upcoming classes', 0);
+        console.error('Error fetching up next classes:', error);
+    }
+}
+
+function showOtherCodes(activityID) {
+    // Cancel refreshes that could hide the other codes
+    cancelRefresh(true);
+    const otherCodesDiv = document.getElementById(`otherCodes_${activityID}`);
+    otherCodesDiv.style.display = otherCodesDiv.style.display === 'none' ? 'block' : 'none';
+}
+
+function copyText(text, button) {
+    button.style.transition = 'background-color 0.3s ease-in-out, color 0.3s ease-in-out, fill 0.3s ease-in-out';
+    // Function to copy text
+    navigator.clipboard.writeText(text).then(() => {
+        // Retain button size and transition to a green tick
+        const originalText = button.innerText;
+        const originalWidth = button.offsetWidth;
+        const originalHeight = button.offsetHeight;
+        const originalBackgroundColor = window.getComputedStyle(button).backgroundColor; // Get original background color
+
+        button.innerText = 'Copied'; // Clear text for transition
+        button.style.width = originalWidth + 'px'; // Keep the button width
+        button.style.height = originalHeight + 'px'; // Keep the button width
+        button.style.letterSpacing = 'normal'; // Remove letter spacing
+        button.style.gap = '6px'; // Remove gap
+        button.style.paddingRight = '4px'; // Change padding
+
+        // Create an SVG tick element
+        const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgElement.setAttribute('class','chctick');
+        svgElement.setAttribute("viewBox", "0 0 24 24");
+        svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svgElement.setAttribute("fill", "#000000");
+        //svgElement.setAttribute("width", "24");
+        svgElement.setAttribute("height", "100%");
+        svgElement.style.verticalAlign = "middle";
+
+        // Create the polyline for the tick inside the SVG
+        const polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polylineElement.setAttribute("points", "16.5 8 9.5 15.5 7 13");
+        polylineElement.setAttribute("style", "fill:none;stroke:var(--submit-success-colour);stroke-linecap:square;stroke-miterlimit:10;stroke-width:1.5px");
+
+        // Append polyline to SVG
+        svgElement.appendChild(polylineElement);
+
+        // Insert SVG into the button
+        button.appendChild(svgElement);
+
+        button.style.backgroundColor = 'var(--submit-success-background)';
+
+        // Reset the button after 5 seconds
+        setTimeout(() => {
+            button.innerText = originalText;
+            button.style.backgroundColor = '';
+            button.style.width = '';
+            button.style.height = '';
+            //button.removeChild(svgElement); // Remove the SVG after reset
+            button.style.backgroundColor = originalBackgroundColor; // Fade back to original background color
+        }, 1500000000);
+    }, (err) => {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+
+
+
+function generateCodeInfo(sessionCount, sessions) {
+    if (sessionCount >= 5) return '';
+
+    const codesPerSession = sessions.map(session => session.codesCount);
+    let codeInfo = '';
+
+    if (sessionCount === 1) {
+        if (codesPerSession[0] === 0) {
+            codeInfo = 'No codes are available for the class in progress';
+        } else if (codesPerSession[0] === 1) {
+            codeInfo = 'A code is available for the class in progress';
+        } else if (codesPerSession[0] > 1) {
+            codeInfo = 'Multiple codes are available for the class in progress';
+        }
+    } else if (sessionCount === 2) {
+        if (codesPerSession[0] === 0 && codesPerSession[1] === 0) {
+            codeInfo = 'No codes are available for either of the two classes in progress';
+        } else if (codesPerSession[0] === 1 && codesPerSession[1] === 1) {
+            codeInfo = 'A code is available for each of the two classes in progress';
+        } else if (codesPerSession[0] === 1 && codesPerSession[1] > 1) {
+            codeInfo = `A code is available for one of the two classes in progress and ${codesPerSession[1]} codes are available for the other`;
+        } else if (codesPerSession[0] > 1 && codesPerSession[1] === 1) {
+            codeInfo = `${codesPerSession[0]} codes are available for one of the two classes in progress and a code is available for the other`;
+        } else if (codesPerSession[0] > 1 && codesPerSession[1] > 1) {
+            codeInfo = `${codesPerSession[0]} codes are available for one of the two classes in progress and ${codesPerSession[1]} codes are available for the other`;
+        } else if (codesPerSession[0] === 1 || codesPerSession[1] === 1) {
+            codeInfo = 'A code is available for one of the two classes in progress';
+        } else if (codesPerSession[0] > 1 || codesPerSession[1] > 1) {
+            codeInfo = `Multiple codes are available for one of the two classes in progress`;
+        }
+    } else if (sessionCount === 3) {
+        if (codesPerSession.every(count => count === 0)) {
+            codeInfo = 'No codes are available for the three classes in progress';
+        } else {
+            const messages = sessions.map((session, index) => {
+                const count = codesPerSession[index];
+                if (count === 0) return `${(index==0)?'N':'n'}o codes available`;
+                if (count === 1) return `${(index==0)?'O':'o'}ne code available`;
+                return `${count} codes available`;
+            });
+
+            codeInfo = messages.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
+        }
+    } else if (sessionCount === 4) {
+        if (codesPerSession.every(count => count === 0)) {
+            codeInfo = 'No codes are available for the four classes in progress';
+        } else {
+            const messages = sessions.map((session, index) => {
+                const count = codesPerSession[index];
+                if (count === 0) return `${(index==0)?'N':'n'}o codes available`;
+                if (count === 1) return `${(index==0)?'O':'o'}ne code available`;
+                return `${count} codes available`;
+            });
+
+            codeInfo = messages.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
+        }
+    }
+
+    codeInfo += '.';
+
+    return codeInfo;
+}
+
+////////////////////////////
+// Acitivity Detail Modal //
+////////////////////////////
+
+function openActivityModal(activityID) {
+    cancelRefresh(true); // Stop any refreshes that could hide the modal
+    document.getElementById('activityModalOverlay').style.display = 'block';
+    document.getElementById('activityModal-' + activityID).style.display = 'block';
+    document.addEventListener('keydown', escKeyListener);
+    document.getElementById('activityModalOverlay').addEventListener('click', overlayClickListener);
+}
+
+function closeActivityModal(activityID) {
+    document.getElementById('activityModalOverlay').style.display = 'none';
+    document.getElementById('activityModal-' + activityID).style.display = 'none';
+    document.removeEventListener('keydown', escKeyListener);
+    document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
+}
+
+function escKeyListener(event) {
+    if (event.key === 'Escape') {
+        closeAllModals();
+    }
+}
+
+function overlayClickListener(event) {
+    if (event.target === document.getElementById('activityModalOverlay')) {
+        closeAllModals();
+    }
+}
+
+function closeAllModals() {
+    // Find all modals and close any that are open
+    document.querySelectorAll('.activityModal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+    document.getElementById('activityModalOverlay').style.display = 'none';
+    document.removeEventListener('keydown', escKeyListener);
+    document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
+}
+
+////////////////
+// Submission //
+////////////////
+
+async function wsp1(jsonObject) {
+    const encoder = new TextEncoder();
+    const data = JSON.stringify(jsonObject);
+    const base64Data = btoa(data);
+
+    async function hashWithAlgorithm(algorithm, data) {
+        const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const hash1 = await hashWithAlgorithm('SHA-256', base64Data);
+    const hash2 = await hashWithAlgorithm('SHA-384', hash1);
+    const hash3 = await hashWithAlgorithm('SHA-512', hash2);
+
+    const finalData = `reject${hash3}${navigator.userAgent}`;
+    const finalHash = await hashWithAlgorithm('SHA-256', finalData);
+
+    const jkh = await (async () => {
+        let data = new TextEncoder().encode(new Date().toLocaleDateString('en-US', { weekday: 'long' }) + navigator.userAgent);
+        let hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        let hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    })();
+
+    const response = await fetch('/api/submit/options', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ [jkh]: finalHash, "chc": jsonObject.chc })
+    });
+
+    const responseData = await response.json();
+    if (responseData.success) {
+        return {
+            ws: responseData.ws,
+            ws1: responseData.ws1,
+            jt: responseData.jt,
+            autoSplash: responseData.autoSplash
+        };
+    } else {
+        throw new Error('Submission failed');
+    }
+}
+
+async function wps(ws, ms, ws1, jt) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Open a WebSocket connection to the provided ws1 URL
+            const socket = new WebSocket(ws1);
+
+            // Handle WebSocket connection open event
+            socket.addEventListener('open', () => {
+                //console.log('WebSocket connection opened:', ws1);
+
+                // Step 1: Convert the ws value to Base64 and send it
+                const base64Ws = btoa(ws);
+                socket.send(base64Ws);
+                //console.log('Sent message (ws):', base64Ws);
+            });
+
+            // Handle incoming messages and sequence through steps 2-4
+            let step = 1;
+            socket.addEventListener('message', (event) => {
+                //console.log('Received message:', event.data);
+
+                if (step === 1) {
+                    // Step 2: Send the ms value (stringified and Base64 encoded)
+                    const base64Ms = btoa(JSON.stringify(ms));
+                    socket.send(base64Ms);
+                    //console.log('Sent message (ms):', base64Ms);
+                    step = 2;
+                } else if (step === 2) {
+                    // Step 3: Send the navigator.userAgent encoded in Base64
+                    const base64UserAgent = btoa(navigator.userAgent);
+                    socket.send(base64UserAgent);
+                    //console.log('Sent message (navigator.userAgent):', base64UserAgent);
+                    step = 3;
+                } else if (step === 3) {
+                    // Step 4: Send the jwt as it is
+                    socket.send(jt);
+                    //console.log('Sent message (auth-token):', jt);
+                    step = 4;
+                } else if (step === 4) {
+                    // Final step: Decode the final message and log it as JSON
+                    const finalMessage = atob(event.data);
+                    const jsonResponse = JSON.parse(finalMessage);
+
+                    // Resolve the promise with the final JSON response
+                    resolve(jsonResponse);
+                }
+            });
+
+            // Handle WebSocket error event
+            socket.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+                reject(error);
+            });
+
+            // Handle WebSocket close event
+            socket.addEventListener('close', (event) => {
+                //console.log('WebSocket connection closed:', event);
+                reject("WS connection failed, unable to submit code at this time.");
+            });
+
+        } catch (error) {
+            console.error('WebSocket initialization failed:', error);
+            reject(error);
+        }
+    });
+}
+
+function barcodeScanner() {
+    // checkin.york.ac.uk/qr-registration/:referencePersonActivity/:status/:code
+
+    startSpinner('qr-button');
+
+    setTimeout(function() {
+        displayNotice("This feature will be live in the next few days. Keep an eye out!", "error", "QR scanning coming soon", 0);
+        endSpinner('qr-button');
+    }, 400); // 1 second
+
+}
+
+// Separate validation function to check 'grp' value
+function validateGrpField() {
+    var grpField = document.querySelector('#grp');
+    if (!grpField.value || grpField.value.trim() === "") {
+        displayNotice("Select class.", 'error', 'Validation error', 0);
+        endSpinner('submit-button');
+        tryAgainButton('submit-button');
+        return false;
+    }
+    return true;
+}
+
+function setupSubmit() {
+    const qrButton = document.querySelector('#qr-button');
+    if (qrButton) {
+        qrButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            barcodeScanner();
+        });
+    }
+    document.querySelector('#submitForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        startSpinner('submit-button');
+
+        // Stop code display refresh
+        cancelRefresh(false)
+
+        // Call the validation function for 'grp' field
+        if (!validateGrpField()) {
+            return; // Exit if the validation fails
+        }
+
+        var form = this;
+        var formData = new FormData(form);
+        var jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+
+        // not using async here because of apple (webkit)
+        wsp1(jsonData).then(({ ws, ws1, jt, autoSplash }) => {
+            // Start the auto splash screen
+            if (autoSplash) {
+                startAutoSplash(jt);
+            }
+            return wps(ws1, jsonData, ws, jt);
+        }).then(wpfs => {
+            if (wpfs.submit) {
+                endSpinner('submit-button');
+                greenLightButton('submit-button');
+                createConfetti('submit-button');
+                greenLightInput('chc');
+                //displayNotice("Code submitted, thank you. <a href='/history'>View history</a>", 'success', 'Submission successful', 0);
+                // Refresh codes display
+                setup(false);
+            } else {
+                endSpinner('submit-button');
+                displayNotice(wpfs.msg, 'error', 'Submission error', 0);
+                tryAgainButton('submit-button');
+            }
+        }).catch(error => {
+            console.error(error);
+            displayNotice(error, 'error', 'Submission error', 0);
+            endSpinner('submit-button');
+            tryAgainButton('submit-button');
+        });
+    });
+}
+
+
+
+// const devWarning = `Submission not currently available. Code ${jsonData.chc} not saved.`;
+// displayNotice(devWarning, 'error', 'Unavailable in beta', 0);
+// Validation for module selection
+        // var selectedModule = document.getElementById('md').value;
+        // if (!selectedModule) {
+        //     showMessage('Please select a class before submitting.', 'message-error');
+        //     return;
+        // }
+        // var selectedGroup = document.getElementById('grp').value;
+        // if (!selectedGroup) {
+        //     showMessage('Something has gone wrong. Please inform an admin.', 'message-error');
+        //     return;
+        // }
+
+
+function startAutoSplash(jt) {
+    const autoSplashContainer = document.getElementById('autoSplashContainer');
+    const submitInfoArea = document.getElementById('submitInfoArea');
+    if (autoSplashContainer) {
+        // Get the original height of the container
+        const originalHeight = autoSplashContainer.offsetHeight + 'px';
+
+        // Clear the container's content
+        autoSplashContainer.innerHTML = '';
+
+        // Create the background element
+        const autoSplashBackground = document.createElement('div');
+        autoSplashBackground.id = 'autoSplashBackground';
+        autoSplashBackground.className = 'autoSplashBackground';
+
+        // Set the height of the background to the original height of the container
+        autoSplashBackground.style.height = originalHeight;
+
+        // Create the loading text element
+        const loadingText = document.createElement('div');
+        loadingText.className = 'auto-loading-text';
+        loadingText.textContent = 'AutoChecking';
+        loadingText.id = 'autoLoadingText';
+
+        // Create the dots element
+        const dots = document.createElement('span');
+        dots.className = 'dots';
+        loadingText.appendChild(dots);
+
+        // Append the loading text to the background element
+        autoSplashBackground.appendChild(loadingText);
+
+        // Append the background element to the container
+        autoSplashContainer.appendChild(autoSplashBackground);
+
+        // Function to animate the dots
+        let dotCount = 0;
+        const dotInterval = setInterval(() => {
+            dotCount = (dotCount % 3) + 1;
+            dots.textContent = '.'.repeat(dotCount);
+        }, 250);
+
+        setTimeout(() => {
+            // Start WebSocket connection
+            const ws = new WebSocket(`wss://${window.location.hostname}/api/submit/autosplash`);
+
+            ws.onopen = function() {
+                // Send the 'tk' value as the first message
+                ws.send(jt.toString());
+            };
+
+            // Set a timeout variable that we can clear later
+            let timeoutId;
+
+            ws.onmessage = function(event) {
+                // Clear the timeout since we received a message
+                clearTimeout(timeoutId);
+
+                // Stop the loading dots animation
+                clearInterval(dotInterval);
+
+                // Decode the base64 message and parse the JSON
+                const decodedMessage = atob(event.data);
+                console.log('Received message:', decodedMessage);
+                const response = JSON.parse(decodedMessage);
+
+                if (response.success) {
+                    if (response.checkedin) {
+                        // Checked in
+                        loadingText.textContent = 'Checked in!';
+                        autoSplashBackground.style.background = '#00ff164f';
+                    } else {
+                        // Not checked in
+                        loadingText.textContent = 'Checkin unknown';
+                        loadingText.style.webkitTextFillColor = 'indianred';
+                        autoSplashBackground.style.background = '#81810066';
+                    }
+
+                    // Display the message in submit footer
+                    const messageElement = document.createElement('p');
+                    messageElement.className = 'auto-checkin-message';
+                    messageElement.innerHTML = response.msg;
+                    if (response.checkedin) {
+                        messageElement.style.color = 'green';
+                    } else {
+                        messageElement.style.color = 'red';
+                    }
+                    submitInfoArea.innerHTML = '';
+                    submitInfoArea.appendChild(messageElement);
+                } else {
+                    // Handle error response
+                    loadingText.textContent = 'Error';
+                    loadingText.style.webkitTextFillColor = 'white';
+                    autoSplashBackground.style.background = 'red';
+                    const errorMessage = document.createElement('p');
+                    errorMessage.className = 'auto-checkin-message';
+                    errorMessage.innerHTML = response.msg;
+                    errorMessage.style.color = 'red';
+                    submitInfoArea.innerHTML = '';
+                    submitInfoArea.appendChild(errorMessage);
+                }
+
+                // Close the WebSocket after receiving the message
+                ws.close();
+            };
+
+            ws.onerror = function() {
+                // Handle WebSocket error
+                clearInterval(dotInterval);
+                loadingText.textContent = 'Connection error';
+                autoSplashBackground.style.background = 'red';
+                ws.close();
+            };
+
+            // Set a maximum timeout of 25 seconds to wait for the message
+            timeoutId = setTimeout(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.close();
+                }
+                clearInterval(dotInterval);
+                loadingText.textContent = 'Not checked in';
+                autoSplashBackground.style.background = '#81810066';
+                
+                // Show timeout message below the loading text
+                const timeoutMessage = document.createElement('p');
+                timeoutMessage.className = 'auto-checkin-message';
+                timeoutMessage.innerHTML = 'Response timout. Please try again or contact <a href="/support?auto=true&priority=true"> contact priority support</a> if the error persists.';
+                timeoutMessage.style.color = 'red';
+                submitInfoArea.innerHTML = '';
+                submitInfoArea.appendChild(messageElement);
+            }, 25000);
+        }, 0);  // 2000 milliseconds = 2 seconds
+    }
+}
+
+// Object to store original button texts and dimensions
+const buttonData = {};
+
+// Function to start the spinner
+function startSpinner(id) {
+  const button = document.getElementById(id);
+  if (button) {
+    // Store the original button text
+    const originalText = button.innerHTML;
+    
+    // Measure the button's original dimensions
+    const originalWidth = button.offsetWidth;
+    const originalHeight = button.offsetHeight;
+    
+    // Store the original text and dimensions
+    buttonData[id] = {
+      text: originalText,
+      width: originalWidth,
+      height: originalHeight
+    };
+
+    // Set the button dimensions to prevent resizing
+    button.style.width = `${originalWidth}px`;
+    button.style.height = `${originalHeight}px`;
+
+    // Create the spinner element
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+
+    // Create a container to center the spinner
+    const spinnerContainer = document.createElement('div');
+    spinnerContainer.className = 'spinner-container';
+    spinnerContainer.appendChild(spinner);
+
+    // Set the button content to the spinner container
+    button.innerHTML = '';  // Clear the button text
+    button.appendChild(spinnerContainer);
+
+    // Optionally, lock the button to prevent further clicks
+    button.disabled = true;
+  }
+}
+
+// Function to end the spinner and restore the original button text
+function endSpinner(id) {
+  const button = document.getElementById(id);
+  if (button && buttonData[id]) {
+    // Restore the original button text
+    button.innerHTML = buttonData[id].text;
+
+    // Reset the button dimensions
+    button.style.width = '';
+    button.style.height = '';
+
+    // Clear the stored data
+    delete buttonData[id];
+
+    // Re-enable the button if it was disabled
+    button.disabled = false;
+  }
+}
+
+function greenLightButton(id) {
+    const button = document.getElementById(id);
+    if (button) {
+        button.innerHTML = "Submitted!";
+        button.style.backgroundColor = "var(--submit-success-background)";
+        button.style.color = "var(--submit-success-colour) !important";
+        button.disabled = true;
+    }
+}
+
+function createConfetti(buttonId) {
+    console.log('Creating confetti for button:', buttonId);
+    const button = document.getElementById(buttonId);
+    if (!button) {
+        console.error('Button not found with id:', buttonId);
+        return;
+    }
+
+    function random(max) {
+        return Math.random() * max;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < 100; i++) {
+        const element = document.createElement("i");
+        element.className = 'confetti';
+        
+        const styles = `
+            transform: translate3d(${random(500) - 250}px, ${random(200) - 150}px, 0) rotate(${random(360)}deg);
+            background: hsla(${random(360)},100%,50%,1);
+            animation: bang 700ms ease-out forwards;
+            opacity: 0;
+        `;
+        
+        element.style.cssText = styles;
+        fragment.appendChild(element);
+    }
+
+    button.appendChild(fragment);
+
+    // Optional: Clean up confetti particles after animation
+    setTimeout(() => {
+        const particles = button.querySelectorAll('i');
+        particles.forEach(particle => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        });
+    }, 1200);
+}
+
+function greenLightInput(id) {
+    const input = document.getElementById(id);
+    if (input) {
+        input.style.backgroundColor = "var(--submit-success-background)";
+        input.style.color = "var(--submit-success-colour) !important";
+        input.setAttribute('readonly', 'readonly');
+        input.blur()
+    }
+}
+
+function tryAgainButton(id) {
+    const button = document.getElementById(id);
+    if (button) {
+        button.innerHTML = "Try again";
+        button.style.backgroundColor = "var(--submit-fail-background)";
+        button.style.color = "var(--submit-fail-colour) !important";
+    }
+}
+
+
+
+
+
+</script>

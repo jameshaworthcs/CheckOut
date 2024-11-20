@@ -1,0 +1,316 @@
+<script>
+
+//          //
+// DeviceID //
+//          //
+
+const deviceIDSpan = document.getElementById('deviceID');
+const storedDeviceID = localStorage.getItem('deviceID');
+
+function formatDeviceID(deviceID) {
+    if (deviceID.length > 10) {
+        return deviceID.slice(0, 5) + '...' + deviceID.slice(-5);
+    }
+    return deviceID; // In case the deviceID is very short, return it as is
+}
+
+function toggleDeviceID() {
+    const isRedacted = deviceIDSpan.dataset.redacted === 'true';
+    const deviceID = localStorage.getItem('deviceID');
+
+    if (isRedacted) {
+        deviceIDSpan.textContent = formatDeviceID(deviceID);
+        deviceIDSpan.dataset.redacted = 'false';
+    } else {
+        deviceIDSpan.textContent = deviceID;
+        deviceIDSpan.dataset.redacted = 'true';
+    }
+}
+
+if (storedDeviceID) {
+    deviceIDSpan.textContent = formatDeviceID(storedDeviceID);
+    deviceIDSpan.dataset.redacted = 'true';
+} else {
+    fetch('/api/app/sessionID')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const deviceID = data.deviceID;
+                deviceIDSpan.textContent = formatDeviceID(deviceID);
+                deviceIDSpan.dataset.redacted = 'true';
+                localStorage.setItem('deviceID', deviceID);
+            } else {
+                deviceIDSpan.textContent = 'Failed to load device ID';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching device ID:', error);
+            deviceIDSpan.textContent = 'Error loading device ID';
+        });
+}
+
+// Add click event listener to toggle between full and redacted ID
+deviceIDSpan.addEventListener('click', toggleDeviceID);
+
+//         //
+// Account //
+//         //
+
+// Function to fetch account settings and update the page
+function fetchAccountSettings() {
+    const cacheKey = 'accountSettingsCache';
+    const cachedData = localStorage.getItem(cacheKey);
+    const cacheTimeKey = 'accountSettingsCacheTime';
+    const cachedTime = localStorage.getItem(cacheTimeKey);
+
+    // Check if cached data is available and still valid (within 30 seconds)
+    if (cachedData && cachedTime) {
+        const now = new Date().getTime();
+        const cacheAge = (now - cachedTime) / 1000; // age in seconds
+
+        if (cacheAge < 5) {
+            // Use cached data
+            updateAccountSettings(JSON.parse(cachedData));
+            return;
+        } else {
+            // Cache is too old, remove it
+            localStorage.removeItem(cacheKey);
+            localStorage.removeItem(cacheTimeKey);
+        }
+    }
+
+    // If no valid cache, fetch from API
+    fetch('/api/settings/account')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cache the fetched data and the current time
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                localStorage.setItem(cacheTimeKey, new Date().getTime());
+            }
+            updateAccountSettings(data);
+        })
+        .catch(error => {
+            console.error('Error fetching account settings:', error);
+            document.getElementById('accountDetails').textContent = 'Error loading account details';
+        });
+}
+
+// Function to update the account settings UI
+function updateAccountSettings(data) {
+    const accountDetailsSpan = document.getElementById('accountDetails');
+    const signInTextLink = document.getElementById('signInText');
+
+    calculateBirthday(data.birthday)
+
+    if (data.success && data.account) {
+        // User has an account
+        const { email, username } = data.accountInfo;
+
+        // Update accountDetails to greet the user by username
+        accountDetailsSpan.textContent = `Hello, ${username}`;
+
+        // Update signInText to be their email
+        signInTextLink.textContent = email;
+
+        // Create and append the CTA button
+        const ctaButton = document.createElement('a');
+        ctaButton.href = '/account';
+        ctaButton.className = 'cta-button';
+        ctaButton.textContent = 'Account settings';
+        ctaButton.style.marginLeft = '10px';
+        accountDetailsSpan.parentNode.appendChild(ctaButton);
+    } else {
+        // User is not signed in
+        accountDetailsSpan.innerHTML = 'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
+    }
+}
+
+// Call the function to fetch account settings
+fetchAccountSettings();
+
+
+
+function calculateBirthday(inputDateStr) {
+    const userSinceSpan = document.getElementById('userSince');
+    
+    // Convert input to a Date object by appending 'Z' to the string to indicate UTC
+    let inputDate = new Date(inputDateStr + 'Z'); 
+    
+    // Check if the date is invalid
+    if (isNaN(inputDate.getTime())) {
+        userSinceSpan.innerHTML = 'Invalid date';
+        return;
+    }
+
+    // Convert the input date to Europe/London time
+    // Convert the input date to Europe/London time
+    const londonTime = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/London',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+        timeZoneName: 'short'
+    }).formatToParts(inputDate).map(({ type, value }) => {
+        if (type === 'hour' || type === 'minute') {
+            return value + ':';
+        } else if (type === 'second') {
+            return value;
+        } else if (type === 'day' || type === 'month' || type === 'year') {
+            return value + ' ';
+        } else if (type === 'literal') {
+            return '';
+        }
+        return value + ' ';
+    }).join('').trim();
+
+
+
+    // Use the inputDate in the user's local timezone to calculate the difference
+    const now = new Date(); // Current date and time in the user's timezone
+
+    // Calculate the time difference in various units
+    let diffInSeconds = Math.floor((now - inputDate) / 1000);
+
+    if (diffInSeconds < 0) {
+        // If the time is in the future, return the time traveller message
+        userSinceSpan.innerHTML = 'CheckOut time traveller';
+        return;
+    }
+
+    const years = Math.floor(diffInSeconds / (365 * 24 * 60 * 60));
+    diffInSeconds -= years * 365 * 24 * 60 * 60;
+    const days = Math.floor(diffInSeconds / (24 * 60 * 60));
+    diffInSeconds -= days * 24 * 60 * 60;
+    const hours = Math.floor(diffInSeconds / (60 * 60));
+    diffInSeconds -= hours * 60 * 60;
+    const minutes = Math.floor(diffInSeconds / 60);
+    diffInSeconds -= minutes * 60;
+    const seconds = diffInSeconds;
+
+    // Create the final output string, handling pluralization and omitting zero values
+    let output = 'CheckOut user for ';
+    if (years > 0) output += `${years} year${years > 1 ? 's' : ''}, `;
+    if (days > 0) output += `${days} day${days > 1 ? 's' : ''}, `;
+    if (hours > 0) output += `${hours} hour${hours > 1 ? 's' : ''}, `;
+    if (minutes > 0) output += `${minutes} minute${minutes > 1 ? 's' : ''}, `;
+    if (seconds > 0) output += `${seconds} second${seconds > 1 ? 's' : ''}, `;
+
+    // Remove the last comma and space if any of the time units were added
+    output = output.endsWith(', ') ? output.slice(0, -2) : output;
+
+    output += ` (${londonTime})`;
+
+    userSinceSpan.innerHTML = output;
+}
+
+
+
+////////////
+// Themes //
+////////////
+
+document.addEventListener("DOMContentLoaded", function () {
+  const themeSelectionDiv = document.getElementById('theme-selection');
+  const blueThemeColumn = document.getElementById('blue-theme');
+  const modernThemeColumn = document.getElementById('modern-theme');
+  const minecraftThemeColumn = document.getElementById('minecraft-theme');
+
+  // Helper function to set selected theme visually
+  function setSelectedTheme(theme) {
+    const currentSelected = document.querySelector('.selected');
+    if (currentSelected) {
+      currentSelected.classList.remove('selected');
+    }
+
+    if (theme === '1') {
+      blueThemeColumn.classList.add('selected');
+    } else if (theme === '2') {
+      modernThemeColumn.classList.add('selected');
+    }
+
+    themeSelectionDiv.setAttribute('data-selected', theme);
+  }
+
+  // Helper function to handle theme change
+  function handleThemeChange(themeID) {
+    fetch('/api/settings/theme', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ themeID }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const themeAccount = data.accountSync ? 'true' : 'false';
+          const newUrl = `${window.location.pathname}?themechange=true&themeaccount=${themeAccount}`;
+          window.location.href = newUrl;
+        } else {
+          displayNotice(data.msg, 'error', 'Theme change error');
+        }
+      })
+      .catch((error) => {
+        displayNotice(error.message, 'error', 'Theme change error');
+      });
+  }
+
+  // Fetch the current theme from the API on page load
+  fetch('/api/settings/theme')
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        setSelectedTheme(data.themeID);
+      } else {
+        console.log(data.msg); // If the theme is not set, do nothing
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching theme:', error);
+    });
+
+  // Check for themechange query parameters on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const themeChange = urlParams.get('themechange');
+  const themeAccount = urlParams.get('themeaccount');
+  if (themeChange === 'true') {
+    const message = themeAccount === 'true'
+      ? 'Theme changed and saved to your account.'
+      : 'Theme changed. <a href="account">Sign in</a> to sync this across all your devices!';
+    displayNotice(message, 'success', 'Theme changed');
+  }
+
+  // Add click listeners to Blue and Modern themes
+  blueThemeColumn.addEventListener('click', function () {
+    handleThemeChange('1');
+  });
+
+  modernThemeColumn.addEventListener('click', function () {
+    handleThemeChange('2');
+  });
+
+  // Minecraft column click handler (no selection allowed)
+  minecraftThemeColumn.addEventListener('click', function () {
+    const minecraftLabel = minecraftThemeColumn.querySelector('.theme-label');
+    const originalText = minecraftLabel.textContent;
+
+    // Change text to "Coming soon!" and add red flash
+    minecraftLabel.textContent = 'Coming soon!';
+    minecraftLabel.classList.add('red-flash');
+
+    // Revert the text and red flash after 2 seconds
+    setTimeout(function () {
+      minecraftLabel.textContent = originalText;
+      minecraftLabel.classList.remove('red-flash');
+    }, 2000);
+  });
+});
+
+
+
+</script>

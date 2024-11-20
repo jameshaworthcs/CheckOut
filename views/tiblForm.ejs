@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <%- include('../views/courseFormcss'); %>
+  <style>
+    <% if(typeof courseChange !=='undefined'){%>
+                  
+    form {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    body {
+  background: radial-gradient(circle at top left, rgba(0, 0, 0, 0), rgba(6, 16, 29, 0.99)), radial-gradient(circle at top right, rgba(6, 16, 29, 0.7), rgba(6, 16, 29, 0.99));
+}
+
+
+    <%}else{%>Change Course<%}%>
+  </style>
+  </head>
+  <body>
+    <div id="hero-area" >
+  <form action="<% if(typeof submitURL !=='undefined'){%><%- submitURL %><%}else{%>https://<%= rootDomain %>/api/app/submit<%}%>">
+    <div id="overlay" class="hidden">
+        <div class="loader"></div>
+    </div>
+    <div id="messageContainer" class="hidden"></div>
+    <br>
+      <h3>Submit CheckOut code <img class="whitetick" src="https://api.jemedia.xyz/checkin-ios/tick-white.png" height="35px" alt="">
+      </h3>
+      <label for="md"><%- sessionsLabel %></label>
+        <div id="sessionSelection">
+          <%- sessionOptionsHTML %>
+        </div>
+        <% if (OP > 0) { %>
+        <input type="hidden" name="md" id="md" required>
+        <input type="hidden" name="grp" id="grp" required>
+      <input type="hidden" name="tk" value="<%= randomString %>">
+      <!-- <br>
+      <label for="grp">Group Number:</label>
+        <div id="groupSelection">
+            <div class="groupOption" data-value="Lecture">Lecture</div>
+            <div class="groupOption" data-value="1">1</div>
+            <div class="groupOption" data-value="2">2</div>
+            <div class="groupOption" data-value="3">3</div>
+            <div class="groupOption" data-value="4">4</div>
+            <div class="groupOption" data-value="5">5</div>
+            <div class="groupOption" data-value="6">6</div>
+        </div>
+        <input type="hidden" name="grp" id="grp" required>
+      <br> -->
+      <label for="chc">Enter CheckOut Code:</label>
+      <input type="tel" placeholder="******" style="letter-spacing: 5px; text-align: center;" name="chc" id="chc" pattern="\d{6}" maxlength="6" oninput="validateInput(this)" autocomplete="off" required>
+      <!-- <div class="digit-container">
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+        <input type="text" class="digit-input" maxlength="1" pattern="\d" inputmode="numeric" required>
+    </div> -->
+    <input type="hidden" name="inst" value="<%= inst %>">
+    <input type="hidden" name="crs" value="<%= crs %>">
+    <input type="hidden" name="yr" value="<%= yr %>">
+      <!-- <input type="tel" style="letter-spacing: 5px;" name="chc" id="chc" pattern="\d{6}" maxlength="6" oninput="validateInput(this)" required> -->
+      <br><br>
+      <button class="magicbutton" type="submit" value="SUBMIT"><b>SUBMIT</b></button>
+      <% } %>
+      <br><br>
+      
+      <p class="footertext"><%- code %><br><a class="footertext" target="_parent" style="color: #AFAFAF;" href="/api/app/onboarding"><% if(typeof courseChange !=='undefined'){%>
+                  <%}else{%>Change Course<%}%></a></p>
+    </form>
+</div>
+     <% if (OP > 0) { %>
+      <script>document.getElementById("chc").focus()</script>
+    <script>
+      function validateInput(input) {
+        // Allow only numbers
+        input.value = input.value.replace(/\D/g, '');
+  
+        // Limit to 6 digits
+        if (input.value.length > 6) {
+          input.value = input.value.slice(0, 6);
+        }
+      }
+  
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('myForm');
+  var inputs = document.getElementsByClassName('digit-input');
+  
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('input', function() {
+      var index = Array.prototype.indexOf.call(inputs, this);
+      
+      // Allow only numbers
+      this.value = this.value.replace(/\D/g, '');
+      
+      if (this.value.length === 1) {
+        if (index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      }
+    });
+    
+    inputs[i].addEventListener('keydown', function(e) {
+      var index = Array.prototype.indexOf.call(inputs, this);
+      
+      if (e.key === 'Backspace' && index > 0 && this.value.length === 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  }
+})
+
+function setupSelectableOptions(className, inputId) {
+    const selectedOption = document.querySelector('.' + className + '.selected');
+    if (selectedOption) {
+        document.getElementById(inputId).value = selectedOption.getAttribute('data-module');
+        document.getElementById("grp").value = selectedOption.getAttribute('data-activityid');
+    }
+
+    document.querySelectorAll('.' + className).forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.' + className).forEach(div => {
+                div.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            document.getElementById(inputId).value = this.getAttribute('data-module');
+            document.getElementById("grp").value = this.getAttribute('data-activityid');
+        });
+    });
+}
+
+addEventListener("DOMContentLoaded", (event) => {
+    setupSelectableOptions('sessionOption', 'md');
+    //setupSelectableOptions('groupOption', 'grp');
+});
+
+
+//       function setupSelectableOptions(className, inputId) {
+//     document.querySelectorAll('.' + className).forEach(item => {
+//         item.addEventListener('click', function() {
+//             document.querySelectorAll('.' + className).forEach(div => {
+//                 div.classList.remove('selected');
+//             });
+//             this.classList.add('selected');
+//             document.getElementById(inputId).value = this.getAttribute('data-module');
+//             document.getElementById("grp").value = this.getAttribute('data-activityid');
+//         });
+//         <% if (OP == 1) { %>
+//           document.getElementById(inputId).value = this.getAttribute('data-module');
+//             document.getElementById("grp").value = this.getAttribute('data-activityid');
+//         <% } %>
+//     });
+// }
+// addEventListener("DOMContentLoaded", (event) => {
+// setupSelectableOptions('sessionOption', 'md');
+// //setupSelectableOptions('groupOption', 'grp');
+// });
+
+function showMessage(message, type) {
+    var messageContainer = document.getElementById('messageContainer');
+    messageContainer.innerHTML = message;
+    messageContainer.className = ''; // Clear previous classes
+    messageContainer.classList.add(type); // Add new class for message type
+    messageContainer.style.display = 'block'; // Show the message container
+}
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    var inputs = document.getElementsByClassName('digit-input');
+    e.preventDefault();
+
+    // Validation for module selection
+    var selectedModule = document.getElementById('md').value;
+    if (!selectedModule) {
+        showMessage('Please select a class before submitting.', 'message-error');
+        return;
+    }
+    var selectedGroup = document.getElementById('grp').value;
+    if (!selectedGroup) {
+        showMessage('Something has gone wrong. Please inform an admin.', 'message-error');
+        return;
+    }
+
+    // Validation for checkout code length
+    // var inputs = document.getElementsByClassName('digit-input');
+    // var checkoutCode = Array.from(inputs).map(input => input.value).join('');
+
+    // if (checkoutCode.length !== 6) {
+    //     showMessage('The check-out code must be exactly 6 digits.', 'message-error');
+    //     return;
+    // }
+
+    // Delayed overlay display
+    var overlayTimeout = setTimeout(function() {
+        document.getElementById('overlay').style.display = 'block';
+    }, 500); // 500 milliseconds delay
+
+    // Construct the GET request URL with form parameters
+    var form = this;
+    //var params = Array.from(new FormData(form)).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+    var formData = new FormData(form);
+    //formData.append('chc', checkoutCode);
+
+    // Convert FormData to JSON object
+    var jsonData = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+
+    // Create request URL
+    var requestUrl = form.getAttribute('action');
+
+    fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Remove overlay
+        clearTimeout(overlayTimeout); // Clear the timeout
+        document.getElementById('overlay').style.display = 'none';
+
+        // Handle response
+        if (data.success === "true") {
+          <% if(typeof submitURL !=='undefined'){%>var messageHtml = `Success!`<%}else{%>
+            var messageHtml = `Success! <!-- <a target="_blank" class="successlink" href="${data.next}">Show submission</a>.--> <a target="_blank" class="successlink" href="${data.undo}">View history</a>.`;
+            <%}%>
+            showMessage(messageHtml, 'message-success');
+        } else {
+            showMessage(data.message, 'message-error');
+        }
+    })
+    .catch(error => {
+        // Handle error
+        clearTimeout(overlayTimeout); // Clear the timeout
+        document.getElementById('overlay').style.display = 'none';
+        showMessage('An error occurred. Please try again.', 'message-error');
+    });
+});
+</script>
+<% } %>
+
+    
+  </body></html>
