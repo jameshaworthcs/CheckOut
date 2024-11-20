@@ -98,11 +98,11 @@ Install MySQL and configure it for the project:
 ### **4.2 Import the Database**
 
 1. Download the SQL schema file from:
-   [https://checkout.ac/sql-dev/dev-schema.sql](https://checkout.ac/sql-dev/dev-schema.sql)
+   [https://checkout.ac/sql-dev/db_export/checkout_combined.sql](https://checkout.ac/sql-dev/db_export/checkout_combined.sql)
 
 2. Import the schema into MySQL:
    ```bash
-   mysql -u root -p < dev-schema.sql
+   mysql -u root -p < checkout_combined.sql
    ```
 
 ---
