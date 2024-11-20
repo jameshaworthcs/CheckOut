@@ -5,11 +5,17 @@ var db = require('./database');
 const winston = require('winston');
 var moment = require('moment');
 const NodeCache = require('node-cache');
+let logFilePath;
+if (process.env.NODE_ENV === "development") {
+  logFilePath = "dev.log";
+} else {
+  logFilePath = '/var/lib/checkout/checkout.log';
+}
 const logger = winston.createLogger({
   level: 'info',  // Log 'info' and more critical levels (error, warn)
   format: winston.format.json(),
   transports: [
-    new winston.transports.File({ filename: '/var/lib/checkout/checkout.log' })
+    new winston.transports.File({ filename: logFilePath })
   ]
 });
 

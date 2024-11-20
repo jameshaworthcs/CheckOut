@@ -9,6 +9,7 @@ const winston = require('winston');
 const XXH = require('xxhashjs');
 const NodeCache = require('node-cache');
 var loggerM = require('morgan');
+require('dotenv').config({ path: '.env.local' });
 const blockedUsernames = ['t______________'];
 //var passWord = process.env.ADPASS;
 const io = require('@pm2/io');
@@ -49,13 +50,12 @@ const MySQLStore = require('express-mysql-session')(session);
 
 // MySQL session store options
 const dbOptions = {
-  host: 'localhost',
-  port: '3306',
-  user: 'checkout',
-  password: process.env.DBPASS,
-  database: 'checkout',
+  host: process.env.DB_HOST,
+  //port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 };
-
 // Create MySQL store instance
 const mysqlStore = new MySQLStore(dbOptions);
 
@@ -91,13 +91,15 @@ try {
       redisStore = new RedisStore({ client: redisClient });
     })
     .catch((err) => {
-      console.log('(Using MySQL session store) Redis connection failed:', err);
+      //console.log('(Using MySQL session store) Redis connection failed:', err);
+      console.log("Redis installation not found, using SQL session store instead.")
       USE_MYSQL_SESSION_STORE = true; // Fall back to MySQL store if Redis connection fails
     });
 
 } catch (err) {
   // Handle any errors with the Redis setup (import failure, etc.)
-  console.log('(Using MySQL session store) Redis setup failed:', err);
+  //console.log('(Using MySQL session store) Redis setup failed:', err);
+  console.log("Redis installation not found, using SQL session store instead.")
   USE_MYSQL_SESSION_STORE = true; // Fall back to MySQL store if Redis setup fails
 }
 
@@ -114,8 +116,8 @@ app.use(session({
   rolling: true,
   cookie: {
     maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
-    httpOnly: true,
-    secure: true
+    httpOnly: process.env.NODE_ENV !== "development", // Only true in non-development
+    secure: process.env.NODE_ENV !== "development"    // Only true in non-development
   },
 }));
 
@@ -429,8 +431,8 @@ app.post('/api/app/block/appeal', async (req, res) => {
 
 // Set minification options
 const { minify } = require('html-minifier');
-const useMinification = true;
-const useMiniCache = true;
+const useMinification = process.env.NODE_ENV === 'development' ? false : true;
+const useMiniCache = process.env.NODE_ENV === 'development' ? false : true;
 
 let redisClientCache = null;
 
@@ -442,12 +444,13 @@ try {
   
   // Optional: Add Redis connection error handling
   redisClientCache.on("error", (err) => {
-    console.log("Redis connection error:", err);
+    //console.log("Redis connection error:", err);
     redisClientCache = null; // Set redisClientCache to null if connection fails
   });
 
 } catch (error) {
-  console.log("Failed to initialize Redis:", error);
+  //console.log("Failed to initialize Redis:", error);
+  console.log("Redis installation not found, caching disabled.")
   redisClientCache = null; // Set redisClientCache to null if Redis can't be imported or initialized
 }
 
@@ -811,7 +814,7 @@ server.listen(port, () => {
   if (process.env.CHK_SRV == "PROD") {
     console.log(`Production CheckOut ${process.env.CHK_SRV}:${port} Backend-${process.env.CHK_PROD_ID} initialized!`);
   } else {
-    console.log(`CheckOut ${process.env.CHK_SRV}:${port} initialized!`);
+    console.log(`CheckOut development ${process.env.CHK_SRV} running on localhost:${port}`);
   }
 });
 
