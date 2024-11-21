@@ -1,0 +1,8 @@
+<%- include('../views/globalhead'); %>
+<%- include('../views/navbar'); %>
+
+<div class="sub-table-info">
+Checkin code submitted.<br><br>You can view the submission <a class="sub-table-link" href="https://<%= moduleCode %>.<%= rootDomain %>">here</a>.
+<br><br>
+<small>Submitted the wrong code? <a class="sub-table-link" href="/undo?tk=<%= tk %>&md=<%= moduleCode %>">Undo</a>.</small>
+</div>

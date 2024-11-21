@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Check out Log</title>
+  <%- include('../views/globalhead'); %>
+    </head>
+    <body>
+      <div id="navbar">
+        <a href="/">Home</a>
+        <a href="/admin?password=<%= password %>">Admin</a>
+        <a href="/tklog?password=<%= password %>">TK Log</a>
+        <a class="active" href="/iplog?password=<%= password %>">IP Log</a>
+        <a href="/analytics">Analytics</a>
+      </div>
+    <p> <!-- Create an empty table ready to show logs -->
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>IP</th>
+        <th>UserAgent</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <!-- Data will be appended here -->
+    </tbody>
+  </table>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Script to fetch and display data -->
+  <script>
+    // Fetch data from the bulletin server
+    $.get ('/logdata?password=<%= password %>', function (data) {
+      // Get the table body element
+      var tableBody = $('#table-body');
+      // Loop through the data array
+      data.forEach (function (row) {
+        // Create a new table row element
+        var tr = $('<tr></tr>');
+        // Append table cells with log rows
+        tr.append ($('<td></td>').text (row.timestamp));
+        tr.append ($('<td></td>').text (row.ip));
+        tr.append ($('<td></td>').text (row.useragent));
+        // Append the table row to the table body
+        tableBody.append (tr);
+      });
+    });
+  </script>
+</body>
+</html>

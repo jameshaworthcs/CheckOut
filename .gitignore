@@ -7,7 +7,6 @@ html-minify/
 *.log
 build/
 dist/
-old/
 
 # Config Files
 .env

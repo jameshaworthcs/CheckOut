@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Login</title>
+  <%- include('../views/globalhead'); %>
+    </head>
+    <body>
+    <div id="navbar">
+      <a href="/">Home</a>
+      <a class="active" href="/tklog">TK</a>
+    </div>
+    <p> <!-- Create an empty table ready to show logs -->
+        <form action="/tklog">
+            Password protected<br>
+            <p><%= message %></p>
+            <input type="password" name="password" id="password" required>
+            <input type="submit" value="SUBMIT">
+          </form>
+          <!-- table.html -->
+          <script>document.getElementById("password").focus()</script>
+</body>
+</html>

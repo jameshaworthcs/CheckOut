@@ -1,0 +1,3 @@
+<div id="navbar"><a href="https://<% if(typeof rootDomain !=='undefined'){%><%- rootDomain %><%}else{%>checkout.ac<%}%>"><%- include('../views/green-check-1.3.ejs'); %></a>
+    <a href="/class">Classes</a>
+</div><script>document.addEventListener("DOMContentLoaded",function(){for(var e=window.location.pathname,t=document.getElementById("navbar").getElementsByTagName("a"),a=0;a<t.length;a++)t[a].getAttribute("href")===e&&t[a].classList.add("active")});</script>

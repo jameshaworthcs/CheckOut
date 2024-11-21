@@ -1,0 +1,22 @@
+from math import sqrt
+
+def is_contained(sphere1, sphere2):
+    """use the equation given"""
+    x1, y1, z1, r1 = sphere1
+    x2, y2, z2, r2 = sphere2
+    distance = sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2)
+    return distance + r1 <= r2
+
+def union(objectA, objectB):
+    """test each sphere against all other spheres"""
+    combined_spheres = set(objectA).union(set(objectB))
+    to_remove = set()
+
+    for sphere1 in combined_spheres:
+        for sphere2 in combined_spheres:
+            if sphere1 != sphere2 and is_contained(sphere1, sphere2):
+                to_remove.add(sphere1)
+
+    return combined_spheres - to_remove
+
+

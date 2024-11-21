@@ -1,0 +1,14 @@
+<head>
+    <title>Rate limited - Check-out</title>
+<%- include('../views/globalhead'); %>
+<%- include('../views/navbar'); %>
+</head>
+<body>
+    
+
+<div class="homecontent">
+<b>IP <i><%= ip %></i> has made too many requests. Please try again tomorrow.</b>
+<br><br>
+More information: Individual IP addresses are limited to <%= ipRateLimit %> submission(s) / per class / per day.
+</div>
+</body>

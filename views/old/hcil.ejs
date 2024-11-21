@@ -1,0 +1,102 @@
+<!-- table.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>HCI Lecture Codes</title>
+  <%- include('../views/globalhead'); %>
+    </head>
+    <body>
+        <%- include('../views/navbar'); %>
+        <div class="sub-table-info" id="message-container"></div>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Group No.</th>
+        <th>Checkin Code</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <!-- Data will be appended here -->
+    </tbody>
+  </table>
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <%- include('../views/sub-table-info'); %>
+  <!-- Script to fetch and display data -->
+  <script>
+    // Fetch data from the bulletin server
+    $.get('/classdata/hcil', function (data) {
+        // Get the table body element
+        var tableBody = $('#table-body');
+
+        // Check if the fetched JSON is empty
+        if (data.length === 0) {
+            // Remove the table
+            tableBody.closest('table').remove();
+
+            // Display a message
+            $('#message-container').text('No check-in has been submitted for this activity yet.');
+            return;
+        }
+
+        // Loop through the data array
+        data.forEach(function (row) {
+            // Create a new table row element
+            var tr = $('<tr></tr>');
+            
+            // Append table cells with log rows
+            tr.append($('<td></td>').text(row.groupCode));
+            tr.append($('<td></td>').text(row.checkinCode));
+
+            // Create a "Copy" button and add a click event listener
+            var copyButton = $('<button>Copy</button>');
+            copyButton.click(function () {
+                copyText(row.checkinCode);
+            });
+
+            // Append the "Copy" button to the row
+            tr.append($('<td></td>').append(copyButton));
+
+            // Append the table row to the table body
+            tableBody.append(tr);
+        });
+    });
+    function copyText(textToCopy) {
+    // Create a temporary textarea element to perform the copy
+    var tempTextarea = document.createElement("textarea");
+    tempTextarea.value = textToCopy;
+
+    // Append the textarea to the document
+    document.body.appendChild(tempTextarea);
+
+    // Select the text inside the textarea
+    tempTextarea.select();
+    tempTextarea.setSelectionRange(0, 99999); // For mobile devices
+
+    // Execute the copy command
+    document.execCommand("copy");
+
+    // Remove the temporary textarea
+    document.body.removeChild(tempTextarea);
+
+    // Display the copy confirmation message
+    var copyConfirmation = $('<div class="copy-confirmation">Copied!</div>');
+    $('body').append(copyConfirmation);
+
+    // Add the 'show' class to make the confirmation visible
+    copyConfirmation.addClass('show');
+
+    // Hide the confirmation message after a short delay
+    setTimeout(function () {
+        // Remove the 'show' class to hide the confirmation
+        copyConfirmation.removeClass('show');
+        
+        // Remove the entire element after the transition
+        setTimeout(function () {
+            copyConfirmation.remove();
+        }, 500); // Adjust the delay to match the transition duration
+    }, 1500); // Adjust the delay as needed
+}
+  </script>
+</body>
+</html>

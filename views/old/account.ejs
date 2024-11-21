@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+    }
+
+    .container {
+      width: 60%;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 90%;
+      }
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    p {
+      margin-bottom: 10px;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../account/nav'); %>
+  <div class="container">
+    <h1>Account settings</h1>
+    <hr>
+    <p>Email: <%= email %></p><br>
+    <p>API Key: <%= apikey %></p><br>
+    <p>Permissions: <%= perms %></p><br>
+    <!-- <h2>Appeal</h2>
+    <form action="/api/app/block/appeal" method="POST">
+      <textarea id="reason" name="reason" placeholder="Enter your appeal here"></textarea>
+      <button type="submit">Submit Appeal</button>
+    </form> -->
+  </div>
+</body>
+</html>
