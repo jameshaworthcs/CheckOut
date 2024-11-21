@@ -25,3 +25,4 @@ ecosystem*
 
 # OS-specific files
 .DS_Store
+checkout_combined.sql

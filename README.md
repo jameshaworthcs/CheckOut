@@ -80,34 +80,9 @@ Install MySQL and configure it for the project:
    - Set a strong root password.
    - Answer "Yes" to all prompts to secure the installation.
 
-4. Enable legacy password login during the initial setup:
-   ```bash
-   sudo mysql -u root -p
-   ```
-   Then, execute the following commands in the MySQL shell:
-   ```sql
-   SET GLOBAL default_authentication_plugin = 'mysql_native_password';
-   ```
-   Exit the MySQL shell:
-   ```sql
-   EXIT;
-   ```
-
 ---
 
-### **4.2 Import the Database**
-
-1. Download the SQL schema file from:
-   [https://checkout.ac/sql-dev/db_export/checkout_combined.sql](https://checkout.ac/sql-dev/db_export/checkout_combined.sql)
-
-2. Import the schema into MySQL:
-   ```bash
-   mysql -u root -p < checkout_combined.sql
-   ```
-
----
-
-### **4.3 Create the MySQL User**
+### **4.2 Create the MySQL User**
 
 Create a MySQL user specifically for the application:
 
@@ -119,14 +94,39 @@ Create a MySQL user specifically for the application:
    ```sql
    CREATE USER 'checkout'@'localhost' IDENTIFIED BY 'development';
    ```
+2. Enable password
+    ```sql
+    ALTER USER 'checkout'@'localhost' IDENTIFIED WITH mysql_native_password BY 'development';
+    ```
 3. Grant the user access to the `checkout_dev` database:
    ```sql
    GRANT ALL PRIVILEGES ON checkout_dev.* TO 'checkout'@'localhost';
-   FLUSH PRIVILEGES;
    ```
-4. Exit the MySQL shell:
+4. Create database
+    ```sql
+    CREATE DATABASE checkout_dev;
+    ```
+5. Flush privileges
+    ```sql
+    FLUSH PRIVILEGES;
+    ```
+6. Exit the MySQL shell:
    ```sql
    EXIT;
+   ```
+
+---
+
+### **4.3 Import the Database**
+
+1. Download the SQL schema file from:
+   [https://checkout.ac/sql-dev/db_export/checkout_combined.sql](https://checkout.ac/sql-dev/db_export/checkout_combined.sql)
+
+2. Import the schema into MySQL:
+
+    Note: it will ask you for a password, use password 'development'.
+   ```bash
+   sudo mysql -u checkout -p checkout_dev < checkout_combined.sql
    ```
 
 ---
