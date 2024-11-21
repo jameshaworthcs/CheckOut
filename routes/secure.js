@@ -1,9 +1,8 @@
-const validModuleCodes = ['y1-soft-2', 'y1-sd', 'y1-theory-2', 'about', 'www'];
 const bannedAgents = ['python-reeeeeeequests'];
+const subdomainRedirects = ['about', 'www'];
 const requestTimestamps = {}; // Stores timestamps of requests for rate limiting
-var db = require('./database');
-const winston = require('winston');
-var moment = require('moment');
+var db = require('../database');
+//const winston = require('winston');
 const NodeCache = require('node-cache');
 let logFilePath;
 if (process.env.NODE_ENV === "development") {
@@ -11,13 +10,13 @@ if (process.env.NODE_ENV === "development") {
 } else {
   logFilePath = '/var/lib/checkout/checkout.log';
 }
-const logger = winston.createLogger({
-  level: 'info',  // Log 'info' and more critical levels (error, warn)
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: logFilePath })
-  ]
-});
+// const logger = winston.createLogger({
+//   level: 'info',  // Log 'info' and more critical levels (error, warn)
+//   format: winston.format.json(),
+//   transports: [
+//     new winston.transports.File({ filename: logFilePath })
+//   ]
+// });
 
 // Initialize caches
 const bannedIPCache = new NodeCache({ stdTTL: 10 }); // Cache for 10 seconds
@@ -96,18 +95,18 @@ const securityCheck = async (req, res, next) => {
       const currentDateTime = new Date();
 
       if ((bannedRoutes.some(route => requestUrl.startsWith(route)) || requestUrl.startsWith("/banview")) && (currentDateTime < expiryDateTime)) {
-        logger.info('BAN-REQ', {
-          timestamp: moment().format(),
-          ip: ip,
-          spoofedIP: req.SpoofedIP,
-          path: req.originalUrl,
-          username: req.useremail,
-          userAgent: req.headers['user-agent'],
-          postData: req.body,
-          blockReason: bannedIPResults[0].reason,
-          blockRoutes: bannedRoutes,
-          blockExpiry: expiryDateTime
-        });
+        // logger.info('BAN-REQ', {
+        //   timestamp: moment().format(),
+        //   ip: ip,
+        //   spoofedIP: req.SpoofedIP,
+        //   path: req.originalUrl,
+        //   username: req.useremail,
+        //   userAgent: req.headers['user-agent'],
+        //   postData: req.body,
+        //   blockReason: bannedIPResults[0].reason,
+        //   blockRoutes: bannedRoutes,
+        //   blockExpiry: expiryDateTime
+        // });
 
         if (!requestUrl.startsWith("/api/app/")) {
           return res.render("banned.ejs", { reason: bannedIPResults[0].reason, routes: bannedRoutes, expiry: expiryDateTime });
@@ -127,7 +126,7 @@ const securityCheck = async (req, res, next) => {
     }
 
     // Check 2: Redirect for Subdomains
-    if (req.headers.host !== req.rootDomain && validModuleCodes.includes(req.headers.host.split('.')[0])) {
+    if (req.headers.host !== req.rootDomain && subdomainRedirects.includes(req.headers.host.split('.')[0])) {
       return res.redirect(req.qualifiedURL + "" + req.url);
     }
 

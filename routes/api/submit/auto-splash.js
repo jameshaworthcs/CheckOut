@@ -7,7 +7,7 @@ app.get('/api/submit/autosplash', function (req, res) {
   res.status(200).send('WebSocket endpoint');
 });
 
-var secureRoute = require('../../../secure');
+var secureRoute = require('../../secure');
 const jwt = require('jsonwebtoken');
 var autoApp = require('../../autocheckin');
 const checkedIn = autoApp.checkedIn;

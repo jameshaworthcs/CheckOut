@@ -1,6 +1,6 @@
 const express = require('express')
 var db = require('../../database');
-var secureRoute = require('../../secure');
+var secureRoute = require('../secure');
 var app = express.Router();
 
 // Google Auth Router

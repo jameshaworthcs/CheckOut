@@ -32,7 +32,7 @@ var autoRouter = require('./routes/autocheckin');
 // API is defined lower for WS functionality
 var manageRouter = require('./routes/manage/manage');
 
-var secureRoute = require('./secure');
+var secureRoute = require('./routes/secure');
 const { authenticateUser } = require('./routes/api/auth/auth');
 var outsource = require('./outsource/outsource'); // Sync with external checkin DB's
 
