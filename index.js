@@ -266,6 +266,13 @@ app.use(async (req, res, next) => {
     if (process.env.CHK_SRV == "BETA") {
       req.userData.beta = true;
     }
+
+    // For local development use local admin user
+    // Safe to do as userID 1 is anon in production
+    if (process.env.NODE_ENV==="development") {
+      req.session.user = { id: 1 };
+    }
+
     // Fetch app status and set variables related to application state
     const fetchAppStatus = async () => {
       let result = await appStatus(req);
@@ -400,7 +407,6 @@ app.use(async (req, res, next) => {
         loggedInRequests++;
       }
     }
-
     next();
   } catch (err) {
     console.error("Error in global app status", err);
@@ -417,8 +423,7 @@ app.post('/api/app/block/appeal', async (req, res) => {
   const ip = req.usersIP; // Extract the requester's IP address
   const reason = req.body.reason;
   try {
-    // Database insertion (adjust column names if needed)
-    await db.query(
+    db.query(
       'INSERT INTO appeals (ip, appeal_text, status) VALUES (?, ?, ?)',
       [ip, reason, "not reviewed"]
     );
@@ -456,27 +461,57 @@ try {
 
 const TTL = 365 * 24 * 60 * 60; // 1 year in seconds
 
-// Minification
-if (useMinification) {
-  app.use((req, res, next) => {
-    // Override res.render globally for minification
-    const originalRender = res.render;
+// Middleware to handle render functionality
+app.use((req, res, next) => {
+  // Store the original render function
+  const originalRender = res.render;
 
-    res.render = function(view, options = {}, callback) {
-      options.userData = req.userData || {};
+  // Override res.render globally
+  res.render = function(view, options = {}, callback) {
+    //console.log(req.userData);
+    options.userData = req.userData || {};
 
-      originalRender.call(this, view, options, async (err, html) => {
-        if (err) {
-          if (callback) return callback(err);
-          next(err);
-        }
+    // If minification is not enabled, use simple render with userData
+    if (!useMinification) {
+      return originalRender.call(this, view, options, callback);
+    }
 
-        const hash = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
+    // Minification logic
+    originalRender.call(this, view, options, async (err, html) => {
+      if (err) {
+        if (callback) return callback(err);
+        next(err);
+      }
 
-        // Proceed without caching if Redis is unavailable
-        if (!redisClientCache) {
-          console.warn("Redis is unavailable, proceeding without caching.");
-          // Minify the HTML and send it without caching
+      const hash = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
+
+      // Proceed without caching if Redis is unavailable
+      if (!redisClientCache) {
+        console.warn("Redis is unavailable, proceeding without caching.");
+        // Minify the HTML and send it without caching
+        const minifiedHtml = minify(html, {
+          collapseWhitespace: true,
+          removeComments: true,
+          removeRedundantAttributes: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          minifyCSS: true,
+          minifyJS: true,
+        });
+
+        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+        return this.send(finalHtml); // Send minified HTML without caching
+      }
+
+      try {
+        // Check if the minified version is already in Redis cache
+        const cachedMinifiedHtml = await redisClientCache.get(hash);
+
+        if (cachedMinifiedHtml && useMiniCache) {
+          // If found in Redis cache, send the cached minified HTML
+          this.send(cachedMinifiedHtml);
+        } else {
+          // If not found, minify the HTML
           const minifiedHtml = minify(html, {
             collapseWhitespace: true,
             removeComments: true,
@@ -487,60 +522,36 @@ if (useMinification) {
             minifyJS: true,
           });
 
+          // Add the copyright comment before the minified HTML
           const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
-          return this.send(finalHtml); // Send minified HTML without caching
-        }
 
-        try {
-          // Check if the minified version is already in Redis cache
-          const cachedMinifiedHtml = await redisClientCache.get(hash);
+          // Store the minified HTML in Redis with a TTL
+          await redisClientCache.set(hash, finalHtml, 'EX', TTL);
 
-          if (cachedMinifiedHtml && useMiniCache) {
-            // If found in Redis cache, send the cached minified HTML
-            this.send(cachedMinifiedHtml);
-          } else {
-            // If not found, minify the HTML
-            const minifiedHtml = minify(html, {
-              collapseWhitespace: true,
-              removeComments: true,
-              removeRedundantAttributes: true,
-              removeScriptTypeAttributes: true,
-              removeStyleLinkTypeAttributes: true,
-              minifyCSS: true,
-              minifyJS: true,
-            });
-
-            // Add the copyright comment before the minified HTML
-            const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
-
-            // Store the minified HTML in Redis with a TTL
-            await redisClientCache.set(hash, finalHtml, 'EX', TTL);
-
-            // Send the minified HTML as the response
-            this.send(finalHtml);
-          }
-        } catch (redisErr) {
-          console.error("Redis operation error:", redisErr);
-          // If Redis operation fails, send the minified HTML without caching
-          const minifiedHtml = minify(html, {
-            collapseWhitespace: true,
-            removeComments: true,
-            removeRedundantAttributes: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            minifyCSS: true,
-            minifyJS: true,
-          });
-
-          const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+          // Send the minified HTML as the response
           this.send(finalHtml);
         }
-      });
-    };
+      } catch (redisErr) {
+        console.error("Redis operation error:", redisErr);
+        // If Redis operation fails, send the minified HTML without caching
+        const minifiedHtml = minify(html, {
+          collapseWhitespace: true,
+          removeComments: true,
+          removeRedundantAttributes: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          minifyCSS: true,
+          minifyJS: true,
+        });
 
-    next();
-  });
-}
+        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+        this.send(finalHtml);
+      }
+    });
+  };
+
+  next();
+});
 
 
 

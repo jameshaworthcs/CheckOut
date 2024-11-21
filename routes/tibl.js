@@ -23,7 +23,7 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
     activeAPI.userInfo = { username: "Cached", perms: "cached" };
   }
 
-  const tibl_id = 'tibl_yrk_cs_2'
+  const tibl_id = `tibl_${inst}_${crs}_${yr}`
 
   try {
     const extractedData = await fetchInProgressRowsPromise(tibl_id);

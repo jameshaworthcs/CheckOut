@@ -129,6 +129,13 @@ Create a MySQL user specifically for the application:
    sudo mysql -u checkout -p checkout_dev < checkout_combined.sql
    ```
 
+3. Configure timezone support
+
+    Run the below command:
+    ```bash
+    sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | sudo mysql -u root -p mysql
+    ```
+
 ---
 
 ## **5. Configure Environment Variables**

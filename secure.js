@@ -72,7 +72,7 @@ const securityCheck = async (req, res, next) => {
     // Check 0.1: Banned user check
     if (req.userState === 'banned') {
       if (!requestUrl.startsWith("/api/app/")) {
-        return res.render("banned.ejs", { reason: 'test', routes: 'all', expiry: 'none' });
+        return res.render("banned.ejs", { reason: 'unknown', routes: 'all', expiry: 'none' });
       } else if (requestUrl.startsWith("/api/app/submit")) {
         return res.status(403).json({
           success: false,

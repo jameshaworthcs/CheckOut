@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
@@ -19,6 +20,7 @@
     "express-session": "^1.18.1",
     "google-auth-library": "^9.15.0",
     "html-minifier": "^4.0.0",
+    "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.46",
@@ -28,6 +30,7 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.16",
     "pm2": "^5.4.3",
+    "redis": "^4.7.0",
     "winston": "^3.17.0",
     "workerpool": "^9.2.0",
     "xxhashjs": "^0.2.2"
