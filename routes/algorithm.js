@@ -67,7 +67,7 @@ function calculateScores(inst, crs, yr, md, grp, codes, grouped, codeDayFlip) {
             ? JSON.parse(code.verifiedInfo) 
             : code.verifiedInfo || {};
 
-        console.log(verifiedInfo);
+        //console.log(verifiedInfo);
         
         // Add reputation based on rejectScore
         verifiedInfo.reputation = score > 500;
