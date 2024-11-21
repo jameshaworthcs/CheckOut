@@ -1427,8 +1427,10 @@ function startAutoSplash(jt) {
         }, 250);
 
         setTimeout(() => {
-            // Start WebSocket connection
-            const ws = new WebSocket(`wss://${window.location.hostname}/api/submit/autosplash`);
+            // Determine WebSocket protocol based on hostname and connection security
+            const wsProtocol = (window.location.hostname.includes('localhost') || window.location.protocol === 'http:') ? 'ws' : 'wss';
+            const wsHost = window.location.port ? `${window.location.hostname}:${window.location.port}` : window.location.hostname;
+            const ws = new WebSocket(`${wsProtocol}://${wsHost}/api/submit/autosplash`);
 
             ws.onopen = function() {
                 // Send the 'tk' value as the first message
