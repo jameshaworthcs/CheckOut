@@ -12,6 +12,13 @@
         </div>
     </div>
 <% } %> -->
+<% if (typeof userData != 'undefined' && typeof userData.development != 'undefined' && userData.development === true) { %>
+    <div class="navbar-wrapper">
+        <div class="navbar">
+            <p class="site-notice"><b>Caution:</b> This is a local instance of CheckOut! User data is unlikely to be secure. If this is unexpected, <a href='mailto:checkout@jemedia.xyz'>contact support</a> for the official site. To hide this warning set LOCAL_WARNING=0 in your .env.local file.</p>
+        </div>
+    </div>
+<% } %>
 <div class="navbar-wrapper">
 <div class="navbar">
     <div>

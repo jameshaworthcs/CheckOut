@@ -267,6 +267,10 @@ app.use(async (req, res, next) => {
       req.userData.beta = true;
     }
 
+    if (process.env.NODE_ENV == "development" && process.env.LOCAL_WARNING !== "0") {
+      req.userData.development = true;
+    }
+
     // For local development use local admin user
     // Safe to do as userID 1 is anon in production
     if (process.env.NODE_ENV==="development") {
