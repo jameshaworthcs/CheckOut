@@ -279,22 +279,27 @@ app.use(async (req, res, next) => {
 
     // Fetch app status and set variables related to application state
     const fetchAppStatus = async () => {
-      let result = await appStatus(req);
+      try {
+        let result = await appStatus(req);
 
-      req.switchSWW = result[0]['webState'] === 1 ? false : true; // inverse logic for SWW switch
-      req.bedtime = result[0]['bedtimeState'] === 1 ? true : false;
-      req.dayStart = result[0]['dayStart'];
-      req.dayEnd = result[0]['dayEnd'];
-      req.authReq = result[0]['authState'] === 1 ? true : false;
-      req.undoEnable = result[0]['undoState'] === 1 ? true : false;
-      req.boycottState = result[0]['boycottState'] === 1 ? true : false;
-      req.boycottMsg = result[0]['boycottMsg'];
-      req.boycottLink = result[0]['boycottLink'];
-      req.ipRateLimit = result[0]['rateLimit'];
-      req.rootDomain = result[0]['rootDomain'];
-      req.webStateMsg = result[0]['webStateMsg'];
-      req.webStateLink = result[0]['webStateLink'];
-      req.qualifiedURL = 'https://' + req.rootDomain;
+        req.switchSWW = result[0]['webState'] === 1 ? false : true; // inverse logic for SWW switch
+        req.bedtime = result[0]['bedtimeState'] === 1 ? true : false;
+        req.dayStart = result[0]['dayStart'];
+        req.dayEnd = result[0]['dayEnd'];
+        req.authReq = result[0]['authState'] === 1 ? true : false;
+        req.undoEnable = result[0]['undoState'] === 1 ? true : false;
+        req.boycottState = result[0]['boycottState'] === 1 ? true : false;
+        req.boycottMsg = result[0]['boycottMsg'];
+        req.boycottLink = result[0]['boycottLink'];
+        req.ipRateLimit = result[0]['rateLimit'];
+        req.rootDomain = result[0]['rootDomain'];
+        req.webStateMsg = result[0]['webStateMsg'];
+        req.webStateLink = result[0]['webStateLink'];
+        req.qualifiedURL = 'https://' + req.rootDomain;
+      } catch (error) {
+        console.error("Database error in fetchAppStatus:", error);
+        throw new Error("Unable to fetch application status");
+      }
     };
 
     // Set course-related variables
@@ -413,10 +418,10 @@ app.use(async (req, res, next) => {
     }
     next();
   } catch (err) {
-    console.error("Error in global app status", err);
-    res.render('notices/generic-msg.ejs', {
-      msgTitle: "Validation error",
-      msgBody: "Cannot validate CheckOut server. Please <a href='mailto:checkout@jemedia.xyz'>contact support</a>.",
+    console.error("Error in global app status:", err);
+    return res.render('notices/generic-msg.ejs', {
+      msgTitle: "System Error",
+      msgBody: "We're experiencing technical difficulties. Please try again later or <a href='mailto:checkout@jemedia.xyz'>contact support</a>.",
       username: 'Error'
     });
   }

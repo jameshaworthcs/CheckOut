@@ -1,6 +1,9 @@
 var mysql = require('mysql');
 
-var connection = mysql.createConnection({
+// Flag to track database connection status
+let isConnected = false;
+
+const connection = mysql.createConnection({
   host     : process.env.DB_HOST,
   user     : process.env.DB_USER,
   password : process.env.DB_PASSWORD,
@@ -8,32 +11,28 @@ var connection = mysql.createConnection({
   charset  : 'utf8mb4'
 });
 
-connection.connect(function(err) {
-    if (err) {
-      console.log("MySQL error when connecting checkout to local sql");
-      throw err;
+// Wrap query method to check connection status
+const originalQuery = connection.query.bind(connection);
+connection.query = function(...args) {
+  if (!isConnected) {
+    const callback = args[args.length - 1];
+    if (typeof callback === 'function') {
+      callback(new Error('Database connection is not available'));
     }
-    //console.log('CheckOut Database is connected successfully!');
+    return;
+  }
+  return originalQuery(...args);
+};
+
+connection.connect(function(err) {
+  if (err) {
+    console.error("MySQL error when connecting checkout to local sql:", err);
+    isConnected = false;
+    // Don't throw error, just log it
+    return;
+  }
+  isConnected = true;
+  //console.log('CheckOut Database is connected successfully!');
 });
-
-// // Override the query method to add logging
-// const originalQuery = connection.query.bind(connection);
-
-// connection.query = function(sql, values, callback) {
-//     const startTime = Date.now();
-//     if (typeof values === 'function') {
-//         callback = values;
-//         values = undefined;
-//     }
-//     const newCallback = function(err, results, fields) {
-//         const endTime = Date.now();
-//         const timeTaken = endTime - startTime;
-//         console.log(`${timeTaken}ms Query: ${sql}`);
-//         if (callback) {
-//             callback(err, results, fields);
-//         }
-//     };
-//     return originalQuery(sql, values, newCallback);
-// };
 
 module.exports = connection;
