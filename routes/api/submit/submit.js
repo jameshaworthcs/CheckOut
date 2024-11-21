@@ -115,7 +115,8 @@ app.post('/api/submit/options', async function (req, res) {
     try {
         const token_pre_ws = await hashRequestBody(req);
         req.session.ws6 = await hash_pre_token(token_pre_ws, req.sessionID);
-        const wsURL = `wss://${req.headers.host}/api/submit/ws`;
+        let protocol = req.headers.host.startsWith('localhost') ? 'ws:' : 'wss:';
+        const wsURL = `${protocol}//${req.headers.host}/api/submit/ws`;
         const chc = req.body.chc || 0;
         let checkinState = 0;
 
