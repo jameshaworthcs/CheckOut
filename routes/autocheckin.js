@@ -48,8 +48,18 @@ function autoCheckin(email, session, codes) {
 
 
 function fetchAutoCheckers(emails = [], codes = []) {
+  // Add error handling and connection check
+  if (!db.state === 'connected') {
+    console.error('Database connection not available, retrying in 5 seconds...');
+    setTimeout(() => fetchAutoCheckers(emails, codes), 5000);
+    return;
+  }
+
   db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
-    if (err) throw err;
+    if (err) {
+      console.error('Database query error:', err);
+      return;
+    }
     
     // Iterate over each row in the result
     result.forEach(user => {

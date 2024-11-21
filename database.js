@@ -28,11 +28,27 @@ connection.connect(function(err) {
   if (err) {
     console.error("MySQL error when connecting checkout to local sql:", err);
     isConnected = false;
-    // Don't throw error, just log it
+    // Add reconnection attempt
+    setTimeout(() => {
+      console.log('Attempting to reconnect to database...');
+      connection.connect();
+    }, 5000);
     return;
   }
   isConnected = true;
-  //console.log('CheckOut Database is connected successfully!');
+  console.log('CheckOut Database is connected successfully!');
+});
+
+// Add connection error handler
+connection.on('error', function(err) {
+  console.error('Database error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    isConnected = false;
+    console.log('Lost connection to database, attempting to reconnect...');
+    connection.connect();
+  } else {
+    throw err;
+  }
 });
 
 module.exports = connection;
