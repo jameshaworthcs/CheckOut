@@ -90,13 +90,9 @@ Create a MySQL user specifically for the application:
    ```bash
    sudo mysql -u root -p
    ```
-2. Create the user:
-   ```sql
-   CREATE USER 'checkout'@'localhost' IDENTIFIED BY 'development';
-   ```
 2. Enable password
     ```sql
-    ALTER USER 'checkout'@'localhost' IDENTIFIED WITH mysql_native_password BY 'development';
+    CREATE USER 'checkout'@'localhost' IDENTIFIED WITH mysql_native_password BY 'development';
     ```
 3. Grant the user access to the `checkout_dev` database:
    ```sql
@@ -124,13 +120,14 @@ Create a MySQL user specifically for the application:
 
 2. Import the schema into MySQL:
 
-   Note: it will ask you for a password, use password 'development'. **Ignore** error about users_dev not existing.
+   **Note:** it will ask you for a password, use password 'development'. **Ignore error about users_dev not existing.**
    ```bash
    sudo mysql -u checkout -p checkout_dev < checkout_combined.sql
    ```
 
 3. Configure timezone support
 
+   **Note:** it will ask you for a password, use password 'development'. **Ignore unable to load errors.**
     Run the below command:
     ```bash
     sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | sudo mysql -u root -p mysql

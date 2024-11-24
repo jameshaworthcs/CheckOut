@@ -69,38 +69,37 @@ try {
   RedisStore = require('connect-redis').default;
   const redis = require('redis');
 
-  // Create Redis client
+  // Create Redis client with suppressed logs
   redisClient = redis.createClient({
-    host: 'localhost',
+    host: '127.0.0.1',
     port: 6379,
     // Optional Redis authentication
     // password: process.env.REDISPASS
-  });
+  }).on('error', () => {}); // Suppress Redis errors
 
-  // Handle Redis errors and fall back to MySQL store
-  redisClient.on('error', (err) => {
-    console.log('(Using MySQL session store) Redis error:', err);
+  // Handle Redis errors and fall back to MySQL store - only log once
+  redisClient.once('error', (err) => {
+    console.log("Redis installation not found, using SQL session store instead.");
     USE_MYSQL_SESSION_STORE = true; // Switch to MySQL store on Redis error
+    redisClient.removeAllListeners(); // Remove all event listeners
+    redisClient.quit(); // Close the Redis connection
   });
 
   // Wait for Redis to be ready or fail
   redisClient.connect()
     .then(() => {
-      //console.log('Redis client connected and ready.');
-      // If Redis connects successfully, set the Redis store
       redisStore = new RedisStore({ client: redisClient });
     })
     .catch((err) => {
-      //console.log('(Using MySQL session store) Redis connection failed:', err);
-      console.log("Redis installation not found, using SQL session store instead.")
-      USE_MYSQL_SESSION_STORE = true; // Fall back to MySQL store if Redis connection fails
+      console.log("Redis installation not found, using SQL session store instead.");
+      USE_MYSQL_SESSION_STORE = true;
+      redisClient.removeAllListeners(); // Remove all event listeners
+      redisClient.quit(); // Close the Redis connection
     });
 
 } catch (err) {
-  // Handle any errors with the Redis setup (import failure, etc.)
-  //console.log('(Using MySQL session store) Redis setup failed:', err);
-  console.log("Redis installation not found, using SQL session store instead.")
-  USE_MYSQL_SESSION_STORE = true; // Fall back to MySQL store if Redis setup fails
+  console.log("Redis installation not found, using SQL session store instead.");
+  USE_MYSQL_SESSION_STORE = true;
 }
 
 // Fallback session store based on the USE_MYSQL_SESSION_STORE flag
