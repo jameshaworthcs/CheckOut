@@ -154,7 +154,7 @@ const securityCheck = async (req, res, next) => {
     }
 
     // Used for following functions
-    const excludedPaths = ["/api/app/state", "/api/auth", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt'];
+    const excludedPaths = ["/api/app/state", "/api/auth", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt', '/support'];
     const adminPaths = ["/admin", "/tklog", "/analytics", "/manage"];
 
     // Check 5: Global Auth Requirement
