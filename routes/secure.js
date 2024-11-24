@@ -154,7 +154,7 @@ const securityCheck = async (req, res, next) => {
     }
 
     // Used for following functions
-    const excludedPaths = ["/api/auth", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt'];
+    const excludedPaths = ["/api/app/state", "/api/auth", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt'];
     const adminPaths = ["/admin", "/tklog", "/analytics", "/manage"];
 
     // Check 5: Global Auth Requirement
@@ -187,7 +187,7 @@ const securityCheck = async (req, res, next) => {
     // Check 5.1: Bedtime and Christmas blocks
     const currentTime = new Date();
     if ((req.bedtime === '1' && (currentTime < req.dayStart || currentTime > req.dayEnd)) || req.christmas === '1') {
-      const allowedPaths = [...excludedPaths, '/auto', '/manage'];
+      const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
         const permsResults = await checkPermissions(req.userState);
@@ -201,11 +201,11 @@ const securityCheck = async (req, res, next) => {
             if (allowedServices.includes('autocheckin')) features.push('<a href="/auto">AutoCheckin</a>');
             if (allowedServices.includes('mod')) features.push('<a href="/manage">admin services</a>');
             msg = features.length > 0 ? 
-              `While CheckOut is closed, you still have access to: ${features.join(' and ')}` :
+              `While CheckOut is sleeping, you still have access to: ${features.join(' and ')}` :
               'Your account does not have access to any special features during closing hours.';
           }
         } else {
-          msg = 'Login to check if you have access to AutoCheckin or admin services during closing hours.';
+          msg = '<a href="/auto">Login</a> to check if you have access to AutoCheckin or admin services during sleeping hours.';
         }
 
         return res.render("bedtime-christmas/bedtime.ejs", { 

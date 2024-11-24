@@ -82,12 +82,43 @@
             50% { transform: translateY(-20px); }
             100% { transform: translateY(0px); }
         }
+
+        /* Enhanced link styles */
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        a:visited {
+            color: var(--link-color);
+        }
+
+        a:hover {
+            color: var(--link-hover);
+        }
+
+        .header a, .header span a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .message a {
+            border-bottom: 1px solid var(--link-color);
+            padding-bottom: 1px;
+        }
+
+        .message a:hover {
+            border-bottom-color: var(--link-hover);
+        }
     </style>
 </head>
 <body>
     <header class="header">
         <% if (loggedIn) { %>
-            <span><%= username %></span>
+            <span><a href="/account"><%= username %></a></span>
         <% } else { %>
             <a href="/auto">Login</a>
         <% } %>
