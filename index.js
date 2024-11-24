@@ -286,7 +286,7 @@ app.use(async (req, res, next) => {
         req.bedtime = result[0]['bedtimeState'] === 1 ? true : false;
         req.dayStart = result[0]['dayStart'];
         req.dayEnd = result[0]['dayEnd'];
-        req.christmas = '1';
+        req.christmas = '0';
         req.authReq = result[0]['authState'] === 1 ? true : false;
         req.undoEnable = result[0]['undoState'] === 1 ? true : false;
         req.boycottState = result[0]['boycottState'] === 1 ? true : false;

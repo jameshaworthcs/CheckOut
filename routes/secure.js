@@ -186,7 +186,18 @@ const securityCheck = async (req, res, next) => {
 
     // Check 5.1: Bedtime and Christmas blocks
     const currentTime = new Date();
-    if ((req.bedtime === '1' && (currentTime < req.dayStart || currentTime > req.dayEnd)) || req.christmas === '1') {
+    
+    // Convert HH:MM strings to Date objects for today
+    const [startHour, startMin] = req.dayStart.split(':').map(Number);
+    const [endHour, endMin] = req.dayEnd.split(':').map(Number);
+    
+    const todayStart = new Date(currentTime);
+    todayStart.setHours(startHour, startMin, 0);
+    
+    const todayEnd = new Date(currentTime);
+    todayEnd.setHours(endHour, endMin, 0);
+
+    if ((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') {
       const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
@@ -211,7 +222,8 @@ const securityCheck = async (req, res, next) => {
         return res.render("bedtime-christmas/bedtime.ejs", { 
           msg,
           username: req.username,
-          loggedIn: req.loggedIn
+          loggedIn: req.loggedIn,
+          dayStart: req.dayStart
         });
       }
     }

@@ -113,6 +113,65 @@
         .message a:hover {
             border-bottom-color: var(--link-hover);
         }
+
+        .footer {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+        }
+
+        .footer a {
+            color: #666;
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--link-hover);
+        }
+
+        .countdown {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: var(--link-color);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-button:hover {
+            background-color: var(--link-hover);
+        }
     </style>
 </head>
 <body>
@@ -129,6 +188,69 @@
         <div class="message">
             <%- msg %>
         </div>
+        <div class="countdown" id="countdown">
+            ⏰ <span id="time"></span>
+        </div>
     </main>
+
+    <footer class="footer">
+        <a href="/terms-privacy">Terms & Privacy</a>
+    </footer>
+
+    <div class="modal" id="refreshModal">
+        <div class="modal-content">
+            <h2>CheckOut is now awake!</h2>
+            <p>Please refresh the page to access CheckOut. Note that it may take up to a minute for access to work due to caching.</p>
+            <button class="modal-button" onclick="window.location.reload()">Refresh Now</button>
+        </div>
+    </div>
+
+    <script>
+        let hasPassedTarget = false;
+        let lastDiff = null;
+
+        function updateCountdown() {
+            const now = new Date();
+            const [hours, minutes] = '<%= dayStart %>'.split(':').map(Number);
+            
+            // Create dayStart Date object for today
+            const dayStart = new Date(now);
+            dayStart.setHours(hours, minutes, 0, 0);
+
+            // If dayStart is in the past, use tomorrow's date
+            if (dayStart < now) {
+                dayStart.setDate(dayStart.getDate() + 1);
+            }
+
+            const diff = dayStart - now;
+
+            // Check if we've passed the target time by detecting when diff resets
+            if (lastDiff !== null && lastDiff < diff) {
+                hasPassedTarget = true;
+            }
+            lastDiff = diff;
+
+            if (hasPassedTarget) {
+                document.getElementById('countdown').style.display = 'none';
+                document.getElementById('refreshModal').style.display = 'flex';
+                return;
+            }
+
+            const remainingHours = Math.floor(diff / (1000 * 60 * 60));
+            const remainingMinutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const remainingSeconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            let timeString = '';
+            if (remainingHours > 0) timeString += `${String(remainingHours).padStart(2, '0')}:`;
+            if (remainingHours > 0 || remainingMinutes > 0) timeString += `${String(remainingMinutes).padStart(2, '0')}:`;
+            timeString += `${String(remainingSeconds).padStart(2, '0')}`;
+
+            document.getElementById('time').textContent = timeString;
+        }
+
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html>
