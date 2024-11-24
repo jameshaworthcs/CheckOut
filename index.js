@@ -141,21 +141,21 @@ if (process.env.CHK_SRV == "BETA") {
   // Log requests and time taken
   app.use(loggerM('dev'));
   // Middleware to track start time
-  app.use((req, res, next) => {
+  //app.use((req, res, next) => {
     // Start high-resolution timer
-    req.startTime = process.hrtime();
+    //req.startTime = process.hrtime();
 
     // Define a method to calculate the time passed in milliseconds
-    req.timePassed = () => {
-      const diff = process.hrtime(req.startTime);
-      const timePassedMs = diff[0] * 1000 + diff[1] / 1e6; // Convert seconds and nanoseconds to milliseconds
-      return timePassedMs.toFixed(2); // Return time in milliseconds as a string
-    };
+    //req.timePassed = () => {
+    //  const diff = process.hrtime(req.startTime);
+    //  const timePassedMs = diff[0] * 1000 + diff[1] / 1e6; // Convert seconds and nanoseconds to milliseconds
+    //  return timePassedMs.toFixed(2); // Return time in milliseconds as a string
+    //};
 
     // At any point do console.log(`Elapsed_${req.url}: ${req.timePassed()} ms`);
 
-    next();
-  });
+    //next();
+  //});
 }
 
 // View engine setup
@@ -286,6 +286,7 @@ app.use(async (req, res, next) => {
         req.bedtime = result[0]['bedtimeState'] === 1 ? true : false;
         req.dayStart = result[0]['dayStart'];
         req.dayEnd = result[0]['dayEnd'];
+        req.christmas = '1';
         req.authReq = result[0]['authState'] === 1 ? true : false;
         req.undoEnable = result[0]['undoState'] === 1 ? true : false;
         req.boycottState = result[0]['boycottState'] === 1 ? true : false;
@@ -617,7 +618,7 @@ function isCKAuthenticated(req, res, next) {
 // Security check
 app.use(secureRoute.securityCheck);
 
-// Allow API docs etc after security check
+// Allow API docs & assets after security check
 // (/static/ is excluded from auth requirements)
 app.use(express.static('public', {
   extensions: ['html', 'htm'],

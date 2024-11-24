@@ -79,7 +79,7 @@ function fetchAutoCheckers(emails = [], codes = []) {
 function log(email, state, message) {
   var mysqlTimestamp = moment().tz('UTC').format('YYYY-MM-DD HH:mm:ss');
   const query = `INSERT INTO autoCheckinLog (email, state, message, timestamp) VALUES (?, ?, ?, ?)`;
-  // Execute the query
+  // execute log query
   db.query(query, [email, state, message, mysqlTimestamp], (err, result) => {
     if (err) {
       console.error('Error inserting log entry:', err);

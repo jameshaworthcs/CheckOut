@@ -158,7 +158,6 @@ const securityCheck = async (req, res, next) => {
     const adminPaths = ["/admin", "/tklog", "/analytics", "/manage"];
 
     // Check 5: Global Auth Requirement
-
     if (req.authReq && !excludedPaths.some(path => req.url.startsWith(path))) {
       const permsResults = await checkPermissions(req.userState);
       const service = 'account';
@@ -182,6 +181,38 @@ const securityCheck = async (req, res, next) => {
 
           return res.render("account/auth/login.ejs", { intent: req.originalUrl, guestState: false, msg, username: req.username });
         }
+      }
+    }
+
+    // Check 5.1: Bedtime and Christmas blocks
+    const currentTime = new Date();
+    if ((req.bedtime === '1' && (currentTime < req.dayStart || currentTime > req.dayEnd)) || req.christmas === '1') {
+      const allowedPaths = [...excludedPaths, '/auto', '/manage'];
+      
+      if (!allowedPaths.some(path => req.url.startsWith(path))) {
+        const permsResults = await checkPermissions(req.userState);
+        let msg = '';
+        let features = [];
+
+        // Build message based on permissions and login status
+        if (req.loggedIn) {
+          if (permsResults.length > 0) {
+            const allowedServices = JSON.parse(permsResults[0].routes);
+            if (allowedServices.includes('autocheckin')) features.push('<a href="/auto">AutoCheckin</a>');
+            if (allowedServices.includes('mod')) features.push('<a href="/manage">admin services</a>');
+            msg = features.length > 0 ? 
+              `While CheckOut is closed, you still have access to: ${features.join(' and ')}` :
+              'Your account does not have access to any special features during closing hours.';
+          }
+        } else {
+          msg = 'Login to check if you have access to AutoCheckin or admin services during closing hours.';
+        }
+
+        return res.render("bedtime-christmas/bedtime.ejs", { 
+          msg,
+          username: req.username,
+          loggedIn: req.loggedIn
+        });
       }
     }
 
