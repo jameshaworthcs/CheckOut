@@ -43,6 +43,13 @@
         margin-left: 10px;
         height: 48px;
         transform: translate(-1px, 19.5px);
+        content: url('/static/images/chk_d_v.svg');
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .header-content img {
+            content: url('/static/images/1.3-white.png');
+        }
     }
 
     .content {
@@ -386,6 +393,24 @@
 
         #continue-btn {
             max-width: 100%;
+        }
+    }
+
+    .dark-mode-text {
+        display: none;
+    }
+
+    .light-mode-text {
+        display: inline;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .dark-mode-text {
+            display: inline;
+        }
+        
+        .light-mode-text {
+            display: none;
         }
     }
 </style>
