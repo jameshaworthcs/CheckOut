@@ -116,7 +116,10 @@
     <% } %>
     
     /* Force lightmode for Anon */
+
+    /* No longer active, all users get light/dark */
 <% if( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon"){%>
+    @media (prefers-color-scheme: light) {
 <%}else{%>
     @media (prefers-color-scheme: light) {
 <%}%>
@@ -167,6 +170,7 @@
 
     /* Close out media query for Anon */
 <% if( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon"){%>
+}
 <%}else{%>
 }
 <%}%>
