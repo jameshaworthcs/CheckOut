@@ -207,7 +207,8 @@ const securityCheck = async (req, res, next) => {
     const todayEnd = new Date(currentTime);
     todayEnd.setHours(endHour, endMin, 0);
 
-    if ((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') {
+    // Check if outside hours OR christmas, provided user is not a sysop
+    if (((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') && req.userState != "sysop") {
       const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
