@@ -163,7 +163,8 @@ const securityCheck = async (req, res, next) => {
       const service = 'account';
 
       if (permsResults.length > 0) {
-        const allowedServices = JSON.parse(permsResults[0].routes);
+        // Combine routes from all permission results
+        const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
         if (!allowedServices.some(route => service === route)) {
           let msg;
 
@@ -208,7 +209,8 @@ const securityCheck = async (req, res, next) => {
         // Build message based on permissions and login status
         if (req.loggedIn) {
           if (permsResults.length > 0) {
-            const allowedServices = JSON.parse(permsResults[0].routes);
+            const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
+            console.log(req.username, allowedServices)
             if (allowedServices.includes('autocheckin')) features.push('<a href="/auto">AutoCheckin</a>');
             if (allowedServices.includes('mod')) features.push('<a href="/manage">admin services</a>');
             msg = features.length > 0 ? 
@@ -256,6 +258,7 @@ function auth(service, req, res, next) {
   // }
   checkPermissions(req.userState).then(results => {
     if (results.length > 0) {
+      // Combine routes from all permission results
       const allowedServices = results.flatMap(result => JSON.parse(result.routes));
       
       if (!(allowedServices.some(route => service === route))) {
