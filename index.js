@@ -385,7 +385,7 @@ app.use(async (req, res, next) => {
         req.userData.sysop = true;
       }
       // For moderator link in navbar dropdown
-      if (req.userState === "sysop" || req.userState === "moderator") {
+      if (req.userState && (req.userState.includes("sysop") || req.userState.includes("moderator"))) {
         req.userData.moderator = true;
       }
     };
