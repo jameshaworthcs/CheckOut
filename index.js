@@ -384,6 +384,10 @@ app.use(async (req, res, next) => {
       if (req.userState === "sysop") {
         req.userData.sysop = true;
       }
+      // For moderator link in navbar dropdown
+      if (req.userState === "sysop" || req.userState === "moderator") {
+        req.userData.moderator = true;
+      }
     };
 
     // Set API key
