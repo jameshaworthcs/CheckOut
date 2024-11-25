@@ -154,7 +154,7 @@ const securityCheck = async (req, res, next) => {
     }
 
     // Used for following functions
-    const excludedPaths = ["/api/app/state", "/api/auth", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt', '/support'];
+    const excludedPaths = ["/api/app/state", "/api/auth", "/login", "/api/welcome/", "/api/course-select/", "/api/app/onboarding", "/api/app/find", "/terms-privacy", "/learn-faq", '/api/app/hash', '/static/', '/manage', '/robots.txt', '/support'];
     const adminPaths = ["/admin", "/tklog", "/analytics", "/manage"];
 
     // Check 5: Global Auth Requirement
@@ -185,7 +185,16 @@ const securityCheck = async (req, res, next) => {
       }
     }
 
-    // Check 5.1: Bedtime and Christmas blocks
+    // Check 6: Consent screen & course selection
+
+    const excludedConsentPaths = ["/manifest.json", "/data", "/api/", "/terms", "/learn-faq", "/faq", '/static/', '/manage', '/robots.txt'];
+    if (req.consented == false && 
+      !excludedConsentPaths.some(path => req.url.startsWith(path)) && 
+    req.userState != "sysop" && req.userState != "bot") {
+      return res.render("consent-course/consent.ejs", { username: req.username });
+    }
+
+    // Check 7: Bedtime and Christmas blocks
     const currentTime = new Date();
     
     // Convert HH:MM strings to Date objects for today
@@ -210,7 +219,6 @@ const securityCheck = async (req, res, next) => {
         if (req.loggedIn) {
           if (permsResults.length > 0) {
             const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
-            console.log(req.username, allowedServices)
             if (allowedServices.includes('autocheckin')) features.push('<a href="/auto">AutoCheckin</a>');
             if (allowedServices.includes('mod')) features.push('<a href="/manage">admin services</a>');
             msg = features.length > 0 ? 
@@ -218,7 +226,7 @@ const securityCheck = async (req, res, next) => {
               'Your account does not have access to any special features during closing hours.';
           }
         } else {
-          msg = '<a href="/auto">Login</a> to check if you have access to AutoCheckin or admin services during sleeping hours.';
+          msg = '<a href="/login?login_redirect=index&source=bedtime">Login</a> to check if you have access to AutoCheckin or admin services during sleeping hours.';
         }
 
         return res.render("bedtime-christmas/bedtime.ejs", { 
@@ -228,15 +236,6 @@ const securityCheck = async (req, res, next) => {
           dayStart: req.dayStart
         });
       }
-    }
-
-    // Check 6: Consent screen & course selection
-
-    const excludedConsentPaths = ["/manifest.json", "/data", "/api/", "/terms", "/learn-faq", "/faq", '/static/', '/manage', '/robots.txt'];
-    if (req.consented == false && 
-      !excludedConsentPaths.some(path => req.url.startsWith(path)) && 
-    req.userState != "sysop" && req.userState != "bot") {
-      return res.render("consent-course/consent.ejs", { username: req.username });
     }
 
     // Temp emergency block

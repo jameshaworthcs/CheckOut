@@ -768,6 +768,18 @@ app.use((req, res, next) => {
   }
 });
 
+// Handle login
+app.use((req, res, next) => {
+  if (req.url.startsWith("/login")) {
+    // Requires moderator permissions
+    secureRoute.auth("account", req, res, () => {
+      return accountRouter(req, res, next);
+    });
+  } else {
+    next();
+  }
+});
+
 // Handle management
 app.use((req, res, next) => {
   if (req.url.startsWith("/manage")) {
