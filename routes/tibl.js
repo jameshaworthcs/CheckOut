@@ -21,7 +21,7 @@ async function refreshModuleCache() {
   try {
     const query = `
       SELECT module_tibl_code, module_code, module_name 
-      FROM Courses
+      FROM Modules
     `;
     const results = await db.query(query);
     
