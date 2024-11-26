@@ -101,6 +101,11 @@ app.get('/account/welcome-email', (req, res) => {
   res.render('account/welcome-email', {username, rootDomain: req.rootDomain})
 });
 
+// Change username
+app.get('/account/change-username', function (req, res) {
+  res.render('account/change-username.ejs', { username: req.username })
+});
+
 // Change email
 app.get('/account/change-email', function (req, res) {
   res.status(200);

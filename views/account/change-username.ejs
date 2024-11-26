@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../global/head'); %>
+        <title>Change username - CheckOut</title>
+        <style>
+            .container {
+                max-width: 500px;
+                width: 90%;
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .username-form {
+                margin: 2rem 0;
+                position: relative;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .username-input {
+                flex: 1;
+                min-width: 200px;
+                padding: 0.8rem;
+                font-size: 1rem;
+                background-color: var(--secondary-background);
+                color: var(--input-text-color);
+                border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+                border-radius: 4px;
+                box-shadow: var(--shadow2);
+                transition: border-color 0.2s;
+            }
+
+            .username-input:focus {
+                outline: 1px solid var(--secondary-accent-colour);
+                background-color: var(--input-focus);
+            }
+
+            .info-section {
+                margin-top: 2rem;
+                background: var(--content-background);
+                padding: 1.5rem;
+                border-radius: 6px;
+            }
+
+            .info-section ul {
+                text-align: left;
+                margin: 0;
+                padding-left: 1.5rem;
+            }
+
+            .username-form .cta-button {
+                height: 100%;
+                white-space: nowrap;
+                align-self: flex-start;
+            }
+
+            .status-message {
+                padding: 0.8rem 1.2rem;
+                margin: 1rem auto;
+                border-radius: 4px;
+                font-weight: 550;
+                display: inline-block;
+            }
+
+            .status-message.error {
+                background-color: var(--submit-fail-background);
+                color: var(--submit-fail-colour);
+            }
+
+            .status-message.success {
+                background-color: var(--submit-success-background);
+                color: var(--submit-success-colour);
+            }
+
+            .return-link {
+                display: block;
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            .message-container {
+                text-align: center;
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../global/navbar'); %>
+
+        <div class="container">
+            <h1 class="text-center">Change username</h1>
+            <p class="text-center">Your current username is <i>
+                    <%= username %>
+                </i></p>
+
+            <div class="message-container">
+                <div id="statusMessage" style="display: none;" class="status-message"></div>
+                <a href="/" id="returnLink" class="return-link" style="display: none;">Return to Account</a>
+            </div>
+
+            <form class="username-form" id="usernameForm">
+                <input type="text" autocomplete="off" class="username-input" name="username" placeholder="Enter new username" required autofocus>
+                <button style="height: 48.6px;" type="submit" class="cta-button">Change Username</button>
+            </form>
+
+            <div class="info-section">
+                <h3 class="text-center">Please read</h3>
+                <ul>
+                    <li>Emojis and special characters are allowed (˶ˆᗜˆ˵)  <img height="20px" src="/static/images/emojis/tiktok-emoji.png" alt="Tiktok emoji" srcset="">  <img height="20px" src="/static/images/emojis/tiktok-emoji2.png" alt="Tiktok emoji" srcset=""></li>
+                    <li>Scripts and html are not allowed</li>
+                    <li>Offensive content is not permitted</li>
+                    <li>50 character limit applies</li>
+                    <li>Other users <b>cannot</b> see your username</li>
+                </ul>
+            </div>
+        </div>
+
+<script>
+document.getElementById('usernameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusMessage = document.getElementById('statusMessage');
+    const returnLink = document.getElementById('returnLink');
+    const form = e.target;
+    const username = form.username.value;
+
+    // Show loading message
+    statusMessage.className = 'status-message';
+    statusMessage.style.display = 'inline-block';
+    returnLink.style.display = 'none';
+    statusMessage.textContent = 'Updating username...';
+
+    try {
+        const response = await fetch('/api/account/username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username })
+        });
+
+        const data = await response.json();
+        
+        statusMessage.className = `status-message ${data.success ? 'success' : 'error'}`;
+        statusMessage.textContent = data.msg;
+
+        if (data.success) {
+            returnLink.style.display = 'block';
+            
+            // Update username in header if element exists
+            const nameSpan = document.getElementById('name-text');
+            if (nameSpan) {
+                nameSpan.textContent = `Hello, ${username}`;
+            }
+
+            // Update the current username text
+            const currentUsernameText = document.querySelector('.text-center i');
+            if (currentUsernameText) {
+                currentUsernameText.textContent = username;
+            }
+        }
+    } catch (error) {
+        statusMessage.className = 'status-message error';
+        statusMessage.textContent = 'An error occurred while updating your username';
+    }
+});
+</script>
+
+</body>
+
+</html>

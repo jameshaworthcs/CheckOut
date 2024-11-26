@@ -29,6 +29,73 @@ app.post('/api/account/token/refresh', (req, res) => {
     });
 });
 
+// Change username
+app.post('/api/account/username', (req, res) => {
+    const userId = req.userID;
+    const newUsername = req.body.username;
+    const USERNAME_MAX_LENGTH = 50; // adjust this to match your column length
+
+    // Check for HTML tags in username
+    if (newUsername.includes('<') || newUsername.includes('>')) {
+        return res.status(400).json({ 
+            success: false, 
+            msg: 'Username cannot contain HTML tags' 
+        });
+    }
+
+    // Check username length before database query
+    if (newUsername.length > USERNAME_MAX_LENGTH) {
+        return res.status(400).json({
+            success: false,
+            msg: `Username is too long. Please remove ${newUsername.length - USERNAME_MAX_LENGTH} characters`
+        });
+    }
+
+    const timestamp = new Date().toISOString();
+    const noteAddition = `Username changed (${timestamp}): ${newUsername}`;
+    
+    const query = `
+        UPDATE users 
+        SET username = ?,
+            note = CONCAT(IFNULL(note, ''), '\n', ?)
+        WHERE id = ?`;
+
+    db.query(query, [newUsername, noteAddition, userId], (error, results) => {
+        if (error) {
+            console.error(error);
+            // Check for specific MySQL error codes
+            if (error.code === 'ER_DATA_TOO_LONG') {
+                if (error.sqlMessage.includes('note')) {
+                    return res.status(400).json({
+                        success: false,
+                        msg: 'You have changed your username too many times. Please contact support via the FAQ for assistance.'
+                    });
+                }
+                // Fallback for username column (though we should catch this earlier)
+                return res.status(400).json({
+                    success: false,
+                    msg: `Username exceeds maximum length by ${newUsername.length - USERNAME_MAX_LENGTH} characters`
+                });
+            }
+            return res.status(500).json({ 
+                success: false, 
+                msg: 'Failed to update username. Please try again.' 
+            });
+        }
+        
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                msg: 'User not found' 
+            });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            msg: 'Username updated successfully' 
+        });
+    });
+});
 
 // Join AutoCheckin Waitlist
 app.post('/api/account/waitlist', (req, res) => {

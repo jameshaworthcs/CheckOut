@@ -489,7 +489,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('User signed in:', data);
+                        //console.log('User signed in:', data);
                         if (typeof window.endLoadingOverlay === 'function') {
                             window.endLoadingOverlay();
                         }
@@ -520,7 +520,6 @@
 
             function googleAuthClicked() {
                 {
-                    console.log("lo")
                     showLoadingOverlay(1);
                 }
             }
