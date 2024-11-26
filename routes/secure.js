@@ -108,9 +108,9 @@ const securityCheck = async (req, res, next) => {
         //   blockExpiry: expiryDateTime
         // });
 
-        if (!requestUrl.startsWith("/api/app/")) {
+        if (!requestUrl.startsWith("/api")) {
           return res.render("banned.ejs", { reason: bannedIPResults[0].reason, routes: bannedRoutes, expiry: expiryDateTime });
-        } else if (requestUrl.startsWith("/api/app/submit")) {
+        } else if (requestUrl.startsWith("/api/app/options")) {
           return res.status(403).json({
             success: false,
             message: "You are banned from submitting codes. Visit /banview for more details."
@@ -120,7 +120,8 @@ const securityCheck = async (req, res, next) => {
             success: false,
             banned: true,
             help: "Visit /banview in a browser to see more details.",
-            msg: `Visit <a href="/banview">here</a> to view your ban.`
+            msg: `Visit <a href="/banview">here</a> to view your ban.`,
+            message: 'Visit <a href="/banview">here</a> to view your ban.'
           });
         }
       }
