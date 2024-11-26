@@ -14,7 +14,7 @@ console.log("Starting TIBL CSV to DB parser");
 rl.question('Enter MySQL password: ', (password) => {
   // MySQL connection configuration
   const connection = mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'checkout',
     password: password,
     database: 'checkout'
@@ -30,7 +30,7 @@ rl.question('Enter MySQL password: ', (password) => {
     console.log('Connected to MySQL database');
 
     // Read the CSV file
-    const csvFilePath = 'csvimport.csv';
+    const csvFilePath = 'yrk_cs_1.csv';
 
     fs.readFile(csvFilePath, 'utf8', (err, data) => {
       if (err) {
@@ -57,7 +57,7 @@ rl.question('Enter MySQL password: ', (password) => {
 
 
       // Prepare SQL INSERT query
-      const tableName = 'tibl_yrk_cs_2';
+      const tableName = 'tibl_yrk_cs_1';
       const insertQuery = `INSERT INTO ${tableName} (${columns.map(col => `\`${col}\``).join(', ')}) VALUES ?`;
 
       // Parse data and insert into MySQL table
