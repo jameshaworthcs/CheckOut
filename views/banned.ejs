@@ -16,6 +16,9 @@
       --success-bg: #00b894;
       --error-bg: #d63031;
       --container-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --link-color: #3498db;
+      --link-hover: #2980b9;
+      --link-visited: #8e44ad;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -26,6 +29,9 @@
         --text-secondary: #a0a0a0;
         --border-color: #404246;
         --container-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        --link-color: #60a5fa;
+        --link-hover: #93c5fd;
+        --link-visited: #c084fc;
       }
     }
 
@@ -176,6 +182,64 @@
         font-size: 1.25rem;
       }
     }
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+    }
+
+    a:visited {
+      color: var(--link-visited);
+    }
+
+    a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+      left: 0;
+      bottom: -2px;
+      transform: scaleX(1);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    a:focus {
+      outline: 2px solid var(--link-color);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* Special styling for links within info-group */
+    .info-group a {
+      font-weight: 500;
+    }
+
+    /* For links that should look like buttons */
+    .link-button {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: var(--accent-primary);
+      color: white !important;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+
+    .link-button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .link-button:hover::after {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -185,7 +249,9 @@
     
     <div class="info-group">
       <div class="info-label">Reason</div>
-      <div class="info-value"><%- reason %></div>
+      <div class="info-value"><%- reason %> <br>
+        You may be unable to load the <a href='/data'>data access tool</a>, so we encourage you to contact <a href='/support'>support</a> to make an information request, but do not make an appeal except for in the below form.
+      </div>
     </div>
 
     <div class="info-group">
