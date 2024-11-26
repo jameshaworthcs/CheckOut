@@ -11,12 +11,28 @@
   },
   "servers": [
     {
-      "url": "https://checkout.ac",
-      "description": "Production server"
+      "url": "http://localhost:{port}",
+      "description": "Local development server",
+      "variables": {
+        "port": {
+          "default": "4000",
+          "description": "The local port number"
+        }
+      }
     },
     {
-      "url": "https://beta.checkout.ac",
-      "description": "Live development server"
+      "url": "{protocol}://{host}",
+      "description": "Production server",
+      "variables": {
+        "protocol": {
+          "enum": ["http", "https"],
+          "default": "https"
+        },
+        "host": {
+          "default": "checkout.ac",
+          "description": "The domain name of the server"
+        }
+      }
     }
   ],
   "tags": [

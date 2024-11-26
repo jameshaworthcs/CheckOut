@@ -981,7 +981,7 @@ async function handleCourseRequest(inst, crs, yr, username, initCourse, res, req
       userInfo,
       sessionCount: 0,
       tibl: false,
-      msg: 'Course not found. Please re-onboard <a class="error-link" href="/api/app/onboarding">here</a>.',
+      msg: `${courseInfo['reason']} Please re-onboard <a class="error-link" href="/api/app/onboarding">here</a>.`,
       api: apiVersion
     };
     return returnAsJson ? response : res.status(403).json(response);
