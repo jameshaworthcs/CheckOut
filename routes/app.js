@@ -31,12 +31,10 @@ function appStatus(callback) {
   }
 }
 
-// Using xyz123 for now
-function validateAPIKey(apiKey) {
-  // Your validation logic here
-  // For demonstration purposes, let's assume a hardcoded valid API key
-  const validAPIKey = 'xyz123';
-  return apiKey === validAPIKey;
+function validateAPIKey(apiKey = 1, userState) {
+  //const validAPIKey = 'xyz123';
+  //return apiKey === validAPIKey;
+  return userState === "sysop";
 }
 
 /* codes schema:
@@ -1386,8 +1384,7 @@ app.post('/api/app/extension/codes',function(req,res){
 app.post('/api/app/add/institution', function(req, res) {
   // Validate API key
   const apiKey = req.body.apiKey;
-  console.log(apiKey)
-  if (!validateAPIKey(apiKey)) {
+  if (!validateAPIKey(apiKey, req.userState)) {
     res.status(403).json({ success: false, reason: 'Invalid API key' });
     return;
   }
@@ -1432,7 +1429,7 @@ app.post('/api/app/add/year', function(req, res) {
   const yearNumber = req.body.yr;
 
   // Validate API key
-  if (!validateAPIKey(req.body.apiKey)) {
+  if (!validateAPIKey(req.body.apiKey, req.userState)) {
       return res.status(403).json({ success: false, reason: 'Invalid API key.' });
   }
 
@@ -1467,7 +1464,7 @@ app.post('/api/app/add/course', function(req, res) {
   const newCourseCode = req.body.crs;
 
   // Validate API key
-  if (!validateAPIKey(req.body.apiKey)) {
+  if (!validateAPIKey(req.body.apiKey, req.userState)) {
       return res.status(403).json({ success: false, reason: 'Invalid API key.' });
   }
 
@@ -1505,7 +1502,7 @@ app.post('/api/app/add/module', function(req, res) {
   const moduleName = req.body.newModuleName;
 
   // Validate API key
-  if (!validateAPIKey(req.body.apiKey)) {
+  if (!validateAPIKey(req.body.apiKey, req.userState)) {
       return res.status(403).json({ success: false, reason: 'Invalid API key.' });
   }
 
