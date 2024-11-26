@@ -24,7 +24,7 @@
                 gap: 1rem;
             }
 
-            .username-input {
+            .usernname-input {
                 flex: 1;
                 min-width: 200px;
                 padding: 0.8rem;
@@ -37,7 +37,7 @@
                 transition: border-color 0.2s;
             }
 
-            .username-input:focus {
+            .usernname-input:focus {
                 outline: 1px solid var(--secondary-accent-colour);
                 background-color: var(--input-focus);
             }
@@ -106,7 +106,7 @@
             </div>
 
             <form class="username-form" id="usernameForm">
-                <input type="text" autocomplete="off" class="username-input" name="username" placeholder="Enter new username" required autofocus>
+                <input type="text" autocomplete="off" class="usernname-input" name="usernname" placeholder="Enter new username" required autofocus>
                 <button style="height: 48.6px;" type="submit" class="cta-button">Change Username</button>
             </form>
 
@@ -128,7 +128,7 @@ document.getElementById('usernameForm').addEventListener('submit', async (e) => 
     const statusMessage = document.getElementById('statusMessage');
     const returnLink = document.getElementById('returnLink');
     const form = e.target;
-    const username = form.username.value;
+    const username = form.usernname.value;
 
     // Show loading message
     statusMessage.className = 'status-message';
