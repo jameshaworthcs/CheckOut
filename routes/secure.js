@@ -117,6 +117,7 @@ const securityCheck = async (req, res, next) => {
           });
         } else {
           return res.status(403).json({
+            success: false,
             banned: true,
             help: "Visit /banview in a browser to see more details.",
             msg: `Visit <a href="/banview">here</a> to view your ban.`
