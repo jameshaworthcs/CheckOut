@@ -66,7 +66,7 @@
     background-color: var(--submit-success-background);
     border: none;
     color: var(--submit-success-colour);
-    padding: 10px 20px;
+    padding: 5px 8px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -77,7 +77,7 @@
   }
   
   .share-button.hide {
-    background-color: var(--submit-fail-background); /* Red color */
+    background-color: var(--submit-fail-background);
     color: var(--submit-fail-colour);
   }
 
