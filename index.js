@@ -440,10 +440,10 @@ app.post('/api/app/block/appeal', async (req, res) => {
       'INSERT INTO appeals (ip, appeal_text, status) VALUES (?, ?, ?)',
       [ip, reason, "not reviewed"]
     );
-    res.status(201).send('Appeal created. Please do not submit multiple appeals.'); // 201 Created is suitable
+    res.status(201).json({success: true, msg: 'Appeal created. Please do not submit multiple appeals. An update will be posted here if the ban is not removed upon appeal review.'});
   } catch (error) {
     console.log(error)
-    res.status(500).send('Error creating appeal'); // Replace with better error handling 
+    res.status(500).json({success: false, msg: 'Error creating appeal'}); // Replace with better error handling 
   }
 });
 
