@@ -1,17 +1,52 @@
 var db=require('../database');
 
-const moduleCodeMapping = {
-  "COM00019I": "eng1",
-  "COM00029I": "sys2",
-  "COM00027I": "the3",
-};
+let moduleCache = null;
+let cacheTimeout = null;
 
-const moduleNames = {
-  eng1: "Engineering",
-  sys2: "Systems",
-  the3: "Theory",
-};
+async function getModuleInfo(tiblModuleCode) {
+  // Initialize or refresh cache if needed
+  if (!moduleCache) {
+    await refreshModuleCache();
+  }
 
+  const moduleInfo = moduleCache.get(tiblModuleCode) || {
+    moduleCode: null,
+    moduleName: "Other"
+  };
+  
+  return moduleInfo;
+}
+
+async function refreshModuleCache() {
+  try {
+    const query = `
+      SELECT module_tibl_code, module_code, module_name 
+      FROM Courses
+    `;
+    const results = await db.query(query);
+    
+    moduleCache = new Map(
+      results.map(row => [
+        row.module_tibl_code,
+        {
+          moduleCode: row.module_code,
+          moduleName: row.module_name
+        }
+      ])
+    );
+
+    // Clear existing timeout if any
+    if (cacheTimeout) {
+      clearTimeout(cacheTimeout);
+    }
+
+    // Set timeout to refresh cache after 1 minute
+    cacheTimeout = setTimeout(refreshModuleCache, 60000);
+  } catch (err) {
+    console.error('Error refreshing module cache:', err);
+    // Keep existing cache if refresh fails
+  }
+}
 
 async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
   const activeAPI = {
@@ -36,8 +71,8 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
     } else {
       activeAPI.sessionCount = extractedData.length;
       activeAPI.msg = '';
-      activeAPI.sessions = extractedData.map(session => {
-        const moduleName = moduleNames[session.moduleCode] || "Other";
+      activeAPI.sessions = await Promise.all(extractedData.map(async session => {
+        const moduleInfo = await getModuleInfo(session.tiblModuleCode);
         const start = session.startTime ? session.startTime.substring(0, 5) : "";
         const end = session.endTime ? session.endTime.substring(0, 5) : "";
         const sessionCodes = codesObject.filter(codeObject => codeObject.groupCode == session.activityID);
@@ -48,14 +83,15 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
           endTime: end,
           endDate: session.endDate ? session.endDate.toISOString().substring(0, 10) : "",
           description: session.activityReference,
-          moduleName: moduleName,
-          moduleCode: session.moduleCode,
+          moduleName: moduleInfo.moduleName,
+          moduleCode: moduleInfo.moduleCode,
+          tiblModuleCode: session.tiblModuleCode,
           rejectID: session.activityID,
           location: session.location ? session.location.split(' ')[0] : "",
           codesCount: sessionCodes.length,
           codes: sessionCodes,
         };
-      });
+      }));
     }
 
     return JSON.stringify(activeAPI, null, 2); // Return the formatted JSON
@@ -91,19 +127,23 @@ async function fetchInProgressRows(tibl_id, callback) {
 
   try {
     const result = await db.query(query);
-    const inProgressRows = result.filter(row => true); // Assuming this filter logic is to be expanded later
-    const extractedData = inProgressRows.map(row => ({
-      activityReference: row['Activity reference'],
-      size: row['Size'],
-      startTime: row['Start time'],
-      endTime: row['End time'],
-      location: row['Location(s)'],
-      sysMd: row['Module code'],
-      moduleCode: moduleCodeMapping[row['Module code']] || null,
-      activityID: row['activityID'],
-      day: row['Start day'],
-      date: row['Start date'],
-      endDate: row['End date'],
+    const inProgressRows = result.filter(row => true);
+    const extractedData = await Promise.all(inProgressRows.map(async row => {
+      const moduleInfo = await getModuleInfo(row['Module code']);
+      return {
+        activityReference: row['Activity reference'],
+        size: row['Size'],
+        startTime: row['Start time'],
+        endTime: row['End time'],
+        location: row['Location(s)'],
+        sysMd: row['Module code'],
+        moduleCode: moduleInfo.moduleCode,
+        tiblModuleCode: row['Module code'],
+        activityID: row['activityID'],
+        day: row['Start day'],
+        date: row['Start date'],
+        endDate: row['End date'],
+      };
     }));
     callback(null, inProgressRows, extractedData);
   } catch (err) {
