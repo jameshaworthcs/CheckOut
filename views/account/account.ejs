@@ -89,6 +89,10 @@
       }
 
       function logout() {
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.disabled = true;
+        logoutBtn.innerHTML = 'Logging out...';
+
         fetch('/api/auth/logout', {
           method: 'POST',
           headers: {
@@ -101,13 +105,16 @@
             }
           })
           .catch(error => {
-            console.error('Error:', error)
+            console.error('Error:', error);
             displayNotice(error.message || error, 'error');
+            // Reset button state on error
+            logoutBtn.disabled = false;
+            logoutBtn.innerHTML = 'Logout';
           });
-        }
+      }
 
      function logoutAllSessions() {
-      displayNotice("Feature not available", 'error');
+      displayNotice("Feature not available here. <a href='/support'>Contact support</a> to log other users out of your account or report concerns.", 'error');
      }
 
       function refreshApiKey() {
