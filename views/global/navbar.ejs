@@ -33,10 +33,10 @@
     <div class="navbar-links">
         <a id="autocheckin-link" href="/auto">
             <%- include('../global/icons/sparkle'); %>
-            AutoCheckin</a>
+            <span class="auto-history-text">AutoCheckin</span></a>
         <a id="history-link" href="/history">
             <%- include('../global/icons/history'); %>
-            History</a>
+            <span class="auto-history-text">History</span></a>
         <a id="navbar-cta-button" href="#" class="cta-button">
             <div class="menu-icon" id="menu-icon">
                 <%- include('../global/icons/menu'); %>
@@ -65,10 +65,15 @@
             <%- include('../global/icons/history'); %>
             History
         </a>
+        <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
+            <a id="signin-link" class="menu-item" href="/login">
+                <b>Sign in</b>
+            </a>
+        <%}%>
         <a id="settings-link" class="menu-item" href="/settings">
             <!-- removed `typeof cacheUsername != 'undefined' || ` -->
             <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
-                Settings & <b><u>Sign in</u></b>
+                Settings
             <%}else{%>
                 Settings & Account
             <%}%>
@@ -78,6 +83,9 @@
         </a>
         <a class="menu-item" href="/terms-privacy">
             Terms & Privacy
+        </a>
+        <a class="menu-item" href="/api/docs">
+            API
         </a>
         <% if (typeof userData != 'undefined' && typeof userData.moderator != 'undefined' && userData.moderator === true) { %>
             <a id="manage-link" class="menu-item" href="/manage">

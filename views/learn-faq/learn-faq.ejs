@@ -36,7 +36,7 @@
                 <div class="accordion-content">
                     <p>At CheckOut, we prioritize traditional and robust web development processes. Our scalable and
                         resilient server network is powered by a classic stack of nginx, Varnish, and Node.js. For
-                        enhanced security, we use a non-Cloudflare security proxy to protect against DDoS attacks.
+                        enhanced security, we use a <b>non-Cloudflare</b> security proxy to protect against DDoS attacks.
                         <br><br>
 
                         We avoid modern frameworks and technologies, focusing instead on proven, reliable methods. By
@@ -131,20 +131,21 @@
                     </svg>
                 </div>
                 <div class="accordion-content">
-                    <p>Contact your institution representative for access.</p>
+                    <p>CheckOut includes many timetabled and standard courses. If you can't find your course in the course selection page or have any other questions, please <a href="/support">contact our support team</a>.</p>
                 </div>
             </div>
             <div class="accordion">
                 <div class="accordion-header">
-                    How can I spot a verified code?
+                    How can I spot a verified code? 
+                    <!-- <%- include('../global/icons/repeatVerified'); %> -->
                     <svg class="chevron">
                         <use href="#chevron-up"></use>
                     </svg>
                 </div>
                 <div class="accordion-content">
-                    <p>Codes with the <%- include('../repeatVerified'); %> have been verified through
+                    <p>Codes with the <span class="verified-example">Verified</span> mark have been verified through
                             AutoCheckin or by a moderator. Submitters with high-repuation scores may also receive
-                            verification.</p>
+                            verification. Click on the <span class="verified-example">Verified</span> button next to a code for transparency behind the codes verification status.</p>
                 </div>
             </div>
             <div class="accordion">
@@ -168,6 +169,32 @@
                 </div>
                 <div class="accordion-content">
                     <p>The error code 'auth_error' occurs when trying to use an API endpoint that you have not got permissions for. As described in the <a href="/api/docs">API explorer</a>, some or all endpoints may require changing authentication requirements. You can prepare your application for this by getting an API key from <a href="/account">your account</a> and providing it in the <i>X-CheckOut-Key</i> header.</p>
+                </div>
+            </div>
+            <div class="accordion">
+                <div class="accordion-header">
+                    What should I do if I spot an incorrect code?
+                    <svg class="chevron">
+                        <use href="#chevron-up"></use>
+                    </svg>
+                </div>
+                <div class="accordion-content">
+                    <p>If you notice an incorrect code, you can use the 'Report Code' option if available on the code entry. If this option isn't visible, please <a href="/support">contact our support team</a> with details about the incorrect code. We greatly appreciate our users helping to maintain data accuracy on CheckOut.</p>
+                    
+                    <p>We work hard to ensure code accuracy through our reputation scoring system and moderation processes, but user reports are invaluable in helping us maintain high-quality data for everyone.</p>
+                </div>
+            </div>
+            <div class="accordion">
+                <div class="accordion-header">
+                    What if I submit the wrong code or select the wrong session?
+                    <svg class="chevron">
+                        <use href="#chevron-up"></use>
+                    </svg>
+                </div>
+                <div class="accordion-content">
+                    <p>If you've submitted an incorrect code or selected the wrong session, visit your <a href="/history">submission history</a> and click the 'Hide' button next to the incorrect submission. After hiding the incorrect submission, you can immediately submit the correct code or submit to the correct session.</p>
+
+                    <p>If you can't find the submission in your history, please <a href="/support">contact our support team</a> immediately to have it removed. Taking prompt action helps prevent reputation damage and potential account restrictions.</p>
                 </div>
             </div>
         </div>
@@ -198,11 +225,10 @@
                 </div>
                 <div class="accordion-content">
                     <ul>
-                        <li>If you can sign in, visit <a target="_blank" href="/account">your account</a> and click the 'Revoke
-                            session'
+                        <li>If you can sign in, visit <a target="_blank" href="/account">your account</a> and click the 'Logout all sessions'
                             button. This will sign out everyone, including yourself, so you will need to sign in again.</li>
-                        <li>If you can't sign in, email <a href="mailto:checkout@jemedia.xyz">CheckOut@jemedia.xyz</a> from your
-                            account's email address, if possible. An admin will sign everyone out of your account.</li>
+                        <li>If you can't sign in, <a href="/support">contact support</a>, giving your
+                            account's email address. An admin will explore the options available to secure your account.</li>
                     </ul>
                     <br>
                     <p>
@@ -219,9 +245,14 @@
                     </svg>
                 </div>
                 <div class="accordion-content">
-                    <p>We may be able to help. Email <a href="mailto:checkout@jemedia.xyz">CheckOut@jemedia.xyz</a></p>
+                    <p>We'll try our best to help. <a href="/support">Contact support</a>.</p>
                 </div>
             </div>
+        </div>
+
+        <div class="vulnerability-notice">
+            <h3>🔒 Security Vulnerability Reporting</h3>
+            <p>If you've discovered a security vulnerability, please email <a href="mailto:support@jemedia.xyz">support@jemedia.xyz</a> immediately. Include as much information as possible about the vulnerability, including steps to reproduce, potential impact, and any supporting documentation. We take all security reports seriously and will investigate them promptly.</p>
         </div>
 
         <div class="footer-help">
@@ -229,7 +260,7 @@
                 You have more questions?
             </div>
             <div class="footer-help-content">
-                <p><a href="mailto:checkout@jemedia.xyz">CheckOut@jemedia.xyz</a></p>
+                <p><a href="/support">Get in touch</a></p>
             </div>
         </div>
 

@@ -89,6 +89,19 @@ a {
     transform: rotate(180deg);
 }
 
+.verified-example {
+    background-color: var(--submit-success-background);
+    color: var(--submit-success-colour);
+    border: none;
+    border-radius: 4px;
+    margin-left: 2px;
+    margin-right: 2px;
+    font-weight: 550;
+    height: 27px;
+    padding: 1px 6px;
+    width: fit-content;
+}
+
 .footer-help {
     width: 80%; /* Adjust the width as needed */
     max-width: 400px;
@@ -113,4 +126,35 @@ a {
 .footer-help p {
     margin: 0; /* Remove default margin from paragraph */
     padding: 5px 0; /* Add spacing around the text */
+}
+
+.vulnerability-notice {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: linear-gradient(105.36deg, rgba(84, 37, 37, 0.9) 0.61%, rgba(61, 48, 48, 0.7) 169.87%);
+    border: 1px solid #ff3d3d;
+    border-radius: 8px;
+    color: #FFE0E0;
+}
+
+.vulnerability-notice h3 {
+    color: #FFE0E0;
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+}
+
+.vulnerability-notice p {
+    margin: 0;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.vulnerability-notice a {
+    color: #FFB0B0;
+    text-decoration: underline;
+}
+
+.vulnerability-notice a:hover {
+    color: #FFC7C7;
 }
