@@ -696,6 +696,50 @@
             margin-left: 0;
         }
     }
+
+    /* Add/modify these styles */
+    .navbar-links {
+        display: flex;
+        align-items: center;
+    }
+
+    .auto-history-text {
+        display: inline;
+    }
+
+    @media (max-width: 768px) {
+        .auto-history-text {
+            display: none;
+        }
+
+        .navbar-links {
+            margin-right: 10px;
+        }
+
+        .navbar-links a:not(.cta-button) {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Remove or modify this existing rule that was hiding the links */
+        .navbar a:not(.cta-button):not(.logo-link) {
+            display: flex;
+        }
+    }
+
+    /* Add breakpoint for very narrow screens */
+    @media (max-width: 480px) {
+        .navbar-links a:not(.cta-button) {
+            display: none;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .logo {
+            background-size: 116px;
+            background-position-y: 0px;
+        }
+    }
 </style>
 <!-- <script defer data-domain="<% if(typeof rootDomain !=='undefined'){%><%- rootDomain %><%}else{%>checkout.ac<%}%>"
     src="https://t.ldn.jemedia.xyz/js/script.js"></script> -->
