@@ -740,6 +740,46 @@
             background-position-y: 0px;
         }
     }
+
+    /* Add these new styles before the media queries */
+    .status-bubble {
+        position: absolute;
+        top: -14px;
+        right: 38px;
+        border-radius: 50%;
+        padding: 2px;
+        font-size: 12px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .status-bubble-empty {
+        background: none;
+        border: none;
+        font-size: 14px;
+        right: 69px;
+    }
+
+    .status-bubble-filled {
+        background: var(--secondary-accent-colour);
+        color: var(--text-colour);
+    }
+
+    #autocheckin-link, #history-link {
+        position: relative;
+    }
+
+    /* Adjust position when text is hidden */
+    @media (max-width: 768px) {
+        .status-bubble {
+            right: -13px;
+            top: -13px;
+        }
+    }
 </style>
 <!-- <script defer data-domain="<% if(typeof rootDomain !=='undefined'){%><%- rootDomain %><%}else{%>checkout.ac<%}%>"
     src="https://t.ldn.jemedia.xyz/js/script.js"></script> -->

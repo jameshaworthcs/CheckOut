@@ -33,10 +33,14 @@
     <div class="navbar-links">
         <a id="autocheckin-link" href="/auto">
             <%- include('../global/icons/sparkle'); %>
-            <span class="auto-history-text">AutoCheckin</span></a>
+            <span class="auto-history-text">AutoCheckin</span>
+            <span class="status-bubble status-bubble-empty">✅</span>
+        </a>
         <a id="history-link" href="/history">
             <%- include('../global/icons/history'); %>
-            <span class="auto-history-text">History</span></a>
+            <span class="auto-history-text">History</span>
+            <span class="status-bubble status-bubble-filled">123</span>
+        </a>
         <a id="navbar-cta-button" href="#" class="cta-button">
             <div class="menu-icon" id="menu-icon">
                 <%- include('../global/icons/menu'); %>
@@ -67,7 +71,7 @@
         </a>
         <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
             <a id="signin-link" class="menu-item" href="/login">
-                <b>Sign in</b>
+                <b><u>Sign in</u></b>
             </a>
         <%}%>
         <a id="settings-link" class="menu-item" href="/settings">
