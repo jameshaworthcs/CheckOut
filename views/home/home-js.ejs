@@ -1587,8 +1587,8 @@ function greenLightButton(id) {
     const button = document.getElementById(id);
     if (button) {
         button.innerHTML = "Submitted!";
-        button.style.backgroundColor = "var(--submit-success-background)";
-        button.style.color = "var(--submit-success-colour) !important";
+        button.style.setProperty('background-color', "var(--submit-success-background)");
+        button.style.setProperty('color', "var(--submit-success-colour)", "important");
         button.disabled = true;
     }
 }
