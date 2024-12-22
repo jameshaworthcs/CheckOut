@@ -216,10 +216,11 @@
         color: var(--action-colour);
     }
 
-    a:hover {
+    a:not(:has(.cta-button *)):hover {
         color: var(--action-highlight-colour);
     }
 
+    /* Adds external link indicator */
     a.external {
         background-image: url(/static/images/external-icon.svg);
         background-position: center right;
@@ -490,9 +491,9 @@
         border: var(--cta-border);
     }
 
-    .cta-button:hover {
+    /* .cta-button:hover {
         background-color: var(--action-highlight-colour);
-    }
+    } */
 
     .menu-icon {
         display: inline-flex;
