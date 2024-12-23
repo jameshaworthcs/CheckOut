@@ -211,7 +211,7 @@ const securityCheck = async (req, res, next) => {
 
     // Check if outside hours OR christmas, provided user is not a sysop
     if (((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') && req.userState != "sysop") {
-      const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api'];
+      const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api', '/settings'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
         const permsResults = await checkPermissions(req.userState);
