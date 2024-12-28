@@ -31,6 +31,7 @@ function autoCheckin(email, session, codes) {
   // Handle errors
   python.on('error', function (err) {
     console.error('Error executing AutoCheckin script:', err);
+    log(email, "Fail", "Internal error with AutoCheckin - Contact support");
   });
 
   // On close event, process the complete output
@@ -48,9 +49,9 @@ function autoCheckin(email, session, codes) {
 
 
 function fetchAutoCheckers(emails = [], codes = [], instant = false) {
-  console.log("Running autocheckers", emails, codes, "Instant:", instant)
+  //console.log("Running autocheckers", emails, codes, "Instant:", instant)
   // Add error handling and connection check
-  if (!db.state === 'connected') {
+  if (db.state !== 'connected') {
     console.error('Database connection not available, retrying in 5 seconds...');
     setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
     return;
@@ -62,11 +63,9 @@ function fetchAutoCheckers(emails = [], codes = [], instant = false) {
       return;
     }
     
-    // Convert result to array and shuffle it if not instant
+    // Convert result to array and shuffle it
     let users = [...result];
-    if (!instant) {
-      users.sort(() => Math.random() - 0.5);
-    }
+    users.sort(() => Math.random() - 0.5);
     
     users.forEach((user, index) => {
       if (instant) {
@@ -81,19 +80,19 @@ function fetchAutoCheckers(emails = [], codes = [], instant = false) {
           autoCheckin(user.email, user.checkintoken, codes);
         }
       } else {
-        // Delayed processing with random intervals
-        const randomDelay = Math.floor(Math.random() * 9 + 1) * 60 * 1000; // Random 1-10 minutes
+        // Delayed processing with random intervals between 0-600000 milliseconds (0-10 minutes)
+        const randomDelay = Math.floor(Math.random() * 600000); // Random 0-600000 milliseconds
         setTimeout(() => {
           if (emails.length > 0) {
             if (emails.includes(user.email)) {
-              console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+              console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
               autoCheckin(user.email, user.checkintoken, codes);
             }
           } else {
-            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
             autoCheckin(user.email, user.checkintoken, codes);
           }
-        }, index * randomDelay);
+        }, randomDelay);
       }
     });
   });
