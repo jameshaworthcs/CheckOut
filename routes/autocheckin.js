@@ -97,9 +97,6 @@ function log(email, state, message) {
   db.query(reportQuery, [state, mysqlTimestamp, email], (err, result) => {});
 }
 
-// Call fetchAutoCheckers() initially
-//fetchAutoCheckers();
-
 // Generate random interval between 1 and 5 hours (in milliseconds)
 function getRandomInterval() {
   const minHours = 1;
@@ -107,6 +104,7 @@ function getRandomInterval() {
   return Math.floor(Math.random() * (maxHours - minHours + 1) + minHours) * 60 * 60 * 1000;
 }
 
+// Only run on AutoCheckin instances
 if (process.env.CHK_AUTO == "TRUE") {
   // Initial run
   fetchAutoCheckers();

@@ -849,6 +849,8 @@ app.use((err, req, res, next) => {
 server.listen(port, () => {
   if (process.env.CHK_SRV == "PROD") {
     console.log(`Production CheckOut ${process.env.CHK_SRV}:${port} Backend-${process.env.CHK_PROD_ID} initialized!`);
+  } else if (process.env.CHK_SRV == "AUTO") {
+    console.log(`Production AutoCheckin ${process.env.CHK_SRV} running on port ${port}`);
   } else {
     console.log(`CheckOut development ${process.env.CHK_SRV} running on localhost:${port}`);
   }
