@@ -83,10 +83,13 @@ function fetchDataAndRender() {
                 <p class="sessionInfo toprowclass" style="text-align:right;">${codeDay}<br>${item.md}</p>
               </div>
               <p class="codeInfo">${item.inst}-${item.crs}-${item.yr}-${item.groupCode}-${item.codeID}</p>
-              <!-- <p class="codeInfo">Score: Coming soon</p> -->
               <p class="codeInfo">Source: ${item.source}</p>
-              <button onclick="copyText('${item.checkinCode}')" class="share-button">Copy</button>
-              ${item.visState === '0' ? `<button onclick="visible('${item.tk}', '1')" class="share-button">Show</button>` : `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Hide</button>`}
+              <div class="button-container">
+                  <button onclick="copyText('${item.checkinCode}')" class="share-button">Copy</button>
+                  ${item.visState === '0' ? 
+                      `<button onclick="visible('${item.tk}', '1')" class="share-button">Show</button>` : 
+                      `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Hide</button>`}
+              </div>
               ${item.codeState === '0' ? `<h4>⚠️ Code is blocked. Reason: ${item.codeDesc}</h4>` : ''}
               ${item.visState === '0' ? `<h4>⚠️ This code is hidden.</h4>` : ''}
             `;
@@ -162,9 +165,21 @@ function copyText(textToCopy) {
 }
 
 function visible(tk, vis) {
-    const url = `/api/app/visibility/${vis}`;
-    //const body = `tk:${tk}`;
+    // Get the button that was clicked
+    const button = event.currentTarget;
+    const originalText = button.innerHTML;
+    
+    // Set fixed dimensions to prevent button resizing
+    const originalWidth = button.offsetWidth;
+    const originalHeight = button.offsetHeight;
+    button.style.width = `${originalWidth}px`;
+    button.style.height = `${originalHeight}px`;
+    
+    // Add spinner
+    button.innerHTML = '<div class="spinner-container"><span class="spinner"></span></div>';
+    button.disabled = true;
 
+    const url = `/api/app/visibility/${vis}`;
     fetch(url, {
         method: 'POST',
         headers: {
@@ -181,17 +196,23 @@ function visible(tk, vis) {
     .then(data => {
         const { success, msg } = data;
         if (success) {
-            // showBanner(msg, true);
             displayNotice(msg, 'success');
-            showLoadingOverlay(300);
-            fetchDataAndRender()
+            fetchDataAndRender();
         } else {
-            // showBanner(msg, false);
+            // Restore button state on error
+            button.innerHTML = originalText;
+            button.disabled = false;
+            button.style.width = '';
+            button.style.height = '';
             displayNotice(msg, 'error');
         }
     })
     .catch(error => {
-        // showBanner(error.message, false);
+        // Restore button state on error
+        button.innerHTML = originalText;
+        button.disabled = false;
+        button.style.width = '';
+        button.style.height = '';
         displayNotice(error.message, 'error');
     });
 }

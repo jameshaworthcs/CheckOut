@@ -98,7 +98,7 @@ function setupCached() {
     });
 }
 
-// Main setup function
+// Main setup function to use (injected) cached v2 data
 setupCached();
 
 // Refresh the page every 5 seconds
@@ -281,7 +281,7 @@ function fillSubmitFormNonTibl(legacy_modules) {
     <input type="hidden" name="crs" value="">
     <input type="hidden" name="yr" value="">
     <br><br>
-      <button id="submit-button" class="cta-button" type="submit" value="SUBMIT" data-form-type="action">SUBMIT</button>
+      <button id="submit-button" class="cta-button cta-button-main" type="submit" value="SUBMIT" data-form-type="action">SUBMIT</button>
     </form>
     `
         document.querySelector('.submit-skeleton').classList.add('hidden');
@@ -425,7 +425,7 @@ function fillSubmitForm(sessionCount, msg, sessions) {
 
         const submitButton = document.createElement('button');
         submitButton.id = 'submit-button';
-        submitButton.className = 'cta-button';
+        submitButton.className = 'cta-button cta-button-main';
         submitButton.type = 'submit';
         submitButton.value = 'SUBMIT';
         submitButton.dataset.formType = 'action';

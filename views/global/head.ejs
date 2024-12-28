@@ -25,6 +25,7 @@
         --letter-spacing: normal;
         --subtext-colour: white;
         --cta-button-colour: black;
+        --cta-button-colour-main: black;
         --cta-border: none;
         --code-colour: #e7ebee;
         --submit-success-background: #27AE6033;
@@ -39,6 +40,12 @@
         --navbar-background: none;
         --tick-image: url('/static/tick-white-min2.svg');
         --logo-image: url('/static/images/1.3-white.png');
+        --skeleton-gradient-start: #34364c;
+        --skeleton-gradient-middle: #3b3e5e;
+        --skeleton-gradient-end: #34364c;
+        --skeleton-name-gradient-start: #45A6D7;
+        --skeleton-name-gradient-middle: #66C7FF;
+        --skeleton-name-gradient-end: #45A6D7;
     }
 
     <% if (typeof userData == 'undefined' || typeof userData.theme === 'undefined' || userData.theme === '1') { %>
@@ -60,8 +67,10 @@
         --secondary-selected-border-colour: #007bff;
         --action-colour: #3DCBFF;
         --cta-background: #3DCBFF;
+        --cta-background-main: #3DCBFF;
         --header-colour: white;
         --action-highlight-colour: #009ad3;
+        --action-highlight-colour-main: #009ad3;
         --navbar-background-colour: #0A0520;
         --input-focus: rgba(48, 57, 107, 0.518);
         --refresh-background1: #3DCBFF;
@@ -80,9 +89,13 @@
         --page-background: #10151d;
         --content-background: #080a0e99;
         --action-colour: #b895fd;
-        --cta-background: #b895fd;
+        --cta-button-colour: #D9E9E7;
+        --cta-button-colour-main: black;
+        --cta-background: #2C3F4F;
+        --cta-background-main: #b895fd;
         --header-colour: #D9E9E7;
-        --action-highlight-colour: #e4d5ff;
+        --action-highlight-colour: #284a66;
+        --action-highlight-colour-main: #e4d5ff;
         --secondary-background: #10151D;
         --secondary-selected-background: #1F2939;
         --secondary-selected-border-colour: #333e4f;
@@ -135,12 +148,15 @@
         --page-background: #FFFFFF;
         --content-background: #FFFFFF;
         --cta-button-colour: #000000;
+        --cta-button-colour-main: #FFF;
         --cta-background: #F2F2F2;
+        --cta-background-main: #1652f0;
         /* --cta-border: 1px solid #828282; */
         --cta-border: none;
         --action-colour: #1652f0;
         --header-colour: #828282;
-        --action-highlight-colour: #1654f097;
+        --action-highlight-colour: #dbdbdb;
+        --action-highlight-colour-main: #1654f097;
         --secondary-background: #FFF;
         --secondary-selected-background: #FFF;
         --secondary-selected-border-colour: #333e4f;
@@ -161,7 +177,12 @@
         --navbar-background: #FFF;
         --tick-image: url('/static/images/tick-dark.svg');
         --logo-image: url('/static/images/chk_d_v.svg');
-
+        --skeleton-gradient-start: #e0e0e0;
+        --skeleton-gradient-middle: #f0f0f0;
+        --skeleton-gradient-end: #e0e0e0;
+        --skeleton-name-gradient-start: #c0c0c0;
+        --skeleton-name-gradient-middle: #d0d0d0;
+        --skeleton-name-gradient-end: #c0c0c0;
     }
 
     body:after {
@@ -216,9 +237,9 @@
         color: var(--action-colour);
     }
 
-    a:not(:has(.cta-button *)):hover {
+    /* a:not(:has(.cta-button *)):hover {
         color: var(--action-highlight-colour);
-    }
+    } */
 
     /* Adds external link indicator */
     a.external {
@@ -481,8 +502,7 @@
         background-size: auto 270%;
         color: var(--cta-button-colour);
         text-decoration: none;
-        border-radius: 5px;
-        /* line-height: 1; */
+        border-radius: 7px;
         padding-inline-start: 0.75rem;
         padding-inline-end: 0.75rem;
         font-size: 0.87rem;
@@ -491,8 +511,18 @@
         border: var(--cta-border);
     }
 
+    .cta-button-main {
+        background-color: var(--cta-background-main);
+        color: var(--cta-button-colour-main);
+    }
+
     .cta-button:hover {
         background-color: var(--action-highlight-colour);
+    }
+
+    .cta-button-main:hover {
+        opacity: 0.9;
+        background-color: var(--action-highlight-colour-main);
     }
 
     .menu-icon {
@@ -571,7 +601,11 @@
     }
 
     .skeleton {
-        background: linear-gradient(90deg, #34364c 25%, #3b3e5e 50%, #34364c 75%);
+        background: linear-gradient(90deg, 
+            var(--skeleton-gradient-start) 25%, 
+            var(--skeleton-gradient-middle) 50%, 
+            var(--skeleton-gradient-end) 75%
+        );
         background-size: 200% 100%;
         animation: loading 1.5s infinite;
         border-radius: 4px;
@@ -579,7 +613,11 @@
     }
 
     .skeleton-name {
-        background: linear-gradient(90deg, #45A6D7 25%, #66C7FF 50%, #45A6D7 75%);
+        background: linear-gradient(90deg, 
+            var(--skeleton-name-gradient-start) 25%, 
+            var(--skeleton-name-gradient-middle) 50%, 
+            var(--skeleton-name-gradient-end) 75%
+        );
         background-size: 200% 100%;
         animation: loading 1.5s infinite;
         border-radius: 4px;
