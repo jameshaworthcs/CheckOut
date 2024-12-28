@@ -58,7 +58,7 @@ function fetchAutoCheckers(emails = [], codes = [], instant = false) {
 
   db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
     if (err) {
-      console.error('Database query error:', err);
+      console.error('[AUTO] Database query error:', err);
       return;
     }
     
@@ -121,8 +121,11 @@ function getRandomInterval() {
 
 // Only run on AutoCheckin instances
 if (process.env.CHK_AUTO == "TRUE") {
-  // Initial run
-  fetchAutoCheckers();
+  // Initial run with 5 second delay
+  setTimeout(() => {
+    console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
+    fetchAutoCheckers();
+  }, 5000);
   
   // Schedule recurring runs
   let intervalId;
