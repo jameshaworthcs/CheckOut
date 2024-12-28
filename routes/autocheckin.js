@@ -8,7 +8,7 @@ const {spawn} = require('child_process');
 var tibl = require('./tibl');
 
 function autoCheckin(email, session, codes) {
-  console.log("AutoChecking ", email, codes);
+  //console.log("AutoChecking ", email, codes);
   var output = ''; // Store the output from the Python script
 
   // Capture the start time
@@ -41,8 +41,8 @@ function autoCheckin(email, session, codes) {
     // Calculate the elapsed time in seconds
     const elapsedTime = (endTime - startTime) / 1000;
     //console.log(`Python script exited with code ${code}`);
-    console.log(`AutoCheckin finished in ${elapsedTime} seconds for ${email}`);
-    console.log('Complete output:', output);
+    console.log(`[AUTO] AutoCheckin finished in ${elapsedTime} seconds for ${email}`);
+    //console.log('Complete output:', output);
   });
 }
 
@@ -61,17 +61,25 @@ function fetchAutoCheckers(emails = [], codes = []) {
       return;
     }
     
-    // Iterate over each row in the result
-    result.forEach(user => {
-      //console.log(user);
-      if (emails.length > 0) {
-        if (emails.includes(user.email)) {
-          autoCheckin(user.email, user.checkintoken, codes)
+    // Convert result to array and shuffle it
+    let users = [...result];
+    users.sort(() => Math.random() - 0.5);
+    
+    // Process each user with a random delay
+    users.forEach((user, index) => {
+      const randomDelay = Math.floor(Math.random() * 9 + 1) * 60 * 1000; // Random 1-10 minutes in milliseconds
+      
+      setTimeout(() => {
+        if (emails.length > 0) {
+          if (emails.includes(user.email)) {
+            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+            autoCheckin(user.email, user.checkintoken, codes);
+          }
+        } else {
+          console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+          autoCheckin(user.email, user.checkintoken, codes);
         }
-      } else {
-      //console.log("AutoCheckin user", user)
-        autoCheckin(user.email, user.checkintoken, codes)
-      }
+      }, index * randomDelay); // Multiply by index to space them out
     });
   });
 }
@@ -92,13 +100,28 @@ function log(email, state, message) {
 // Call fetchAutoCheckers() initially
 //fetchAutoCheckers();
 
-// Schedule fetchAutoCheckers() to run every x minutes
-//               x
-const interval = 60 * 60 * 1000; // Convert x minutes to milliseconds
+// Generate random interval between 1 and 5 hours (in milliseconds)
+function getRandomInterval() {
+  const minHours = 1;
+  const maxHours = 5;
+  return Math.floor(Math.random() * (maxHours - minHours + 1) + minHours) * 60 * 60 * 1000;
+}
 
 if (process.env.CHK_AUTO == "TRUE") {
-  setInterval(fetchAutoCheckers, interval);
+  // Initial run
   fetchAutoCheckers();
+  
+  // Schedule next run with random interval
+  setInterval(() => {
+    fetchAutoCheckers();
+    // Reset interval randomly after each run
+    clearInterval(this);
+    setTimeout(() => {
+      const newInterval = getRandomInterval();
+      console.log(`[AUTO] Next AutoCheckin scheduled in ${newInterval/1000/60/60} hours`);
+      setInterval(() => fetchAutoCheckers(), newInterval);
+    }, 0);
+  }, getRandomInterval());
 }
 
 // Import session token
