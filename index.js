@@ -410,7 +410,10 @@ app.use(async (req, res, next) => {
 
     // Conditional PROD environment check
     if (process.env.CHK_SRV == "PROD") {
-      res.setHeader('X-CheckOut-Backend', process.env.CHK_PROD_ID);
+      // Add error handling for setting the header
+      try {
+        res.setHeader('X-CheckOut-Backend', process.env.CHK_PROD_ID || 'undefined');
+      } catch (err) {}
       
       // Increment total requests count
       totalRequests++;

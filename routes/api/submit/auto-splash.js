@@ -45,43 +45,63 @@ async function verifyJWT(token) {
 
 function pollForCheckIn(email, chc, ws) {
   let attempts = 0;
-  const maxAttempts = 40; // 20 seconds / 0.5 second intervals // 40
-  const intervalTime = 200; // 0.2 seconds
+  const maxAttempts = 40;
+  const intervalTime = 200; // 200ms
 
-  const interval = setInterval(() => {
-    attempts++;
+  // Perform immediate check first
+  checkedIn(email, chc, (err, result) => {
+    if (err) {
+      ws.send(btoa(JSON.stringify({ success: false, error: 'Database error' })));
+      ws.close();
+      return;
+    }
 
-    checkedIn(email, chc, (err, result) => {
-      if (err) {
-        ws.send(btoa(JSON.stringify({ success: false, error: 'Database error' })));
-        ws.close();
-        clearInterval(interval);
-        return;
-      }
+    if (result.checkedIn) {
+      // Match found immediately
+      const checkedInResult = {
+        success: true,
+        checkedin: true,
+        msg: result.message,
+      };
+      ws.send(btoa(JSON.stringify(checkedInResult)));
+      ws.close();
+      return;
+    }
 
-      if (result.checkedIn) {
-        // Match found, send WebSocket message and close the connection
-        const checkedInResult = {
-          success: true,
-          checkedin: true,
-          msg: result.message,
-        };
-        ws.send(btoa(JSON.stringify(checkedInResult)));
-        ws.close();
-        clearInterval(interval);  // Stop polling once a match is found
-      } else if (attempts >= maxAttempts) {
-        // Timeout reached after 10 seconds
-        const timeoutResult = {
-          success: true,
-          checkedin: false,
-          msg: `Submit your code here only. If you didn't also submit on checkin, please contact <a href="/support?auto=true&priority=true&code=${chc}">support</a>.`,
-        };
-        ws.send(btoa(JSON.stringify(timeoutResult)));
-        ws.close();
-        clearInterval(interval);  // Stop polling after timeout
-      }
-    });
-  }, intervalTime);
+    // If no immediate match, start polling
+    const interval = setInterval(() => {
+      attempts++;
+
+      checkedIn(email, chc, (err, result) => {
+        if (err) {
+          ws.send(btoa(JSON.stringify({ success: false, error: 'Database error' })));
+          ws.close();
+          clearInterval(interval);
+          return;
+        }
+
+        if (result.checkedIn) {
+          const checkedInResult = {
+            success: true,
+            checkedin: true,
+            msg: result.message,
+          };
+          ws.send(btoa(JSON.stringify(checkedInResult)));
+          ws.close();
+          clearInterval(interval);
+        } else if (attempts >= maxAttempts) {
+          const timeoutResult = {
+            success: true,
+            checkedin: false,
+            msg: `Submit your code here only. If you didn't also submit on checkin, please contact <a href="/support?auto=true&priority=true&code=${chc}">support</a>.`,
+          };
+          ws.send(btoa(JSON.stringify(timeoutResult)));
+          ws.close();
+          clearInterval(interval);
+        }
+      });
+    }, intervalTime);
+  });
 }
 
 

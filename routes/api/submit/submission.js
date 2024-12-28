@@ -105,8 +105,8 @@ async function submitCode(submissionData) {
             });
 
             // Run AutoCheckin
-            if (process.env.CHK_SRV == "PROD") {
-                fetchAutoCheckers();
+            if (process.env.CHK_SRV !== "BETA") {
+                fetchAutoCheckers(emails = [], codes = [], instant = true);
             }
 
             return {
