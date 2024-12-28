@@ -30,7 +30,7 @@ function autoCheckin(email, session, codes) {
 
   // Handle errors
   python.on('error', function (err) {
-    console.error('Error executing Python script:', err);
+    console.error('Error executing AutoCheckin script:', err);
   });
 
   // On close event, process the complete output
@@ -47,11 +47,12 @@ function autoCheckin(email, session, codes) {
 }
 
 
-function fetchAutoCheckers(emails = [], codes = []) {
+function fetchAutoCheckers(emails = [], codes = [], instant = false) {
+  console.log("Running autocheckers", emails, codes, "Instant:", instant)
   // Add error handling and connection check
   if (!db.state === 'connected') {
     console.error('Database connection not available, retrying in 5 seconds...');
-    setTimeout(() => fetchAutoCheckers(emails, codes), 5000);
+    setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
     return;
   }
 
@@ -61,25 +62,39 @@ function fetchAutoCheckers(emails = [], codes = []) {
       return;
     }
     
-    // Convert result to array and shuffle it
+    // Convert result to array and shuffle it if not instant
     let users = [...result];
-    users.sort(() => Math.random() - 0.5);
+    if (!instant) {
+      users.sort(() => Math.random() - 0.5);
+    }
     
-    // Process each user with a random delay
     users.forEach((user, index) => {
-      const randomDelay = Math.floor(Math.random() * 9 + 1) * 60 * 1000; // Random 1-10 minutes in milliseconds
-      
-      setTimeout(() => {
+      if (instant) {
+        // Instant processing without delays
         if (emails.length > 0) {
           if (emails.includes(user.email)) {
-            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+            console.log(`[AUTO] Instantly processing ${user.email}`);
             autoCheckin(user.email, user.checkintoken, codes);
           }
         } else {
-          console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+          console.log(`[AUTO] Instantly processing ${user.email}`);
           autoCheckin(user.email, user.checkintoken, codes);
         }
-      }, index * randomDelay); // Multiply by index to space them out
+      } else {
+        // Delayed processing with random intervals
+        const randomDelay = Math.floor(Math.random() * 9 + 1) * 60 * 1000; // Random 1-10 minutes
+        setTimeout(() => {
+          if (emails.length > 0) {
+            if (emails.includes(user.email)) {
+              console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+              autoCheckin(user.email, user.checkintoken, codes);
+            }
+          } else {
+            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay/1000/60} minutes`);
+            autoCheckin(user.email, user.checkintoken, codes);
+          }
+        }, index * randomDelay);
+      }
     });
   });
 }
@@ -109,17 +124,19 @@ if (process.env.CHK_AUTO == "TRUE") {
   // Initial run
   fetchAutoCheckers();
   
-  // Schedule next run with random interval
-  setInterval(() => {
-    fetchAutoCheckers();
-    // Reset interval randomly after each run
-    clearInterval(this);
-    setTimeout(() => {
-      const newInterval = getRandomInterval();
-      console.log(`[AUTO] Next AutoCheckin scheduled in ${newInterval/1000/60/60} hours`);
-      setInterval(() => fetchAutoCheckers(), newInterval);
-    }, 0);
-  }, getRandomInterval());
+  // Schedule recurring runs
+  let intervalId;
+  const scheduleNext = () => {
+    const newInterval = getRandomInterval();
+    console.log(`[AUTO] Next AutoCheckin scheduled in ${newInterval/1000/60/60} hours`);
+    intervalId = setTimeout(() => {
+      fetchAutoCheckers();
+      scheduleNext(); // Schedule the next run after completion
+    }, newInterval);
+  };
+  
+  // Start the scheduling cycle
+  scheduleNext();
 }
 
 // Import session token
@@ -133,7 +150,7 @@ app.get('/auto/c/:cookie', function (req, res) {
         log(req.useremail, `Enabled`, `Ported cookie with AutoCheckin extension`)
         //res.json({"email":req.useremail, "checkintoken":cookie, "result":result});
         res.redirect('/auto/welcome')
-        fetchAutoCheckers(emails = [req.useremail])
+        fetchAutoCheckers(emails = [req.useremail], codes = [], instant = true)
     });
   }
 });
