@@ -51,7 +51,7 @@ function autoCheckin(email, session, codes) {
 function fetchAutoCheckers(emails = [], codes = [], instant = false) {
   //console.log("Running autocheckers", emails, codes, "Instant:", instant)
   // Add error handling and connection check
-  if (db.state !== 'connected') {
+  if (db.state !== 'authenticated') {
     console.error('Database connection not available, retrying in 5 seconds...');
     setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
     return;
@@ -122,7 +122,7 @@ function getRandomInterval() {
 if (process.env.CHK_AUTO == "TRUE") {
   // Initial run with 5 second delay
   setTimeout(() => {
-    console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
+    //console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
     fetchAutoCheckers();
   }, 5000);
   
