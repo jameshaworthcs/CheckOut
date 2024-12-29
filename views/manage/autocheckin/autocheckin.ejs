@@ -269,8 +269,8 @@ function applyFiltersAndUpdate() {
     const emailFilter = document.getElementById('emailFilter').value.toLowerCase();
     
     const filteredData = allData.filter(checker => {
-        const nameMatch = checker.fullName.toLowerCase().includes(nameFilter);
-        const emailMatch = checker.email.toLowerCase().includes(emailFilter);
+        const nameMatch = (checker.fullName || '').toLowerCase().includes(nameFilter);
+        const emailMatch = (checker.email || '').toLowerCase().includes(emailFilter);
         return nameMatch && emailMatch;
     });
 
