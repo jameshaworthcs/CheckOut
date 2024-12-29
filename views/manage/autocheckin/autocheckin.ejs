@@ -234,9 +234,10 @@ td, th {
                     <thead>
                         <tr>
                             <th>User</th>
+                            <th>Auto Access</th>
                             <th>Status</th>
-                            <th>Last Report</th>
-                            <th>Actions</th>
+                            <th>Report Time</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="autocheckers-body"></tbody>
@@ -251,13 +252,26 @@ td, th {
 
 <script>
 let allData = [];
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 let currentPage = 1;
 
 async function loadAutoCheckers() {
     try {
         const response = await fetch('/manage/api/autocheckin/autocheckers');
         allData = await response.json();
+        // Sort the data before applying filters
+        allData.sort((a, b) => {
+            const priorityOrder = {
+                'Fail': 0,
+                'Normal': 1,
+                'Waitlist': 2
+            };
+            
+            const priorityA = priorityOrder[a.checkinReport] ?? 3;
+            const priorityB = priorityOrder[b.checkinReport] ?? 3;
+            
+            return priorityA - priorityB;
+        });
         applyFiltersAndUpdate();
     } catch (error) {
         console.error('Error loading autocheckers:', error);
@@ -296,6 +310,9 @@ function updateTable(data) {
                 <div class="user-name">${checker.fullName} <span class="user-id">#${checker.id}</span></div>
                 <div class="user-email">${checker.email}</div>
             </td>
+            <td>
+                ${checker.autoAccess ? '✓' : '✗'}
+            </td>
             <td class="status-cell">
                 ${statusEmoji}
             </td>
@@ -305,8 +322,10 @@ function updateTable(data) {
             <td>
                 <div class="action-buttons">
                     <button class="action-btn refresh-btn">Refresh session</button>
-                    <button class="action-btn ${checker.checkinstate === 0 ? 'enable-btn' : 'disable-btn'}">
-                        ${checker.checkinstate === 0 ? 'Enable' : 'Disable'}
+                    <button class="action-btn ${(checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'grant-btn' : 
+                        (checker.checkinstate === 0 ? 'enable-btn' : 'disable-btn')}">
+                        ${(checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'Grant access' : 
+                        (checker.checkinstate === 0 ? 'Enable' : 'Disable')}
                     </button>
                     <a href="/manage/autocheckin/logs?email=${encodeURIComponent(checker.email)}" 
                        target="_blank" 

@@ -1,16 +1,32 @@
 const express = require('express')
 var db2 = require('../../../database-v2');
 var app = express.Router();
+const secureRoute = require('../../secure');
 
 app.get('/manage/api/autocheckin/autocheckers', async (req, res) => {
     try {
 
-        let sql = `SELECT id, email, checkintoken, checkinstate, fullName, checkinReport, checkinReportTime 
+        let sql = `SELECT id, email, checkintoken, checkinstate, fullName, checkinReport, checkinReportTime, userstate 
         FROM users 
         WHERE checkinstate = 1 OR checkinReport = 'Waitlist' OR userstate LIKE '%autocheckin%'`;
 
         const [rows] = await db2.query(sql);
-        res.json(rows);
+        console.log(secureRoute.checkPermissions('sysop'))
+        
+        // Add autoAccess flag based on permissions check
+        const enrichedRows = rows.map(async row => {
+            const permResults = await secureRoute.checkPermissions(row.userstate);
+            const allowedServices = permResults.flatMap(result => JSON.parse(result.routes));
+            return {
+                ...row,
+                autoAccess: allowedServices.some(route => route === 'autocheckin')
+            };
+        });
+        
+        // Since map with async returns an array of promises, we need to wait for all of them
+        const resolvedRows = await Promise.all(enrichedRows);
+        
+        res.json(resolvedRows);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Failed to fetch users' });
