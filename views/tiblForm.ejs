@@ -24,7 +24,7 @@
   </head>
   <body>
     <div id="hero-area" >
-  <form action="<% if(typeof submitURL !=='undefined'){%><%- submitURL %><%}else{%>https://<%= rootDomain %>/api/app/submit<%}%>">
+  <form action="<% if(typeof submitURL !=='undefined'){%><%- submitURL %><%}else{%>/api/app/submit<%}%>">
     <div id="overlay" class="hidden">
         <div class="loader"></div>
     </div>

@@ -219,7 +219,8 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
 // only for legacy site:
 
 function webGen(frame, ios, inst, crs, yr, req, res, next) {
-  fetchInProgressRows("tibl_yrk_cs_1", (err, inProgressRows, extractedData) => {
+  const tibl_id = db.escapeId(`tibl_${inst}_${crs}_${yr}`);
+  fetchInProgressRows(tibl_id, (err, inProgressRows, extractedData) => {
     if (err) {
       return next(err);
     }

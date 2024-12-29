@@ -471,7 +471,7 @@
                 };
 
             function handleCredentialResponse(response) {
-                // Send the token to your backend
+                // Send the token to CheckOut backend
                 fetch('/api/auth/google/verify', {
                     method: 'POST',
                     headers: {
@@ -505,6 +505,10 @@
             }
 
             window.onload = function () {
+                // Check if user prefers light theme
+                const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+                const buttonTheme = prefersDarkScheme.matches ? 'filled_black' : 'filled_blue';
+
                 google.accounts.id.initialize({
                     client_id: '573147530533-998o78a3tvhoo9ijemmghr9l6c154kks.apps.googleusercontent.com',
                     callback: handleCredentialResponse
@@ -512,10 +516,36 @@
 
                 google.accounts.id.renderButton(
                     document.getElementById('googleAuthButton'),
-                    { theme: 'outline', size: 'large', width: '300px', type: 'standard', theme: 'filled_black', logo_alignment: "center", click_listener: googleAuthClicked }  // customization attributes
+                    { 
+                        theme: 'outline', 
+                        size: 'large', 
+                        width: '300px', 
+                        type: 'standard', 
+                        theme: buttonTheme, 
+                        logo_alignment: "center", 
+                        click_listener: googleAuthClicked 
+                    }
                 );
 
                 google.accounts.id.prompt(); // Display the One Tap prompt
+
+                // Listen for changes in color scheme preference
+                prefersDarkScheme.addEventListener('change', (e) => {
+                    const newTheme = e.matches ? 'filled_black' : 'filled_blue';
+                    // Re-render the button with new theme
+                    google.accounts.id.renderButton(
+                        document.getElementById('googleAuthButton'),
+                        { 
+                            theme: 'outline', 
+                            size: 'large', 
+                            width: '300px', 
+                            type: 'standard', 
+                            theme: newTheme, 
+                            logo_alignment: "center", 
+                            click_listener: googleAuthClicked 
+                        }
+                    );
+                });
             };
 
             function googleAuthClicked() {

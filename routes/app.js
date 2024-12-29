@@ -394,7 +394,9 @@ function getPastCodes(req, res, callback) {
       var deviceID = 'null';
     }
     const crypto = require('crypto');
-    const secret = '7c89573489576b9856b86bx32486934c2589c3425789345c7894359807234x9078b324c78c345';
+    // Generate a random secret of 64 bytes and convert to hex string
+    const secret = crypto.randomBytes(64).toString('hex');
+
     // Your existing code to query the database
     db.query(sqlQuery, [req.usersIP, deviceID, req.useremail], function (err, result) {
       if (err) {
@@ -1059,171 +1061,171 @@ app.get('/api/app/nextclass', function (req, res) {
   });
 });
 
-// Codes view
-// Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
-app.get('/api/app/classframe/:inst/:crs/:yr/:md', function (req, res) {
-  var inst = req.params.inst;
-  var crs = req.params.crs;
-  var yr = req.params.yr;
-  var md = req.params.md;
-  if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
-    getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getCodes", err);
-        return;
-      } else {
-        tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
-          })
-      }
-    });
-  } else {
-    getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getCodes", err);
-        return;
-      } else {
-        getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-          if (err) {
-            res.status(500);
-            res.send("Error")
-            console.log("Error in getModuleList", err);
-            return;
-          }
+// // Codes view
+// // Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
+// app.get('/api/app/classframe/:inst/:crs/:yr/:md', function (req, res) {
+//   var inst = req.params.inst;
+//   var crs = req.params.crs;
+//   var yr = req.params.yr;
+//   var md = req.params.md;
+//   if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
+//     getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getCodes", err);
+//         return;
+//       } else {
+//         tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
+//           })
+//       }
+//     });
+//   } else {
+//     getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getCodes", err);
+//         return;
+//       } else {
+//         getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
+//           if (err) {
+//             res.status(500);
+//             res.send("Error")
+//             console.log("Error in getModuleList", err);
+//             return;
+//           }
           
-          let moduleName = null;
+//           let moduleName = null;
 
-          for (const module of modulesObject) {
-              if (module.module_code === md) {
-                  moduleName = module.module_name;
-                  break;
-              }
-          }
-          code = code+"-"+md.toUpperCase()
-          getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
-            res.render('classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours <a target=\"_parent\" class=\"sub-table-link\" href=\"/\">here</a>."});
-          });
-        });
+//           for (const module of modulesObject) {
+//               if (module.module_code === md) {
+//                   moduleName = module.module_name;
+//                   break;
+//               }
+//           }
+//           code = code+"-"+md.toUpperCase()
+//           getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
+//             res.render('classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours <a target=\"_parent\" class=\"sub-table-link\" href=\"/\">here</a>."});
+//           });
+//         });
         
-      }
-    });
-  }
-});
+//       }
+//     });
+//   }
+// });
 
-// Codes view for iOS
-// Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
-app.get('/api/app/classframe/ios/:inst/:crs/:yr/:md', function (req, res) {
-  var inst = req.params.inst;
-  var crs = req.params.crs;
-  var yr = req.params.yr;
-  var md = req.params.md;
-  if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
-    getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getCodes", err);
-        return;
-      } else {
-        tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
-          })
-      }
-    });
-  } else {
-    getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getCodes", err);
-        return;
-      } else {
-        getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-          if (err) {
-            res.status(500);
-            res.send("Error")
-            console.log("Error in getModuleList", err);
-            return;
-          }
-          let moduleName = null;
+// // Codes view for iOS
+// // Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
+// app.get('/api/app/classframe/ios/:inst/:crs/:yr/:md', function (req, res) {
+//   var inst = req.params.inst;
+//   var crs = req.params.crs;
+//   var yr = req.params.yr;
+//   var md = req.params.md;
+//   if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
+//     getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getCodes", err);
+//         return;
+//       } else {
+//         tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
+//           })
+//       }
+//     });
+//   } else {
+//     getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getCodes", err);
+//         return;
+//       } else {
+//         getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
+//           if (err) {
+//             res.status(500);
+//             res.send("Error")
+//             console.log("Error in getModuleList", err);
+//             return;
+//           }
+//           let moduleName = null;
 
-          for (const module of modulesObject) {
-              if (module.module_code === md) {
-                  moduleName = module.module_name;
-                  break;
-              }
-          }
-          code = code+"-"+md.toUpperCase()
-          getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
-            res.render('ios-classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours in the submission view." });
-          });
-        });
-      }
-    });
-  }
-});
+//           for (const module of modulesObject) {
+//               if (module.module_code === md) {
+//                   moduleName = module.module_name;
+//                   break;
+//               }
+//           }
+//           code = code+"-"+md.toUpperCase()
+//           getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
+//             res.render('ios-classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours in the submission view." });
+//           });
+//         });
+//       }
+//     });
+//   }
+// });
 
-// Web codes view
-// Gets the days codes in full html page output for a given, institution (inst), course (crs), year (yr) and module code (md)
-app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
-  var inst = req.params.inst;
-  var crs = req.params.crs;
-  var yr = req.params.yr;
-  var md = req.params.md;
-    getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getModuleList", err);
-        return;
-      }
-      let moduleName = null;
+// // Web codes view
+// // Gets the days codes in full html page output for a given, institution (inst), course (crs), year (yr) and module code (md)
+// app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
+//   var inst = req.params.inst;
+//   var crs = req.params.crs;
+//   var yr = req.params.yr;
+//   var md = req.params.md;
+//     getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getModuleList", err);
+//         return;
+//       }
+//       let moduleName = null;
 
-      for (const module of modulesObject) {
-          if (module.module_code === md) {
-              moduleName = module.module_name;
-              break;
-          }
-      }
-      res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
-    });
-});
+//       for (const module of modulesObject) {
+//           if (module.module_code === md) {
+//               moduleName = module.module_name;
+//               break;
+//           }
+//       }
+//       res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
+//     });
+// });
 
-// Get the active classes (inactive)
-app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
-  var inst = req.params.inst;
-  var crs = req.params.crs;
-  var yr = req.params.yr;
-  var md = req.params.md;
-    getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-      if (err) {
-        res.status(500);
-        res.send("Error")
-        console.log("Error in getModuleList", err);
-        return;
-      }
-      let moduleName = null;
+// // Get the active classes (inactive)
+// app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
+//   var inst = req.params.inst;
+//   var crs = req.params.crs;
+//   var yr = req.params.yr;
+//   var md = req.params.md;
+//     getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
+//       if (err) {
+//         res.status(500);
+//         res.send("Error")
+//         console.log("Error in getModuleList", err);
+//         return;
+//       }
+//       let moduleName = null;
 
-      for (const module of modulesObject) {
-          if (module.module_code === md) {
-              moduleName = module.module_name;
-              break;
-          }
-      }
-      res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
-    });
-});
+//       for (const module of modulesObject) {
+//           if (module.module_code === md) {
+//               moduleName = module.module_name;
+//               break;
+//           }
+//       }
+//       res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
+//     });
+// });
 
-// Generate submission form
+// Generate submission form (Legacy)
 // Creates the code submission form for a given, institution (inst), course (crs) and year (yr)
 app.get('/api/app/form/:inst/:crs/:yr', function (req, res) {
   var inst = req.params.inst;
   var crs = req.params.crs;
   var yr = req.params.yr;
   
-  if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
+  if ((inst == "yrk"&&crs=="cs"&&yr=="2") || (inst == "test"&&crs=="test_course"&&yr=="0")) {
 
     tibl.webGen(true, false, inst, crs, yr, req, res, () => {
 
