@@ -2,11 +2,11 @@ app.get('/auth/discord',async(req,res)=>{
     const code=req.query.code;
     const params = new URLSearchParams();
     let user;
-    params.append('client_id', "1177248016638431314");
-    params.append('client_secret', "Z62j16-Lg5MxLKxgACLAU218k6HzwCAp");
+    params.append('client_id', "");
+    params.append('client_secret', "");
     params.append('grant_type', 'authorization_code');
     params.append('code', code);
-    params.append('redirect_uri', "https://rejectdopamine.com/auth/discord");
+    params.append('redirect_uri', "https://.com/auth/discord");
     try{
         const response=await axios.post('https://discord.com/api/oauth2/token',params)
         const { access_token,token_type}=response.data;

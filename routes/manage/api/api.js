@@ -1,6 +1,7 @@
 const express = require('express')
 var db = require('../../../database');
 var app = express.Router();
+var secureRoute = require('../../secure');
 
 // Code Log API router
 var codeLogAPIRouter = require('./code-log-api');
@@ -11,6 +12,9 @@ var requestLogAPIRouter = require('./request-log-api');
 // Users API router
 var userAPIRouter = require('./users-api');
 
+// AutoCheckin API router
+var autocheckinAPIRouter = require('./autocheckin-api');
+
 // Handle code log API
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/code-log/")) {
@@ -19,6 +23,14 @@ app.use((req, res, next) => {
         next();
     }
 });
+
+// SYSOP AUTH CHECK
+// Prevent standard moderators from accessing all management apis
+app.use((req, res, next) => {
+    secureRoute.auth("sysop", req, res, () => {
+        next()
+      });
+})
 
 // Handle request log API
 app.use((req, res, next) => {
@@ -33,6 +45,15 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/users/")) {
         return userAPIRouter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+// Handle autocheckin API
+app.use((req, res, next) => {
+    if (req.url.startsWith("/manage/api/autocheckin/")) {
+        return autocheckinAPIRouter(req, res, next);
     } else {
         next();
     }

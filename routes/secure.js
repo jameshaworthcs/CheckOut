@@ -211,7 +211,7 @@ const securityCheck = async (req, res, next) => {
 
     // Check if outside hours OR christmas, provided user is not a sysop
     if (((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') && req.userState != "sysop") {
-      const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api', '/settings'];
+      const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api', '/settings', '/data'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
         const permsResults = await checkPermissions(req.userState);
@@ -279,11 +279,16 @@ function auth(service, req, res, next) {
             return res.render("autocheckin/waitlist.ejs");
           } else if (req.url.startsWith("/auto")) {
             msg = 'Sign in to use AutoCheckin.';
-          } else if (req.url.startsWith("/admin") || req.url.startsWith("/tklog") || req.url.startsWith("/analytics")) {
+          } else if (req.url.startsWith("/manage")) {
             msg = 'Sign in to access admin features.';
           } else {
             msg = 'Sign in with your .ac.uk email to save your history, personalize CheckOut and use AutoCheckin.';
           }
+        } else if (req.userState.includes('moderator') && service === 'sysop' && req.url.startsWith("/manage")) {
+          // Handle management area moderator limitations
+          msg = `Your moderator account (<i>${req.useremail}</i>) cannot access this area of the management tools. <a href='/manage'>Click here</a> to return to the management menu.`
+          res.status(403);
+          return res.render('notices/generic-msg.ejs', { msgTitle: "Access not allowed", msgBody: msg, username: req.username })
         } else {
           msg = `Your account, <i>${req.useremail}</i>, does not have the required permissions (${service}). Login to a different account with the correct permissions below or view your <a href='/account'>account</a>`;
         }

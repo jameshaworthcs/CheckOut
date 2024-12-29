@@ -1,5 +1,6 @@
 const express = require('express')
 var app = express.Router();
+var secureRoute = require('../secure');
 
 // API management router
 var apiManageRouter = require('./api/api');
@@ -15,12 +16,24 @@ app.use((req, res, next) => {
 
 // Management home
 app.get('/manage', function (req, res) {
-    res.render('manage/manage-home.ejs', { username: req.username, email: req.useremail })
+    let limitationNotice = false;
+    if (req.userState.includes('moderator')) {
+        limitationNotice = true;
+    }
+    res.render('manage/manage-home.ejs', { username: req.username, email: req.useremail, limitationNotice })
 })
 
 // TK Log view
 app.get('/manage/code-log', function (req, res) {
     res.render('manage/code-log.ejs', { username: req.username, email: req.useremail });
+})
+
+// SYSOP AUTH CHECK
+// Prevent standard moderators from accessing all management features
+app.use((req, res, next) => {
+    secureRoute.auth("sysop", req, res, () => {
+        next()
+      });
 })
 
 // Request Log view
@@ -31,6 +44,16 @@ app.get('/manage/request-log', function (req, res) {
 // Manage users
 app.get('/manage/users', function (req, res) {
     res.render('manage/users.ejs', { username: req.username, email: req.useremail });
+})
+
+// Manage autocheckin
+app.get('/manage/autocheckin', function (req, res) {
+    res.render('manage/autocheckin/autocheckin.ejs', { username: req.username, email: req.useremail });
+})
+
+// Manage autocheckin logs
+app.get('/manage/autocheckin/logs', function (req, res) {
+    res.render('manage/autocheckin/autocheckin-logs.ejs', { username: req.username, email: req.useremail });
 })
 
 app.get('*', function (req, res) {

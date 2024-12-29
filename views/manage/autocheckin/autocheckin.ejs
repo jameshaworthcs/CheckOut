@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../global/head'); %>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="" />
+        <title>Manage AutoCheckin - CheckOut</title>
+
+<style>
+.autochecker-table {
+    width: 100%;
+    min-width: 800px;
+    margin: 2rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+    border-radius: 8px;
+    background: linear-gradient(to right, var(--bs-body-bg) 30%, transparent),
+                linear-gradient(to left, var(--bs-body-bg) 30%, transparent) 100% 0;
+    background-size: 50px 100%, 50px 100%;
+    background-repeat: no-repeat;
+    background-attachment: local, local;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bs-body-bg);
+}
+
+td, th {
+    padding: 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.user-info {
+    min-width: 200px;
+}
+
+.user-id {
+    color: var(--bs-secondary);
+    font-size: 0.85rem;
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: var(--bs-secondary);
+}
+
+.user-name {
+    font-weight: 500;
+    color: var(--bs-body-color);
+}
+
+.status-cell {
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.timestamp {
+    color: var(--bs-secondary);
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 2px solid var(--bs-border-color);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+}
+
+.action-btn:hover {
+    background: var(--bs-primary);
+    color: var(--bs-emphasis-color);
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.25);
+    font-weight: 600;
+}
+
+.action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.15);
+}
+
+.action-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+
+.action-btn.disabled:hover {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    border-color: var(--bs-border-color);
+    transform: none;
+    box-shadow: none;
+}
+
+.filters-container {
+    margin: 1rem 0;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 1.5rem;
+    background: var(--bs-secondary-bg);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.filter-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: all 0.2s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    padding-top: 0px;
+}
+
+.pagination-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 6px;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    cursor: pointer;
+    min-width: 42px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--bs-primary);
+    color: var(--bs-emphasis-color);
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.pagination-btn.active {
+    background: var(--bs-primary);
+    color: var(--bs-emphasis-color);
+    border-color: var(--bs-primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bs-secondary-bg);
+}
+
+.pagination-btn.arrow {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    background: var(--bs-secondary-bg);
+}
+
+.container {
+    padding: 2rem 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .filters-container {
+        padding: 1rem;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+    <%- include('../../global/navbar'); %>
+
+    <div class="container">
+        <div class="filters-container">
+            <input type="text" id="nameFilter" class="filter-input" placeholder="Filter by name...">
+            <input type="text" id="emailFilter" class="filter-input" placeholder="Filter by email...">
+        </div>
+        
+        <div class="table-container">
+            <div class="autochecker-table">
+                <table id="autocheckers-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Status</th>
+                            <th>Last Report</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="autocheckers-body"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="pagination-container" id="pagination">
+            <!-- Pagination will be populated by JavaScript -->
+        </div>
+    </div>
+
+<script>
+let allData = [];
+const ITEMS_PER_PAGE = 10;
+let currentPage = 1;
+
+async function loadAutoCheckers() {
+    try {
+        const response = await fetch('/manage/api/autocheckin/autocheckers');
+        allData = await response.json();
+        applyFiltersAndUpdate();
+    } catch (error) {
+        console.error('Error loading autocheckers:', error);
+    }
+}
+
+function applyFiltersAndUpdate() {
+    const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
+    const emailFilter = document.getElementById('emailFilter').value.toLowerCase();
+    
+    const filteredData = allData.filter(checker => {
+        const nameMatch = checker.fullName.toLowerCase().includes(nameFilter);
+        const emailMatch = checker.email.toLowerCase().includes(emailFilter);
+        return nameMatch && emailMatch;
+    });
+
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedData = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    
+    updateTable(paginatedData);
+    updatePagination(totalPages);
+}
+
+function updateTable(data) {
+    const tbody = document.getElementById('autocheckers-body');
+    tbody.innerHTML = '';
+    
+    data.forEach(checker => {
+        const statusEmoji = getStatusEmoji(checker.checkinReport);
+        const formattedDate = formatDate(checker.checkinReportTime);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="user-info">
+                <div class="user-name">${checker.fullName} <span class="user-id">#${checker.id}</span></div>
+                <div class="user-email">${checker.email}</div>
+            </td>
+            <td class="status-cell">
+                ${statusEmoji}
+            </td>
+            <td>
+                <span class="timestamp">${formattedDate}</span>
+            </td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn refresh-btn">Refresh session</button>
+                    <button class="action-btn ${checker.checkinstate === 0 ? 'enable-btn' : 'disable-btn'}">
+                        ${checker.checkinstate === 0 ? 'Enable' : 'Disable'}
+                    </button>
+                    <a href="/manage/autocheckin/logs?email=${encodeURIComponent(checker.email)}" 
+                       target="_blank" 
+                       class="action-btn">Show logs</a>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function updatePagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    
+    // Always show Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn arrow';
+    prevBtn.textContent = '←';
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            applyFiltersAndUpdate();
+        }
+    };
+    pagination.appendChild(prevBtn);
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `pagination-btn ${currentPage === i ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => {
+            currentPage = i;
+            applyFiltersAndUpdate();
+        };
+        pagination.appendChild(pageBtn);
+    }
+    
+    // Always show Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn arrow';
+    nextBtn.textContent = '→';
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            applyFiltersAndUpdate();
+        }
+    };
+    pagination.appendChild(nextBtn);
+    
+    // If no pages, show disabled buttons
+    if (totalPages === 0) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        
+        // Add a disabled "1" button
+        const emptyBtn = document.createElement('button');
+        emptyBtn.className = 'pagination-btn active';
+        emptyBtn.textContent = '1';
+        emptyBtn.disabled = true;
+        pagination.appendChild(emptyBtn);
+    }
+}
+
+function getStatusEmoji(status) {
+    switch(status) {
+        case 'Fail': return '❌';
+        case 'Waitlist': return '⏳';
+        case 'Normal': return '✅';
+        case 'Disabled': return '⚫';
+        default: return '❓';
+    }
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Event listeners for filters
+document.getElementById('nameFilter').addEventListener('input', () => {
+    currentPage = 1; // Reset to first page when filtering
+    applyFiltersAndUpdate();
+});
+
+document.getElementById('emailFilter').addEventListener('input', () => {
+    currentPage = 1; // Reset to first page when filtering
+    applyFiltersAndUpdate();
+});
+
+// Initial load
+document.addEventListener('DOMContentLoaded', loadAutoCheckers);
+</script>
+    
+            
+</body>
+
+</html>
