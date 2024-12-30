@@ -102,7 +102,7 @@ function submitcode(req, res, callback) { // Define function to submit code
     var codeState = '1';
     var codeDesc = '';
     var visState = '1';
-    var source = 'Web/App';
+    var source = 'SubmitAPI';
     //console.log("module code", moduleCode)
     // if (!validModuleCodes.includes(moduleCode)) {
     //   moduleCode = 'dontwork';

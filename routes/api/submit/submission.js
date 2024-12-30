@@ -55,7 +55,7 @@ async function submitCode(submissionData) {
         let codeState = '1';
         let codeDesc = '';
         const visState = '1';
-        const source = 'Web/App';
+        const source = 'Webform';
         let blockRepeat = 'normal';
         let userMsg = '';
         const verifiedInfo = JSON.stringify({});
