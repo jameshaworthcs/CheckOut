@@ -321,15 +321,20 @@ function updateTable(data) {
             </td>
             <td>
                 <div class="action-buttons">
-                    <button class="action-btn refresh-btn">Refresh session</button>
-                    <button class="action-btn ${(checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'grant-btn' : 
+                    ${(checker.checkinstate === 1 ? '<button class="action-btn refresh-btn">Refresh session</button>' : '')}
+                    <button class="action-btn ${(checker.autoAccess === true && checker.checkinReport === 'Waitlist') ? 'resend-btn' : 
+                        (checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'grant-btn' : 
                         (checker.checkinstate === 0 ? 'enable-btn' : 'disable-btn')}">
-                        ${(checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'Grant access' : 
+                        ${(checker.autoAccess === true && checker.checkinReport === 'Waitlist') ? 'Resend invitation' :
+                        (checker.autoAccess === false && checker.checkinReport === 'Waitlist') ? 'Grant access' : 
                         (checker.checkinstate === 0 ? 'Enable' : 'Disable')}
                     </button>
                     <a href="/manage/autocheckin/logs?email=${encodeURIComponent(checker.email)}" 
                        target="_blank" 
-                       class="action-btn">Show logs</a>
+                       class="action-btn">Logs</a>
+                    <a href="/manage/autocheckin/dashboard?email=${encodeURIComponent(checker.email)}" 
+                       target="_blank" 
+                       class="action-btn">Dashboard</a>
                 </div>
             </td>
         `;

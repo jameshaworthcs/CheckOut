@@ -7,8 +7,8 @@ app.get('/manage/api/autocheckin/autocheckers', async (req, res) => {
     try {
 
         let sql = `SELECT id, email, checkintoken, checkinstate, fullName, checkinReport, checkinReportTime, userstate 
-        FROM users 
-        WHERE checkinstate = 1 OR checkinReport = 'Waitlist' OR userstate LIKE '%autocheckin%'`;
+        FROM users`;
+        //WHERE checkinstate = 1 OR checkinReport = 'Waitlist' OR userstate LIKE '%autocheckin%'`;
 
         const [rows] = await db2.query(sql);
         console.log(secureRoute.checkPermissions('sysop'))
