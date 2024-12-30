@@ -515,7 +515,7 @@ app.use((req, res, next) => {
           minifyJS: true,
         });
 
-        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
         return this.send(finalHtml); // Send minified HTML without caching
       }
 
@@ -539,7 +539,7 @@ app.use((req, res, next) => {
           });
 
           // Add the copyright comment before the minified HTML
-          const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+          const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
 
           // Store the minified HTML in Redis with a TTL
           await redisClientCache.set(hash, finalHtml, 'EX', TTL);
@@ -560,7 +560,7 @@ app.use((req, res, next) => {
           minifyJS: true,
         });
 
-        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2024. #${hash} -->\n\n${minifiedHtml}`;
+        const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
         this.send(finalHtml);
       }
     });
