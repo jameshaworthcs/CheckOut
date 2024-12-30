@@ -270,7 +270,16 @@ async function loadAutoCheckers() {
             const priorityA = priorityOrder[a.checkinReport] ?? 3;
             const priorityB = priorityOrder[b.checkinReport] ?? 3;
             
-            return priorityA - priorityB;
+            // First sort by checkinReport priority
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB;
+            }
+            
+            // Within same priority, sort york.ac.uk emails first
+            const isYorkA = a.email?.toLowerCase().endsWith('york.ac.uk') ?? false;
+            const isYorkB = b.email?.toLowerCase().endsWith('york.ac.uk') ?? false;
+            
+            return isYorkB - isYorkA; // true = 1, false = 0, so york emails come first
         });
         applyFiltersAndUpdate();
     } catch (error) {
