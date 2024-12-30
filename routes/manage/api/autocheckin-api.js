@@ -3,6 +3,7 @@ var db2 = require('../../../database-v2');
 var app = express.Router();
 const secureRoute = require('../../secure');
 
+// Get all users and their AutoCheckin info
 app.get('/manage/api/autocheckin/autocheckers', async (req, res) => {
     try {
 

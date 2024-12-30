@@ -2510,7 +2510,111 @@
           }
         }
       }
+    },
+    "/manage/api/autocheckin/autocheckers": {
+    "get": {
+      "tags": ["Manage"],
+      "summary": "Get all users and their AutoCheckin info",
+      "description": "Retrieves a list of all users along with their AutoCheckin information, including an autoAccess flag based on permissions.",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "AutoCheckin user information retrieved successfully",
+          "content": {
+            "application/json": {
+              "example": [
+                {
+                  "id": 1,
+                  "email": "local@checkout.ac.uk",
+                  "checkintoken": "",
+                  "checkinstate": 1,
+                  "fullName": "local",
+                  "checkinReport": "Fail",
+                  "checkinReportTime": "2024-12-30T11:38:38.000Z",
+                  "userstate": "sysop",
+                  "autoAccess": true
+                }
+              ]
+            }
+          }
+        },
+        "500": {
+          "description": "Server error",
+          "content": {
+            "application/json": {
+              "example": {
+                "error": "Failed to fetch users"
+              }
+            }
+          }
+        }
+      }
     }
+  },
+  "/manage/api/autocheckin/logs": {
+    "get": {
+      "tags": ["Manage"],
+      "summary": "Get AutoCheckin logs for a specific email",
+      "description": "Retrieves AutoCheckin logs for a given email, sorted by timestamp in descending order.",
+      "parameters": [
+        {
+          "name": "email",
+          "in": "query",
+          "required": true,
+          "description": "The email address for which to fetch AutoCheckin logs.",
+          "schema": {
+            "type": "string",
+            "example": "local@checkout.ac.uk"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "AutoCheckin logs retrieved successfully",
+          "content": {
+            "application/json": {
+              "example": [
+                {
+                  "logID": 62707,
+                  "email": "local@checkout.ac.uk",
+                  "state": "Normal",
+                  "message": "Example",
+                  "timestamp": "2024-12-30T11:38:38.000Z"
+                },
+                {
+                  "logID": 62706,
+                  "email": "local@checkout.ac.uk",
+                  "state": "Checkin",
+                  "message": "Example",
+                  "timestamp": "2024-12-30T11:18:29.000Z"
+                }
+              ]
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request",
+          "content": {
+            "application/json": {
+              "example": {
+                "error": "Email parameter is required"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Server error",
+          "content": {
+            "application/json": {
+              "example": {
+                "error": "Failed to fetch autocheckin logs"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   },
   "components": {
     "schemas": {
