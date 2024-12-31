@@ -42,6 +42,10 @@ function setup(refreshSubmit = true) {
     getV2().then(data => {
         const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
         const username = userInfo.username; // Extract the username here
+        const autoInfo = userInfo.autoInfo || 'skip';
+        if (autoInfo != 'skip') {
+            fillAutoLink(autoInfo);
+        }
         fillUsername(username);
         if (refreshSubmit) {
             if (tibl) {
@@ -235,6 +239,47 @@ function fillUsername(username, shouldStore = true) {
     // Save to localStorage only if shouldStore is true
     if (shouldStore) {
         localStorage.setItem('username', username);
+    }
+}
+
+///////////////////
+// Fill autoInfo //
+///////////////////
+
+// Initial check for stored username
+const storedAutoInfo = localStorage.getItem('autoInfo');
+if (storedAutoInfo) {
+    // If autoInfo exists in localStorage, call function without updating storage
+    fillAutoLink(storedAutoInfo, false);
+} 
+
+function fillAutoLink(autoInfo, shouldStore = true) {
+    // Find the span element by its ID
+    const autoInfoSpan = document.getElementById('autoInfoText');
+    
+    // Replace the span text based on autoInfo
+    if (autoInfoSpan) {
+        autoInfoSpan.textContent = autoInfo === 'join-waitlist' ? 'Join AutoCheckin Waitlist'
+            : autoInfo === 'on-waitlist' ? 'View Waitlist status'
+            : autoInfo === 'setup-needed' ? 'Setup AutoCheckin!'
+            : autoInfo === 'error' ? 'View AutoCheckin Error'
+            : autoInfo === 'normal' ? 'AutoCheckin dashboard'
+            : 'Learn about AutoCheckin';
+            
+        // Display notice if there's an error
+        if (autoInfo === 'error') {
+            displayNotice(
+                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?auto=true">contact support</a>.', 
+                'error', 
+                'AutoCheckin Error', 
+                0
+            );
+        }
+    }
+    
+    // Save to localStorage only if shouldStore is true
+    if (shouldStore) {
+        localStorage.setItem('autoInfo', autoInfo);
     }
 }
 
