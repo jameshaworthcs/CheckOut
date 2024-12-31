@@ -65,8 +65,13 @@ const checkPermissions = async (userStates) => {
 // Main security check middleware
 const securityCheck = async (req, res, next) => {
   try {
-    const ip = req.usersIP; // Assuming you get the user's IP from elsewhere
+    const ip = req.usersIP;
     const requestUrl = req.originalUrl;
+    
+    // Fetch permissions once at the start
+    const permissionResults = await checkPermissions(req.userState);
+    const allowedServices = permissionResults.flatMap(result => JSON.parse(result.routes));
+    const isSysop = allowedServices.includes('sysop');
 
     // Check 0.1: Banned user check
     if (req.userState === 'banned') {
@@ -161,12 +166,9 @@ const securityCheck = async (req, res, next) => {
 
     // Check 5: Global Auth Requirement
     if (req.authReq && !excludedPaths.some(path => req.url.startsWith(path))) {
-      const permsResults = await checkPermissions(req.userState);
       const service = 'account';
 
-      if (permsResults.length > 0) {
-        // Combine routes from all permission results
-        const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
+      if (permissionResults.length > 0) {
         if (!allowedServices.some(route => service === route)) {
           let msg;
 
@@ -209,8 +211,7 @@ const securityCheck = async (req, res, next) => {
     const todayEnd = new Date(currentTime);
     todayEnd.setHours(endHour, endMin, 0);
 
-    // Check if outside hours OR christmas, provided user is not a sysop
-    if (((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') && req.userState != "sysop") {
+    if (((req.bedtime === true && (currentTime < todayStart || currentTime > todayEnd)) || req.christmas === '1') && !isSysop) {
       const allowedPaths = [...excludedPaths, '/auto', '/manage', '/account', '/api', '/settings', '/data'];
       
       if (!allowedPaths.some(path => req.url.startsWith(path))) {
