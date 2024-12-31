@@ -49,9 +49,9 @@ async function refreshModuleCache() {
 }
 
 async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
-  const autoInfo = req.checkinState === 0 && req.checkinReport !== 'Waitlist' ? 'join-waitlist'
+  const autoInfo = req.checkinState === 0 && req.userState?.includes('autocheckin') ? 'setup-needed'
+    : req.checkinState === 0 && req.checkinReport !== 'Waitlist' ? 'join-waitlist'
     : req.checkinReport === 'Waitlist' ? 'on-waitlist'
-    : req.checkinState === 0 && req.userState?.includes('autocheckin') ? 'setup-needed'
     : req.checkinReport === 'Fail' ? 'error'
     : 'normal';
   const activeAPI = {
