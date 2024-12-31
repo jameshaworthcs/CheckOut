@@ -77,7 +77,7 @@ const securityCheck = async (req, res, next) => {
     if (!isSysop) {
       if (req.switchSWW === true) {
         const errorCodeSWW = 200;
-        return res.status(errorCodeSWW).render('error-sww.ejs', { 
+        return res.status(errorCodeSWW).render('notices/sww.ejs', { 
           errorCodeSWW, 
           msg: req.webStateMsg, 
           link: req.webStateLink 
