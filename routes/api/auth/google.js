@@ -15,7 +15,7 @@ app.post('/api/auth/google/verify', async (req, res) => {
             audience: CLIENT_ID
         });
         const payload = ticket.getPayload();
-        console.log(payload)
+        //console.log(payload)
         const email = payload['email'];
         const name = payload['name'];
         const shortname = payload['given_name'];

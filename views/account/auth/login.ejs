@@ -493,6 +493,13 @@
                         if (typeof window.endLoadingOverlay === 'function') {
                             window.endLoadingOverlay();
                         }
+                        if (data.newUser === true) {
+                            // Preserve URL parameters when redirecting
+                            const currentParams = new URLSearchParams(window.location.search);
+                            const redirectUrl = '/account/welcome' + (currentParams.toString() ? '?' + currentParams.toString() : '');
+                            window.location.href = redirectUrl;
+                            return;
+                        }
                         location.reload();
                     })
                     .catch(error => {

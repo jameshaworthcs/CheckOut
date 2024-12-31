@@ -90,15 +90,21 @@ app.get('/login', function (req, res) {
 
 // Account homepage
 app.get('/account', async function (req, res) {
-    //const secretToken = req.logintoken;
-    const email = await obscureEmail(req.useremail);
-    res.render("account/account.ejs", { apikey: req.apitoken, email, perms: req.userState, username: req.username, sessionID: req.sessionID});
-  });
+  //const secretToken = req.logintoken;
+  const email = await obscureEmail(req.useremail);
+  res.render("account/account.ejs", { apikey: req.apitoken, email, perms: req.userState, username: req.username, sessionID: req.sessionID});
+});
 
-  // Account welcome email
+// Account welcome email
 app.get('/account/welcome-email', (req, res) => {
   const username = req.username;
   res.render('account/welcome-email', {username, rootDomain: req.rootDomain})
+});
+
+// Account new user welcome 
+app.get('/account/welcome', (req, res) => {
+  const username = req.username;
+  res.render('account/welcome', {username, rootDomain: req.rootDomain})
 });
 
 // Change username

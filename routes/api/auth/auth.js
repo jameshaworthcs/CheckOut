@@ -71,6 +71,7 @@ async function login(req, email, email_verified, name, shortname, avatarURI) {
         let results = await db.query('SELECT id FROM users WHERE email = ?', [email]);
         
         let userId;
+        let newUser = false;
         if (results.length > 0) {
             // User exists
             userId = results[0].id;
@@ -80,7 +81,7 @@ async function login(req, email, email_verified, name, shortname, avatarURI) {
             const userState = 'normal';
             var mysqlTimestamp = moment().tz('UTC').format('YYYY-MM-DD HH:mm:ss');
 
-            const newUser = {
+            const newUserData = {
                 email,
                 code: null,
                 api_token: apiToken,
@@ -96,15 +97,16 @@ async function login(req, email, email_verified, name, shortname, avatarURI) {
 
             };
 
-            results = await db.query('INSERT INTO users SET ?', newUser);
+            results = await db.query('INSERT INTO users SET ?', newUserData);
             userId = results.insertId;
+            newUser = true;
             welcomeEmail(email, shortname, req.rootDomain);
         }
 
         // Set user information in the session
         req.session.user = { id: userId };
 
-        return { success: true, msg: 'User authenticated' };
+        return { success: true, msg: 'User authenticated', newUser };
     } catch (error) {
         console.error(error);
         return { success: false, msg: 'User authentication failed', error: error.message };

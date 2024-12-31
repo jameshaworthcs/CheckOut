@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../global/head'); %>
+        <title>Hi, <%= username %> - CheckOut</title>
+        <style>
+            .container {
+                max-width: 500px;
+                width: 90%;
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .username-form {
+                margin: 2rem 0;
+                position: relative;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .usernname-input {
+                flex: 1;
+                min-width: 200px;
+                padding: 0.8rem;
+                font-size: 1rem;
+                background-color: var(--secondary-background);
+                color: var(--input-text-color);
+                border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+                border-radius: 4px;
+                box-shadow: var(--shadow2);
+                transition: border-color 0.2s;
+            }
+
+            .usernname-input:focus {
+                outline: 1px solid var(--secondary-accent-colour);
+                background-color: var(--input-focus);
+            }
+
+            .info-section {
+                background: var(--content-background);
+                padding: 1.5rem;
+                border-radius: 6px;
+            }
+
+            .info-section ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+            }
+
+            .info-section li {
+                margin: 1rem 0;
+            }
+
+            .username-form .cta-button {
+                height: 100%;
+                white-space: nowrap;
+                align-self: flex-start;
+            }
+
+            .status-message {
+                padding: 0.8rem 1.2rem;
+                margin: 1rem auto;
+                border-radius: 4px;
+                font-weight: 550;
+                display: inline-block;
+            }
+
+            .status-message.error {
+                background-color: var(--submit-fail-background);
+                color: var(--submit-fail-colour);
+            }
+
+            .status-message.success {
+                background-color: var(--submit-success-background);
+                color: var(--submit-success-colour);
+            }
+
+            .return-link {
+                display: block;
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            .message-container {
+                text-align: center;
+            }
+
+            .button-container {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin-top: 1.5rem;
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../global/navbar'); %>
+
+        <div class="container">
+            <h1 class="text-center">Hi, <%= username %></h1>
+            <p class="text-center">Make the most of your CheckOut account</p>
+
+            <!-- <div class="message-container">
+                <div id="statusMessage" style="display: none;" class="status-message"></div>
+                <a href="/" id="returnLink" class="return-link" style="display: none;">Return to Account</a>
+            </div> -->
+
+            <div class="info-section">
+                <h3 class="text-center">With your new account you can:</h3>
+                <ul>
+                    <li>Join the <a href="/auto">AutoCheckin Waitlist</a>,</li>
+                    <li>Build a repuation score from <a href="/">submitting codes</a>,</li>
+                    <li>Personalise the site, <a href="/account/change-username">change your username</a>,</li>
+                    <li>and more features are being added constantly..</li>
+                </ul>
+                <div class="button-container">
+                    <a id="continueButton" href="/login"><button style="height: 48.6px;" type="submit" class="cta-button">Continue</button></a>
+                    <script>
+                        const currentParams = new URLSearchParams(window.location.search);
+                        document.getElementById('continueButton').href = currentParams.toString() ? `/login?${currentParams.toString()}` : '/login';
+                    </script>
+                    <a href="/account/change-username"><button style="height: 48.6px;" type="submit" class="cta-button cta-button-main">Change Username</button></a>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>
