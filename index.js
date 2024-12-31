@@ -621,6 +621,12 @@ function isCKAuthenticated(req, res, next) {
   // }
 }
 
+// (kind of) Always allow access to app state
+app.get('/api/app/state', async function (req, res) {
+  let result = await appStatus(req);
+  res.json(result);
+});
+
 // Security check
 app.use(secureRoute.securityCheck);
 
@@ -630,25 +636,6 @@ app.use(express.static('public', {
   extensions: ['html', 'htm'],
   dotfiles: 'allow',
 }));
-
-// (kind of) Always allow access to app state
-app.get('/api/app/state', async function (req, res) {
-  let result = await appStatus(req);
-  res.json(result);
-});
-
-// webstate and boycott Global switch
-app.use((req, res, next) => {
-  if (req.switchSWW == true) {
-    var errorCodeSWW = 200
-    res.status(errorCodeSWW)
-    res.render('error-sww.ejs', { errorCodeSWW, msg: req.webStateMsg, link: req.webStateLink })
-  } else if (req.boycottState == true) {
-    res.render('boycott.ejs', { boycottMsg: req.boycottMsg, boycottLink: req.boycottLink })
-  } else {
-    next();
-  }
-});
 
 app.get('/sysHide', isCKAuthenticated, function (req, res) { // Mod-Block Submission
   secureRoute.auth("mod", req, res, () => {

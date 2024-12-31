@@ -73,6 +73,25 @@ const securityCheck = async (req, res, next) => {
     const allowedServices = permissionResults.flatMap(result => JSON.parse(result.routes));
     const isSysop = allowedServices.includes('sysop');
 
+    // Check 0: Webstate and Boycott checks
+    if (!isSysop) {
+      if (req.switchSWW === true) {
+        const errorCodeSWW = 200;
+        return res.status(errorCodeSWW).render('error-sww.ejs', { 
+          errorCodeSWW, 
+          msg: req.webStateMsg, 
+          link: req.webStateLink 
+        });
+      } 
+      
+      if (req.boycottState === true) {
+        return res.render('boycott.ejs', { 
+          boycottMsg: req.boycottMsg, 
+          boycottLink: req.boycottLink 
+        });
+      }
+    }
+
     // Check 0.1: Banned user check
     if (req.userState === 'banned') {
       if (!requestUrl.startsWith("/api/app/")) {

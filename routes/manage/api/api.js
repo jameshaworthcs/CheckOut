@@ -15,6 +15,8 @@ var userAPIRouter = require('./users-api');
 // AutoCheckin API router
 var autocheckinAPIRouter = require('./autocheckin-api');
 
+var globalAppAPIRouter = require('./globalapp-api');
+
 // Handle code log API
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/code-log/")) {
@@ -54,6 +56,15 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/autocheckin/")) {
         return autocheckinAPIRouter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+// Handle globalapp API
+app.use((req, res, next) => {
+    if (req.url.startsWith("/manage/api/globalapp/")) {
+        return globalAppAPIRouter(req, res, next);
     } else {
         next();
     }

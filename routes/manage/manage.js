@@ -56,6 +56,11 @@ app.get('/manage/autocheckin/logs', function (req, res) {
     res.render('manage/autocheckin/autocheckin-logs.ejs', { username: req.username, email: req.useremail });
 })
 
+// Manage globalapp
+app.get('/manage/globalapp', function (req, res) {
+    res.render('manage/globalapp/globalapp.ejs', { username: req.username, email: req.useremail });
+})
+
 app.get('*', function (req, res) {
     res.status(404);
     res.render('notices/generic-msg.ejs', { msgTitle: "404 Not found", msgBody: "Management page not found. Return to <a href='/manage'>management homepage</a>.", username: req.username })
