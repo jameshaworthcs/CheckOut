@@ -255,7 +255,7 @@ function hideNotice() {
 document.addEventListener('DOMContentLoaded', function() {
     const tooltip = document.getElementById('darkTooltip');
     
-    if (tooltip) {
+    if (tooltip && false) { // disable tooltip
         // Check if user prefers dark mode
         const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
