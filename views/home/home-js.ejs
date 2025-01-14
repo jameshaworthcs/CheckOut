@@ -768,13 +768,24 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
 
             const closeButton = document.createElement('span');
             closeButton.className = 'close';
-            closeButton.innerHTML = '&times;<br><p class="activityModal-esc">[ESC]</p>';
-            closeButton.addEventListener('click', () => closeActivityModal(session.rejectID));
+
+            // First create the ESC text element
+            const escText = document.createElement('p');
+            escText.className = 'activityModal-esc';
+            escText.textContent = '[ESC]';
+
+            // Add the X symbol and the ESC text
+            closeButton.textContent = '×';  // Using × symbol instead of &times;
+            closeButton.appendChild(document.createElement('br'));
+            closeButton.appendChild(escText);
+
+            // Add onclick handler directly
+            closeButton.setAttribute('onclick', `closeActivityModal('${session.rejectID}')`);
 
             const modalHeader = document.createElement('h2');
             modalHeader.innerHTML = `<i>${session.description}</i> details`;
 
-            const modalBody = document.createElement('div');
+            const modalBody = document.createElement('div');''
             modalBody.className = 'activityModal-body';
 
             const modalTable = document.createElement('div');
