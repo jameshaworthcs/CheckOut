@@ -496,11 +496,15 @@
                         if (data.newUser === true) {
                             // Preserve URL parameters when redirecting
                             const currentParams = new URLSearchParams(window.location.search);
+                            currentParams.set('tid', Date.now()); // Add timestamp
                             const redirectUrl = '/account/welcome' + (currentParams.toString() ? '?' + currentParams.toString() : '');
                             window.location.href = redirectUrl;
                             return;
                         }
-                        location.reload();
+                        // Handle existing query params for reload
+                        const currentParams = new URLSearchParams(window.location.search);
+                        currentParams.set('tid', Date.now());
+                        window.location.href = window.location.pathname + '?' + currentParams.toString();
                     })
                     .catch(error => {
                         console.error('Error:', error.message);
