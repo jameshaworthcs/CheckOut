@@ -30,6 +30,9 @@ const connection = {
   escape: function(...args) {
     return pool.escape(...args);
   },
+  escapeId: function(...args) {
+    return mysql.escapeId(...args);
+  },
   format: function(...args) {
     return mysql.format(...args);
   },
