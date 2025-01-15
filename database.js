@@ -1,54 +1,42 @@
 var mysql = require('mysql');
 
-// Flag to track database connection status
-let isConnected = false;
-
-const connection = mysql.createConnection({
+// Create a connection pool instead of a single connection
+const pool = mysql.createPool({
   host     : process.env.DB_HOST,
   user     : process.env.DB_USER,
   password : process.env.DB_PASSWORD,
   database : process.env.DB_NAME,
-  charset  : 'utf8mb4'
+  charset  : 'utf8mb4',
+  connectionLimit: 10,
+  waitForConnections: true,
+  queueLimit: 0
 });
 
-// Wrap query method to check connection status
-const originalQuery = connection.query.bind(connection);
-connection.query = function(...args) {
-  if (!isConnected) {
-    const callback = args[args.length - 1];
-    if (typeof callback === 'function') {
-      callback(new Error('Database connection is not available'));
-    }
-    return;
+// Handle pool errors
+pool.on('error', function(err) {
+  console.error('Database pool error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('Lost connection to database. Pool will automatically handle reconnection.');
+  } else {
+    console.error('Unexpected pool error:', err);
   }
-  return originalQuery(...args);
+});
+
+// Create a connection-like object that uses the pool internally
+const connection = {
+  query: function(...args) {
+    return pool.query(...args);
+  },
+  escape: function(...args) {
+    return pool.escape(...args);
+  },
+  format: function(...args) {
+    return mysql.format(...args);
+  },
+  end: function(callback) {
+    return pool.end(callback);
+  }
 };
 
-connection.connect(function(err) {
-  if (err) {
-    console.error("MySQL error when connecting checkout to local sql:", err);
-    isConnected = false;
-    // Add reconnection attempt
-    setTimeout(() => {
-      console.log('Attempting to reconnect to database...');
-      connection.connect();
-    }, 5000);
-    return;
-  }
-  isConnected = true;
-  console.log('CheckOut Database is connected successfully!');
-});
-
-// Add connection error handler
-connection.on('error', function(err) {
-  console.error('Database error:', err);
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    isConnected = false;
-    console.log('Lost connection to database, attempting to reconnect...');
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
-
+// For backwards compatibility
 module.exports = connection;
