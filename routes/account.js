@@ -118,5 +118,9 @@ app.get('/account/change-email', function (req, res) {
   res.render('notices/generic-msg.ejs', { msgTitle: "Change email", msgBody: "To change the email on your account please <a href='/learn-faq'>contact an admin</a>. <a href='/account'>Return to account.</a>", username: req.username })
 });
 
+// Permissions page
+app.get('/account/permissions', function (req, res) {
+  res.render('account/permissions.ejs', { username: req.username, userState: req.userState });
+});
 
 module.exports = app;

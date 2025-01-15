@@ -119,6 +119,41 @@ app.post('/api/account/waitlist', (req, res) => {
     });
 });
 
+// Get permissions data
+app.get('/api/account/permissions', async (req, res) => {
+    try {
+        // Get all permissions first
+        const [result] = await Promise.all([
+            new Promise((resolve, reject) => {
+                db.query('SELECT userstate, routes, permid, ratelimit FROM perms', (err, result) => {
+                    if (err) reject(err);
+                    resolve(result);
+                });
+            })
+        ]);
+
+        // Calculate inherited routes for the current user
+        const userStates = req.userState.split(',').map(state => state.trim());
+        const userPerms = result.filter(perm => userStates.includes(perm.userstate));
+        const inheritedRoutes = userPerms.flatMap(perm => JSON.parse(perm.routes));
+        const uniqueInheritedRoutes = [...new Set(inheritedRoutes)];
+
+        // Calculate highest rate limit from user's permission levels
+        const highestRateLimit = Math.max(...userPerms.map(perm => perm.ratelimit));
+
+        res.json({ 
+            success: true, 
+            permissions: result,
+            userStates,
+            inheritedRoutes: uniqueInheritedRoutes,
+            highestRateLimit
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, msg: 'Failed to fetch permissions data' });
+    }
+});
+
 app.get('*', function (req, res) {
     res.status(404);
     res.json({ 'success': false, msg: 'Not a valid endpoint. (account-api)' });
