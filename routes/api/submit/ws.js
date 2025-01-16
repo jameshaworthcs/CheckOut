@@ -1,5 +1,5 @@
 const express = require('express');
-const server = require('../../../index.ts'); // Updated to use .ts extension
+const server = require('../../../index'); // Updated to use .ts extension
 
 var app = express.Router();
 
