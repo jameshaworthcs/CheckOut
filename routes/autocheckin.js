@@ -51,49 +51,51 @@ function autoCheckin(email, session, codes) {
 function fetchAutoCheckers(emails = [], codes = [], instant = false) {
   //console.log("Running autocheckers", emails, codes, "Instant:", instant)
   // Add error handling and connection check
-  if (db.state !== 'authenticated') {
-    console.error('Database connection not available, retrying in 5 seconds...');
-    setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
-    return;
-  }
-
-  db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
+  db.query('SELECT 1', (err) => {
     if (err) {
-      console.error('[AUTO] Database query error:', err);
+      console.error('Database connection not available, retrying in 5 seconds...');
+      setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
       return;
     }
-    
-    // Convert result to array and shuffle it
-    let users = [...result];
-    users.sort(() => Math.random() - 0.5);
-    
-    users.forEach((user, index) => {
-      if (instant) {
-        // Instant processing without delays
-        if (emails.length > 0) {
-          if (emails.includes(user.email)) {
+
+    db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
+      if (err) {
+        console.error('[AUTO] Database query error:', err);
+        return;
+      }
+      
+      // Convert result to array and shuffle it
+      let users = [...result];
+      users.sort(() => Math.random() - 0.5);
+      
+      users.forEach((user, index) => {
+        if (instant) {
+          // Instant processing without delays
+          if (emails.length > 0) {
+            if (emails.includes(user.email)) {
+              console.log(`[AUTO] Instantly processing ${user.email}`);
+              autoCheckin(user.email, user.checkintoken, codes);
+            }
+          } else {
             console.log(`[AUTO] Instantly processing ${user.email}`);
             autoCheckin(user.email, user.checkintoken, codes);
           }
         } else {
-          console.log(`[AUTO] Instantly processing ${user.email}`);
-          autoCheckin(user.email, user.checkintoken, codes);
-        }
-      } else {
-        // Delayed processing with random intervals between 0-600000 milliseconds (0-10 minutes)
-        const randomDelay = Math.floor(Math.random() * 600000); // Random 0-600000 milliseconds
-        setTimeout(() => {
-          if (emails.length > 0) {
-            if (emails.includes(user.email)) {
+          // Delayed processing with random intervals between 0-600000 milliseconds (0-10 minutes)
+          const randomDelay = Math.floor(Math.random() * 600000); // Random 0-600000 milliseconds
+          setTimeout(() => {
+            if (emails.length > 0) {
+              if (emails.includes(user.email)) {
+                console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
+                autoCheckin(user.email, user.checkintoken, codes);
+              }
+            } else {
               console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
               autoCheckin(user.email, user.checkintoken, codes);
             }
-          } else {
-            console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
-            autoCheckin(user.email, user.checkintoken, codes);
-          }
-        }, randomDelay);
-      }
+          }, randomDelay);
+        }
+      });
     });
   });
 }
