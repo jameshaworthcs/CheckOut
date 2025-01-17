@@ -53,22 +53,37 @@ function showLoadingOverlay(duration) {
 // Use skeleton instead for less intrusive initial load
 //showLoadingOverlay(300);
 
-function fetchDataAndRender() {
-    //JsLoadingOverlay.show();
-    fetch('/api/app/history')
+let currentOffset = 0;
+const ITEMS_PER_PAGE = 10;
+
+function fetchDataAndRender(append = false) {
+    if (!append) {
+        currentOffset = 0;
+    }
+
+    fetch(`/api/history/history?limit=${ITEMS_PER_PAGE}&offset=${currentOffset}`)
       .then(response => response.json())
       .then(data => {
         const pastCodes = data.pastCodes;
         const stats = data.stats;
+        const pagination = data.pagination;
         const container = document.getElementById('activeClasses');
         const ipCount = Object.keys(stats.ipCounts).length;
         const deviceCount = Object.keys(stats.deviceIDCounts).length;
         const userCount = Object.keys(stats.usernameCounts).length;
         const totalCount = stats.totalCount;
 
-        container.innerHTML = `
-            <p>${totalCount} codes found, from ${ipCount} different IP's, ${deviceCount} different deviceID's and ${userCount} different accounts.</p>
-          `;
+        if (!append) {
+            container.innerHTML = `
+                <p>${totalCount} codes found, from ${ipCount} different IP's, ${deviceCount} different deviceID's and ${userCount} different accounts.</p>
+            `;
+        }
+
+        // Remove existing load more button if it exists
+        const existingLoadMore = document.getElementById('load-more-btn');
+        if (existingLoadMore) {
+            existingLoadMore.remove();
+        }
 
         pastCodes.forEach(item => {
           const codeDay = new Date(item.codeDay).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -95,8 +110,21 @@ function fetchDataAndRender() {
             `;
 
           container.appendChild(div);
-          //JsLoadingOverlay.hide();
         });
+
+        // Add load more button if there are more items
+        if (pagination.hasMore) {
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.id = 'load-more-btn';
+            loadMoreBtn.className = 'load-more-button';
+            loadMoreBtn.textContent = 'Load More';
+            loadMoreBtn.onclick = () => {
+                currentOffset += ITEMS_PER_PAGE;
+                fetchDataAndRender(true);
+            };
+            container.appendChild(loadMoreBtn);
+        }
+
         if (typeof window.endLoadingOverlay === 'function') {
             window.endLoadingOverlay();
         }        
@@ -107,7 +135,7 @@ function fetchDataAndRender() {
   }
 
   // Call the function on page load
-  window.onload = fetchDataAndRender;
+  window.onload = () => fetchDataAndRender(false);
 
 
 

@@ -210,4 +210,27 @@
     align-items: center;
     justify-content: center;
 }
+
+.load-more-button {
+    background-color: var(--content-background);
+    color: var(--text-colour);
+    border: var(--box-accent-width) solid var(--accent-colour);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+.load-more-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.load-more-button:active {
+    transform: translateY(0);
+}
   

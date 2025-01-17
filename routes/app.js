@@ -380,120 +380,6 @@ process.on('exit', () => {
 });
 
 
-function getPastCodes(req, res, callback) {
-  try {
-    if (req.userState == 'sysop') {
-      var sqlQuery = `SELECT * FROM codes ORDER BY timestamp DESC;`;
-    } else {
-      var sqlQuery = `SELECT * FROM codes WHERE 
-    (ip = ? OR deviceID = ? OR 
-    (username != 'anon@checkout.ac.uk' AND username != 'guest@checkout.ac.uk' AND username = ?)) ORDER BY timestamp DESC;`;
-    }
-    //console.log(sqlQuery);
-    if (req.sessionID) { var deviceID = req.sessionID; } else {
-      var deviceID = 'null';
-    }
-    const crypto = require('crypto');
-    // Generate a random secret of 64 bytes and convert to hex string
-    const secret = crypto.randomBytes(64).toString('hex');
-
-    // Your existing code to query the database
-    db.query(sqlQuery, [req.usersIP, deviceID, req.useremail], function (err, result) {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-
-      // Count the number of results
-      const totalCount = result.length;
-
-      // Calculate statistics
-      const usernameCounts = {};
-      const ipCounts = {};
-      const deviceIDCounts = {};
-
-      result.forEach(row => {
-        // Hash usernames if not anon or guest
-        if (row.username && row.username !== 'anon@checkout.ac.uk' && row.username !== 'guest@checkout.ac.uk') {
-          const hashedUsername = crypto.createHash('sha256').update(secret + row.username).digest('hex').substring(0, 10);
-          usernameCounts[hashedUsername] = (usernameCounts[hashedUsername] || 0) + 1;
-        } else {
-          usernameCounts[row.username] = (usernameCounts[row.username] || 0) + 1;
-        }
-    
-        // Hash IPs
-        const hashedIp = crypto.createHash('sha256').update(secret + (row.ip || '')).digest('hex').substring(0, 10);
-        ipCounts[hashedIp] = (ipCounts[hashedIp] || 0) + 1;
-    
-        // Hash deviceIDs
-        const hashedDeviceID = crypto.createHash('sha256').update(secret + (row.deviceID || '')).digest('hex').substring(0, 10);
-        deviceIDCounts[hashedDeviceID] = (deviceIDCounts[hashedDeviceID] || 0) + 1;
-      });
-
-      // Iterate over each object in the result array
-      const hashedResult = result.map(row => {
-        // Hash the required fields using SHA-256
-        const hashTimestamp = crypto.createHash('sha256');
-        const hashIp = crypto.createHash('sha256');
-        const hashUseragent = crypto.createHash('sha256');
-        const hashDeviceID = crypto.createHash('sha256');
-        const hashUsername = crypto.createHash('sha256');
-        
-        // Hash IP with secret
-        hashTimestamp.update(secret + (row.timestamp || ''));
-        const hashedTimestamp = hashTimestamp.digest('hex').substring(0, 10); // Take first 10 characters
-
-        // Hash IP with secret
-        hashIp.update(secret + (row.ip || ''));
-        const hashedIp = hashIp.digest('hex').substring(0, 10); // Take first 10 characters
-
-        // Hash useragent with secret
-        hashUseragent.update(secret + (row.useragent || ''));
-        const hashedUseragent = hashUseragent.digest('hex').substring(0, 10); // Take first 10 characters
-
-        // Hash deviceID with secret
-        hashDeviceID.update(secret + (row.deviceID || ''));
-        const hashedDeviceID = hashDeviceID.digest('hex').substring(0, 10); // Take first 10 characters
-
-        // Hash username with secret if not anon or guest
-        let hashedUsername = '';
-        if (row.username && row.username !== 'anon@checkout.ac.uk' && row.username !== 'guest@checkout.ac.uk') {
-          hashUsername.update(secret + row.username);
-          hashedUsername = hashUsername.digest('hex').substring(0, 10); // Take first 10 characters
-        }
-        const hashedCodeID = encrypt(row.codeID)
-        // Update the corresponding fields with the hashed values
-        return {
-          ...row,
-          timestamp: hashedTimestamp,
-          ip: hashedIp,
-          useragent: hashedUseragent,
-          deviceID: hashedDeviceID,
-          username: hashedUsername,
-          codeID: hashedCodeID
-        };
-      });
-
-      // Callback with the updated data including statistics
-      const dataWithStats = {
-        stats: {
-          totalCount,
-          usernameCounts,
-          ipCounts,
-          deviceIDCounts
-        },
-        pastCodes: hashedResult
-      };
-
-      callback(null, dataWithStats);
-    });
-
-  } catch (err) {
-    callback(err, null);
-  }
-}
-
-
 function fetchEverythingData(callback) {
   const query = `
     SELECT DISTINCT
@@ -1614,21 +1500,6 @@ app.get('/api/app/onboarding/ios', function(req,res) {
   res.render("ios-account.ejs");
 })
 
-// Codes History
-// Gets past codes using users username, ip and deviceID
-app.get('/api/app/history', function (req, res) {
-  getPastCodes(req, res, function (err, codesObject) {
-    if (err) {
-      res.status(500);
-      res.send("Error")
-      console.log("Error in globalapp status", err);
-      return;
-    }
-    res.header("Content-Type",'application/json');
-    res.send(JSON.stringify(codesObject, null, 2));
-  });
-});
-
 app.get('/api/app/session', (req, res) => {
   res.send(req.session)
 });
@@ -1637,74 +1508,6 @@ app.get('/api/app/sessionID', (req, res) => {
   const sessionID = req.sessionID
   res.json({success: true, deviceID: sessionID})
 });
-
-// Register a user
-// app.post('/api/app/account/register', (req, res) => {
-//   const email = req.body.email;
-
-//   // Check if the email already exists in the database
-//   db.query('SELECT * FROM users WHERE email = ?', [email], (err, result) => {
-//       if (err) {
-//           console.error('Error checking existing user:', err);
-//           res.status(500).json({ error: 'An error occurred while checking existing user' });
-//           return;
-//       }
-
-//       if (result.length > 0) {
-//           // User already exists, update the existing record with a new one-time code
-//           import('crypto-random-string').then(module => {
-//               const cryptoRandomString = module.default;
-//               const newCode = cryptoRandomString({ length: 6, type: 'numeric' });
-
-//               db.query('UPDATE users SET code = ? WHERE email = ?', [newCode, email], (err, result) => {
-//                   if (err) {
-//                       console.error('Error updating existing user:', err);
-//                       res.status(500).json({ error: 'An error occurred while updating existing user' });
-//                       return;
-//                   }
-
-//                   // Send verification email with the new code
-//                   sendVerificationEmail(email, newCode)
-//                       .then(() => {
-//                           res.json({ message: 'Verification code email has been sent' });
-//                       })
-//                       .catch((error) => {
-//                           console.error('Error sending email:', error);
-//                           res.status(500).json({ error: 'An error occurred while sending the email' });
-//                       });
-//               });
-//           }).catch(error => {
-//               console.error('Error importing crypto-random-string:', error);
-//           });
-//       } else {
-//           // User doesn't exist, proceed with registration
-//           import('crypto-random-string').then(module => {
-//               const cryptoRandomString = module.default;
-//               const code = cryptoRandomString({ length: 6, type: 'numeric' });
-
-//               db.query('INSERT INTO users (email, code, userstate, checkintoken, checkinstate) VALUES (?, ?, ?, ?, ?)', [email, code, "anon", "0", "0"], (err, result) => {
-//                   if (err) {
-//                       console.error('Error registering user:', err);
-//                       res.status(500).json({ error: 'An error occurred while registering user' });
-//                       return;
-//                   }
-
-//                   // Send verification email
-//                   sendVerificationEmail(email, code)
-//                       .then(() => {
-//                           res.json({ message: 'Verification code email has been sent' });
-//                       })
-//                       .catch((error) => {
-//                           console.error('Error sending email:', error);
-//                           res.status(500).json({ error: 'An error occurred while sending the email' });
-//                       });
-//               });
-//           }).catch(error => {
-//               console.error('Error importing crypto-random-string:', error);
-//           });
-//       }
-//   });
-// });
 
 // Register a user
 app.post('/api/app/account/register', (req, res) => {
@@ -1750,49 +1553,6 @@ app.get('/api/app/hashtransfer', (req, res) => {
   }
 });
 
-// Verify user and generate secret token
-// app.post('/api/app/account/verify', (req, res) => {
-//   const email = req.body.email;
-//   const code = req.body.code;
-//   db.query('SELECT * FROM users WHERE email = ? AND code = ?', [email, code], (err, result) => {
-
-//     // TODO: Set expiry for 6 digit code
-
-//       if (err) throw err;
-//       if (result.length > 0) {
-//           if ((result[0]['secret_token'])&&(result[0]['secret_token'].length > 10)){
-//             const secretToken = result[0]['secret_token']
-//             // Secret token exists
-
-//             res.cookie("logintoken", secretToken, {
-//               maxAge: 31556952000 // Expires in 1 year 
-//             });
-//             res.json({ secret_token: secretToken });
-
-//           } else {
-
-//             // Secret token does not already exist
-//             import('crypto-random-string').then(module => {
-//               const cryptoRandomString = module.default;
-//               const secretToken = cryptoRandomString({ length: 32, type: 'alphanumeric' });
-//               const apitoken = cryptoRandomString({ length: 32, type: 'alphanumeric' });
-//               db.query('UPDATE users SET secret_token = ?, api_token = ?, userstate = ? WHERE email = ?', [secretToken, apitoken, "normal", email], (err, result) => {
-//                   if (err) throw err;
-//                   res.cookie("logintoken", secretToken, { 
-//                     maxAge: 31556952000 // Expires in 1 year 
-//                 });
-//                   res.json({ secret_token: secretToken });
-//               });
-//             }).catch(error => {
-//               console.error('Error importing crypto-random-string:', error);
-//           });
-//           }
-//       } else {
-//           res.status(400).json({ message: 'Invalid email or code' });
-//       }
-//   });
-// });
-
 // Account info
 app.post('/api/app/account/info', (req, res) => {
   const secretToken = req.body.secret_token;
@@ -1801,15 +1561,6 @@ app.post('/api/app/account/info', (req, res) => {
       res.json({ accountinfo: result });
   });
 });
-
-// // Delete user account
-// app.delete('/api/app/account/delete', (req, res) => {
-//   const secretToken = req.body.secret_token;
-//   db.query('DELETE FROM users WHERE secret_token = ?', [secretToken], (err, result) => {
-//       if (err) throw err;
-//       res.json({ message: 'Account deleted successfully' });
-//   });
-// });
 
 const NodeCache = require('node-cache');
 const homeCourseRequestCache = new NodeCache({ stdTTL: 30, deleteOnExpire: false }); // Cache for 30 seconds, keep expired entries

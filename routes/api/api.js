@@ -30,6 +30,9 @@ var dataRouter = require('./data-control/data');
 // Account Router
 var accountRouter = require('./account/account');
 
+// History Router
+var historyRouter = require('./history/history');
+
 // Handle Google Authentications (/auth/google)
 app.use((req, res, next) => {
     if (req.url.startsWith("/api/auth/google/")) {
@@ -88,6 +91,15 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     if (req.url.startsWith("/api/settings/")) {
         return settingsRouter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+// Handle history requests
+app.use((req, res, next) => {
+    if (req.url.startsWith("/api/history/")) {
+        return historyRouter(req, res, next);
     } else {
         next();
     }
