@@ -5,7 +5,7 @@ var db = require('../database');
 const NodeCache = require('node-cache');
 
 // Global toggle for rate limiting
-const RATE_LIMIT_ENABLED = false; //= process.env.RATE_LIMIT_ENABLED !== 'false';
+const RATE_LIMIT_ENABLED = true; //= process.env.RATE_LIMIT_ENABLED !== 'false';
 
 // Initialize caches
 const bannedIPCache = new NodeCache({ stdTTL: 10 }); // Cache for 10 seconds
