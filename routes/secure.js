@@ -2,25 +2,61 @@ const bannedAgents = ['python-reeeeeeequests'];
 const subdomainRedirects = ['about', 'www'];
 const requestTimestamps = {}; // Stores timestamps of requests for rate limiting
 var db = require('../database');
-//const winston = require('winston');
 const NodeCache = require('node-cache');
-let logFilePath;
-if (process.env.NODE_ENV === "development") {
-  logFilePath = "dev.log";
-} else {
-  logFilePath = '/var/lib/checkout/checkout.log';
-}
-// const logger = winston.createLogger({
-//   level: 'info',  // Log 'info' and more critical levels (error, warn)
-//   format: winston.format.json(),
-//   transports: [
-//     new winston.transports.File({ filename: logFilePath })
-//   ]
-// });
+
+// Global toggle for rate limiting
+const RATE_LIMIT_ENABLED = false; //= process.env.RATE_LIMIT_ENABLED !== 'false';
 
 // Initialize caches
 const bannedIPCache = new NodeCache({ stdTTL: 10 }); // Cache for 10 seconds
-const permissionsCache = new NodeCache({ stdTTL: 30 }); // Cache for 30 seconds
+const permissionsCache = new NodeCache({ stdTTL: 10 }); // Cache for 10 seconds
+const ratelimitCache = new NodeCache({ stdTTL: 120 }); // Cache for 120 seconds to handle sliding windows
+
+// Helper function to get rate limit from permissions
+const getRateLimit = (permissionResults) => {
+  if (!Array.isArray(permissionResults) || permissionResults.length === 0) return 1000; // Default rate limit
+  const limits = permissionResults.map(p => p.ratelimit);
+  const unlimitedExists = limits.some(limit => limit === 0);
+  if (unlimitedExists) return 0;
+  return Math.max(...limits);
+};
+
+// Helper function to check and update rate limit using sliding window
+const checkRateLimit = (ip, limit) => {
+  // Skip rate limiting if disabled
+  if (!RATE_LIMIT_ENABLED) return { limited: false, count: 0 };
+  
+  // Skip if no limit
+  if (limit === 0) return { limited: false }; 
+  
+  const now = Date.now();
+  const windowMs = 60000; // 1 minute in milliseconds
+  const cacheKey = `ratelimit:${ip}`;
+  
+  // Get or initialize window data
+  let data = ratelimitCache.get(cacheKey) || { count: 0, timestamp: now };
+  
+  // Calculate sliding window
+  const elapsedMs = now - data.timestamp;
+  if (elapsedMs >= windowMs) {
+    // Window has completely passed, reset counter
+    data = { count: 1, timestamp: now };
+  } else {
+    // Calculate sliding window count
+    // Weight the previous window's count based on how much of it is still within our window
+    const weight = (windowMs - elapsedMs) / windowMs;
+    data.count = Math.floor(data.count * weight) + 1;
+    data.timestamp = now;
+  }
+  
+  // Store updated data
+  ratelimitCache.set(cacheKey, data);
+  
+  return { 
+    limited: data.count > limit,
+    count: data.count
+  };
+};
 
 // Utility function to perform database queries
 const queryDatabase = (query, params) => {
@@ -70,6 +106,26 @@ const securityCheck = async (req, res, next) => {
     
     // Fetch permissions once at the start
     const permissionResults = await checkPermissions(req.userState);
+
+    // Rate limiting check
+    const rateLimit = getRateLimit(permissionResults);
+    const rateLimitResult = checkRateLimit(ip, rateLimit);
+    
+    if (rateLimitResult.limited) {
+      if (requestUrl.startsWith('/api') || requestUrl.startsWith('/manage/api')) {
+        return res.status(429).json({
+          success: false,
+          ratelimit: true,
+          msg: "You have exceeded your rate limit. Please contact support if you need a higher limit."
+        });
+      }
+      return res.status(429).render('notices/generic-msg.ejs', { 
+        msgTitle: "Rate Limit Exceeded", 
+        msgBody: "You have made too many requests. Please try again in a minute.", 
+        username: req.username 
+      });
+    }
+
     const allowedServices = permissionResults.flatMap(result => JSON.parse(result.routes));
     const isSysop = allowedServices.includes('sysop');
 
