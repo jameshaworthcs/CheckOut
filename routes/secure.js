@@ -34,19 +34,31 @@ const checkRateLimit = (ip, limit) => {
   const cacheKey = `ratelimit:${ip}`;
   
   // Get or initialize window data
-  let data = ratelimitCache.get(cacheKey) || { count: 0, timestamp: now };
+  let data = ratelimitCache.get(cacheKey) || { count: 0, totalCount: 0, timestamp: now };
   
   // Calculate sliding window
   const elapsedMs = now - data.timestamp;
   if (elapsedMs >= windowMs) {
     // Window has completely passed, reset counter
-    data = { count: 1, timestamp: now };
+    data = { count: 1, totalCount: 1, timestamp: now };
   } else {
-    // Calculate sliding window count
-    // Weight the previous window's count based on how much of it is still within our window
-    const weight = (windowMs - elapsedMs) / windowMs;
-    data.count = Math.floor(data.count * weight) + 1;
-    data.timestamp = now;
+    // For rapid requests, increment total count but keep the timestamp
+    if (elapsedMs < 1000) { // If requests are within 1 second
+      data = {
+        count: data.count + 1,
+        totalCount: data.totalCount + 1,
+        timestamp: data.timestamp // Keep the original timestamp
+      };
+    } else {
+      // Normal sliding window for requests more than 1 second apart
+      const weight = (windowMs - elapsedMs) / windowMs;
+      const oldCount = Math.floor(data.count * weight);
+      data = {
+        count: oldCount + 1,
+        totalCount: data.totalCount + 1,
+        timestamp: now
+      };
+    }
   }
   
   // Store updated data
@@ -54,7 +66,8 @@ const checkRateLimit = (ip, limit) => {
   
   return { 
     limited: data.count > limit,
-    count: data.count
+    count: data.count,
+    total: data.totalCount
   };
 };
 
@@ -110,19 +123,22 @@ const securityCheck = async (req, res, next) => {
     // Rate limiting check
     const rateLimit = getRateLimit(permissionResults);
     const rateLimitResult = checkRateLimit(ip, rateLimit);
-    console.log(rateLimitResult);
+    console.log(rateLimitResult, ip, Date.now());
     
     if (rateLimitResult.limited) {
       if (requestUrl.startsWith('/api') || requestUrl.startsWith('/manage/api')) {
         return res.status(429).json({
           success: false,
           ratelimit: true,
-          msg: "You have exceeded your rate limit. Please contact support if you need a higher limit."
+          msg: `Rate limit exceeded: ${rateLimitResult.count}/${rateLimit} requests in the last minute. Please wait or contact support if you need a higher limit.`,
+          limit: rateLimit,
+          current: rateLimitResult.count,
+          total: rateLimitResult.total
         });
       }
       return res.status(429).render('notices/generic-msg.ejs', { 
         msgTitle: "Rate Limit Exceeded", 
-        msgBody: "You have made too many requests. Please try again in a minute.", 
+        msgBody: `You have made ${rateLimitResult.count} requests in the last minute, exceeding your limit of ${rateLimit} requests per minute. Please try again later or contact support if you need a higher limit.`, 
         username: req.username 
       });
     }
