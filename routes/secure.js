@@ -110,6 +110,7 @@ const securityCheck = async (req, res, next) => {
     // Rate limiting check
     const rateLimit = getRateLimit(permissionResults);
     const rateLimitResult = checkRateLimit(ip, rateLimit);
+    console.log(rateLimitResult);
     
     if (rateLimitResult.limited) {
       if (requestUrl.startsWith('/api') || requestUrl.startsWith('/manage/api')) {
