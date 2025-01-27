@@ -1,5 +1,5 @@
 const express = require('express');
-const server = require('../../../index'); // Adjust the path as necessary
+const server = require('../../../index.ts');
 
 var app = express.Router();
 

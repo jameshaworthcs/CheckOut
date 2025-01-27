@@ -1,7 +1,5 @@
 const express = require('express');
-const server = require('../../../index'); // Updated to use .ts extension
-
-var app = express.Router();
+const app = express.Router();
 
 app.get('/api/submit/ws', function (req, res) {
     res.status(200).send('WebSocket endpoint');
@@ -158,26 +156,30 @@ wss.on('connection', async function connection(ws, request) {
     });
 });
 
-server.on('upgrade', function upgrade(request, socket, head) {
-    const pathname = request.url;
-
-    if (pathname === '/api/submit/ws') {
-        wss.handleUpgrade(request, socket, head, function done(ws) {
-            wss.emit('connection', ws, request);
-        });
-    } else if (pathname === '/api/submit/autosplash') {
-        wss.handleUpgrade(request, socket, head, function done(ws) {
-            handleAutoSplashConnection(ws, request);
-        });
-    } else {
-        socket.destroy();
-    }
-});
-
 app.get('*', function (req, res) {
     res.status(404);
     res.json({ 'success': false, msg: 'Not a valid endpoint. (submit-ws-api)' });
-});
+})
 
-module.exports = app;
+// Export both the router and the WebSocket setup function
+module.exports = {
+    router: app,
+    setupWebSocket: function(server) {
+        server.on('upgrade', function upgrade(request, socket, head) {
+            const pathname = request.url;
+
+            if (pathname === '/api/submit/ws') {
+                wss.handleUpgrade(request, socket, head, function done(ws) {
+                    wss.emit('connection', ws, request);
+                });
+            } else if (pathname === '/api/submit/autosplash') {
+                wss.handleUpgrade(request, socket, head, function done(ws) {
+                    handleAutoSplashConnection(ws, request);
+                });
+            } else {
+                socket.destroy();
+            }
+        });
+    }
+};
 
