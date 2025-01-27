@@ -64,6 +64,7 @@ try {
     port: parseInt(process.env.REDISPORT || '6379'),
     username: process.env.REDISUSER,
     password: process.env.REDISPASSWORD,
+    family: 0
   });
 
   // Set up error handler
