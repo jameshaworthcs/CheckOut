@@ -1,4 +1,4 @@
-var mysql = require('mysql');
+var mysql = require('mysql2');
 
 // Create a connection pool instead of a single connection
 const pool = mysql.createPool({
