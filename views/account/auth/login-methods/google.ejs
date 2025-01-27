@@ -1,0 +1,237 @@
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .google-auth-button-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    #googleAuthButton {
+        width: 100%;
+    }
+
+    #googleAuthButton iframe {
+        width: 100% !important;
+        display: block;
+    }
+
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<div id="loading-overlay">
+    <div id="loading-content">
+        <svg id="loading-svg" width="100" height="100">
+            <defs>
+                <clipPath id="reveal-clip">
+                    <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+                </clipPath>
+            </defs>
+            <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
+        </svg>
+        <div id="loading-spinner" class="loader" style="display: none;"></div>
+        <br>
+        <button class="cancelLoadingBtn" onclick="window.endLoadingOverlay();" id="cancelText">cancel</button>
+    </div>
+</div>
+
+<div class="center-container">
+    <div id="google-auth-button-container" class="google-auth-button-container">
+        <div id="googleAuthButton"></div>
+    </div>
+</div>
+
+<%if (guestState==true) { %>
+<div class="or-divider" id="orDivider">
+    <hr>
+    <p>OR</p>
+    <hr>
+</div>
+<form id="guestForm">
+    <button type="submit" class="btn btn-secondary" id="guestButton">Continue as guest</button>
+</form>
+<% } %>
+
+<script>
+    function handleCredentialResponse(response) {
+        fetch('/api/auth/google/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token: response.credential })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.msg || 'Unknown error');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (typeof window.endLoadingOverlay === 'function') {
+                window.endLoadingOverlay();
+            }
+            if (data.newUser === true) {
+                const currentParams = new URLSearchParams(window.location.search);
+                currentParams.set('tid', Date.now());
+                const redirectUrl = '/account/welcome' + (currentParams.toString() ? '?' + currentParams.toString() : '');
+                window.location.href = redirectUrl;
+                return;
+            }
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.set('tid', Date.now());
+            window.location.href = window.location.pathname + '?' + currentParams.toString();
+        })
+        .catch(error => {
+            console.error('Error:', error.message);
+            showErrorBox(error.message, 'error-container');
+            if (typeof window.endLoadingOverlay === 'function') {
+                window.endLoadingOverlay();
+            }
+        });
+    }
+
+    window.onload = function () {
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const buttonTheme = prefersDarkScheme.matches ? 'filled_black' : 'filled_blue';
+
+        google.accounts.id.initialize({
+            client_id: '573147530533-998o78a3tvhoo9ijemmghr9l6c154kks.apps.googleusercontent.com',
+            callback: handleCredentialResponse
+        });
+
+        google.accounts.id.renderButton(
+            document.getElementById('googleAuthButton'),
+            { 
+                theme: 'outline', 
+                size: 'large', 
+                width: '300px', 
+                type: 'standard', 
+                theme: buttonTheme, 
+                logo_alignment: "center", 
+                click_listener: googleAuthClicked 
+            }
+        );
+
+        google.accounts.id.prompt();
+
+        prefersDarkScheme.addEventListener('change', (e) => {
+            const newTheme = e.matches ? 'filled_black' : 'filled_blue';
+            google.accounts.id.renderButton(
+                document.getElementById('googleAuthButton'),
+                { 
+                    theme: 'outline', 
+                    size: 'large', 
+                    width: '300px', 
+                    type: 'standard', 
+                    theme: newTheme, 
+                    logo_alignment: "center", 
+                    click_listener: googleAuthClicked 
+                }
+            );
+        });
+    };
+
+    function googleAuthClicked() {
+        showLoadingOverlay(1);
+    }
+
+    function showLoadingOverlay(duration) {
+        const overlay = document.getElementById('loading-overlay');
+        const clipRect = document.getElementById('clip-rect');
+        const spinner = document.getElementById('loading-spinner');
+
+        overlay.style.visibility = 'visible';
+        overlay.style.opacity = '1';
+        clipRect.setAttribute('width', '0');
+
+        let startTime = null;
+        let animationCompleted = false;
+
+        function animateReveal(time) {
+            if (!startTime) startTime = time;
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            clipRect.setAttribute('width', `${progress * 100}%`);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateReveal);
+            } else {
+                animationCompleted = true;
+                if (window.overlayDone) {
+                    removeOverlay();
+                } else {
+                    spinner.style.display = 'block';
+                }
+            }
+        }
+
+        requestAnimationFrame(animateReveal);
+
+        window.endLoadingOverlay = function () {
+            window.overlayDone = true;
+            if (animationCompleted) {
+                removeOverlay();
+            }
+        }
+
+        function removeOverlay() {
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            clipRect.setAttribute('width', '0');
+            spinner.style.display = 'none';
+            window.overlayDone = false;
+            animationCompleted = false;
+        }
+
+        window.overlayDone = false;
+    }
+
+    <%if (guestState == true) { %>
+    document.getElementById("guestForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        localStorage.setItem('secret_token', "guest");
+        let now = new Date();
+        let expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+        document.cookie = "logintoken=guest; expires=" + expiryDate.toUTCString() + "; path=/";
+        window.location.href = '<%= intent  %>';
+    });
+    <% } %>
+</script> 

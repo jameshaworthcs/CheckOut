@@ -27,6 +27,9 @@ const PAGE_REDIRECTS = {
   'autocheckin': '/auto'
 };
 
+// Define valid login methods
+const validMethods = ['google', 'email', 'apikey', 'selection'];
+
 /**
  * Login redirect handler
  * 
@@ -43,8 +46,14 @@ const PAGE_REDIRECTS = {
  * Adds ?login_redirect=1 to final URL while preserving any existing query parameters.
  * Prevents redirect loops by checking for login_redirect=1 in incoming requests.
  */
-app.get('/login', function (req, res) {
+app.get(['/login', '/login/:method'], function (req, res) {
   const intent = req.query.login_redirect;
+  
+  // Get login method from URL path or query parameter
+  let method = req.params.method;
+  if (!validMethods.includes(method)) {
+    method = validMethods.includes(req.query.method) ? req.query.method : undefined;
+  }
   
   // Prevent redirect loops
   if (req.query.login_redirect === '1') {
@@ -62,14 +71,24 @@ app.get('/login', function (req, res) {
     existingParams.delete('login_redirect');
     existingParams.append('login_redirect', '1');
     
+    // Keep the method parameter if it exists
+    if (method) {
+      existingParams.set('method', method);
+    }
+    
     const queryString = existingParams.toString();
     return res.redirect(`/account${queryString ? '?' + queryString : ''}`);
   }
 
   // Helper function to add login_redirect param while preserving existing query params
   const addLoginParam = (url) => {
-    const hasQuery = url.includes('?');
-    return `${url}${hasQuery ? '&' : '?'}login_redirect=1`;
+    const urlObj = new URL(url, `http://${req.get('host')}`);
+    urlObj.searchParams.append('login_redirect', '1');
+    // Keep the method parameter if it exists
+    if (method) {
+      urlObj.searchParams.set('method', method);
+    }
+    return urlObj.pathname + urlObj.search;
   };
 
   // Handle direct URL paths starting with /
@@ -84,12 +103,16 @@ app.get('/login', function (req, res) {
   }
 
   // If intent is invalid, default to account
-  return res.redirect('/account?login_redirect=1');
+  const defaultParams = new URLSearchParams();
+  defaultParams.append('login_redirect', '1');
+  if (method) {
+    defaultParams.append('method', method);
+  }
+  return res.redirect(`/account?${defaultParams.toString()}`);
 });
 
 // Account homepage
 app.get('/account', async function (req, res) {
-  //const secretToken = req.logintoken;
   const email = await obscureEmail(req.useremail);
   res.render("account/account.ejs", { apikey: req.apitoken, email, perms: req.userState, username: req.username, sessionID: req.sessionID});
 });

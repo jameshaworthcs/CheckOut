@@ -163,10 +163,43 @@ app.post('/api/auth/logout', (req, res) => {
     res.redirect('/success/logout'); // Redirect to the logout success page
 });
 
-// Logout endpoint
-app.get('/api/auth/legacy', (req, res) => {
-    const msg = 'Sign in with an email address.';
-    return res.render("authreq.ejs", {intent: req.originalUrl, guestState: false, msg, username: req.username});
+// API Key Login
+app.post('/api/auth/apikey/login', async (req, res) => {
+    try {
+        const apiKey = req.body.apiKey;
+        
+        if (!apiKey) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: 'API key is required' 
+            });
+        }
+
+        // Check if the API key exists and get the user
+        const results = await db.query('SELECT id FROM users WHERE api_token = ?', [apiKey]);
+        
+        if (results.length === 0) {
+            return res.status(401).json({ 
+                success: false, 
+                msg: 'Invalid API key' 
+            });
+        }
+
+        // Set up the session
+        const userId = results[0].id;
+        req.session.user = { id: userId };
+
+        return res.status(200).json({ 
+            success: true, 
+            msg: 'Successfully authenticated with API key'
+        });
+    } catch (error) {
+        console.error('API key login error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            msg: 'Internal server error during authentication'
+        });
+    }
 });
 
 module.exports = { login, authenticateUser, app };

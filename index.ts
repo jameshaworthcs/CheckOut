@@ -220,9 +220,9 @@ app.use(async (req, res, next) => {
     req.userData.beta = process.env.CHK_SRV === "BETA";
     req.userData.development = process.env.NODE_ENV === "development" && process.env.LOCAL_WARNING !== "0";
 
-    if (process.env.NODE_ENV === "development") {
-      req.session.user = { id: 1 };
-    }
+    // if (process.env.NODE_ENV === "development") {
+    //   req.session.user = { id: 1 };
+    // }
 
     await fetchAppStatus(req);
     await authenticateAndSetUserData(req);

@@ -1,0 +1,134 @@
+<style>
+    .api-key-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .api-key-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid var(--accent-colour);
+        border-radius: 5px;
+        background-color: var(--secondary-background);
+        color: var(--text-colour);
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .api-key-input:focus {
+        outline: none;
+        border-color: var(--action-colour);
+        background-color: var(--input-focus);
+    }
+
+    .api-key-submit {
+        width: 100%;
+        padding: 10px;
+        background-color: var(--cta-background-main);
+        color: var(--cta-button-colour-main);
+        border: var(--cta-border);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        position: relative;
+    }
+
+    .api-key-submit:hover {
+        background-color: var(--action-highlight-colour-main);
+    }
+
+    .api-key-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Loading spinner */
+    .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: translateY(-50%) rotate(360deg);
+        }
+    }
+
+    .loading .spinner {
+        display: block;
+    }
+</style>
+
+<div class="api-key-container">
+    <form id="apiKeyForm">
+        <input type="password" id="apiKeyInput" name="apiKey" class="api-key-input" placeholder="Enter your API key" required>
+        <button type="submit" class="api-key-submit">
+            <span class="button-text">Login with API Key</span>
+            <span class="spinner"></span>
+        </button>
+    </form>
+</div>
+
+<script>
+    // Focus input on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('apiKeyInput').focus();
+    });
+
+    document.getElementById('apiKeyForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitButton = form.querySelector('.api-key-submit');
+        const buttonText = submitButton.querySelector('.button-text');
+        const apiKey = document.getElementById('apiKeyInput').value;
+        
+        // Disable form and show loading state
+        submitButton.disabled = true;
+        submitButton.classList.add('loading');
+        buttonText.textContent = 'Logging in...';
+        
+        try {
+            const response = await fetch('/api/auth/apikey/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ apiKey })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Get the intended redirect URL from the query parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const intent = urlParams.get('intent') || '/';
+                
+                // Redirect to the intended URL or home
+                window.location.href = intent;
+            } else {
+                showErrorBox(data.msg || 'Login failed. Please check your API key and try again.', 'error-container');
+                // Reset form state
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading');
+                buttonText.textContent = 'Login with API Key';
+            }
+        } catch (error) {
+            showErrorBox('An error occurred during login. Please try again.', 'error-container');
+            // Reset form state
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+            buttonText.textContent = 'Login with API Key';
+        }
+    });
+</script> 

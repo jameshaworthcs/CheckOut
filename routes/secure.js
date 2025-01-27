@@ -275,7 +275,13 @@ const securityCheck = async (req, res, next) => {
             msg = 'An account is required to use Beta CheckOut';
           }
 
-          return res.render("account/auth/login.ejs", { intent: req.originalUrl, guestState: false, msg, username: req.username });
+          return res.render("account/auth/login.ejs", { 
+            intent: req.originalUrl, 
+            guestState: false, 
+            msg, 
+            username: req.username,
+            loginMethod: 'google' // Default to Google login
+          });
         }
       }
     }
@@ -347,9 +353,6 @@ const securityCheck = async (req, res, next) => {
 };
 
 function auth(service, req, res, next) {
-  // if (process.env.CHK_SRV == "BETA") {
-  //   console.time(`auth_${req.url}`);
-  // }
   checkPermissions(req.userState).then(results => {
     if (results.length > 0) {
       // Combine routes from all permission results
@@ -358,16 +361,11 @@ function auth(service, req, res, next) {
       if (!(allowedServices.some(route => service === route))) {
         let msg;
         if ((req.url.startsWith("/api/") || req.url.startsWith("/manage/api/")) && !req.url.startsWith("/api/docs")) {
-          // if (process.env.CHK_SRV == "BETA") {
-          //   console.timeEnd(`auth_${req.url}`);
-          // }
           return res.status(403).json({success: false, auth_error: true, msg: `Account with permission '${service}' required for this action. Visit the FAQ for instructions on how to overcome this error.`});
-        } else if (req.userState.includes('anon') || req.url.startsWith("/auto")) { // AutoCheckin waitlist
+        } else if (req.userState.includes('anon') || req.url.startsWith("/auto")) {
           if (req.url.startsWith("/f9h4e09eh")) {
             msg = 'Sign in with your .ac.uk email to use your account.';
           } else if (req.url.startsWith("/auto") && typeof req.query.login === 'undefined') {
-            //msg = 'Sign in with your .ac.uk email to use AutoCheckin.';
-            // AutoCheckin waitlist:
             return res.render("autocheckin/waitlist.ejs");
           } else if (req.url.startsWith("/auto")) {
             msg = 'Sign in to use AutoCheckin.';
@@ -384,29 +382,35 @@ function auth(service, req, res, next) {
         } else {
           msg = `Your account, <i>${req.useremail}</i>, does not have the required permissions (${service}). Login to a different account with the correct permissions below or view your <a href='/account'>account</a>`;
         }
-        // if (process.env.CHK_SRV == "BETA") {
-        //   console.timeEnd(`auth_${req.url}`);
-        // }
-        return res.render("account/auth/login.ejs", { intent: req.originalUrl, guestState: false, msg, username: req.username });
+
+        // Get login method from URL path or query parameter
+        let loginMethod = 'google';
+        const validMethods = ['google', 'email', 'apikey', 'selection'];
+        
+        // Check URL path first (e.g., /login/apikey)
+        const urlParts = req.path.split('/');
+        const methodFromPath = urlParts[urlParts.length - 1];
+        if (validMethods.includes(methodFromPath)) {
+          loginMethod = methodFromPath;
+        } else {
+          // Fall back to query parameter
+          loginMethod = validMethods.includes(req.query.method) ? req.query.method : 'google';
+        }
+
+        return res.render("account/auth/login", { 
+          intent: req.originalUrl, 
+          guestState: false, 
+          msg, 
+          username: req.username,
+          loginMethod
+        });
       }
     } else {
-      // if (process.env.CHK_SRV == "BETA") {
-      //   console.timeEnd(`auth_${req.url}`);
-      // }
       res.json({success: false, msg: "Auth error"})
     }
-    // All checks passed
-    // if (process.env.CHK_SRV == "BETA") {
-    //   console.timeEnd(`auth_${req.url}`);
-    // }
     next();
   }).catch(err => {
     console.log(err)
-    // DONT DO THIS - next(err);
-    // Do this lol:
-    // if (process.env.CHK_SRV == "BETA") {
-    //   console.timeEnd(`auth_${req.url}`);
-    // }
     return res.render('notices/generic-msg.ejs', { msgTitle: "Error", msgBody: "CheckOut not available while a security issue is being worked on. Please contact an admin if this issue persists.", username: 'Error' })
   });
 }
