@@ -40,3 +40,4 @@ const sendEmail = (toEmail, emailTitle, emailHtml) => {
 };
 
 module.exports = { sendVerificationEmail, sendEmail };
+

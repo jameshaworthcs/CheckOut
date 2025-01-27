@@ -74,3 +74,4 @@ async function hasRole(userId, guildId, roleName, accessToken) {
       return false;
     }
   }
+

@@ -56,3 +56,4 @@ pool.getConnection()
   });
 
 module.exports = db;
+

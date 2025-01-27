@@ -1,5 +1,5 @@
-var db = require('../../../database');
-var db2 = require('../../../database-v2');
+var db = require('../../../databases/database');
+var db2 = require('../../../databases/database-v2');
 const moment = require('moment-timezone');
 const crypto = require('crypto');
 var autoApp = require('../../autocheckin');
@@ -134,3 +134,4 @@ async function submitCode(submissionData) {
 
 
 module.exports = { submitCode };
+

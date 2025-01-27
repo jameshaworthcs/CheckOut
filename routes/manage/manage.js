@@ -25,7 +25,7 @@ app.get('/manage', function (req, res) {
 
 // TK Log view
 app.get('/manage/code-log', function (req, res) {
-    res.render('manage/code-log.ejs', { username: req.username, email: req.useremail });
+    res.render('manage/code-log/code-log.ejs', { username: req.username, email: req.useremail });
 })
 
 // SYSOP AUTH CHECK
@@ -43,7 +43,7 @@ app.get('/manage/request-log', function (req, res) {
 
 // Manage users
 app.get('/manage/users', function (req, res) {
-    res.render('manage/users.ejs', { username: req.username, email: req.useremail });
+    res.render('manage/users/users.ejs', { username: req.username, email: req.useremail });
 })
 
 // Manage autocheckin
@@ -63,7 +63,7 @@ app.get('/manage/globalapp', function (req, res) {
 
 // Manage permissions
 app.get('/manage/permissions', function (req, res) {
-    res.render('manage/permissions.ejs', { username: req.username, email: req.useremail });
+    res.render('manage/permissions/permissions.ejs', { username: req.username, email: req.useremail });
 })
 
 app.get('*', function (req, res) {
@@ -72,3 +72,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

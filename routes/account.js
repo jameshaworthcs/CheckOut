@@ -1,5 +1,4 @@
 const express = require('express')
-var db=require('../database');
 var app = express.Router();
 
 async function obscureEmail(email) {
@@ -124,3 +123,4 @@ app.get('/account/permissions', function (req, res) {
 });
 
 module.exports = app;
+

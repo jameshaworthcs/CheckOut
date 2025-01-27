@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-var db=require('../../../database');
+var db=require('../../../databases/database');
 
 async function obscureEmail(email) {
     // Split the email into the local part (before @) and domain (after @)
@@ -92,3 +92,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

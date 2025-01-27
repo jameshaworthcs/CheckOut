@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../../database');
+const db = require('../../../databases/database');
 const crypto = require('crypto');
 
 function getPastCodes(req, res, callback) {
@@ -153,3 +153,4 @@ router.get('*', function (req, res) {
 })
 
 module.exports = router; 
+

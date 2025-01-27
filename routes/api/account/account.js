@@ -1,8 +1,8 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../database');
+var db = require('../../../databases/database');
 const crypto = require('crypto');
-//var db2 = require('../../../database-v2');
+//var db2 = require('../../../databases/database-v2');
 //const { sendEmail } = require('../../email');
 
 // Account token
@@ -160,3 +160,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

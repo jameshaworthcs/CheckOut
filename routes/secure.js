@@ -1,7 +1,7 @@
 const bannedAgents = ['python-reeeeeeequests'];
 const subdomainRedirects = ['about', 'www'];
 const requestTimestamps = {}; // Stores timestamps of requests for rate limiting
-var db = require('../database');
+var db = require('../databases/database');
 const NodeCache = require('node-cache');
 
 // Global toggle for rate limiting
@@ -454,3 +454,4 @@ function logQ(req) {
 
 
 module.exports = { getRealIp, securityCheck, logQ, auth, checkPermissions };
+

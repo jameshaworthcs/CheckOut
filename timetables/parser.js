@@ -86,3 +86,4 @@ rl.question('Enter MySQL password: ', (password) => {
     });
   });
 });
+

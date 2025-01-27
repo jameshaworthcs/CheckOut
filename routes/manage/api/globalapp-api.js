@@ -1,5 +1,5 @@
 const express = require('express')
-var db = require('../../../database');
+var db = require('../../../databases/database');
 var app = express.Router();
 
 app.get('/manage/api/globalapp/data', function (req, res) {
@@ -29,3 +29,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

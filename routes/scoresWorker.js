@@ -10,3 +10,4 @@ function calculate(inst, crs, yr, md, grp, result) {
 workerpool.worker({
   calculate: calculate
 });
+

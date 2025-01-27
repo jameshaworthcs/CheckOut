@@ -59,3 +59,4 @@ document.addEventListener('DOMContentLoaded', function () {
     return match ? match[1] : null;
   }
   
+

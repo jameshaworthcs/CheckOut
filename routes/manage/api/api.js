@@ -1,5 +1,5 @@
 const express = require('express')
-var db = require('../../../database');
+var db = require('../../../databases/database');
 var app = express.Router();
 var secureRoute = require('../../secure');
 
@@ -88,3 +88,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

@@ -14,3 +14,4 @@ document.querySelectorAll('.accordion-header').forEach(header => {
         content.style.maxHeight = clickedAccordion.classList.contains('active') ? content.scrollHeight + 'px' : 0;
     });
 });
+

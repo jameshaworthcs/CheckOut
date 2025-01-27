@@ -140,3 +140,4 @@ function calculateScores(inst, crs, yr, md, grp, codes, grouped, codeDayFlip) {
 }
 
 module.exports = calculateScores;
+

@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../database');
+var db = require('../../../databases/database');
 
 app.post('/api/course-select/save', async function (req, res) {
     // Save course values to session
@@ -42,3 +42,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

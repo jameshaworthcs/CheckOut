@@ -1,5 +1,5 @@
 const express = require('express')
-var db2 = require('../../../database-v2');
+var db2 = require('../../../databases/database-v2');
 var app = express.Router();
 
 app.get('/manage/api/request-log/logs', async (req, res) => {
@@ -55,3 +55,4 @@ app.get('*', function (req, res) {
   })
   
   module.exports = app;
+

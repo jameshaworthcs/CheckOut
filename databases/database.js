@@ -43,3 +43,4 @@ const connection = {
 
 // For backwards compatibility
 module.exports = connection;
+

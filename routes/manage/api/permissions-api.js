@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../database');
+var db = require('../../../databases/database');
 
 // Get all permissions
 app.get('/manage/api/permissions/list', (req, res) => {
@@ -70,3 +70,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app; 
+

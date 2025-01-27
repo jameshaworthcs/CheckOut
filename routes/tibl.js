@@ -1,4 +1,4 @@
-var db=require('../database');
+var db=require('../databases/database');
 
 let moduleCache = null;
 let cacheTimeout = null;
@@ -388,3 +388,4 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
 
 
 module.exports = { fetchInProgressRows, webGen, webGenCodes, apiGenCodes, fetchFutureActivity, fetchFutureActivityPromise };
+

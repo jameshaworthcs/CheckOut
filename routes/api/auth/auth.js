@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const util = require('util');
-var db=require('../../../database');
+var db=require('../../../databases/database');
 const { sendEmail } = require('../../email');
 const express = require('express')
 const moment = require('moment-timezone');
@@ -170,3 +170,4 @@ app.get('/api/auth/legacy', (req, res) => {
 });
 
 module.exports = { login, authenticateUser, app };
+

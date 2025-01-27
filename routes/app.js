@@ -1,5 +1,5 @@
 const express = require('express')
-var db=require('../database');
+var db=require('../databases/database');
 var app = express.Router();
 const moment = require('moment-timezone');
 const crypto = require('crypto');
@@ -1756,3 +1756,4 @@ app.get('*', function(req,res) {
 })
 
 module.exports = app;
+

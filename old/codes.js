@@ -1,5 +1,5 @@
 const express = require('express')
-var db=require('../database');
+var db=require('../databases/database');
 var app = express.Router();
 function getClassData(md, callback) { // OLD
     try {
@@ -92,3 +92,4 @@ app.use("*", (req, res) => { // Old
     return;
 });
 module.exports = app;
+

@@ -244,3 +244,4 @@ function visible(tk, vis) {
         displayNotice(error.message, 'error');
     });
 }
+

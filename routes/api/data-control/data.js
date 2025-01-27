@@ -1,7 +1,7 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../database');
-var db2 = require('../../../database-v2');
+var db = require('../../../databases/database');
+var db2 = require('../../../databases/database-v2');
 const { sendEmail } = require('../../email');
 
 // Session data
@@ -119,3 +119,4 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+

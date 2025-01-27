@@ -239,3 +239,4 @@ class JSLoadingOverlay
 window.JsLoadingOverlay = new JSLoadingOverlay();
 
 // module.exports = JsLoadingOverlay;
+

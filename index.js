@@ -39,8 +39,8 @@ var outsource = require('./outsource/outsource'); // Sync with external checkin 
 const app = express();
 const port = process.env.NODE_PORT || 4000;
 var path = require('path');
-var db = require('./database');
-const db2 = require('./database-v2');
+var db = require('./databases/database');
+const db2 = require('./databases/database-v2');
 app.set('trust proxy', 1)
 app.set('view cache', true);
 
@@ -848,3 +848,4 @@ server.listen(port, () => {
 
 // Removed with WS addition
 //module.exports = {app};
+
