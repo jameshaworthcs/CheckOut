@@ -313,7 +313,7 @@ const securityCheck = async (req, res, next) => {
         // Build message based on permissions and login status
         if (req.loggedIn) {
           if (permsResults.length > 0) {
-            const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
+            //const allowedServices = permsResults.flatMap(result => JSON.parse(result.routes));
             if (allowedServices.includes('autocheckin')) features.push('<a href="/auto">AutoCheckin</a>');
             if (allowedServices.includes('mod')) features.push('<a href="/manage">admin services</a>');
             msg = features.length > 0 ? 
