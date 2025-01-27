@@ -48,39 +48,37 @@ const dbOptions = {
   database: process.env.DB_NAME,
 };
 
-// Session store setup (Redis with MySQL fallback)
+// Redis client setup
+let redisClient = null;
+let RedisStore, redisStore;
 let USE_MYSQL_SESSION_STORE = false;
-let redisClient, RedisStore, redisStore;
 const mysqlStore = new MySQLStore(dbOptions);
 
 try {
   RedisStore = require('connect-redis').default;
-  const redis = require('redis');
+  const Redis = require('ioredis');
 
-  redisClient = redis.createClient({
-    host: '127.0.0.1',
-    port: 6379,
-  }).on('error', () => {});
-
-  redisClient.once('error', () => {
-    console.log("Redis installation not found, using SQL session store instead.");
-    USE_MYSQL_SESSION_STORE = true;
-    redisClient.removeAllListeners();
-    redisClient.quit();
+  // Create Redis client for both sessions and caching
+  redisClient = new Redis({
+    host: process.env.REDISHOST || '127.0.0.1',
+    port: parseInt(process.env.REDISPORT || '6379'),
+    username: process.env.REDISUSER,
+    password: process.env.REDISPASSWORD,
   });
 
-  redisClient.connect()
-    .then(() => {
-      redisStore = new RedisStore({ client: redisClient });
-    })
-    .catch(() => {
-      console.log("Redis installation not found, using SQL session store instead.");
-      USE_MYSQL_SESSION_STORE = true;
-      redisClient.removeAllListeners();
-      redisClient.quit();
-    });
+  // Set up error handler
+  redisClient.on('error', (err) => {
+    console.log("Redis client error:", err);
+    USE_MYSQL_SESSION_STORE = true;
+    redisClient = null;
+  });
+
+  // Set up session store
+  redisStore = new RedisStore({ client: redisClient });
+  console.log("Redis store connected");
+
 } catch (err) {
-  console.log("Redis installation not found, using SQL session store instead.");
+  console.log("Redis installation not found, using SQL session store instead:", err);
   USE_MYSQL_SESSION_STORE = true;
 }
 
@@ -208,19 +206,6 @@ async function log(req) {
   }
 }
 
-// Redis cache for HTML minification
-let redisClientCache = null;
-try {
-  const RedisCache = require("ioredis");
-  redisClientCache = new RedisCache();
-  redisClientCache.on("error", () => {
-    redisClientCache = null;
-  });
-} catch (error) {
-  console.log("Redis installation not found, caching disabled.");
-  redisClientCache = null;
-}
-
 // HTML minification configuration
 const { minify } = require('html-minifier');
 const useMinification = process.env.NODE_ENV !== 'development';
@@ -238,9 +223,9 @@ app.use(async (req, res, next) => {
       req.session.user = { id: 1 };
     }
 
+    await fetchAppStatus(req);
+    await authenticateAndSetUserData(req);
     await Promise.all([
-      fetchAppStatus(req),
-      authenticateAndSetUserData(req),
       setCourseData(req),
       setThemeData(req),
       setIPData(req),
@@ -301,7 +286,7 @@ app.use((req, res, next) => {
 
       const hash = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
 
-      if (!redisClientCache) {
+      if (!redisClient) {
         const minifiedHtml = minify(html, {
           collapseWhitespace: true,
           removeComments: true,
@@ -316,7 +301,7 @@ app.use((req, res, next) => {
       }
 
       try {
-        const cachedMinifiedHtml = await redisClientCache.get(hash);
+        const cachedMinifiedHtml = await redisClient.get(hash);
 
         if (cachedMinifiedHtml && useMiniCache) {
           this.send(cachedMinifiedHtml);
@@ -332,7 +317,7 @@ app.use((req, res, next) => {
           });
 
           const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
-          await redisClientCache.set(hash, finalHtml, 'EX', TTL);
+          await redisClient.set(hash, finalHtml, 'EX', TTL);
           this.send(finalHtml);
         }
       } catch (redisErr) {
