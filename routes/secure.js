@@ -353,7 +353,7 @@ function auth(service, req, res, next) {
   checkPermissions(req.userState).then(results => {
     if (results.length > 0) {
       // Combine routes from all permission results
-      const allowedServices = results.flatMap(result => JSON.parse(result.routes));
+      const allowedServices = results.flatMap(result => Array.isArray(result.routes) ? result.routes : []);
       
       if (!(allowedServices.some(route => service === route))) {
         let msg;
