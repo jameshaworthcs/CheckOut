@@ -137,7 +137,7 @@ async function authenticateUser(req) {
             req.apitoken = results[0]['api_token'];
             req.username = results[0]['username'];
             try {
-                req.sync = JSON.parse(results[0]['sync']) || {};
+                req.sync = results[0]['sync'] || {};
             } catch {
                 req.sync = {};
             }

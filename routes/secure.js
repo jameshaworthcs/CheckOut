@@ -142,7 +142,7 @@ const securityCheck = async (req, res, next) => {
       });
     }
 
-    const allowedServices = permissionResults.flatMap(result => JSON.parse(result.routes));
+    const allowedServices = permissionResults.flatMap(result => Array.isArray(result.routes) ? result.routes : []);
     const isSysop = allowedServices.includes('sysop');
 
     // Check 0: Webstate and Boycott checks

@@ -373,7 +373,9 @@ function populateAccountDiv(data) {
             const table = document.createElement('table');
 
             for (const [key, value] of Object.entries(data)) {
-                table.appendChild(createTableRow(`${key}`, value));
+                // Special handling for sync object
+                const displayValue = key === 'sync' ? JSON.stringify(value, null, 2) : value;
+                table.appendChild(createTableRow(`${key}`, displayValue));
             }
 
             targetDiv.innerHTML = ''; // Clear the warning link

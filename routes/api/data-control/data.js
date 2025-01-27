@@ -24,6 +24,14 @@ app.get('/api/data/account', (req, res) => {
     db.query('SELECT * FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
         if (err) throw err;
         if ((JSON.stringify(result)) != '[]') {
+            // Parse the sync column if it exists and is a string
+            if (result[0].sync && typeof result[0].sync === 'string') {
+                try {
+                    result[0].sync = JSON.parse(result[0].sync);
+                } catch (e) {
+                    console.error('Error parsing sync JSON:', e);
+                }
+            }
             res.json(result[0]);
         } else {
             res.status(404);
