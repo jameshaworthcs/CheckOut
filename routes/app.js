@@ -1601,7 +1601,7 @@ app.get('/', async function(req,res){
           // If no cache data exists at all, fetch fresh data
           cachedResponse = await Promise.race([
             handleCourseRequest(inst, crs, yr, username, initCourse, false, false, true, true),
-            new Promise((resolve) => setTimeout(() => resolve({}), 100))
+            new Promise((resolve) => setTimeout(() => resolve({}), 3000))
           ]);
           if ((Object.keys(cachedResponse).length !== 0) || true) { // check its not {}
             homeCourseRequestCache.set(cacheKey, cachedResponse); // Cache the fresh data
