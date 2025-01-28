@@ -70,7 +70,7 @@
 </style>
 
 <div class="api-key-container">
-    <form id="apiKeyForm">
+    <form id="apiKeyForm" method="POST" onsubmit="return false;">
         <input type="password" id="apiKeyInput" name="apiKey" class="api-key-input" placeholder="Enter your API key" required>
         <button type="submit" class="api-key-submit">
             <span class="button-text">Login with API Key</span>
