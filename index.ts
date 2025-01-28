@@ -85,20 +85,26 @@ try {
 
 const sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStore : redisStore || mysqlStore;
 
-// Session middleware
-app.use(session({
-  secret: process.env.SSECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: sessionStore,
-  name: "checkout_secure",
-  rolling: true,
-  cookie: {
-    maxAge: 365 * 24 * 60 * 60 * 1000,
-    httpOnly: process.env.NODE_ENV !== "development",
-    secure: process.env.NODE_ENV !== "development"
-  },
-}));
+// Session middleware - with path exclusion for static files
+app.use((req, res, next) => {
+  if (req.url.startsWith('/static')) {
+    return next();
+  }
+  
+  session({
+    secret: process.env.SSECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: sessionStore,
+    name: "checkout_secure",
+    rolling: true,
+    cookie: {
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+      httpOnly: process.env.NODE_ENV !== "development",
+      secure: process.env.NODE_ENV !== "development"
+    },
+  })(req, res, next);
+});
 
 // Graceful shutdown
 process.on('SIGINT', () => {
