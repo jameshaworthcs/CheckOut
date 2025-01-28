@@ -14,7 +14,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModal = document.getElementById('editModal');
     const modalContent = document.getElementById('modalContent');
     const editForm = document.getElementById('editForm');
-    const closeModal = document.querySelectorAll('.close');
+    const closeButtons = document.querySelectorAll('.close');
+
+    // Modal handling functions
+    function showModal(modal) {
+        modal.style.display = 'block';
+        // Trigger reflow
+        modal.offsetHeight;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300); // Match the CSS transition duration
+    }
+
+    // Close button handlers
+    closeButtons.forEach(close => {
+        close.onclick = function() {
+            hideModal(close.closest('.modal'));
+        }
+    });
+
+    // Click outside modal to close
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            hideModal(event.target);
+        }
+    }
+
+    // Escape key to close modal
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const openModal = document.querySelector('.modal[style*="display: block"]');
+            if (openModal) {
+                hideModal(openModal);
+            }
+        }
+    });
 
     // Fetch and display users
     async function fetchUsers(queryParams = {}) {
@@ -88,18 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    closeModal.forEach(close => {
-        close.onclick = function() {
-            close.parentElement.parentElement.style.display = 'none';
-        }
-    });
-
-    window.onclick = function(event) {
-        if (event.target == viewModal || event.target == editModal) {
-            event.target.style.display = 'none';
-        }
-    }
-
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             alert('Copied to clipboard');
@@ -114,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>${type === 'api_token' ? 'API Token' : 'Check-in Token'}: ${token}</p>
             <button onclick="copyToClipboard('${token}')">Copy ${type === 'api_token' ? 'API Token' : 'Check-in Token'}</button>
         `;
-        viewModal.style.display = 'block';
+        showModal(viewModal);
     }
 
     window.editUser = function(id, username, userstate, checkinstate, checkintoken, note) {
@@ -124,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('editCheckinState').value = checkinstate;
         document.getElementById('editCheckinToken').value = checkintoken;
         document.getElementById('editNote').value = note.replace(/\\n/g, '\n');
-        editModal.style.display = 'block';
+        showModal(editModal);
     }
 
     editForm.onsubmit = async function(event) {
@@ -142,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ id, username, userstate, checkinstate, checkintoken, note })
             });
             fetchUsers();
-            editModal.style.display = 'none';
+            hideModal(editModal);
         } catch (error) {
             console.error('Error updating user:', error);
         }

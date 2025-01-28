@@ -135,7 +135,7 @@ app.get('/api/account/permissions', async (req, res) => {
         // Calculate inherited routes for the current user
         const userStates = req.userState.split(',').map(state => state.trim());
         const userPerms = result.filter(perm => userStates.includes(perm.userstate));
-        const inheritedRoutes = userPerms.flatMap(perm => JSON.parse(perm.routes));
+        const inheritedRoutes = userPerms.flatMap(perm => Array.isArray(perm.routes) ? perm.routes : []);
         const uniqueInheritedRoutes = [...new Set(inheritedRoutes)];
 
         // Calculate highest rate limit from user's permission levels
