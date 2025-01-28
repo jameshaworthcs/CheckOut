@@ -341,6 +341,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Caching headers
+app.use((req, res, next) => {
+  if (req.url.startsWith('/static')) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, only-if-cached, max-stale=86400, stale-while-revalidate=0, stale-if-error=86400, immutable');
+  } else {
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, max-age=0, s-maxage=0, max-stale=0, stale-while-revalidate=0, stale-if-error=0, must-revalidate, proxy-revalidate');
+  }
+  next();
+});
+
 // Routes
 app.post('/api/app/block/appeal', async (req, res) => {
   const ip = req.usersIP;
