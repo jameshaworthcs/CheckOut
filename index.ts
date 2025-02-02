@@ -19,7 +19,7 @@ const loggedInPercentage = io.metric({
 // Database connections
 const db = require('./databases/database');
 const db2 = require('./databases/database-v2');
-const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
+const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis.ts');
 
 // Route handlers
 const appRouter = require('./routes/app');
