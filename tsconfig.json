@@ -32,13 +32,30 @@
     "noFallthroughCasesInSwitch": false,
     "noImplicitReturns": false,
     "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "useUnknownInCatchVariables": false,
+    "noImplicitOverride": false,
+    "allowImportingTsExtensions": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "jsx": "preserve",
+    "diagnostics": false,
+    "extendedDiagnostics": false,
+    "noEmitOnError": false
   },
   "include": [
     "**/*.ts",
-    "**/*.js"
+    "**/*.js",
+    "**/*.tsx",
+    "**/*.jsx"
   ],
   "exclude": [
-    "node_modules"
-  ]
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "ignore": []
+  }
 } 

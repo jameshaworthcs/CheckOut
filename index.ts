@@ -357,6 +357,10 @@ app.use(express.static('public', {
   dotfiles: 'allow',
 }));
 
+app.get('/api/docs', (req, res) => {
+  res.render('api.ejs');
+});
+
 // Route handlers
 app.use((req, res, next) => {
     if (req.url.startsWith('/api/app')) {
@@ -417,10 +421,6 @@ app.get('/settings', (req, res) => {
 
 app.get('/data', (req, res) => {
   res.render('data-control/data.ejs', { username: req.username });
-});
-
-app.get('/api/docs', (req, res) => {
-  res.render('api.ejs');
 });
 
 app.get('/success/logout', (req, res) => {
