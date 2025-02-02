@@ -117,9 +117,22 @@ const securityCheck = async (req, res, next) => {
     const ip = req.usersIP;
     const requestUrl = req.originalUrl;
     
-    // For static files, use anon permissions
+    // For static files, use anon permissions but with fixed rate limit
     if (requestUrl.startsWith('/static')) {
-      req.userState = req.userState || 'anon';
+      req.userState = 'anon';
+      const rateLimitResult = checkRateLimit(ip, 1000); // Fixed rate limit for static files
+      
+      if (rateLimitResult.limited) {
+        return res.status(429).json({
+          success: false,
+          ratelimit: true,
+          msg: `Rate limit exceeded: ${rateLimitResult.count}/1000 requests in the last minute for static files.`,
+          limit: 1000,
+          current: rateLimitResult.count,
+          total: rateLimitResult.total
+        });
+      }
+      return next();
     }
     
     // Fetch permissions once at the start
@@ -145,11 +158,6 @@ const securityCheck = async (req, res, next) => {
         msgBody: `You have made ${rateLimitResult.count} requests in the last minute, exceeding your limit of ${rateLimit} requests per minute. Please try again later or contact support if you need a higher limit.`, 
         username: req.username 
       });
-    }
-
-    // For static files, skip remaining checks after rate limiting
-    if (requestUrl.startsWith('/static')) {
-      return next();
     }
 
     const allowedServices = permissionResults.flatMap(result => Array.isArray(result.routes) ? result.routes : []);
