@@ -69,18 +69,17 @@
             <%- include('../global/icons/history'); %>
             History
         </a>
-        <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
+        <% if(typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon") { %>
             <a id="signin-link" class="menu-item" href="/login">
                 <b><u>Sign in</u></b>
             </a>
-        <%}%>
+        <% } else { %>
+            <a id="account-link" class="menu-item" href="/account">
+                Account
+            </a>
+        <% } %>
         <a id="settings-link" class="menu-item" href="/settings">
-            <!-- removed `typeof cacheUsername != 'undefined' || ` -->
-            <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
-                Settings
-            <%}else{%>
-                Settings & Account
-            <%}%>
+            Settings
         </a>
         <a class="menu-item" href="/learn-faq">
             Learn & FAQ

@@ -322,7 +322,7 @@ app.get('/auto', function (req, res) {
     if (err) throw err;
     if (result[0].checkinReport === "Disabled" || result[0].checkinReport === "Waitlist" || result[0].checkinstate == 0) {
       // New or returning user needs to port cookie
-      if (req.headers.host == 'checkout.ac') {
+      if (req.headers.host == req.rootDomain) {
         res.render('autocheckin/setup');
       } else {
         res.render('autocheckin/domain');
