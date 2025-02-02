@@ -95,8 +95,25 @@ app.post('/manage/api/users/refresh-api-token/:id', (req, res) => {
 
 app.get('/manage/api/users/session-refresh/:id', (req, res) => {
     const userId = req.params.id;
-    // Simulate refreshing session
-    res.status(200).json({ id: userId });
+    
+    // Get the current maximum user ID
+    db.query('SELECT MAX(id) as maxId FROM users', async (error, results) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, msg: 'Failed to refresh user sessions' });
+        }
+
+        const maxId = results[0].maxId;
+        // Set the user's ID to maxId + 1000 to ensure no conflicts with new users
+        const query = 'UPDATE users SET id = ? WHERE id = ?';
+        db.query(query, [maxId + 1000, userId], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ success: false, msg: 'Failed to refresh user sessions' });
+            }
+            res.status(200).json({ success: true, msg: 'All sessions have been invalidated for this user', id: maxId + 1000 });
+        });
+    });
 });
 
 app.get('*', function (req, res) {

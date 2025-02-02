@@ -123,7 +123,35 @@
       }
 
      function logoutAllSessions() {
-      displayNotice("Feature not available here. <a href='/support'>Contact support</a> to log other users out of your account or report concerns.", 'error');
+       if (confirm("Warning: This will log out ALL active sessions, including your current session. You will need to log in again. Are you sure you want to continue?")) {
+         const logoutAllBtn = document.getElementById('logout-all-btn');
+         logoutAllBtn.disabled = true;
+         logoutAllBtn.innerHTML = 'Logging out all sessions...';
+
+         fetch('/api/account/logout-all', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json'
+           }
+         })
+         .then(response => response.json())
+         .then(data => {
+           if (data.success) {
+             // Redirect to login page after successful logout
+             window.location.href = '/login';
+           } else {
+             displayNotice(data.msg || 'Failed to logout all sessions', 'error');
+             logoutAllBtn.disabled = false;
+             logoutAllBtn.innerHTML = 'Logout all sessions';
+           }
+         })
+         .catch(error => {
+           console.error('Error:', error);
+           displayNotice(error.message || 'Failed to logout all sessions', 'error');
+           logoutAllBtn.disabled = false;
+           logoutAllBtn.innerHTML = 'Logout all sessions';
+         });
+       }
      }
 
       function refreshApiKey() {

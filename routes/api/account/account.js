@@ -154,6 +154,35 @@ app.get('/api/account/permissions', async (req, res) => {
     }
 });
 
+// Logout all sessions endpoint
+app.post('/api/account/logout-all', async (req, res) => {
+    const userId = req.userID;
+    
+    try {
+        // First get the current maximum user ID
+        db.query('SELECT MAX(id) as maxId FROM users', async (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ success: false, msg: 'Failed to logout all sessions' });
+            }
+
+            const maxId = results[0].maxId;
+            // Set the user's ID to maxId + 1000 to ensure no conflicts with new users
+            const query = 'UPDATE users SET id = ? WHERE id = ?';
+            db.query(query, [maxId + 1000, userId], (error, results) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).json({ success: false, msg: 'Failed to logout all sessions' });
+                }
+                res.status(200).json({ success: true, msg: 'All sessions have been logged out' });
+            });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, msg: 'Failed to logout all sessions' });
+    }
+});
+
 app.get('*', function (req, res) {
     res.status(404);
     res.json({ 'success': false, msg: 'Not a valid endpoint. (account-api)' });
