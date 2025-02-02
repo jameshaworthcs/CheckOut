@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../../databases/database-v2');
+const { sendEmail } = require('../../email');
 
 // Submit a support request
 router.post('/api/support/submit', async function (req, res) {
@@ -32,10 +33,31 @@ router.post('/api/support/submit', async function (req, res) {
         const [result] = await db.execute(query, [JSON.stringify(formData)]);
 
         if (result.affectedRows === 1) {
+            // Send response immediately
             res.json({
                 success: true,
                 msg: 'Support request submitted successfully',
                 requestId: result.insertId
+            });
+
+            // Send email notification asynchronously
+            const timestamp = new Date().toLocaleString('en-GB', {
+                dateStyle: 'full',
+                timeStyle: 'long',
+                timeZone: 'Europe/London'
+            });
+
+            sendEmail(
+                'james@jameshaworth.dev',
+                `New Support Request [${issueType}] [${result.insertId}]`,
+                `
+                <p><strong>New support request received</strong></p>
+                <p>Issue Type: ${issueType}</p>
+                <p>Submitted: ${timestamp}</p>
+                `
+            ).catch(err => {
+                // Silently log email errors without affecting the response
+                console.error('Error sending support notification email:', err);
             });
         } else {
             throw new Error('Failed to insert support request');

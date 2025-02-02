@@ -20,6 +20,9 @@ var globalAppAPIRouter = require('./globalapp-api');
 // Permissions API router
 var permissionsAPIRouter = require('./permissions-api');
 
+// Support API router
+var supportAPIRouter = require('./support-api');
+
 // Handle code log API
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/code-log/")) {
@@ -77,6 +80,15 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     if (req.url.startsWith("/manage/api/permissions/")) {
         return permissionsAPIRouter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+// Handle support API
+app.use((req, res, next) => {
+    if (req.url.startsWith("/manage/api/support/")) {
+        return supportAPIRouter(req, res, next);
     } else {
         next();
     }
