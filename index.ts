@@ -82,7 +82,7 @@ process.on('SIGINT', async () => {
 });
 
 // Development logging
-if (process.env.CHK_SRV === "BETA" || true) {
+if (process.env.CHK_SRV === "BETA") {
   const loggerM = require('morgan');
   app.use(loggerM('dev'));
 }

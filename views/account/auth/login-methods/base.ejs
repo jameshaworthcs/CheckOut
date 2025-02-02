@@ -129,7 +129,7 @@
                 <%- include('./selection') %>
             <% } else { %>
                 <% if (contentTemplate !== 'google') { %>
-                    <a href="/login?method=selection" class="back-button">
+                    <a href="javascript:void(0)" onclick="redirectToLogin(this)" class="back-button">
                         <svg viewBox="0 0 24 24" fill="none">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6"/>
                         </svg>
@@ -142,7 +142,7 @@
 
         <% if (contentTemplate === 'google') { %>
         <div class="other-sign-in-options">
-            <a class="other-sign-in-options" href="/login?method=selection">
+            <a class="other-sign-in-options" href="javascript:void(0)" onclick="redirectToLogin(this)">
                 Other ways to sign in
             </a>
         </div>
@@ -177,6 +177,22 @@
             targetDiv.innerHTML = ''; // Clear the existing content
             targetDiv.appendChild(errorBox);
         };
+
+        function redirectToLogin(element) {
+            const currentPath = window.location.pathname;
+            const currentSearch = window.location.search;
+            const searchParams = new URLSearchParams(currentSearch);
+            
+            // Set method=selection
+            searchParams.set('method', 'selection');
+            
+            // Add intent if it doesn't exist
+            if (!searchParams.has('intent')) {
+                searchParams.set('intent', currentPath);
+            }
+            
+            window.location.href = `/login?${searchParams.toString()}`;
+        }
     </script>
 </body>
 </html> 

@@ -110,12 +110,11 @@
             const data = await response.json();
 
             if (data.success) {
-                // Get the intended redirect URL from the query parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                const intent = urlParams.get('intent') || '/';
+                // Get all current URL parameters
+                const currentParams = new URLSearchParams(window.location.search);
                 
-                // Redirect to the intended URL or home
-                window.location.href = intent;
+                // Redirect to /login with all existing parameters
+                window.location.href = '/login?' + currentParams.toString();
             } else {
                 showErrorBox(data.msg || 'Login failed. Please check your API key and try again.', 'error-container');
                 // Reset form state
