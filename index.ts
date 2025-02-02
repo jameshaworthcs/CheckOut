@@ -242,6 +242,7 @@ app.use((req, res, next) => {
       userData: {
         ...req.userData,
         username: req.username,
+        email: req.useremail,
         theme: req.userData?.theme || '2',
         beta: req.userData?.beta || false,
         development: req.userData?.development || false,

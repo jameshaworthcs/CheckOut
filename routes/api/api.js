@@ -33,6 +33,9 @@ var accountRouter = require('./account/account');
 // History Router
 var historyRouter = require('./history/history');
 
+// Support Router
+var supportRouter = require('./support/support');
+
 // Handle Google Authentications (/auth/google)
 app.use((req, res, next) => {
     if (req.url.startsWith("/api/auth/google/")) {
@@ -120,6 +123,15 @@ app.use((req, res, next) => {
         secureRoute.auth("account", req, res, () => {
             return accountRouter(req, res, next);
           });
+    } else {
+        next();
+    }
+});
+
+// Handle support requests
+app.use((req, res, next) => {
+    if (req.url.startsWith("/api/support/")) {
+        return supportRouter(req, res, next);
     } else {
         next();
     }
