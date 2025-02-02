@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./global/head'); %>
+    <title>Support - Checkout</title>
+    <style>
+        /* Page-specific styles only */
+        .warning-box {
+            background-color: var(--warning-background);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            color: var(--warning-text);
+            margin-bottom: 15px;
+        }
+
+        .warning-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .support-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .support-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--text-colour);
+        }
+
+        .support-description {
+            color: var(--subtext-colour);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .email-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--cta-background-main);
+            color: var(--cta-button-colour-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: opacity 0.2s ease;
+        }
+
+        .email-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./global/navbar'); %>
+    <div class="content">
+        <div class="support-container">
+            <h1 class="support-title">Support</h1>
+            <p class="support-description">Need help? We're here to assist you.</p>
+            
+            <div class="warning-box">
+                <p><b>Support Form Coming Soon</b></p>
+                <p>We're currently working on a dedicated support form to better assist you. In the meantime, please reach out to us via email.</p>
+            </div>
+
+            <a href="mailto:checkout@jemedia.xyz" class="email-button">
+                Send us an email
+            </a>
+        </div>
+    </div>
+</body>
+
+</html> 

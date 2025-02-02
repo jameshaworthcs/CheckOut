@@ -394,7 +394,7 @@ app.use((req, res, next) => {
 });
 
 // Static routes
-app.get('/support', (req, res) => res.redirect('mailto:checkout@jemedia.xyz'));
+app.get('/support', (req, res) => res.render('support.ejs', { username: req.username }));
 app.get('/faq', (req, res) => res.redirect('/learn-faq'));
 app.get('/terms', (req, res) => res.redirect('/terms-privacy'));
 

@@ -10,6 +10,32 @@
         .promo-container {
             height: 241px;
         }
+        .warning-box {
+            background-color: var(--warning-background);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            color: var(--warning-text);
+            margin-bottom: 15px;
+        }
+
+        .warning-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .warning-box a {
+            color: var(--warning-text);
+            text-decoration: underline;
+        }
+
+        .warning-box small {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -37,11 +63,12 @@
     <div class="content">
         <p class="sub-text"><b>Congratulations, you've been accepted.</b><br><br><span class="subtext">This won't take long.</span></p>
         <div class="info-section">
-            <ol class="styled-list">
-                <li>For your security, setup can only be completed on checkout.ac<br><small>We do not allow rejectdopamine.com or beta.checkout.ac for setting up AutoCheckin. This is to keep your account secure.</small></li>
-                <li>Visit <a target="_blank" href="https://checkout.ac/auto">checkout.ac/auto</a> to continue setup.</li>
-                <li>Thanks for understanding<br><small>Once setup, you can continue to use alternative domains.</small></li>
-            </ol>
+            <div class="warning-box">
+                <p><b>For your security, setup can only be completed on checkout.ac</b></p>
+                <p>We do not allow rejectdopamine.com or beta.checkout.ac for setting up AutoCheckin. This is to keep your account secure.</p>
+                <p>Visit <a target="_blank" href="https://checkout.ac/auto">checkout.ac/auto</a> to continue setup.</p>
+                <p><small>Once setup, you can continue to use alternative domains.</small></p>
+            </div>
         </div>
     </div>
 
