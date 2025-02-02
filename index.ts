@@ -19,6 +19,7 @@ const loggedInPercentage = io.metric({
 // Database connections
 const db = require('./databases/database');
 const db2 = require('./databases/database-v2');
+const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
 
 // Route handlers
 const appRouter = require('./routes/app');
@@ -48,41 +49,7 @@ const dbOptions = {
   database: process.env.DB_NAME,
 };
 
-// Redis client setup
-let redisClient = null;
-let RedisStore, redisStore;
-let USE_MYSQL_SESSION_STORE = false;
 const mysqlStore = new MySQLStore(dbOptions);
-
-try {
-  RedisStore = require('connect-redis').default;
-  const Redis = require('ioredis');
-
-  // Create Redis client for both sessions and caching
-  redisClient = new Redis({
-    host: process.env.REDISHOST || '127.0.0.1',
-    port: parseInt(process.env.REDISPORT || '6379'),
-    username: process.env.REDISUSER,
-    password: process.env.REDISPASSWORD,
-    family: 0
-  });
-
-  // Set up error handler
-  redisClient.on('error', (err) => {
-    console.log("Redis client error:", err);
-    USE_MYSQL_SESSION_STORE = true;
-    redisClient = null;
-  });
-
-  // Set up session store
-  redisStore = new RedisStore({ client: redisClient });
-  console.log("Redis store connected");
-
-} catch (err) {
-  console.log("Redis installation not found, using SQL session store instead:", err);
-  USE_MYSQL_SESSION_STORE = true;
-}
-
 const sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStore : redisStore || mysqlStore;
 
 // Session middleware - with path exclusion for static files
@@ -107,15 +74,9 @@ app.use((req, res, next) => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
-  if (redisClient?.quit) {
-    redisClient.quit(() => {
-      console.log('Redis client closed.');
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
+process.on('SIGINT', async () => {
+  await handleShutdown();
+  process.exit(0);
 });
 
 // Development logging
@@ -313,7 +274,7 @@ app.use((req, res, next) => {
       }
 
       try {
-        const cachedMinifiedHtml = await redisClient.get(hash);
+        const cachedMinifiedHtml = await getCache(hash);
 
         if (cachedMinifiedHtml && useMiniCache) {
           this.send(cachedMinifiedHtml);
@@ -329,7 +290,7 @@ app.use((req, res, next) => {
           });
 
           const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
-          await redisClient.set(hash, finalHtml, 'EX', TTL);
+          await setCache(hash, finalHtml, TTL);
           this.send(finalHtml);
         }
       } catch (redisErr) {
