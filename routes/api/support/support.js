@@ -15,6 +15,22 @@ router.post('/api/support/submit', async function (req, res) {
             message
         } = req.body;
 
+        // Check rate limit for IP
+        const rateLimitQuery = `
+            SELECT COUNT(*) as request_count 
+            FROM support_requests 
+            WHERE JSON_EXTRACT(form_data, '$.ip') = ? 
+            AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        `;
+        const [rateLimitResult] = await db.execute(rateLimitQuery, [req.usersIP]);
+        
+        if (rateLimitResult[0].request_count >= 5) {
+            return res.status(429).json({
+                success: false,
+                msg: 'You have exceeded the maximum number of support requests (5) allowed in 24 hours. Please try again later or contact us through alternative means if your matter is urgent.'
+            });
+        }
+
         // Create form_data object with all submitted fields
         const formData = {
             issueType,
@@ -25,7 +41,8 @@ router.post('/api/support/submit', async function (req, res) {
             message,
             userState: req.userState || 'anon',
             userId: req.userID || null,
-            deviceId: req.sessionID
+            deviceId: req.sessionID,
+            ip: req.usersIP
         };
 
         // Insert into database
