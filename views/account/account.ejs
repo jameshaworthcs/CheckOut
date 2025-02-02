@@ -42,8 +42,8 @@
           <div class="account-buttons-container">
             <button id="logout-btn" onclick="logout()" style="background-color: #A94442;">Logout</button>
             <button id="logout-all-btn" onclick="logoutAllSessions()" style="background-color: #8B2E2E;">Logout all sessions</button>
-            <button id="apikey-btn" onclick="fetchAndCopyApiKey()" style="background-color: #2C8B8B;">Copy API Key</button>
-            <button id="apikey-btn" onclick="refreshApiKey()" style="background-color: #2C8B8B;">Refresh API Key</button>
+            <button id="copy-apikey-btn" onclick="fetchAndCopyApiKey()" style="background-color: #2C8B8B;">Copy API Key</button>
+            <button id="refresh-apikey-btn" onclick="refreshApiKey()" style="background-color: #2C8B8B;">Refresh API Key</button>
             <a href="/data">
               <button id="manage-data-btn" style="background-color: #3D8B3D;">Manage data</button>
             </a>
@@ -64,6 +64,10 @@
 
     <script>
       function fetchAndCopyApiKey() {
+        const apikeyBtn = document.getElementById('copy-apikey-btn');
+        apikeyBtn.disabled = true;
+        apikeyBtn.innerHTML = 'Copying API Key...';
+
         fetch('/api/account/token')
           .then(response => response.json())
           .then(data => {
@@ -85,6 +89,11 @@
             } else {
                 displayNotice(error.message || error, 'error');
             }
+          })
+          .finally(() => {
+            // Reset button state regardless of success or failure
+            apikeyBtn.disabled = false;
+            apikeyBtn.innerHTML = 'Copy API Key';
           });
       }
 

@@ -101,11 +101,28 @@ function updateAccountSettings(data) {
     const accountDetailsSpan = document.getElementById('accountDetails');
     const signInTextLink = document.getElementById('signInText');
 
-    calculateBirthday(data.birthday)
-
+    // Get both timestamps and use the oldest one
+    let oldestTimestamp;
+    
     if (data.success && data.account) {
         // User has an account
-        const { email, username } = data.accountInfo;
+        const { email, username, accountCreationTime } = data.accountInfo;
+        
+        // Normalize timestamps to handle different formats
+        // accountCreationTime is in ISO format (with T and Z)
+        // sessionConsentTimestamp is in MySQL format
+        const accountDate = new Date(accountCreationTime);
+        const consentDate = new Date(data.sessionConsentTimestamp.replace(' ', 'T') + 'Z');
+        
+        // Use the oldest valid timestamp, keeping the original string format
+        if (!isNaN(accountDate.getTime()) && !isNaN(consentDate.getTime())) {
+            oldestTimestamp = accountDate < consentDate ? accountCreationTime : data.sessionConsentTimestamp;
+            console.log('Account date:', accountDate, 'Consent date:', consentDate, 'Using:', oldestTimestamp);
+        } else if (!isNaN(accountDate.getTime())) {
+            oldestTimestamp = accountCreationTime;
+        } else {
+            oldestTimestamp = data.sessionConsentTimestamp;
+        }
 
         // Update accountDetails to greet the user by username
         accountDetailsSpan.textContent = `Hello, ${username}`;
@@ -121,21 +138,29 @@ function updateAccountSettings(data) {
         ctaButton.style.marginLeft = '10px';
         accountDetailsSpan.parentNode.appendChild(ctaButton);
     } else {
-        // User is not signed in
+        // User is not signed in, use session consent timestamp
+        oldestTimestamp = data.sessionConsentTimestamp;
         accountDetailsSpan.innerHTML = 'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
     }
+
+    // Calculate birthday using the oldest timestamp
+    calculateBirthday(oldestTimestamp);
 }
 
 // Call the function to fetch account settings
 fetchAccountSettings();
 
-
-
 function calculateBirthday(inputDateStr) {
     const userSinceSpan = document.getElementById('userSince');
     
-    // Convert input to a Date object by appending 'Z' to the string to indicate UTC
-    let inputDate = new Date(inputDateStr + 'Z'); 
+    // Handle both MySQL format and ISO format
+    // If it already contains 'T' and 'Z', it's ISO format, otherwise treat as MySQL format
+    let inputDate;
+    if (inputDateStr.includes('T') && inputDateStr.includes('Z')) {
+        inputDate = new Date(inputDateStr);
+    } else {
+        inputDate = new Date(inputDateStr.replace(' ', 'T') + 'Z');
+    }
     
     // Check if the date is invalid
     if (isNaN(inputDate.getTime())) {
@@ -143,7 +168,6 @@ function calculateBirthday(inputDateStr) {
         return;
     }
 
-    // Convert the input date to Europe/London time
     // Convert the input date to Europe/London time
     const londonTime = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Europe/London',
@@ -167,8 +191,6 @@ function calculateBirthday(inputDateStr) {
         }
         return value + ' ';
     }).join('').trim();
-
-
 
     // Use the inputDate in the user's local timezone to calculate the difference
     const now = new Date(); // Current date and time in the user's timezone
@@ -207,8 +229,6 @@ function calculateBirthday(inputDateStr) {
 
     userSinceSpan.innerHTML = output;
 }
-
-
 
 ////////////
 // Themes //
@@ -310,7 +330,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 2000);
   });
 });
-
-
 
 </script>

@@ -19,23 +19,37 @@ async function obscureEmail(email) {
 }
 
 app.get('/api/settings/account', async function (req, res) {
-    let birthday;
+    let sessionConsentTimestamp;
     
     if (req.session && req.session['consent'] && req.session['consent']['timestamp']) {
-        birthday = req.session['consent']['timestamp'];
+        sessionConsentTimestamp = req.session['consent']['timestamp'];
     } else {
-        birthday = '2030-01-01 01:01:01';
+        sessionConsentTimestamp = '2030-01-01 01:01:01';
     }
 
     if (req.userState != 'anon') {
-        const obscuredEmail = await obscureEmail(req.useremail);
-        const accountInfo = {
-            email: obscuredEmail,
-            username: req.username
-        }
-        res.json({ 'success': true, account: true, birthday, accountInfo });
+        // Get user info including accountCreationTime
+        db.query('SELECT email, username, accountCreationTime FROM users WHERE id = ?', [req.userID], async (err, results) => {
+            if (err) {
+                console.error('Error fetching user data:', err);
+                return res.status(500).json({ success: false, msg: 'Failed to fetch account data' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ success: false, msg: 'User not found' });
+            }
+
+            const user = results[0];
+            const obscuredEmail = await obscureEmail(user.email);
+            const accountInfo = {
+                email: obscuredEmail,
+                username: user.username,
+                accountCreationTime: user.accountCreationTime
+            }
+            res.json({ 'success': true, account: true, sessionConsentTimestamp, accountInfo });
+        });
     } else {
-        res.json({ 'success': true, account: false, birthday });
+        res.json({ 'success': true, account: false, sessionConsentTimestamp });
     }
 })
 
