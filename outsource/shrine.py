@@ -24,7 +24,7 @@ def send_post_request(url, data):
         'accept': 'application/json',
         'Content-Type': 'application/json',
         'User-Agent': 'JEM/CheckOut (v2.1; +https://api.jemedia.xyz/help; abuse@jemedia.xyz)',
-        'x-checkout-key': 'shrine78b9x213879b342c879b'
+        'x-checkout-key': 'outdated'
     }
     try:
         response = requests.post(url, json=data, headers=headers2)
