@@ -1,6 +1,6 @@
-const express = require('express')
+const express = require('express');
 var app = express.Router();
-var moment = require('moment')
+var moment = require('moment');
 
 app.post('/api/welcome/consent', function (req, res) {
     //if (req.headers.host == 'checkout.ac') {

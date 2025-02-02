@@ -1,4 +1,4 @@
-var db=require('../../../databases/database');
+var db=require('../../../databases/database.ts');
 
 // Function to get course details including modules, tibl, and other course-related data
 async function courseDetails(inst, crs, yr) {

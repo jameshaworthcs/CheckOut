@@ -1,6 +1,6 @@
-const express = require('express')
+const express = require('express');
 var app = express.Router();
-var db = require('../../../databases/database');
+var db = require('../../../databases/database.ts');
 
 // Get all permissions
 app.get('/manage/api/permissions/list', (req, res) => {

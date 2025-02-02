@@ -1,5 +1,5 @@
-const express = require('express')
-var db = require('../../../databases/database');
+const express = require('express');
+var db = require('../../../databases/database.ts');
 var app = express.Router();
 
 app.get('/manage/api/globalapp/data', function (req, res) {

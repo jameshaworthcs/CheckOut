@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const serverSecret = `${process.env.SSECRET}${process.env.DBPASS}`;
 
 // Submission Websocket Router
-var wsRouter = require('./ws');
+var wsRouter = require('./ws.ts');
 
 // Handle websocket submissions
 app.use((req, res, next) => {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../../databases/database-v2');
-const { sendEmail } = require('../../email');
+const db = require('../../../databases/database-v2.ts');
+const { sendEmail } = require('../../email.ts');
 
 // Submit a support request
 router.post('/api/support/submit', async function (req, res) {

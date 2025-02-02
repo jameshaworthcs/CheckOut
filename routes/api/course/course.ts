@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-var courseFinder=require('./course-find');
+var courseFinder=require('./course-find.ts');
 
 // Endpoint to get all modules for a specific course, year, and institution
 app.get('/api/course/find/:inst/:crs/:yr', async function(req, res) {

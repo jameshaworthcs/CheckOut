@@ -1,9 +1,9 @@
-const express = require('express')
+const express = require('express');
 var app = express.Router();
-var secureRoute = require('../secure');
+var secureRoute = require('../secure.ts');
 
 // API management router
-var apiManageRouter = require('./api/api');
+var apiManageRouter = require('./api/api.ts');
 
 // Handle management API
 app.use((req, res, next) => {

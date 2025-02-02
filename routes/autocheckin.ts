@@ -1,11 +1,11 @@
-const express = require('express')
-var db=require('../databases/database');
+const express = require('express');
+var db=require('../databases/database.ts');
 var app = express.Router();
 const moment = require('moment-timezone');
 const crypto = require('crypto');
-const { sendVerificationEmail } = require('./email');
+const { sendVerificationEmail } = require('./email.ts');
 const {spawn} = require('child_process');
-var tibl = require('./tibl');
+var tibl = require('./tibl.ts');
 
 function autoCheckin(email, session, codes) {
   //console.log("AutoChecking ", email, codes);

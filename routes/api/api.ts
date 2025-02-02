@@ -1,40 +1,40 @@
-const express = require('express')
-var db = require('../../databases/database');
-var secureRoute = require('../secure');
-var app = express.Router();
+const express = require('express');
+var db = require('../../databases/database.ts');
+var secureRoute = require('../secure.ts');
+var app = express.Router(); 
 
 // Google Auth Router
-var googleAuthRouter = require('./auth/google');
+var googleAuthRouter = require('./auth/google.ts');
 
 // Generic Auth Router
-const { login, authenticateUser, app: authRouter } = require('./auth/auth');
+const { login, authenticateUser, app: authRouter } = require('./auth/auth.ts');
 
 // Submission Router
-var submitRouter = require('./submit/submit');
+var submitRouter = require('./submit/submit.ts');
 
 // Welcome Router
-var welcomeRouter = require('./welcome/welcome');
+var welcomeRouter = require('./welcome/welcome.ts');
 
 // Course selection Router
-var courseSelectRouter = require('./course-select/course-select');
+var courseSelectRouter = require('./course-select/course-select.ts');
 
 // Course Router
-var courseRouter = require('./course/course');
+var courseRouter = require('./course/course.ts');
 
 // Settings Router
-var settingsRouter = require('./settings/settings');
+var settingsRouter = require('./settings/settings.ts');
 
 // Data Router
-var dataRouter = require('./data-control/data');
+var dataRouter = require('./data-control/data.ts');
 
 // Account Router
-var accountRouter = require('./account/account');
+var accountRouter = require('./account/account.ts');
 
 // History Router
-var historyRouter = require('./history/history');
+var historyRouter = require('./history/history.ts');
 
 // Support Router
-var supportRouter = require('./support/support');
+var supportRouter = require('./support/support.ts');
 
 // Handle Google Authentications (/auth/google)
 app.use((req, res, next) => {

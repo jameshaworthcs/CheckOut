@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-const { login } = require('./auth');
+const { login } = require('./auth.ts');
 
 const { OAuth2Client } = require('google-auth-library');
 

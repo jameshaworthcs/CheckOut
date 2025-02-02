@@ -1,27 +1,27 @@
 const express = require('express')
-var db = require('../../../databases/database');
+var db = require('../../../databases/database.ts');
 var app = express.Router();
-var secureRoute = require('../../secure');
+var secureRoute = require('../../secure.ts');
 
 // Code Log API router
-var codeLogAPIRouter = require('./code-log-api');
+var codeLogAPIRouter = require('./code-log-api.ts');
 
 // Request Log API router
-var requestLogAPIRouter = require('./request-log-api');
+var requestLogAPIRouter = require('./request-log-api.ts');
 
 // Users API router
-var userAPIRouter = require('./users-api');
+var userAPIRouter = require('./users-api.ts');
 
 // AutoCheckin API router
-var autocheckinAPIRouter = require('./autocheckin-api');
+var autocheckinAPIRouter = require('./autocheckin-api.ts');
 
-var globalAppAPIRouter = require('./globalapp-api');
+var globalAppAPIRouter = require('./globalapp-api.ts');
 
 // Permissions API router
-var permissionsAPIRouter = require('./permissions-api');
+var permissionsAPIRouter = require('./permissions-api.ts');
 
 // Support API router
-var supportAPIRouter = require('./support-api');
+var supportAPIRouter = require('./support-api.ts');
 
 // Handle code log API
 app.use((req, res, next) => {

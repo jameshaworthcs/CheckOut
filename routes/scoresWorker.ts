@@ -1,4 +1,4 @@
-const calculateScores = require('./algorithm.js');
+const calculateScores = require('./algorithm.ts');
 const workerpool = require('workerpool');
 
 //console.log("Imported calculateScores: ", typeof calculateScores);

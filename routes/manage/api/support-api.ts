@@ -1,5 +1,5 @@
-const express = require('express')
-var db = require('../../../databases/database-v2');
+const express = require('express');
+var db = require('../../../databases/database-v2.ts');
 var app = express.Router();
 
 // Get all support requests with optional filters

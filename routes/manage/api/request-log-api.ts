@@ -1,5 +1,5 @@
-const express = require('express')
-var db2 = require('../../../databases/database-v2');
+const express = require('express');
+var db2 = require('../../../databases/database-v2.ts');
 var app = express.Router();
 
 app.get('/manage/api/request-log/logs', async (req, res) => {

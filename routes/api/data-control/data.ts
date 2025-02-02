@@ -1,8 +1,8 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../databases/database');
-var db2 = require('../../../databases/database-v2');
-const { sendEmail } = require('../../email');
+var db = require('../../../databases/database.ts');
+var db2 = require('../../../databases/database-v2.ts');
+const { sendEmail } = require('../../email.ts');
 
 // Session data
 app.get('/api/data/session', async function (req, res) {

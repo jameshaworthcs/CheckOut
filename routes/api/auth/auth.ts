@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const util = require('util');
-var db=require('../../../databases/database');
-const { sendEmail } = require('../../email');
+var db=require('../../../databases/database.ts');
+const { sendEmail } = require('../../email.ts');
 const express = require('express')
 const moment = require('moment-timezone');
 const ejs = require('ejs');

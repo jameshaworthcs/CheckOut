@@ -1,6 +1,6 @@
 const express = require('express')
 var app = express.Router();
-var db = require('../../../databases/database');
+var db = require('../../../databases/database.ts');
 const crypto = require('crypto');
 //var db2 = require('../../../databases/database-v2');
 //const { sendEmail } = require('../../email');

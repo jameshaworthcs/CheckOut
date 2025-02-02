@@ -1,4 +1,4 @@
-var tibl = require('../routes/tibl');
+var tibl = require('../routes/tibl.ts');
 const {spawn} = require('child_process');
 const express = require('express')
 var app = express.Router();

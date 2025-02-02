@@ -1,13 +1,13 @@
 const express = require('express')
-var db=require('../databases/database');
+var db=require('../databases/database.ts');
 var app = express.Router();
 const moment = require('moment-timezone');
 const crypto = require('crypto');
-const { sendVerificationEmail } = require('./email');
+const { sendVerificationEmail } = require('./email.ts');
 const {spawn} = require('child_process');
-var tibl = require('./tibl');
-var secureRoute = require('./secure');
-var courseFinder = require('./api/course/course-find');
+var tibl = require('./tibl.ts');
+var secureRoute = require('./secure.ts');
+var courseFinder = require('./api/course/course-find.ts');
 //const calculateScores = require('./algorithm.js');
 const { Worker } = require('worker_threads');
 
@@ -331,7 +331,7 @@ function getCodes(inst, crs, yr, md, grp, callback) {
 const workerpool = require('workerpool');
 
 // Worker pool for getCodesAlg
-const pool = workerpool.pool(__dirname + '/scoresWorker.js');
+const pool = workerpool.pool(__dirname + '/scoresWorker.ts');
 
 const cache = {};
 

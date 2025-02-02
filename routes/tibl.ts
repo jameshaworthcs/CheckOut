@@ -1,4 +1,4 @@
-var db=require('../databases/database');
+var db=require('../databases/database.ts');
 
 let moduleCache = null;
 let cacheTimeout = null;

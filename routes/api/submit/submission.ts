@@ -1,8 +1,8 @@
-var db = require('../../../databases/database');
-var db2 = require('../../../databases/database-v2');
+var db = require('../../../databases/database.ts');
+var db2 = require('../../../databases/database-v2.ts');
 const moment = require('moment-timezone');
 const crypto = require('crypto');
-var autoApp = require('../../autocheckin');
+var autoApp = require('../../autocheckin.ts');
 const fetchAutoCheckers = autoApp.fetchAutoCheckers;
 
 // Async function to check for repeat submissions

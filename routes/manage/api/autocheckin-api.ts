@@ -1,7 +1,7 @@
-const express = require('express')
-var db2 = require('../../../databases/database-v2');
+const express = require('express');
+var db2 = require('../../../databases/database-v2.ts');
 var app = express.Router();
-const secureRoute = require('../../secure');
+const secureRoute = require('../../secure.ts');
 
 // Get all users and their AutoCheckin info
 app.get('/manage/api/autocheckin/autocheckers', async (req, res) => {

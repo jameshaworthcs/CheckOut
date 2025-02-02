@@ -17,20 +17,20 @@ const loggedInPercentage = io.metric({
 });
 
 // Database connections
-const db = require('./databases/database');
-const db2 = require('./databases/database-v2');
-const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
+const db = require('./databases/database.ts');
+const db2 = require('./databases/database-v2.ts');
+const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis.ts');
 
 // Route handlers
-const appRouter = require('./routes/app');
-const accountRouter = require('./routes/account');
-const autoRouter = require('./routes/autocheckin');
-const manageRouter = require('./routes/manage/manage');
-const secureRoute = require('./routes/secure');
-const { authenticateUser } = require('./routes/api/auth/auth');
-const outsource = require('./outsource/outsource');
-const apiRouter = require('./routes/api/api');
-const { auth } = require('./routes/secure');
+const appRouter = require('./routes/app.ts');
+const accountRouter = require('./routes/account.ts');
+const autoRouter = require('./routes/autocheckin.ts');
+const manageRouter = require('./routes/manage/manage.ts');
+const secureRoute = require('./routes/secure.ts');
+const { authenticateUser } = require('./routes/api/auth/auth.ts');
+const outsource = require('./outsource/outsource.ts');
+const apiRouter = require('./routes/api/api.ts');
+const { auth } = require('./routes/secure.ts');
 
 // Initialize Express app
 const app = express();
@@ -98,7 +98,7 @@ app.use(cookieParser());
 const server = http.createServer(app);
 
 // Import and setup WebSocket handlers
-const wsHandler = require('./routes/api/submit/ws');
+const wsHandler = require('./routes/api/submit/ws.ts');
 wsHandler.setupWebSocket(server);
 
 // Cache configuration

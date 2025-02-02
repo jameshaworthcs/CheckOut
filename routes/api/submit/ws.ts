@@ -10,8 +10,8 @@ const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 
 // Submission Helper
-var submissionHelper = require('./submission');
-var { handleAutoSplashConnection } = require('./auto-splash');
+var submissionHelper = require('./submission.ts');
+var { handleAutoSplashConnection } = require('./auto-splash.ts');
 
 // Generate the server secret using environment variables for JWT
 const serverSecret = `${process.env.SSECRET}${process.env.DBPASS}`;

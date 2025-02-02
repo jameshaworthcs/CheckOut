@@ -1,5 +1,5 @@
-const express = require('express')
-var db = require('../../../databases/database');
+const express = require('express');
+var db = require('../../../databases/database.ts');
 var app = express.Router();
 
 // TK Data view
