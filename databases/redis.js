@@ -18,7 +18,7 @@ try {
   });
 
   // Increase max listeners to prevent warnings
-  redisClient.setMaxListeners(20);
+  redisClient.setMaxListeners(30);
 
   // Set up error handler
   redisClient.on('error', (err) => {
@@ -35,7 +35,7 @@ try {
   
   // Increase max listeners for the store
   if (redisStore instanceof EventEmitter) {
-    redisStore.setMaxListeners(20);
+    redisStore.setMaxListeners(30);
   }
   
   console.log("Redis store connected");
