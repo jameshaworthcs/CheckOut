@@ -11,7 +11,7 @@ var courseFinder = require('./api/course/course-find.ts');
 //const calculateScores = require('./algorithm.js');
 const { Worker } = require('worker_threads');
 
-const blockedTerms = ['<', '>', '690420', '696969', 'VFD', 'fuck', 'gay','slut','james','cum','ass fuck','ass hole','assfucker','asshole','assshole', 'black cock', 'cockfucker','cocksuck','cocksucker','coon','coonnass','faggot','fuck off','fuck you','fuckass','fuckhole','homoerotic','mother fucker','motherfuck','motherfucker','penisfucker','sadist','slut','son of a bitch'];
+const blockedTerms = ['<', '>'];
 
 
 
