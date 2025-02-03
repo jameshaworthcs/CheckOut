@@ -332,8 +332,16 @@ function fillSubmitFormNonTibl(legacy_modules) {
         document.querySelector('.submit-skeleton').classList.add('hidden');
         document.querySelector('.submit-form').classList.remove('hidden');
 
-        setupSubmit()
-
+        const formElement = document.getElementById('submitForm');
+        if (formElement) {
+            formElement.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(formElement);
+                var jsonData = {};
+                formData.forEach((value, key) => { jsonData[key] = value; });
+                processSubmission('submitForm', jsonData);
+            });
+        }
         document.getElementById("chc").focus();
         setupSelectableOptionsNonTibl('moduleOption-NonTibl', 'md');
         setupSelectableOptionsNonTibl('groupOption-NonTibl', 'grp');
@@ -543,7 +551,16 @@ function fillSubmitForm(sessionCount, msg, sessions) {
 
     if (sessionCount !== 0) {
         setupSelectableOptions('sessionOptionForm', 'md');
-        setupSubmit()
+        const formElement = document.getElementById('submitForm');
+        if(formElement) {
+            formElement.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(formElement);
+                var jsonData = {};
+                formData.forEach((value, key) => { jsonData[key] = value; });
+                processSubmission('submitForm', jsonData);
+            });
+        }
     }
     if (sessionCount === 1) {
         document.getElementById('sessionOption').click();
@@ -1366,79 +1383,90 @@ function validateGrpField() {
     return true;
 }
 
-function setupSubmit() {
-    const qrButton = document.querySelector('#qr-button');
-    if (qrButton) {
-        qrButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            barcodeScanner();
-        });
+// Added new processSubmission function below:
+
+/**
+ * processSubmission - Processes a form submission programmatically.
+ *
+ * This revised function accepts a pre-constructed submissionData object instead of extracting data
+ * directly from the form. It is no longer automatically attached to a form's submit event.
+ *
+ * @param {string} formIdentifier - The identifier of the form associated with the submission.
+ * @param {Object} submissionData - An object containing the required submission values. Expected keys include:
+ *      - md: Module code.
+ *      - grp: Group number.
+ *      - chc: Check-out code.
+ *      - tk: Token value.
+ *      - inst: Institution code.
+ *      - crs: Course code.
+ *      - yr: Year identifier.
+ *
+ * This function handles UI updates (e.g., showing a spinner, enabling/disabling buttons and inputs),
+ * performs necessary validation, and initiates the submission process via asynchronous API calls.
+ *
+ * To use, gather the submission values from the form (or elsewhere) and call:
+ * processSubmission('submitForm', submissionData);
+ */
+function processSubmission(formIdentifier, submissionData) {
+    // Locate the form element using the provided identifier.
+    const form = document.getElementById(formIdentifier);
+    if (!form) {
+        console.error(`Form with identifier "${formIdentifier}" not found.`);
+        return;
     }
-    document.querySelector('#submitForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        startSpinner('submit-button');
+    
+    // Locate the submit button within the form (assumes its id is 'submit-button').
+    const submitButton = form.querySelector('#submit-button');
+    if (!submitButton) {
+        console.error('Submit button not found within the form.');
+        return;
+    }
 
-        // Stop code display refresh
-        cancelRefresh(false)
+    // Start spinner effect on the submit button.
+    startSpinner(submitButton.id);
 
-        // Call the validation function for 'grp' field
-        if (!validateGrpField()) {
-            return; // Exit if the validation fails
-        }
+    // Stop periodic refresh that might interfere with submission.
+    cancelRefresh(false);
 
-        var form = this;
-        var formData = new FormData(form);
-        var jsonData = {};
-        formData.forEach((value, key) => {
-            jsonData[key] = value;
-        });
+    // Validate the 'grp' field using the existing validation function.
+    if (!validateGrpField()) {
+        endSpinner(submitButton.id);
+        return;
+    }
 
-        // not using async here because of apple (webkit)
-        wsp1(jsonData).then(({ ws, ws1, jt, autoSplash }) => {
-            // Start the auto splash screen
+    // Process the submission using the provided submissionData.
+    wsp1(submissionData)
+        .then(({ ws, ws1, jt, autoSplash }) => {
+            // If an auto-splash is required, initiate it.
             if (autoSplash) {
                 startAutoSplash(jt);
             }
-            return wps(ws1, jsonData, ws, jt);
-        }).then(wpfs => {
+            // Proceed with WebSocket-based submission.
+            return wps(ws1, submissionData, ws, jt);
+        })
+        .then(wpfs => {
             if (wpfs.submit) {
-                endSpinner('submit-button');
-                greenLightButton('submit-button');
-                createConfetti('submit-button');
+                // On successful submission, update the UI accordingly.
+                endSpinner(submitButton.id);
+                greenLightButton(submitButton.id);
+                createConfetti(submitButton.id);
                 greenLightInput('chc');
-                //displayNotice("Code submitted, thank you. <a href='/history'>View history</a>", 'success', 'Submission successful', 0);
-                // Refresh codes display
+                // Refresh the codes display.
                 setup(false);
             } else {
-                endSpinner('submit-button');
+                // On submission failure, display an error notice.
+                endSpinner(submitButton.id);
                 displayNotice(wpfs.msg, 'error', 'Submission error', 0);
-                tryAgainButton('submit-button');
+                tryAgainButton(submitButton.id);
             }
-        }).catch(error => {
+        })
+        .catch(error => {
             console.error(error);
             displayNotice(error, 'error', 'Submission error', 0);
-            endSpinner('submit-button');
-            tryAgainButton('submit-button');
+            endSpinner(submitButton.id);
+            tryAgainButton(submitButton.id);
         });
-    });
 }
-
-
-
-// const devWarning = `Submission not currently available. Code ${jsonData.chc} not saved.`;
-// displayNotice(devWarning, 'error', 'Unavailable in beta', 0);
-// Validation for module selection
-        // var selectedModule = document.getElementById('md').value;
-        // if (!selectedModule) {
-        //     showMessage('Please select a class before submitting.', 'message-error');
-        //     return;
-        // }
-        // var selectedGroup = document.getElementById('grp').value;
-        // if (!selectedGroup) {
-        //     showMessage('Something has gone wrong. Please inform an admin.', 'message-error');
-        //     return;
-        // }
-
 
 function startAutoSplash(jt) {
     const autoSplashContainer = document.getElementById('autoSplashContainer');
@@ -1650,7 +1678,7 @@ function greenLightButton(id) {
 }
 
 function createConfetti(buttonId) {
-    console.log('Creating confetti for button:', buttonId);
+    //console.log('Creating confetti for button:', buttonId);
     const button = document.getElementById(buttonId);
     if (!button) {
         console.error('Button not found with id:', buttonId);
