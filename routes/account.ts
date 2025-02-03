@@ -84,11 +84,25 @@ app.get(['/login', '/login/:method'], function (req, res) {
   // Helper function to add login_redirect param while preserving existing query params
   const addLoginParam = (url) => {
     const urlObj = new URL(url, `http://${req.get('host')}`);
-    urlObj.searchParams.append('login_redirect', '1');
+    
+    // First, copy all existing query params from the request
+    const existingParams = new URLSearchParams(req.query);
+    existingParams.delete('login_redirect'); // Remove if present to avoid duplication
+    existingParams.delete('intent'); // Remove intent as it's no longer needed
+    
+    // Add all existing params to the new URL
+    for (const [key, value] of existingParams.entries()) {
+      urlObj.searchParams.set(key, value);
+    }
+    
+    // Add login_redirect param
+    urlObj.searchParams.set('login_redirect', '1');
+    
     // Keep the method parameter if it exists
     if (method) {
       urlObj.searchParams.set('method', method);
     }
+    
     return urlObj.pathname + urlObj.search;
   };
 
@@ -104,12 +118,14 @@ app.get(['/login', '/login/:method'], function (req, res) {
   }
 
   // If intent is invalid, default to account
-  const defaultParams = new URLSearchParams();
-  defaultParams.append('login_redirect', '1');
+  const existingParams = new URLSearchParams(req.query);
+  existingParams.delete('login_redirect');
+  existingParams.delete('intent');
+  existingParams.set('login_redirect', '1');
   if (method) {
-    defaultParams.append('method', method);
+    existingParams.set('method', method);
   }
-  return res.redirect(`/account?${defaultParams.toString()}`);
+  return res.redirect(`/account?${existingParams.toString()}`);
 });
 
 // Account homepage
