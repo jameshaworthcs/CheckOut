@@ -47,7 +47,8 @@ const validMethods = ['google', 'email', 'apikey', 'selection'];
  * Prevents redirect loops by checking for login_redirect=1 in incoming requests.
  */
 app.get(['/login', '/login/:method'], function (req, res) {
-  const intent = req.query.login_redirect;
+  // Check for both login_redirect and intent parameters
+  const intent = req.query.login_redirect || req.query.intent;
   
   // Get login method from URL path or query parameter
   let method = req.params.method;
