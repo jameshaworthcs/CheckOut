@@ -49,16 +49,27 @@ async function refreshModuleCache() {
 }
 
 async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
+  /**
+   * Determines the automatic check-in status based on user state and check-in conditions:
+   * - 'setup-needed': User has auto check-in permissions but hasn't completed setup (checkinState = 0)
+   * - 'join-waitlist': User hasn't checked in (checkinState = 0) and isn't on waitlist
+   * - 'on-waitlist': User is currently on the waitlist
+   * - 'error': Check-in attempt failed
+   * - 'normal': Default state when none of above conditions are met
+   */
   const autoInfo = req.checkinState === 0 && (req.userState?.includes('autocheckin') || req.userState?.includes('sysop')) ? 'setup-needed'
     : req.checkinState === 0 && req.checkinReport !== 'Waitlist' ? 'join-waitlist'
     : req.checkinReport === 'Waitlist' ? 'on-waitlist'
     : req.checkinReport === 'Fail' ? 'error'
+    : req.userState?.includes('anon') ? 'sign-in'
     : 'normal';
+
   const activeAPI = {
     api: 'active-codes/home-v2 (v.1.1.1)',
     userInfo: { username: req.username, perms: req.userState, autoInfo },
     tibl: true
   };
+  
   if (cachedUser) {
     activeAPI.userInfo = { username: "Cached", perms: "cached" };
   }
