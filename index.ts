@@ -60,6 +60,7 @@ app.use(helmet({
         "https://play.google.com",
         "https://apis.google.com",
         "https://cdn.datatables.net",
+        "https://accounts.google.com/gsi/client",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
       scriptSrcAttr: ["'unsafe-inline'"],
@@ -86,16 +87,33 @@ app.use(helmet({
         "https://play.google.com/log",
         "https://play.google.com/log/*",
         "https://accounts.google.com/gsi/*",
+        "https://accounts.google.com/gsi/log",
+        "https://accounts.google.com/gsi/button",
         "https://oauth2.googleapis.com",
         "https://www.googleapis.com",
+        "https://*.gstatic.com",
         ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])
       ],
       fontSrc: ["'self'", "https:", "data:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
-      frameSrc: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameSrc: [
+        "'self'", 
+        "*.jemedia.xyz", 
+        "https://accounts.google.com",
+        "https://accounts.google.com/gsi/*",
+        "https://play.google.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       frameAncestors: ["'self'", "*.checkout.ac", "*.jemedia.xyz"],
-      formAction: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
+      formAction: [
+        "'self'", 
+        "*.jemedia.xyz", 
+        "https://accounts.google.com",
+        "https://accounts.google.com/gsi/*",
+        "https://play.google.com/log",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       upgradeInsecureRequests: isDevelopment ? null : []
     }
   },
