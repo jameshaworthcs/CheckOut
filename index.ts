@@ -48,7 +48,7 @@ const isDevelopment = process.env.NODE_ENV === "development";
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'", "*.jemedia.xyz"],
+      defaultSrc: ["'self'", "*.jemedia.xyz", "https://*.google.com"],
       scriptSrc: [
         "'self'", 
         "'unsafe-inline'", 
@@ -61,6 +61,7 @@ app.use(helmet({
         "https://apis.google.com",
         "https://cdn.datatables.net",
         "https://accounts.google.com/gsi/client",
+        "https://*.gstatic.com",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
       scriptSrcAttr: ["'unsafe-inline'"],
@@ -71,9 +72,19 @@ app.use(helmet({
         "https://code.jquery.com", 
         "*.jemedia.xyz", 
         "https://cdn.datatables.net",
+        "https://*.gstatic.com",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
-      imgSrc: ["'self'", "data:", "https:", "http:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "https:", 
+        "http:", 
+        "*.jemedia.xyz",
+        "https://*.google.com",
+        "https://*.gstatic.com", 
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       connectSrc: [
         "'self'", 
         "wss:", 
@@ -84,17 +95,23 @@ app.use(helmet({
         "https://accounts.google.com",
         "https://*.google.com",
         "https://play.google.com",
-        "https://play.google.com/log",
-        "https://play.google.com/log/*",
+        "https://play.google.com/log*",
         "https://accounts.google.com/gsi/*",
-        "https://accounts.google.com/gsi/log",
+        "https://accounts.google.com/gsi/log*",
         "https://accounts.google.com/gsi/button",
         "https://oauth2.googleapis.com",
         "https://www.googleapis.com",
         "https://*.gstatic.com",
         ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])
       ],
-      fontSrc: ["'self'", "https:", "data:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      fontSrc: [
+        "'self'", 
+        "https:", 
+        "data:", 
+        "*.jemedia.xyz",
+        "https://*.gstatic.com", 
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       frameSrc: [
@@ -103,6 +120,7 @@ app.use(helmet({
         "https://accounts.google.com",
         "https://accounts.google.com/gsi/*",
         "https://play.google.com",
+        "https://*.google.com",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
       frameAncestors: ["'self'", "*.checkout.ac", "*.jemedia.xyz"],
@@ -111,7 +129,9 @@ app.use(helmet({
         "*.jemedia.xyz", 
         "https://accounts.google.com",
         "https://accounts.google.com/gsi/*",
-        "https://play.google.com/log",
+        "https://play.google.com",
+        "https://play.google.com/log*",
+        "https://*.google.com",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
       upgradeInsecureRequests: isDevelopment ? null : []
