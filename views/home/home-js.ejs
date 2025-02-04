@@ -256,6 +256,7 @@ if (storedAutoInfo) {
 function fillAutoLink(autoInfo, shouldStore = true) {
     // Find the span element by its ID
     const autoInfoSpan = document.getElementById('autoInfoText');
+    const autoInfoLink = document.getElementById('autoInfoLink');
     
     // Replace the span text based on autoInfo
     if (autoInfoSpan) {
@@ -266,11 +267,16 @@ function fillAutoLink(autoInfo, shouldStore = true) {
             : autoInfo === 'normal' ? 'AutoCheckin dashboard'
             : autoInfo === 'sign-in' ? 'Sign in to use AutoCheckin'
             : 'Learn about AutoCheckin';
+
+        // Update link href if autoInfo is 'sign-in' and link element exists
+        if (autoInfo === 'sign-in' && autoInfoLink) {
+            autoInfoLink.href = '/login?intent=autocheckin';
+        }
             
         // Display notice if there's an error
         if (autoInfo === 'error') {
             displayNotice(
-                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?auto=true">contact support</a>.', 
+                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?pre=autocheckin">contact support</a>.', 
                 'error', 
                 'AutoCheckin Error', 
                 0
