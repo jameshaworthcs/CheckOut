@@ -19,7 +19,7 @@
     "isolatedModules": false,
     "ignoreDeprecations": "5.0",
     "allowUmdGlobalAccess": true,
-    "noResolve": true,
+    "noResolve": false,
     "paths": {
       "*": ["*", "types/*"]
     },

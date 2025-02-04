@@ -1,50 +1,170 @@
-// Core dependencies
-const express = require("express");
-const http = require('http');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const XXH = require('xxhashjs');
-const path = require('path');
-const compression = require('compression');
-const helmet = require('helmet');
-require('dotenv').config({ path: '.env.local' });
+/// <reference types="node" />
 
-// Monitoring and metrics
-const io = require('@pm2/io');
-let totalRequests = 0;
-let loggedInRequests = 0;
+// Import Node and NPM modules 
+import express = require('express');
+import { Request, Response, NextFunction } from 'express';
+import http = require('http');
+import bodyParser = require('body-parser');
+import cookieParser = require('cookie-parser');
+import * as XXH from 'xxhashjs';
+import path = require('path');
+import compression = require('compression');
+import helmet = require('helmet');
+import dotenv = require('dotenv');
+import io = require('@pm2/io');
+import morgan = require('morgan');
+import session = require('express-session');
+import mysqlSession = require('express-mysql-session');
+import { minify } from 'html-minifier';
+import moment = require('moment');
+
+declare const __dirname: string;
+declare const process: any;
+
+// Configure environment variables
+dotenv.config({ path: '.env.local' });
+
+// Type definitions and interfaces
+
+// Extend Express's Request to include additional properties used in the app
+interface AppRequest extends Request {
+  useremail?: string | null;
+  userState?: string;
+  apitoken?: string;
+  // sessionID is provided by Express
+  userData?: {
+    beta?: boolean;
+    development?: boolean;
+    username?: string;
+    theme?: string;
+    moderator?: boolean;
+    sysop?: boolean;
+    checkinReport?: any;
+  };
+  username?: string;
+  sync?: {
+    inst?: string;
+    yr?: string;
+    crs?: string;
+    themeID?: string;
+  };
+  switchSWW?: boolean;
+  bedtime?: boolean;
+  dayStart?: string;
+  dayEnd?: string;
+  christmas?: string;
+  authReq?: boolean;
+  undoEnable?: boolean;
+  boycottState?: boolean;
+  boycottMsg?: string;
+  boycottLink?: string;
+  ipRateLimit?: number;
+  rootDomain?: string;
+  webStateMsg?: string;
+  webStateLink?: string;
+  inst?: string;
+  yr?: string;
+  crs?: string;
+  initCourse?: boolean;
+  usersIP?: string;
+  SpoofedIP?: string;
+  consented?: boolean;
+  cookieWall?: string;
+  qualifiedURL?: string;
+  userID?: string | number;
+  checkinReport?: any;
+  session: any; // Express-session added property
+  // Additional properties from Express.Request
+  url: string;
+  method: string;
+  headers: { [key: string]: any };
+  originalUrl: string;
+  body: any;
+  query: any;
+  loggedIn?: boolean;
+  sessionID: string;
+}
+
+// Interface representing a row from the globalapp table
+interface GlobalAppRow {
+  revID?: number;
+  webState?: number;
+  bedtimeState?: number;
+  dayStart?: string;
+  dayEnd?: string;
+  authState?: number;
+  undoState?: number;
+  boycottState?: number;
+  boycottMsg?: string;
+  boycottLink?: string;
+  rateLimit?: number;
+  rootDomain?: string;
+  webStateMsg?: string;
+  webStateLink?: string;
+  userInfo?: {
+    email?: string | null;
+    userstate?: string;
+    apikey?: string;
+    deviceID?: string;
+  };
+  [key: string]: any;
+}
+
+// Interface for log data structure
+interface LogData {
+  timestamp: string;
+  ip: string;
+  spoofed_ip: string | null;
+  host: string;
+  method: string;
+  path: string;
+  username: string | null;
+  user_id: number | null;
+  device_id: string;
+  user_agent: string;
+  referer: string;
+  post_data: string | null;
+}
+
+// Monitoring and metrics setup
+let totalRequests: number = 0;
+let loggedInRequests: number = 0;
 const loggedInPercentage = io.metric({
   name: 'Logged In Percentage',
-  value: () => totalRequests === 0 ? 0 : (loggedInRequests / totalRequests) * 100,
+  value: (): number => totalRequests === 0 ? 0 : (loggedInRequests / totalRequests) * 100,
 });
 
-// Database connections
-const db = require('./databases/database.ts');
-const db2 = require('./databases/database-v2.ts');
-const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis.ts');
+// Import database connections and redis functions
+import db = require('./databases/database');
+import db2 = require('./databases/database-v2');
+const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
 
-// Route handlers
-const appRouter = require('./routes/app.ts');
-const accountRouter = require('./routes/account.ts');
-const autoRouter = require('./routes/autocheckin.ts');
-const manageRouter = require('./routes/manage/manage.ts');
-const secureRoute = require('./routes/secure.ts');
-const { authenticateUser } = require('./routes/api/auth/auth.ts');
-const outsource = require('./outsource/outsource.ts');
-const apiRouter = require('./routes/api/api.ts');
-const { auth } = require('./routes/secure.ts');
 
-// Initialize Express app
-const app = express();
-const port = process.env.NODE_PORT || 4000;
+// Import route handlers and related modules
+import appRouter = require('./routes/app');
+import accountRouter = require('./routes/account');
+import autoRouter = require('./routes/autocheckin');
+import manageRouter = require('./routes/manage/manage');
+import secureRoute = require('./routes/secure');
+const { getRealIp } = require('./routes/secure');
+const { authenticateUser } = require('./routes/api/auth/auth');
+
+import outsource = require('./outsource/outsource');
+import apiRouter = require('./routes/api/api');
+const { auth } = require('./routes/secure');
+
+
+// Initialize Express app and configure settings
+const app: express.Application = express();
+const port: number = process.env.NODE_PORT ? parseInt(process.env.NODE_PORT, 10) : 4000;
 app.set('trust proxy', 1);
 app.set('view cache', true);
 
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
 
-// Security configuration with helmet - environment aware
-const isDevelopment = process.env.NODE_ENV === "development";
+// Security configuration with helmet, environment aware
+const isDevelopment: boolean = process.env.NODE_ENV === "development";
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
@@ -65,23 +185,19 @@ app.use(helmet({
   xssFilter: true
 }));
 
-// Session configuration
-const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
-
+// Session configuration using express-session and express-mysql-session
+const MySQLStore = mysqlSession(session);
 const dbOptions = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
+const mysqlStoreInstance = new MySQLStore(dbOptions);
+const sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : (redisStore || mysqlStoreInstance);
 
-const mysqlStore = new MySQLStore(dbOptions);
-const sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStore : redisStore || mysqlStore;
-
-// Create session middleware
 const sessionMiddleware = session({
-  secret: process.env.SSECRET,
+  secret: process.env.SSECRET as string,
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
@@ -94,24 +210,23 @@ const sessionMiddleware = session({
   },
 });
 
-// Session middleware - with path exclusion for static files
-app.use((req, res, next) => {
+// Session middleware with path exclusion for static files
+app.use((req: AppRequest, res: Response, next: NextFunction): void => {
   if (req.url.startsWith('/static')) {
     return next();
   }
   sessionMiddleware(req, res, next);
 });
 
-// Graceful shutdown
+// Graceful shutdown on SIGINT signal
 process.on('SIGINT', async () => {
   await handleShutdown();
   process.exit(0);
 });
 
-// Development logging
+// Development logging using morgan if in BETA environment
 if (process.env.CHK_SRV === "BETA") {
-  const loggerM = require('morgan');
-  app.use(loggerM('dev'));
+  app.use(morgan('dev'));
 }
 
 // View engine and middleware setup
@@ -125,44 +240,41 @@ app.use(cookieParser());
 const server = http.createServer(app);
 
 // Import and setup WebSocket handlers
-const wsHandler = require('./routes/api/submit/ws.ts');
+import wsHandler = require('./routes/api/submit/ws');
 wsHandler.setupWebSocket(server);
 
-// Cache configuration
-let appStatusCache = null;
-let cacheTimestamp = 0;
-const CACHE_DURATION = 10000;
 
-// Utility functions
-async function appStatus(req) {
-  const currentTime = Date.now();
+// Cache configuration for app status
+let appStatusCache: GlobalAppRow[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION: number = 10000;
 
+// Utility function to fetch application status from the database with caching
+async function appStatus(req: AppRequest): Promise<GlobalAppRow[]> {
+  const currentTime: number = Date.now();
   if (appStatusCache && (currentTime - cacheTimestamp) < CACHE_DURATION) {
-    return appStatusCache.map(row => ({
+    return appStatusCache.map((row: GlobalAppRow) => ({
       ...row,
       userInfo: {
         email: req.useremail,
         userstate: req.userState,
         apikey: req.apitoken,
-        deviceID: req.sessionID
-      }
+        deviceID: req.sessionID,
+      },
     }));
   }
-
-  return new Promise((resolve, reject) => {
-    const sqlQuery = 'SELECT * FROM globalapp ORDER BY revID DESC LIMIT 1;';
-    db.query(sqlQuery, (err, result) => {
+  return new Promise<GlobalAppRow[]>((resolve, reject) => {
+    const sqlQuery: string = 'SELECT * FROM globalapp ORDER BY revID DESC LIMIT 1;';
+    db.query(sqlQuery, (err: Error | null, result: GlobalAppRow[]) => {
       if (err) return reject(err);
-
-      result.forEach(row => {
+      result.forEach((row: GlobalAppRow) => {
         row.userInfo = {
           email: req.useremail,
           userstate: req.userState,
           apikey: req.apitoken,
-          deviceID: req.sessionID
+          deviceID: req.sessionID,
         };
       });
-
       appStatusCache = result;
       cacheTimestamp = currentTime;
       resolve(result);
@@ -170,32 +282,29 @@ async function appStatus(req) {
   });
 }
 
-async function log(req) {
+// Function to log requests to the database
+async function log(req: AppRequest): Promise<void> {
   try {
-    const moment = require('moment');
-    const ip = req.usersIP;
-
+    const ip: string = req.usersIP || "null";
     if (secureRoute.logQ(req)) {
-      const logData = {
+      const logData: LogData = {
         timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
-        ip: ip || "null",
+        ip: ip,
         spoofed_ip: req.SpoofedIP || null,
         host: req.headers['host'] || "null",
         method: req.method || "null",
         path: req.originalUrl || "null",
         username: req.useremail || "null",
-        user_id: req.userID || null,
+        user_id: req.userID ? Number(req.userID) : null,
         device_id: req.sessionID || "null",
         user_agent: req.headers['user-agent'] || "null",
         referer: req.headers['referer'] || "null",
-        post_data: req.body ? JSON.stringify(req.body) : null
+        post_data: req.body ? JSON.stringify(req.body) : null,
       };
-
       const sql = `
         INSERT INTO request_log (timestamp, ip, spoofed_ip, host, method, path, username, user_id, device_id, user_agent, referer, post_data)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
-
       await db2.execute(sql, Object.values(logData));
     }
   } catch (error) {
@@ -204,66 +313,52 @@ async function log(req) {
 }
 
 // HTML minification configuration
-const { minify } = require('html-minifier');
-const useMinification = process.env.NODE_ENV !== 'development';
-const useMiniCache = process.env.NODE_ENV !== 'development';
-const TTL = 365 * 24 * 60 * 60;
+const useMinification: boolean = process.env.NODE_ENV !== 'development';
+const useMiniCache: boolean = process.env.NODE_ENV !== 'development';
+const TTL: number = 365 * 24 * 60 * 60;
 
-// Global middleware
-app.use(async (req, res, next) => {
-  try {
-    req.userData = {};
-    req.userData.beta = process.env.CHK_SRV === "BETA";
-    req.userData.development = process.env.NODE_ENV === "development" && process.env.LOCAL_WARNING !== "0";
+// Global middleware for additional request processing
+app.use(async (req: AppRequest, res: Response, next: NextFunction): Promise<void> => {
+  req.userData = {};
+  req.userData.beta = process.env.CHK_SRV === "BETA";
+  req.userData.development = process.env.NODE_ENV === "development" && process.env.LOCAL_WARNING !== "0";
 
-    // For static files, set minimal required properties and skip heavy processing
-    if (req.url.startsWith('/static')) {
-      req.userState = 'anon';
-      req.useremail = null;
-      req.apitoken = null;
-      req.loggedIn = false;
-      return next();
-    }
-
-    await fetchAppStatus(req);
-    await authenticateAndSetUserData(req);
-    await Promise.all([
-      setCourseData(req),
-      setThemeData(req),
-      setIPData(req),
-      setConsentAndCookies(req)
-    ]);
-
-    log(req);
-
-    if (process.env.CHK_SRV === "PROD") {
-      try {
-        res.setHeader('X-CheckOut-Backend', process.env.CHK_PROD_ID || 'undefined');
-      } catch (err) {}
-      
-      totalRequests++;
-      if (req.loggedIn) {
-        loggedInRequests++;
-      }
-    }
-    next();
-  } catch (err) {
-    console.error("Error in global app status:", err);
-    return res.render('notices/generic-msg.ejs', {
-      msgTitle: "System Error",
-      msgBody: "We're experiencing technical difficulties. Please try again later or <a href='mailto:checkout@jemedia.xyz'>contact support</a>.",
-      username: 'Error'
-    });
+  // For static files, set minimal required properties and skip heavy processing
+  if (req.url.startsWith('/static')) {
+    req.userState = 'anon';
+    req.useremail = null;
+    req.apitoken = null;
+    req.loggedIn = false;
+    return next();
   }
+
+  await fetchAppStatus(req);
+  await authenticateAndSetUserData(req);
+  await Promise.all([
+    setCourseData(req),
+    setThemeData(req),
+    setIPData(req),
+    setConsentAndCookies(req)
+  ]);
+
+  log(req);
+
+  if (process.env.CHK_SRV === "PROD") {
+    try {
+      res.setHeader('X-CheckOut-Backend', process.env.CHK_PROD_ID || 'undefined');
+    } catch (err) {}
+    totalRequests++;
+    if (req.loggedIn) {
+      loggedInRequests++;
+    }
+  }
+  next();
 });
 
-// Render middleware
-app.use((req, res, next) => {
+// Override res.render to include HTML minification if enabled
+app.use((req: AppRequest, res: Response, next: NextFunction): void => {
   const originalRender = res.render;
-
-  /** @type {function(string, {userData?: any, [key: string]: any}, function): void} */
-  res.render = function(view, options = {}, callback) {
-    // Create a new options object that includes userData
+  res.render = function (view: string, options: Record<string, any> = {}, callback?: (err: Error, html?: string) => void): Response {
     const renderOptions = {
       ...options,
       userData: {
@@ -277,20 +372,19 @@ app.use((req, res, next) => {
         sysop: req.userData?.sysop || false
       }
     };
-
     if (!useMinification) {
       return originalRender.call(this, view, renderOptions, callback);
     }
-
-    originalRender.call(this, view, renderOptions, async (err, html) => {
+    originalRender.call(this, view, renderOptions, async (err: Error, html?: string): Promise<void> => {
       if (err) {
         return callback ? callback(err) : next(err);
       }
-
-      const hash = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
-
+      if (!html) {
+        return next(new Error("Empty HTML output"));
+      }
+      const hash: string = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
       if (!redisClient) {
-        const minifiedHtml = minify(html, {
+        const minifiedHtml: string = minify(html, {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
@@ -299,17 +393,14 @@ app.use((req, res, next) => {
           minifyCSS: true,
           minifyJS: true,
         });
-
         return this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
       }
-
       try {
-        const cachedMinifiedHtml = await getCache(hash);
-
+        const cachedMinifiedHtml: string | null = await getCache(hash);
         if (cachedMinifiedHtml && useMiniCache) {
           this.send(cachedMinifiedHtml);
         } else {
-          const minifiedHtml = minify(html, {
+          const minifiedHtml: string = minify(html, {
             collapseWhitespace: true,
             removeComments: true,
             removeRedundantAttributes: true,
@@ -318,14 +409,13 @@ app.use((req, res, next) => {
             minifyCSS: true,
             minifyJS: true,
           });
-
-          const finalHtml = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
+          const finalHtml: string = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
           await setCache(hash, finalHtml, TTL);
           this.send(finalHtml);
         }
       } catch (redisErr) {
         console.error("Redis operation error:", redisErr);
-        const minifiedHtml = minify(html, {
+        const minifiedHtml: string = minify(html, {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
@@ -334,17 +424,16 @@ app.use((req, res, next) => {
           minifyCSS: true,
           minifyJS: true,
         });
-
         this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
       }
     });
+    return res;
   };
-
   next();
 });
 
-// Caching headers
-app.use((req, res, next) => {
+// Caching headers middleware
+app.use((req: Request, res: Response, next: NextFunction): void => {
   if (req.url.startsWith('/static')) {
     res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, only-if-cached, max-stale=86400, stale-while-revalidate=0, stale-if-error=86400, immutable');
   } else {
@@ -353,10 +442,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.post('/api/app/block/appeal', async (req, res) => {
-  const ip = req.usersIP;
-  const reason = req.body.reason;
+// Routes setup
+app.post('/api/app/block/appeal', async (req: AppRequest, res: Response): Promise<void> => {
+  const ip: string = req.usersIP || "null";
+  const reason: any = req.body.reason;
   try {
     await db.query(
       'INSERT INTO appeals (ip, appeal_text, status) VALUES (?, ?, ?)',
@@ -368,13 +457,12 @@ app.post('/api/app/block/appeal', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({success: false, msg: 'Error creating appeal'});
+    res.status(500).json({ success: false, msg: 'Error creating appeal' });
   }
 });
 
-// API routes
-app.get('/api/app/state', async (req, res) => {
-  const result = await appStatus(req);
+app.get('/api/app/state', async (req: AppRequest, res: Response): Promise<void> => {
+  const result: GlobalAppRow[] = await appStatus(req);
   res.json(result);
 });
 
@@ -384,53 +472,47 @@ app.use(express.static('public', {
   dotfiles: 'allow',
 }));
 
-app.get('/api/docs', (req, res) => {
+app.get('/api/docs', (req: Request, res: Response) => {
   res.render('api.ejs');
 });
 
-// Route handlers
-app.use((req, res, next) => {
-    if (req.url.startsWith('/api/app')) {
-        return appRouter(req, res, next);
-    }
-    
-    if (req.url.startsWith('/api')) {
-        return apiRouter(req, res, next);
-    }
-    
-    if (req.url.startsWith('/login')) {
-        return auth('account', req, res, () => {
-            accountRouter(req, res, next);
-        });
-    }
-    
-    if (req.url.startsWith('/manage')) {
-        return auth('mod', req, res, () => {
-            manageRouter(req, res, next);
-        });
-    }
-    
-    if (req.url.startsWith('/account')) {
-        return auth('account', req, res, () => {
-            accountRouter(req, res, next);
-        });
-    }
-    
-    if (req.url.startsWith('/auto')) {
-        return auth('autocheckin', req, res, () => {
-            autoRouter(req, res, next);
-        });
-    }
-    
-    next();
+// Route handlers delegation based on URL
+app.use((req: AppRequest, res: Response, next: NextFunction): void => {
+  if (req.url.startsWith('/api/app')) {
+    return appRouter(req, res, next);
+  }
+  if (req.url.startsWith('/api')) {
+    return apiRouter(req, res, next);
+  }
+  if (req.url.startsWith('/login')) {
+    return auth('account', req, res, () => {
+      accountRouter(req, res, next);
+    });
+  }
+  if (req.url.startsWith('/manage')) {
+    return auth('mod', req, res, () => {
+      manageRouter(req, res, next);
+    });
+  }
+  if (req.url.startsWith('/account')) {
+    return auth('account', req, res, () => {
+      accountRouter(req, res, next);
+    });
+  }
+  if (req.url.startsWith('/auto')) {
+    return auth('autocheckin', req, res, () => {
+      autoRouter(req, res, next);
+    });
+  }
+  next();
 });
 
-// Static routes
-app.get('/support', (req, res) => res.render('support.ejs', { username: req.username }));
-app.get('/faq', (req, res) => res.redirect('/learn-faq'));
-app.get('/terms', (req, res) => res.redirect('/terms-privacy'));
+// Static and informational routes
+app.get('/support', (req: Request, res: Response) => res.render('support.ejs', { username: (req as AppRequest).username }));
+app.get('/faq', (req: Request, res: Response) => res.redirect('/learn-faq'));
+app.get('/terms', (req: Request, res: Response) => res.redirect('/terms-privacy'));
 
-app.get('/learn-faq', (req, res) => {
+app.get('/learn-faq', (req: AppRequest, res: Response) => {
   res.render('learn-faq/learn-faq.ejs', {
     authReq: req.authReq,
     ipRateLimit: req.ipRateLimit,
@@ -438,19 +520,19 @@ app.get('/learn-faq', (req, res) => {
   });
 });
 
-app.get('/terms-privacy', (req, res) => {
+app.get('/terms-privacy', (req: AppRequest, res: Response) => {
   res.render('terms.ejs', { username: req.username });
 });
 
-app.get('/settings', (req, res) => {
+app.get('/settings', (req: AppRequest, res: Response) => {
   res.render('settings/settings.ejs', { username: req.username });
 });
 
-app.get('/data', (req, res) => {
+app.get('/data', (req: AppRequest, res: Response) => {
   res.render('data-control/data.ejs', { username: req.username });
 });
 
-app.get('/success/logout', (req, res) => {
+app.get('/success/logout', (req: AppRequest, res: Response) => {
   res.status(200).render('notices/generic-msg.ejs', {
     msgTitle: "Logged out",
     msgBody: "Successfully logged out. <a href='/'>Homepage</a>",
@@ -458,14 +540,14 @@ app.get('/success/logout', (req, res) => {
   });
 });
 
-app.get('/history', (req, res) => {
+app.get('/history', (req: AppRequest, res: Response) => {
   res.render('history/history.ejs', { username: req.username });
 });
 
-app.get('/', (req, res) => appRouter(req, res));
+app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
 
 // 404 handler
-app.get('*', (req, res) => {
+app.get('*', (req: AppRequest, res: Response) => {
   res.status(404).render('notices/generic-msg.ejs', {
     msgTitle: "404 Page Not Found",
     msgBody: "Chances are the <b>link is correct</b>, we just haven't built the page yet. <a href='/'>Homepage</a>",
@@ -473,19 +555,19 @@ app.get('*', (req, res) => {
   });
 });
 
-// Error handler
-app.use((err, req, res, next) => {
+// Error handler middleware
+app.use((err: Error, req: AppRequest, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).render('notices/generic-msg.ejs', {
     msgTitle: "Error with CheckOut",
-    msgBody: process.env.NODE_ENV === "development" 
+    msgBody: process.env.NODE_ENV === "development"
       ? err.stack.replace(/\n/g, '<br>')
       : "An error occurred while processing your request. Please try again later or <a href='/support'>contact support</a>.",
     username: "Error"
   });
 });
 
-// Start server
+// Start the HTTP server
 server.listen(port, () => {
   const env = process.env.CHK_SRV;
   if (env === "PROD") {
@@ -497,11 +579,11 @@ server.listen(port, () => {
   }
 });
 
-// Utility functions
-async function fetchAppStatus(req) {
-  try {
-    let result = await appStatus(req);
+// Additional utility functions
 
+async function fetchAppStatus(req: AppRequest): Promise<void> {
+  try {
+    const result: GlobalAppRow[] = await appStatus(req);
     req.switchSWW = result[0]['webState'] === 1 ? false : true;
     req.bedtime = result[0]['bedtimeState'] === 1;
     req.dayStart = result[0]['dayStart'];
@@ -523,20 +605,15 @@ async function fetchAppStatus(req) {
   }
 }
 
-async function setCourseData(req) {
+async function setCourseData(req: AppRequest): Promise<void> {
+  let inst: string = "null", yr: string = "null", crs: string = "null";
   if (req.session.course) {
-    var { inst = "null", yr = "null", crs = "null" } = req.session.course;
-  } else {
-    inst = "null";
-    yr = "null";
-    crs = "null";
+    ({ inst = "null", yr = "null", crs = "null" } = req.session.course);
   }
-
   req.inst = inst;
   req.yr = yr;
   req.crs = crs;
   req.initCourse = [inst, yr, crs].every(value => value !== "null");
-
   if (req.sync && 'inst' in req.sync && 'crs' in req.sync && 'yr' in req.sync) {
     req.inst = req.sync.inst;
     req.yr = req.sync.yr;
@@ -545,33 +622,34 @@ async function setCourseData(req) {
   }
 }
 
-async function setThemeData(req) {
-  let theme = '2';
-
+async function setThemeData(req: AppRequest): Promise<void> {
+  let theme: string = '2';
   if (req.session?.theme?.id) {
     theme = req.session.theme.id;
   }
-
   if (req.sync && 'themeID' in req.sync) {
-    theme = req.sync.themeID;
+    theme = req.sync.themeID as string;
     req.session.theme = { id: theme };
   }
-
   if (req.query?.theme) {
-    theme = req.query.theme;
+    theme = req.query.theme as string;
   }
-
+  if (!req.userData) req.userData = {};
   req.userData.username = req.username;
   req.userData.theme = theme;
 }
 
-async function setIPData(req) {
-  const extractFirstIP = (header) => (header ? header.split(',')[0] : '1.1.1.1');
-  req.usersIP = req.headers['X-Shield-Client-IP'] || secureRoute.getRealIp(req.headers['x-forwarded-for']) || extractFirstIP(req.headers['x-forwarded-for']);
-  req.SpoofedIP = req.usersIP === extractFirstIP(req.headers['x-forwarded-for']) ? '' : extractFirstIP(req.headers['x-forwarded-for']);
+async function setIPData(req: AppRequest): Promise<void> {
+  const extractFirstIP = (header: string | string[] | undefined): string => {
+    if (!header) return '1.1.1.1';
+    return Array.isArray(header) ? header[0] : header.split(',')[0];
+  };
+  const forwardedFor = req.headers['x-forwarded-for'];
+  req.usersIP = (req.headers['X-Shield-Client-IP'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
+  req.SpoofedIP = req.usersIP === extractFirstIP(forwardedFor) ? '' : extractFirstIP(forwardedFor);
 }
 
-async function setConsentAndCookies(req) {
+async function setConsentAndCookies(req: AppRequest): Promise<void> {
   if (req.session.consent) {
     req.consented = req.session.consented;
   } else {
@@ -580,16 +658,18 @@ async function setConsentAndCookies(req) {
   req.cookieWall = 'deprecated';
 }
 
-async function authenticateAndSetUserData(req) {
+async function authenticateAndSetUserData(req: AppRequest): Promise<void> {
   await authenticateUser(req);
-
   if (typeof req.checkinReport !== 'undefined') {
+    if (!req.userData) req.userData = {};
     req.userData.checkinReport = req.checkinReport;
   }
   if (req.userState === "sysop") {
+    if (!req.userData) req.userData = {};
     req.userData.sysop = true;
   }
   if (req.userState && (req.userState.includes("sysop") || req.userState.includes("moderator"))) {
+    if (!req.userData) req.userData = {};
     req.userData.moderator = true;
   }
 }
