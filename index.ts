@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const XXH = require('xxhashjs');
 const path = require('path');
+const compression = require('compression');
 require('dotenv').config({ path: '.env.local' });
 
 // Monitoring and metrics
@@ -37,6 +38,9 @@ const app = express();
 const port = process.env.NODE_PORT || 4000;
 app.set('trust proxy', 1);
 app.set('view cache', true);
+
+// Enable compression for all responses
+app.use(compression({ level: 6 }));
 
 // Session configuration
 const session = require('express-session');
