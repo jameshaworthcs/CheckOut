@@ -15,7 +15,7 @@ import io = require('@pm2/io');
 import morgan = require('morgan');
 import session = require('express-session');
 import mysqlSession = require('express-mysql-session');
-import { minify } from 'html-minifier';
+import { minify } from 'html-minifier-terser';
 import moment = require('moment');
 
 declare const __dirname: string;
@@ -163,8 +163,12 @@ app.set('view cache', true);
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
 
+// Environment and feature flag type definitions
+const isProduction: boolean = process.env.NODE_ENV !== 'development';
+const useMinification: boolean = isProduction;
+const useMiniCache: boolean = isProduction;
+
 // Security configuration with helmet, environment aware
-const isDevelopment: boolean = process.env.NODE_ENV === "development";
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
@@ -313,8 +317,6 @@ async function log(req: AppRequest): Promise<void> {
 }
 
 // HTML minification configuration
-const useMinification: boolean = process.env.NODE_ENV !== 'development';
-const useMiniCache: boolean = process.env.NODE_ENV !== 'development';
 const TTL: number = 365 * 24 * 60 * 60;
 
 // Global middleware for additional request processing
@@ -384,23 +386,29 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
       }
       const hash: string = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
       if (!redisClient) {
-        const minifiedHtml: string = minify(html, {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          minifyCSS: true,
-          minifyJS: true,
-        });
-        return this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
+        try {
+          const minifiedHtml: string = await minify(html, {
+            collapseWhitespace: true,
+            removeComments: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            minifyCSS: true,
+            minifyJS: true,
+          });
+          this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
+        } catch (minifyErr) {
+          console.error("Minification error:", minifyErr);
+          this.send(html); // Fallback to unminified HTML
+        }
+        return;
       }
       try {
         const cachedMinifiedHtml: string | null = await getCache(hash);
         if (cachedMinifiedHtml && useMiniCache) {
           this.send(cachedMinifiedHtml);
         } else {
-          const minifiedHtml: string = minify(html, {
+          const minifiedHtml: string = await minify(html, {
             collapseWhitespace: true,
             removeComments: true,
             removeRedundantAttributes: true,
@@ -415,16 +423,21 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
         }
       } catch (redisErr) {
         console.error("Redis operation error:", redisErr);
-        const minifiedHtml: string = minify(html, {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          minifyCSS: true,
-          minifyJS: true,
-        });
-        this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
+        try {
+          const minifiedHtml: string = await minify(html, {
+            collapseWhitespace: true,
+            removeComments: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            minifyCSS: true,
+            minifyJS: true,
+          });
+          this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
+        } catch (minifyErr) {
+          console.error("Minification error:", minifyErr);
+          this.send(html); // Fallback to unminified HTML
+        }
       }
     });
     return res;
