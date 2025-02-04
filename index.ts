@@ -43,41 +43,24 @@ app.set('view cache', true);
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
 
-// Security configuration with helmet - environment aware
-const isDevelopment = process.env.NODE_ENV === "development";
+// Security configuration with helmet - only HSTS header retained, relaxing all other policies
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'", "*"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
-      imgSrc: ["'self'", "data:", "https:", "http:"],
-      connectSrc: ["'self'", "wss:", "ws:", "https:", "http:"],
-      fontSrc: ["'self'", "https:", "http:", "data:"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'", "https:", "http:"],
-      frameSrc: ["'self'", "https:", "http:"],
-      frameAncestors: ["'self'"],
-      formAction: ["'self'", "https:", "http:"],
-      upgradeInsecureRequests: isDevelopment ? null : []
-    }
-  },
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: isDevelopment ? false : { policy: "same-origin" },
-  crossOriginResourcePolicy: isDevelopment ? false : { policy: "same-site" },
-  dnsPrefetchControl: { allow: false },
-  frameguard: isDevelopment ? false : { action: "deny" },
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+  dnsPrefetchControl: false,
+  frameguard: false,
   hidePoweredBy: true,
-  hsts: isDevelopment ? false : {
+  hsts: process.env.NODE_ENV !== "development" ? {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true
-  },
-  ieNoOpen: true,
-  noSniff: true,
-  originAgentCluster: true,
-  permittedCrossDomainPolicies: { permittedPolicies: "none" },
-  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  } : false,
+  ieNoOpen: false,
+  noSniff: false,
+  permittedCrossDomainPolicies: false,
+  referrerPolicy: false,
   xssFilter: true
 }));
 
