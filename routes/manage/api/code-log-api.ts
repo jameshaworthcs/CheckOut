@@ -1,6 +1,7 @@
 const express = require('express');
 var db = require('../../../databases/database.ts');
 var app = express.Router();
+var secureRoute = require('../../secure.ts');
 
 // TK Data view
 app.get('/manage/api/code-log/data', function (req, res) {
@@ -48,6 +49,62 @@ app.get('/manage/api/code-log/data', function (req, res) {
     res.render('deny.ejs');
     console.log("Unauthorized user tried to access logdata, was rejected");
   }
+});
+
+// New POST endpoint for sysHide
+app.post('/manage/api/code-log/sysHide', function (req, res) {
+  secureRoute.auth("mod", req, res, function () {
+    const codeID = req.body.codeID;
+    const tk = req.body.tk;
+    const sqlsyshide = 'UPDATE codes SET codeState = ?, codeDesc = ? WHERE codeID = ? AND tk = ? LIMIT 1';
+    const descValue = `Mod-Rm-${req.userID}`;
+    db.query(sqlsyshide, ["0", descValue, codeID, tk], function (err, result) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Database error." });
+      } else {
+        //console.log("Disabled code", codeID, tk);
+        res.json({ result: "Disabled code", codeID: codeID });
+      }
+    });
+  });
+});
+
+// New POST endpoint for sysShow
+app.post('/manage/api/code-log/sysShow', function (req, res) {
+  secureRoute.auth("mod", req, res, function () {
+    const codeID = req.body.codeID;
+    const tk = req.body.tk;
+    const sqlsysshow = 'UPDATE codes SET codeState = ?, codeDesc = ? WHERE codeID = ? AND tk = ? LIMIT 1';
+    const descValue = `Mod-En-${req.userID}`;
+    db.query(sqlsysshow, ["1", descValue, codeID, tk], function (err, result) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Database error." });
+      } else {
+        //console.log("Enabled code", codeID, tk);
+        res.json({ result: "Enabled code", codeID: codeID });
+      }
+    });
+  });
+});
+
+// New POST endpoint for remove
+app.post('/manage/api/code-log/remove', function (req, res) {
+  secureRoute.auth("mod", req, res, function () {
+    const codeID = req.body.codeID;
+    const tk = req.body.tk;
+    const sqlremove = `DELETE FROM codes WHERE codeID = ? AND tk = ? LIMIT 1`;
+    db.query(sqlremove, [codeID, tk], function (err, result) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Database error." });
+      } else {
+        //console.log("Removed submission", codeID, tk);
+        res.json({ result: "Removed Submission", codeID: codeID });
+      }
+    });
+  });
 });
 
 app.get('*', function (req, res) {

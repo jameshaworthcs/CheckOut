@@ -478,12 +478,10 @@
                                     var removeButton = $('<button class="remove-button">Remove</button>');
                                     removeButton.on('click', function () {
                                         // Construct the URL with source_table and tk values
-                                        var removeURL = '/remove?codeID=' + encodeURIComponent(row.codeID) + '&tk=' + encodeURIComponent(row.tk);
-
-                                        // Send an AJAX request to fetch JSON data
                                         $.ajax({
-                                            url: removeURL,
-                                            type: 'GET',
+                                            url: '/manage/api/code-log/remove',
+                                            type: 'POST',
+                                            data: { codeID: row.codeID, tk: row.tk },
                                             dataType: 'json',
                                             success: function (data) {
                                                 var resultText = '';
@@ -495,38 +493,31 @@
                                             },
                                             error: function (xhr, status, error) {
                                                 console.error(error);
-                                                // Handle error here
                                             }
                                         });
 
                                         // Optionally, you can remove the row from the table
                                         tr.remove();
                                     });
-                                    if (row.codeState === '0') { var hideText = "Show" } else { var hideText = "Hide" }
-                                    var hideButton = $('<button class="remove-button">' + hideText + '</button>');
+                                    if (row.codeState === '0') { var buttonText = "Show"; } else { var buttonText = "Hide"; }
+                                    var hideButton = $('<button class="remove-button">' + buttonText + '</button>');
                                     hideButton.on('click', function () {
-                                        // Construct the URL with source_table and tk values
-                                        var hideURL = '/sys' + hideText + '?codeID=' + encodeURIComponent(row.codeID) + '&tk=' + encodeURIComponent(row.tk);
-
-                                        // Send an AJAX request to fetch JSON data
+                                        var endpoint = (buttonText === "Show") ? '/manage/api/code-log/sysShow' : '/manage/api/code-log/sysHide';
                                         $.ajax({
-                                            url: hideURL,
-                                            type: 'GET',
+                                            url: endpoint,
+                                            type: 'POST',
+                                            data: { codeID: row.codeID, tk: row.tk },
                                             dataType: 'json',
                                             success: function (data) {
-                                                // Display JSON data in a green banner at the top of the screen
-                                                
-
                                                 var resultText = '';
                                                 for (var key in data) {
                                                     resultText += key + ': ' + data[key] + '<br>';
                                                 }
                                                 displayNotice(resultText, 'success');
-                                                refreshTable()
+                                                refreshTable();
                                             },
                                             error: function (xhr, status, error) {
                                                 console.error(error);
-                                                // Handle error here
                                             }
                                         });
                                     });
