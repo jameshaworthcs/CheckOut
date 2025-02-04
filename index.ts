@@ -58,10 +58,20 @@ app.use(helmet({
         "https://accounts.google.com",
         "https://*.google.com",
         "https://play.google.com",
+        "https://apis.google.com",
+        "https://cdn.datatables.net",
         ...(isDevelopment ? ["localhost:*"] : [])
       ],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "https://code.jquery.com", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https:", 
+        "https://code.jquery.com", 
+        "*.jemedia.xyz", 
+        "https://cdn.datatables.net",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       imgSrc: ["'self'", "data:", "https:", "http:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       connectSrc: [
         "'self'", 
@@ -74,7 +84,10 @@ app.use(helmet({
         "https://*.google.com",
         "https://play.google.com",
         "https://play.google.com/log",
-        "https://accounts.google.com/gsi/log",
+        "https://play.google.com/log/*",
+        "https://accounts.google.com/gsi/*",
+        "https://oauth2.googleapis.com",
+        "https://www.googleapis.com",
         ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])
       ],
       fontSrc: ["'self'", "https:", "data:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
