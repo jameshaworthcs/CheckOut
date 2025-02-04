@@ -48,93 +48,21 @@ const isDevelopment = process.env.NODE_ENV === "development";
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'", "*.jemedia.xyz", "https://*.google.com"],
-      scriptSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "'unsafe-eval'", 
-        "https://code.jquery.com", 
-        "*.jemedia.xyz",
-        "https://accounts.google.com",
-        "https://*.google.com",
-        "https://play.google.com",
-        "https://apis.google.com",
-        "https://cdn.datatables.net",
-        "https://accounts.google.com/gsi/client",
-        "https://*.gstatic.com",
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "https:", 
-        "https://code.jquery.com", 
-        "*.jemedia.xyz", 
-        "https://cdn.datatables.net",
-        "https://*.gstatic.com",
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
-      imgSrc: [
-        "'self'", 
-        "data:", 
-        "https:", 
-        "http:", 
-        "*.jemedia.xyz",
-        "https://*.google.com",
-        "https://*.gstatic.com", 
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
-      connectSrc: [
-        "'self'", 
-        "wss:", 
-        "ws:", 
-        "https:", 
-        "*.jemedia.xyz", 
-        "wss://*.jemedia.xyz", 
-        "https://accounts.google.com",
-        "https://*.google.com",
-        "https://play.google.com",
-        "https://accounts.google.com/gsi/button",
-        "https://oauth2.googleapis.com",
-        "https://www.googleapis.com",
-        "https://*.gstatic.com",
-        ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])
-      ],
-      fontSrc: [
-        "'self'", 
-        "https:", 
-        "data:", 
-        "*.jemedia.xyz",
-        "https://*.gstatic.com", 
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
+      defaultSrc: ["'self'", "*"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],
+      connectSrc: ["'self'", "wss:", "ws:", "https:", "http:"],
+      fontSrc: ["'self'", "https:", "http:", "data:"],
       objectSrc: ["'none'"],
-      mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
-      frameSrc: [
-        "'self'", 
-        "*.jemedia.xyz", 
-        "https://accounts.google.com",
-        "https://accounts.google.com/gsi/*",
-        "https://play.google.com",
-        "https://*.google.com",
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
-      frameAncestors: ["'self'", "*.checkout.ac", "*.jemedia.xyz"],
-      formAction: [
-        "'self'", 
-        "*.jemedia.xyz", 
-        "https://accounts.google.com",
-        "https://accounts.google.com/gsi/*",
-        "https://play.google.com",
-        "https://play.google.com/log*",
-        "https://*.google.com",
-        ...(isDevelopment ? ["localhost:*"] : [])
-      ],
+      mediaSrc: ["'self'", "https:", "http:"],
+      frameSrc: ["'self'", "https:", "http:"],
+      frameAncestors: ["'self'"],
+      formAction: ["'self'", "https:", "http:"],
       upgradeInsecureRequests: isDevelopment ? null : []
     }
   },
-  crossOriginEmbedderPolicy: false, // Keep false to allow loading of resources
+  crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: isDevelopment ? false : { policy: "same-origin" },
   crossOriginResourcePolicy: isDevelopment ? false : { policy: "same-site" },
   dnsPrefetchControl: { allow: false },
