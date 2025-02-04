@@ -43,24 +43,113 @@ app.set('view cache', true);
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
 
-// Security configuration with helmet - only HSTS header retained, relaxing all other policies
+// Security configuration with helmet - environment aware
+const isDevelopment = process.env.NODE_ENV === "development";
 app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false,
-  dnsPrefetchControl: false,
-  frameguard: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'", "*.jemedia.xyz", "https://*.google.com"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "'unsafe-eval'", 
+        "https://code.jquery.com", 
+        "*.jemedia.xyz",
+        "https://accounts.google.com",
+        "https://*.google.com",
+        "https://play.google.com",
+        "https://apis.google.com",
+        "https://cdn.datatables.net",
+        "https://accounts.google.com/gsi/client",
+        "https://*.gstatic.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https:", 
+        "https://code.jquery.com", 
+        "*.jemedia.xyz", 
+        "https://cdn.datatables.net",
+        "https://*.gstatic.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "https:", 
+        "http:", 
+        "*.jemedia.xyz",
+        "https://*.google.com",
+        "https://*.gstatic.com", 
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      connectSrc: [
+        "'self'", 
+        "wss:", 
+        "ws:", 
+        "https:", 
+        "*.jemedia.xyz", 
+        "wss://*.jemedia.xyz", 
+        "https://accounts.google.com",
+        "https://*.google.com",
+        "https://play.google.com",
+        "https://accounts.google.com/gsi/button",
+        "https://oauth2.googleapis.com",
+        "https://www.googleapis.com",
+        "https://*.gstatic.com",
+        ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])
+      ],
+      fontSrc: [
+        "'self'", 
+        "https:", 
+        "data:", 
+        "*.jemedia.xyz",
+        "https://*.gstatic.com", 
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameSrc: [
+        "'self'", 
+        "*.jemedia.xyz", 
+        "https://accounts.google.com",
+        "https://accounts.google.com/gsi/*",
+        "https://play.google.com",
+        "https://*.google.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      frameAncestors: ["'self'", "*.checkout.ac", "*.jemedia.xyz"],
+      formAction: [
+        "'self'", 
+        "*.jemedia.xyz", 
+        "https://accounts.google.com",
+        "https://accounts.google.com/gsi/*",
+        "https://play.google.com",
+        "https://play.google.com/log*",
+        "https://*.google.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
+      upgradeInsecureRequests: isDevelopment ? null : []
+    }
+  },
+  crossOriginEmbedderPolicy: false, // Keep false to allow loading of resources
+  crossOriginOpenerPolicy: isDevelopment ? false : { policy: "same-origin" },
+  crossOriginResourcePolicy: isDevelopment ? false : { policy: "same-site" },
+  dnsPrefetchControl: { allow: false },
+  frameguard: isDevelopment ? false : { action: "deny" },
   hidePoweredBy: true,
-  hsts: process.env.NODE_ENV !== "development" ? {
+  hsts: isDevelopment ? false : {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true
-  } : false,
-  ieNoOpen: false,
-  noSniff: false,
-  permittedCrossDomainPolicies: false,
-  referrerPolicy: false,
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: { permittedPolicies: "none" },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
   xssFilter: true
 }));
 
