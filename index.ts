@@ -455,7 +455,9 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('notices/generic-msg.ejs', {
     msgTitle: "Error with CheckOut",
-    msgBody: err.stack.replace(/\n/g, '<br>'),
+    msgBody: process.env.NODE_ENV === "development" 
+      ? err.stack.replace(/\n/g, '<br>')
+      : "An error occurred while processing your request. Please try again later or <a href='/support'>contact support</a>.",
     username: "Error"
   });
 });
