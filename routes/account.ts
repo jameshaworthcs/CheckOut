@@ -48,8 +48,13 @@ const validMethods = ['google', 'email', 'apikey', 'selection'];
  */
 app.get(['/login', '/login/:method'], function (req, res) {
   // Check for both login_redirect and intent parameters
-  const intent = req.query.login_redirect || req.query.intent;
+  let intent = req.query.login_redirect || req.query.intent;
   
+  // Redirect to index if intent starts with /login or %2Flogin
+  if (intent && (intent.startsWith('/login') || intent.startsWith('%2Flogin'))) {
+    intent = 'index';
+  }
+
   // Get login method from URL path or query parameter
   let method = req.params.method;
   if (!validMethods.includes(method)) {
