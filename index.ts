@@ -49,17 +49,26 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'", "*.jemedia.xyz"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://code.jquery.com", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "'unsafe-eval'", 
+        "https://code.jquery.com", 
+        "*.jemedia.xyz",
+        "https://accounts.google.com",
+        "https://*.google.com",
+        ...(isDevelopment ? ["localhost:*"] : [])
+      ],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:", "https://code.jquery.com", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       imgSrc: ["'self'", "data:", "https:", "http:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
-      connectSrc: ["'self'", "wss:", "ws:", "https:", "*.jemedia.xyz", "wss://*.jemedia.xyz", ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])],
+      connectSrc: ["'self'", "wss:", "ws:", "https:", "*.jemedia.xyz", "wss://*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])],
       fontSrc: ["'self'", "https:", "data:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
-      frameSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameSrc: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
       frameAncestors: isDevelopment ? ["'self'"] : ["'none'"],
-      formAction: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      formAction: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
       upgradeInsecureRequests: isDevelopment ? null : []
     }
   },
