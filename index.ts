@@ -67,7 +67,7 @@ app.use(helmet({
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       frameSrc: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
-      frameAncestors: isDevelopment ? ["'self'"] : ["'none'"],
+      frameAncestors: ["'self'", "*.checkout.ac", "*.jemedia.xyz"],
       formAction: ["'self'", "*.jemedia.xyz", "https://accounts.google.com", ...(isDevelopment ? ["localhost:*"] : [])],
       upgradeInsecureRequests: isDevelopment ? null : []
     }
