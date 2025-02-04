@@ -48,17 +48,17 @@ const isDevelopment = process.env.NODE_ENV === "development";
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", ...(isDevelopment ? ["localhost:*"] : [])],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", ...(isDevelopment ? ["localhost:*"] : [])],
-      imgSrc: ["'self'", "data:", "https:", "http:", ...(isDevelopment ? ["localhost:*"] : [])],
-      connectSrc: ["'self'", "wss:", "ws:", "https:", ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])],
-      fontSrc: ["'self'", "https:", "data:", ...(isDevelopment ? ["localhost:*"] : [])],
+      defaultSrc: ["'self'", "*.jemedia.xyz"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://code.jquery.com", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "https://code.jquery.com", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      imgSrc: ["'self'", "data:", "https:", "http:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      connectSrc: ["'self'", "wss:", "ws:", "https:", "*.jemedia.xyz", "wss://*.jemedia.xyz", ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])],
+      fontSrc: ["'self'", "https:", "data:", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       objectSrc: ["'none'"],
-      mediaSrc: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
-      frameSrc: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
+      mediaSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameSrc: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       frameAncestors: isDevelopment ? ["'self'"] : ["'none'"],
-      formAction: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
+      formAction: ["'self'", "*.jemedia.xyz", ...(isDevelopment ? ["localhost:*"] : [])],
       upgradeInsecureRequests: isDevelopment ? null : []
     }
   },
