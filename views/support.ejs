@@ -245,9 +245,11 @@
                     <select id="issueType" name="issueType" required>
                         <option value="change-email">Change email</option>
                         <option value="report-code">Report code</option>
+                        <option value="autocheckin">AutoCheckin</option>
                         <option value="feature">Feature request</option>
                         <option value="other" selected>Other</option>
                     </select>
+
                 </div>
 
                 <div class="warning-box" id="emailChangeWarning" style="display: none;">
@@ -305,6 +307,7 @@
             const preValue = urlParams.get('pre');
             const codeId = urlParams.get('codeID');
             const chc = urlParams.get('chc');
+            const msgParam = urlParams.get('msg');
 
             const issueTypeSelect = document.getElementById('issueType');
             const codeIdGroup = document.getElementById('codeIdGroup');
@@ -341,8 +344,8 @@
                         issueTypeSelect.value = formData.issueType;
                     }
 
-                    // Always restore message
-                    if (formData.message) {
+                    // Only restore message if no msg parameter exists
+                    if (formData.message && !msgParam) {
                         messageInput.value = formData.message;
                     }
 
@@ -406,6 +409,12 @@
 
             // Load saved data after handling URL parameters
             loadFromLocalStorage();
+
+            // Set message from URL parameter if it exists (after loadFromLocalStorage)
+            if (msgParam) {
+                messageInput.value = msgParam;
+                //saveToLocalStorage();
+            }
 
             // Function to handle issue type changes
             issueTypeSelect.addEventListener('change', function() {

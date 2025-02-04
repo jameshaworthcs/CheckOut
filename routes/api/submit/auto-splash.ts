@@ -93,11 +93,12 @@ function pollForCheckIn(email, chc, ws) {
           const timeoutResult = {
             success: true,
             checkedin: false,
-            msg: `Submit your code here only. If you didn't also submit on checkin, please contact <a href="/support?auto=true&priority=true&code=${chc}">support</a>.`,
+            msg: `Submit your code here only. If you didn't also submit on checkin, please contact <a href="/support?pre=autocheckin&msg=My submission of code ${chc} was not found on checkin. Please help me!">support</a>.`,
           };
           ws.send(btoa(JSON.stringify(timeoutResult)));
           ws.close();
           clearInterval(interval);
+
         }
       });
     }, intervalTime);
@@ -135,7 +136,7 @@ async function handleAutoSplashConnection(ws, request) {
 
         const userPermissions = await secureRoute.checkPermissions(userState);
         const allowedServices = userPermissions.flatMap((perms) =>
-          JSON.parse(perms.routes)
+          perms.routes
         );
         // Validate chc to be a 6 digit integer
         const chcPattern = /^\d{6}$/;
