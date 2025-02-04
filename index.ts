@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const XXH = require('xxhashjs');
 const path = require('path');
 const compression = require('compression');
+const helmet = require('helmet');
 require('dotenv').config({ path: '.env.local' });
 
 // Monitoring and metrics
@@ -41,6 +42,44 @@ app.set('view cache', true);
 
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
+
+// Security configuration with helmet - environment aware
+const isDevelopment = process.env.NODE_ENV === "development";
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", ...(isDevelopment ? ["localhost:*"] : [])],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", ...(isDevelopment ? ["localhost:*"] : [])],
+      imgSrc: ["'self'", "data:", "https:", "http:", ...(isDevelopment ? ["localhost:*"] : [])],
+      connectSrc: ["'self'", "wss:", "ws:", "https:", ...(isDevelopment ? ["localhost:*", "ws://localhost:*"] : [])],
+      fontSrc: ["'self'", "https:", "data:", ...(isDevelopment ? ["localhost:*"] : [])],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameSrc: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
+      frameAncestors: isDevelopment ? ["'self'"] : ["'none'"],
+      formAction: ["'self'", ...(isDevelopment ? ["localhost:*"] : [])],
+      upgradeInsecureRequests: isDevelopment ? null : []
+    }
+  },
+  crossOriginEmbedderPolicy: false, // Keep false to allow loading of resources
+  crossOriginOpenerPolicy: isDevelopment ? false : { policy: "same-origin" },
+  crossOriginResourcePolicy: isDevelopment ? false : { policy: "same-site" },
+  dnsPrefetchControl: { allow: false },
+  frameguard: isDevelopment ? false : { action: "deny" },
+  hidePoweredBy: true,
+  hsts: isDevelopment ? false : {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: { permittedPolicies: "none" },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  xssFilter: true
+}));
 
 // Session configuration
 const session = require('express-session');
