@@ -1,22 +1,21 @@
 /// <reference types="node" />
 
 // Import Node and NPM modules 
-import express = require('express');
+import express from 'express';
 import { Request, Response, NextFunction } from 'express';
-import http = require('http');
-import bodyParser = require('body-parser');
-import cookieParser = require('cookie-parser');
+import * as http from 'http';
+import { json, urlencoded } from 'body-parser';
+import cookieParser from 'cookie-parser';
 import * as XXH from 'xxhashjs';
-import path = require('path');
-import compression = require('compression');
-import helmet = require('helmet');
-import dotenv = require('dotenv');
-import io = require('@pm2/io');
-import morgan = require('morgan');
-import session = require('express-session');
-import mysqlSession = require('express-mysql-session');
+import * as path from 'path';
+import compression from 'compression';
+import helmet from 'helmet';
+import * as dotenv from 'dotenv';
+import morgan from 'morgan';
+import session from 'express-session';
+import mysqlSession from 'express-mysql-session';
 import { minify } from 'html-minifier-terser';
-import moment = require('moment');
+import moment from 'moment';
 
 declare const __dirname: string;
 declare const process: any;
@@ -129,28 +128,24 @@ interface LogData {
 // Monitoring and metrics setup
 let totalRequests: number = 0;
 let loggedInRequests: number = 0;
-const loggedInPercentage = io.metric({
-  name: 'Logged In Percentage',
-  value: (): number => totalRequests === 0 ? 0 : (loggedInRequests / totalRequests) * 100,
-});
 
 // Import database connections and redis functions
-import db = require('./databases/database');
-import db2 = require('./databases/database-v2');
+const db = require('./databases/database');
+const db2 = require('./databases/database-v2');
 const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
 
 
 // Import route handlers and related modules
-import appRouter = require('./routes/app');
-import accountRouter = require('./routes/account');
-import autoRouter = require('./routes/autocheckin');
-import manageRouter = require('./routes/manage/manage');
-import secureRoute = require('./routes/secure');
+const appRouter = require('./routes/app');
+const accountRouter = require('./routes/account');
+const autoRouter = require('./routes/autocheckin');
+const manageRouter = require('./routes/manage/manage');
+const secureRoute = require('./routes/secure');
 const { getRealIp } = require('./routes/secure');
 const { authenticateUser } = require('./routes/api/auth/auth');
 
-import outsource = require('./outsource/outsource');
-import apiRouter = require('./routes/api/api');
+const outsource = require('./outsource/outsource');
+const apiRouter = require('./routes/api/api');
 const { auth } = require('./routes/secure');
 
 
@@ -196,9 +191,30 @@ const dbOptions = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  clearExpired: true,
+  checkExpirationInterval: 900000,
+  expiration: 86400000,
+  createDatabaseTable: true,
+  schema: {
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
+    }
+  }
 };
-const mysqlStoreInstance = new MySQLStore(dbOptions);
-const sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : (redisStore || mysqlStoreInstance);
+
+// Initialize session store based on availability
+let sessionStore;
+try {
+  const mysqlStoreInstance = new MySQLStore(dbOptions);
+  sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : (redisStore || mysqlStoreInstance);
+  console.log("Session store initialized:", sessionStore);
+} catch (err) {
+  console.error('Error initializing session store:', err);
+  process.exit(1);
+}
 
 const sessionMiddleware = session({
   secret: process.env.SSECRET as string,
@@ -207,10 +223,11 @@ const sessionMiddleware = session({
   store: sessionStore,
   name: "checkout_secure",
   rolling: true,
+  proxy: true,
   cookie: {
-    maxAge: 365 * 24 * 60 * 60 * 1000,
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
     httpOnly: process.env.NODE_ENV !== "development",
-    secure: process.env.NODE_ENV !== "development"
+    secure: process.env.NODE_ENV !== "development",
   },
 });
 
@@ -236,15 +253,15 @@ if (process.env.CHK_SRV === "BETA") {
 // View engine and middleware setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(json());
+app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Create HTTP server for WebSocket support
 const server = http.createServer(app);
 
 // Import and setup WebSocket handlers
-import wsHandler = require('./routes/api/submit/ws');
+const wsHandler = require('./routes/api/submit/ws');
 wsHandler.setupWebSocket(server);
 
 

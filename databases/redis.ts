@@ -1,5 +1,7 @@
 const Redis = require('ioredis');
-const RedisStore = require('connect-redis').default;
+import session from "express-session"
+import {RedisStore} from "connect-redis"
+import {createClient} from "redis"
 const EventEmitter = require('events');
 
 let redisClient = null;
@@ -27,10 +29,9 @@ try {
     redisClient = null;
   });
 
-  // Set up session store
-  redisStore = new RedisStore({ 
+  // Create Redis store
+  redisStore = new RedisStore({
     client: redisClient,
-    disableTouch: false
   });
   
   // Increase max listeners for the store
@@ -46,7 +47,7 @@ try {
 }
 
 // Graceful shutdown handler
-function handleShutdown() {
+function handleShutdown(): Promise<void> {
   if (redisClient?.quit) {
     return new Promise((resolve) => {
       redisClient.quit(() => {
@@ -59,7 +60,7 @@ function handleShutdown() {
 }
 
 // Cache operations
-async function getCache(key) {
+async function getCache(key: string): Promise<string | null> {
   if (!redisClient) return null;
   try {
     return await redisClient.get(key);
@@ -69,7 +70,7 @@ async function getCache(key) {
   }
 }
 
-async function setCache(key, value, ttl) {
+async function setCache(key: string, value: string, ttl: number): Promise<boolean> {
   if (!redisClient) return false;
   try {
     await redisClient.set(key, value, 'EX', ttl);
