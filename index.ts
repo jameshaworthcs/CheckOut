@@ -210,7 +210,7 @@ let sessionStore;
 try {
   const mysqlStoreInstance = new MySQLStore(dbOptions);
   sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : (redisStore || mysqlStoreInstance);
-  console.log("Session store initialized:", sessionStore);
+  //console.log("Session store initialized:", sessionStore);
 } catch (err) {
   console.error('Error initializing session store:', err);
   process.exit(1);
