@@ -4,6 +4,40 @@
     <%- include('../global/head'); %>
     <title>Welcome to AutoCheckin</title>
     <%- include('./styles/shared'); %>
+    <style>
+        .info-section h3 {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-section {
+            padding-top: 1.5rem;
+        }
+
+
+        .feature-list {
+            box-shadow: var(--shadow);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .feature-item {
+            box-shadow: var(--shadow2);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: var(--code-background);
+        }
+
+        .feature-item.right {
+            margin-left: 20px;
+        }
+
+        .feature-item.left {
+            margin-right: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="loading-overlay">

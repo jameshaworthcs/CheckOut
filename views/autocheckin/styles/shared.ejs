@@ -124,7 +124,7 @@ body {
 
 #continue-btn {
     background-color: var(--action-colour);
-    color: var(--cta-button-colour);
+    color: var(--cta-button-colour-main);
     border: none;
     padding: 15px;
     font-size: .87rem;
@@ -138,13 +138,21 @@ body {
 }
 
 #continue-btn:hover {
-    background-color: var(--action-highlight-colour);
+    opacity: 0.9;
+    background-color: var(--action-highlight-colour-main);
 }
 
 #continue-btn.grey,
 #continue-btn.grey:hover {
     background-color: lightgrey;
     cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: light) {
+    #continue-btn.grey,
+    #continue-btn.grey:hover {
+        color: var(--text-colour);
+    }
 }
 
 #loading-overlay {
