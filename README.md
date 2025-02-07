@@ -1,4 +1,9 @@
-# CheckOut - Setup Instructions
+<div style="text-align: center;">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jameshaworthcs/CheckOut/refs/heads/main/public/static/images/1.3-white.png?token=GHSAT0AAAAAAC5ENSKG2ADJBTJMBUVVSXRQZ5FLKKQ">
+    <img width="300" alt="CheckOut Logo" src="https://raw.githubusercontent.com/jameshaworthcs/CheckOut/refs/heads/main/public/static/images/chk_d_v.svg?token=GHSAT0AAAAAAC5ENSKHS4XHP6Z4ZONGQWRAZ5FLJQA">
+  </picture>
+</div>
 
 Welcome to the **CheckOut** repository! Follow these instructions to get the application up and running smoothly.
 
