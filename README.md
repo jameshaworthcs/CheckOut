@@ -152,13 +152,26 @@ Create a MySQL user specifically for the application:
 
 ## **6. Run the Application**
 
-Start the application by running:
+The project uses TypeScript and can be started using:
 
 ```bash
 npm start
 ```
 
-The application should now be running and ready to use!
+This will run the application using `ts-node`. The application should now be running and ready to use!
+
+### **Development**
+
+The project uses TypeScript for development. Make sure you have all development dependencies installed by running:
+
+```bash
+npm install
+```
+
+Key development dependencies include:
+- TypeScript
+- ts-node
+- Various type definitions (@types/*)
 
 ---
 
