@@ -177,4 +177,4 @@ Key development dependencies include:
 
 ## **Need Help?**
 
-If you encounter any issues during setup, feel free to open an issue in the repository or reach out for support.
+If you encounter any issues during setup, feel free to open an issue in the repository or use our [on-site support form](https://checkout.ac/support).
