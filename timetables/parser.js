@@ -17,7 +17,7 @@ rl.question('Enter MySQL password: ', (password) => {
     host: '127.0.0.1',
     user: 'checkout',
     password: password,
-    database: 'checkout'
+    database: 'checkout_dev'
   });
 
   // Establish MySQL connection
@@ -30,7 +30,7 @@ rl.question('Enter MySQL password: ', (password) => {
     console.log('Connected to MySQL database');
 
     // Read the CSV file
-    const csvFilePath = 'yrk_cs_1.csv';
+    const csvFilePath = 'sem2_tibl_yrk_cs_2.csv';
 
     fs.readFile(csvFilePath, 'utf8', (err, data) => {
       if (err) {
@@ -57,7 +57,7 @@ rl.question('Enter MySQL password: ', (password) => {
 
 
       // Prepare SQL INSERT query
-      const tableName = 'tibl_yrk_cs_1';
+      const tableName = 'tibl_yrk_cs_2';
       const insertQuery = `INSERT INTO ${tableName} (${columns.map(col => `\`${col}\``).join(', ')}) VALUES ?`;
 
       // Parse data and insert into MySQL table
