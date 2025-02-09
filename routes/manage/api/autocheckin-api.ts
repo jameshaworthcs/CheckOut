@@ -17,7 +17,7 @@ app.get('/manage/api/autocheckin/autocheckers', async (req, res) => {
         // Add autoAccess flag based on permissions check
         const enrichedRows = rows.map(async row => {
             const permResults = await secureRoute.checkPermissions(row.userstate);
-            const allowedServices = permResults.flatMap(result => JSON.parse(result.routes));
+            const allowedServices = permResults.flatMap(result => result.routes);
             return {
                 ...row,
                 autoAccess: allowedServices.some(route => route === 'autocheckin')
