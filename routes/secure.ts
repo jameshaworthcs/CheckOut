@@ -390,7 +390,7 @@ function auth(service, req, res, next) {
           } else if (req.url.startsWith("/manage")) {
             msg = 'Sign in to access admin features.';
           } else {
-            msg = 'Sign in with your .ac.uk email to save your history, personalize CheckOut and use AutoCheckin.';
+            msg = 'Sign in with your .ac.uk email to save your history, personalise CheckOut and use AutoCheckin.';
           }
         } else if (req.userState.includes('moderator') && service === 'sysop' && req.url.startsWith("/manage")) {
           // Handle management area moderator limitations
