@@ -56,7 +56,24 @@ function showLoadingOverlay(duration) {
 let currentOffset = 0;
 const ITEMS_PER_PAGE = 10;
 
-function fetchDataAndRender(append = false) {
+/**
+   * Fetches history data from the API and renders code records along with statistics.
+   *
+   * This function retrieves data from the `/api/history/history` endpoint using the global pagination parameters. It processes
+   * the fetched JSON data to update the DOM element with the ID "activeClasses" by displaying a summary of statistics (total codes,
+   * different IPs, device IDs, and user accounts) and individual code details. If the `append` flag is false, the function resets
+   * the global offset and overwrites the container's content. Otherwise, it appends additional code records to the existing content.
+   *
+   * For each code record, the function creates HTML elements that display the check-in code, date, module information, and additional
+   * details, as well as buttons for copying the code and toggling its visibility. A "Load More" button is added if more items are available,
+   * and clicking it increases the offset and recursively fetches additional data.
+   *
+   * Additionally, if a global function `window.endLoadingOverlay` is defined, it is invoked after the data is successfully rendered.
+   * Errors during the fetch operation are caught and logged to the console.
+   *
+   * @param {boolean} [append=false] - Indicates whether to append new data to the existing content (true) or reset and replace it (false).
+   */
+  function fetchDataAndRender(append = false) {
     if (!append) {
         currentOffset = 0;
     }
