@@ -72,10 +72,11 @@ function fetchDataAndRender(append = false) {
         const deviceCount = Object.keys(stats.deviceIDCounts).length;
         const userCount = Object.keys(stats.usernameCounts).length;
         const totalCount = stats.totalCount;
-
+        const userCountText = userCount === 1 ? 'account' : 'different accounts';
+        
         if (!append) {
             container.innerHTML = `
-                <p>${totalCount} codes found, from ${ipCount} different IP's, ${deviceCount} different deviceID's and ${userCount} different accounts.</p>
+                <p>${totalCount} codes found, from ${ipCount} different IP's, ${deviceCount} different deviceID's and ${userCount} ${userCountText}.</p>
             `;
         }
 
