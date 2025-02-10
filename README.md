@@ -1,9 +1,12 @@
-<div style="text-align: center;">
+<p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jameshaworthcs/CheckOut/refs/heads/main/public/static/images/1.3-white.png?token=GHSAT0AAAAAAC5ENSKG2ADJBTJMBUVVSXRQZ5FLKKQ">
-    <img width="300" alt="CheckOut Logo" src="https://raw.githubusercontent.com/jameshaworthcs/CheckOut/refs/heads/main/public/static/images/chk_d_v.svg?token=GHSAT0AAAAAAC5ENSKHS4XHP6Z4ZONGQWRAZ5FLJQA">
+    <source media="(prefers-color-scheme: dark)" 
+            srcset="https://checkout.ac/static/images/1.3-white.png">
+    <img width="300" alt="CheckOut Logo" 
+         src="https://checkout.ac/static/images/chk_d_v.svg">
   </picture>
-</div>
+</p>
+
 
 Welcome to the **CheckOut** repository! Follow these instructions to get the application up and running smoothly.
 
