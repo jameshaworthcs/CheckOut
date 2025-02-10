@@ -16,9 +16,10 @@ app.post('/api/welcome/consent', function (req, res) {
             res.json({ 'success': false, msg: 'Failed to set up. Theme not set. (course-select-api)' });
         }
     } else {
-        res.json({ 'success': false, msg: 'Failed to set up. Check cookies are being saved correctly. (course-select-api)' });
+        res.status(500).json({ 'success': false, msg: 'Failed to set up. Check cookies are being saved correctly. (course-select-api)' });
     }
 })
+
 
 app.get('*', function (req, res) {
     res.status(404);
