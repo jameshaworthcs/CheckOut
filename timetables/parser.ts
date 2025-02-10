@@ -17,7 +17,7 @@ rl.question('Enter MySQL password: ', (password) => {
     host: '127.0.0.1',
     user: 'checkout',
     password: password,
-    database: 'checkout_dev'
+    database: 'checkout'
   });
 
   // Establish MySQL connection
