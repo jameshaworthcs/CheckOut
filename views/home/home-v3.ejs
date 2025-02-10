@@ -101,7 +101,17 @@ h4 {
   /* Use flexbox for horizontal alignment */
   display: flex;
   align-items: center;
+  justify-content: flex-start; /* Align items to the left */
   gap: 10px; /* Equal spacing between elements */
+  width: 100%; /* Ensure the wrapper takes full width */
+}
+
+.code-display {
+  /* Use flexbox for the code display section */
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between label and copy button */
+  flex-grow: 0; /* Don't allow it to grow */
 }
 
 .code-label {
@@ -118,15 +128,15 @@ h4 {
 
 .share-button {
     cursor: pointer;
-    /* padding: 5px 13px; */
     background-color: var(--copy-code-background);
     color: var(--copy-code-colour);
     border: var(--copy-code-border);
     border-radius: 4px;
-    margin-left: 5px;
+    margin-left: 0; /* Remove left margin since we're using gap */
     font-weight: 550;
     height: 27px;
     width: fit-content;
+    white-space: nowrap; /* Prevent button text from wrapping */
 }
 
 .share-button.chc {
@@ -175,8 +185,7 @@ button.share-button.un-verified {
     background-image: var(--tick-image);
     background-repeat: no-repeat;
     background-size: 34px;
-    float: right;
-    /* transform: translateY(-0px); */
+    margin-left: auto;
     height: 34px;
     width: 34px;
 }
@@ -264,7 +273,6 @@ button.share-button.un-verified {
 .chc-input {
     width: 100%;
     padding: 8px;
-    margin-bottom: 12px;
     box-sizing: border-box;
     background-color: var(--secondary-background);
     color: var(--input-text-color);
@@ -566,6 +574,7 @@ h2 {
     transform: translateX(-50%) translateY(-152%);
     background: linear-gradient(45deg, #ff007f, #ffae00, #5dd1ff, #7c4dff);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700;
     font-size: 2.1em;
@@ -600,8 +609,120 @@ h2 {
     margin-left: 15px !important;
 }
 
+.options-link {
+    display: inline-block;
+    color: var(--subtext-colour);
+    text-decoration: none;
+    margin-top: 10px;
+    margin-left: 14px;
+}
 
+.modal-links {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
 
+.modal-links li {
+    margin: 10px 0;
+}
+
+.modal-links li:last-child {
+    text-align: right;
+    margin-bottom: 0;
+}
+
+.modal-links a {
+    text-decoration: none;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.modal-links a:hover {
+    text-decoration: underline;
+}
+
+.modal-links .activity-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0 0 0;
+    padding: 12px;
+}
+
+.modal-links .activity-button svg {
+    flex-shrink: 0;
+}
+
+.modal-help-text {
+    color: var(--subtext-colour);
+    font-size: 0.9em;
+    margin-top: 30px;
+    padding-top: 20px;
+    clear: both;
+}
+
+.modal-help-text hr {
+    border: none;
+    border-top: 1px solid var(--accent-colour);
+    margin: 0 0 20px 0;
+}
+
+.modal-help-text p {
+    margin: 8px 0;
+}
+
+.activity-button {
+    float: right;
+    margin-top: -8px;
+}
+
+.box h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.beta-tag {
+    background-color: var(--submit-success-background);
+    color: var(--submit-success-colour);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.feedback-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--subtext-colour);
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 4px;
+    transition: opacity 0.2s;
+}
+
+.feedback-link:hover {
+    opacity: 0.8;
+}
+
+.feedback-link svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
     </style>
 
 
@@ -619,6 +740,33 @@ h2 {
             </div>      
 
             <div class="box-container">
+                <div class="box">
+                    <div class="header-row">
+                        <h2>Classes <div class="beta-tag">BETA</div>
+                            <!-- <div class="whitetick" role="img" alt="White tick"></div> -->
+                        </h2>
+                        <a href="/support" target="_blank" rel="noopener" class="feedback-link">
+                            Please give feedback
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="classes-box-skeleton">
+                        <div class="skeleton skeleton-header"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-box"></div>
+                        <div class="skeleton skeleton-box"></div>
+
+                        <div class="skeleton skeleton-half-box"></div>
+                    </div>
+                    <div id="classes-box" class="classes-box hidden">
+                        <p>Something went wrong.</p>
+                    </div>
+                    <noscript>JavaScript is needed to use this website.</noscript>
+
+                </div>
                 <div class="box">
                     <h2>Submit CheckOut code <div class="whitetick" role="img" alt="White tick"></div></h2>
                     <div class="submit-skeleton">

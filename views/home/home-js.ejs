@@ -1,54 +1,67 @@
 <script>
-///////////////
-// Error Box //
-///////////////
+/**
+ * Home JS Module.
+ *
+ * This script handles UI interactions, API calls, and form submissions for the home page.
+ * It includes functions for displaying errors, setting up the page with cached or API data,
+ * managing refresh timers, processing submissions via WebSocket, and updating various UI components.
+ * All functions adhere to the style guide with clear formatting and comprehensive documentation.
+ */
 
+/**
+ * Displays an error box with a given message in a specified target element.
+ *
+ * @param {string} message - The error message to display.
+ * @param {string} targetId - The ID of the target element where the error should be shown.
+ */
 function showErrorBox(message, targetId) {
-        const targetDiv = document.getElementById(targetId);
-        if (!targetDiv) {
-            console.error(`No element found with id ${targetId}`);
-            return;
-        } else {
-            console.error(message);
-        }
-
-        const errorBox = document.createElement('div');
-        errorBox.className = 'error-box';
-
-        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>`;
-
-        errorBox.innerHTML = svgIcon + '<p>'+message+'</p>';
-        targetDiv.innerHTML = ''; // Clear the existing content
-        targetDiv.appendChild(errorBox);
-
-        // Show error on submit form
-        document.querySelector('.submit-skeleton').classList.add('hidden');
-        document.querySelector('.submit-form').classList.remove('hidden');
-
-        // Show error on classes content
-        const classesSkeleton = document.querySelector('.classes-skeleton');
-        const classesContent = document.querySelector('.classes-content');
-        classesSkeleton.style.display = 'none';
-        classesContent.style.display = 'block';
+    const targetDiv = document.getElementById(targetId);
+    if (!targetDiv) {
+        console.error(`No element found with id ${targetId}`);
+        return;
+    } else {
+        console.error(message);
     }
 
-/////////////////////
-// Start API calls //
-/////////////////////
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-box';
 
+    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
+                        <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
+                     </svg>`;
+
+    errorBox.innerHTML = svgIcon + '<p>' + message + '</p>';
+    targetDiv.innerHTML = '';
+    targetDiv.appendChild(errorBox);
+
+    document.querySelector('.submit-skeleton').classList.add('hidden');
+    document.querySelector('.submit-form').classList.remove('hidden');
+
+    const classesSkeleton = document.querySelector('.classes-skeleton');
+    const classesContent = document.querySelector('.classes-content');
+    classesSkeleton.style.display = 'none';
+    classesContent.style.display = 'block';
+}
+
+/**
+ * Sets up the page by fetching API data and updating the UI.
+ *
+ * @param {boolean} [refreshSubmit=true] - If true, refreshes the submit form as well.
+ */
 function setup(refreshSubmit = true) {
     lastSetupCall = Date.now();
     resetRefreshTimer();
     getV2().then(data => {
         const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
-        const username = userInfo.username; // Extract the username here
+        const username = userInfo.username;
         const autoInfo = userInfo.autoInfo || 'skip';
-        if (autoInfo != 'skip') {
+        if (autoInfo !== 'skip') {
             fillAutoLink(autoInfo);
         }
         fillUsername(username);
         if (refreshSubmit) {
             if (tibl) {
+                fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
                 fillSubmitForm(sessionCount, msg, sessions);
             } else {
                 fillSubmitFormNonTibl(legacy_modules);
@@ -57,7 +70,6 @@ function setup(refreshSubmit = true) {
         fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
     }).catch(error => {
         console.error(error);
-        // Handle error and display error message
         if (error.response && error.response.msg) {
             displayNotice(error.response.msg, 'error', 'Network error', 0);
             if (refreshSubmit) {
@@ -65,7 +77,6 @@ function setup(refreshSubmit = true) {
             }
             showErrorBox(error.response.msg, 'classes-content');
         } else {
-            //displayNotice('Something went wrong. Unable to connect to API.', 'error', 'Network error', 0);
             if (refreshSubmit) {
                 showErrorBox("Something went wrong. Unable to connect to authoritative servers.", 'submit-form');
             }
@@ -74,11 +85,13 @@ function setup(refreshSubmit = true) {
     });
 }
 
+/**
+ * Sets up the page using cached data provided by the server.
+ * Utilizes server-rendered data to simulate an API response.
+ */
 function setupCached() {
-    // Import cached v2Data from the server-side
     const data = <% if (typeof v2Data !== 'undefined') { %><%- v2Data %><% } else { %>{}<% } %>;
 
-    // Simulate the API call with the cached data
     Promise.resolve(data).then(data => {
         const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
         if (tibl) {
@@ -87,9 +100,9 @@ function setupCached() {
             fillSubmitFormNonTibl(legacy_modules);
         }
         fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+        fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
     }).catch(error => {
         console.error(error);
-        // Handle error and display error message
         if (error.response && error.response.msg) {
             displayNotice(error.response.msg, 'error', 'Network error', 0);
             showErrorBox(error.response.msg, 'submit-form');
@@ -102,10 +115,9 @@ function setupCached() {
     });
 }
 
-// Main setup function to use (injected) cached v2 data
+// Initiate cached setup on page load
 setupCached();
 
-// Refresh the page every 5 seconds
 let lastSetupCall = Date.now();
 let refreshInterval = 5000; // 5 seconds
 let refreshTimer;
@@ -114,11 +126,17 @@ let blockAllRefresh = false;
 let lastUserInteraction = 0;
 let interactionDelay = 15000; // 15 seconds
 
+/**
+ * Resets the refresh timer to schedule the next refresh check.
+ */
 function resetRefreshTimer() {
     clearTimeout(refreshTimer);
     refreshTimer = setTimeout(checkIfShouldRefresh, refreshInterval);
 }
 
+/**
+ * Checks if the page should refresh based on user interaction and refresh settings.
+ */
 function checkIfShouldRefresh() {
     const now = Date.now();
     if (blockAllRefresh) {
@@ -126,15 +144,20 @@ function checkIfShouldRefresh() {
         return;
     } else if (!refreshEnabled) {
         showRefreshLoader();
-        setup(false); // Setup without refreshing the submit form
+        setup(false);
     } else if ((now - lastUserInteraction > interactionDelay)) {
         showRefreshLoader();
-        setup(); // Call setup only if no user interaction in the last 15 seconds
+        setup();
     } else {
-        resetRefreshTimer(); // Reschedule the refresh check if user interaction was recent
+        resetRefreshTimer();
     }
 }
 
+/**
+ * Cancels the refresh timer.
+ *
+ * @param {boolean} [hardCancel=false] - If true, blocks all future refreshes.
+ */
 function cancelRefresh(hardCancel = false) {
     if (hardCancel) {
         blockAllRefresh = true;
@@ -143,27 +166,29 @@ function cancelRefresh(hardCancel = false) {
     clearTimeout(refreshTimer);
 }
 
-// Track user interactions and update the last interaction time
+/**
+ * Updates the timestamp of the last user interaction and resets the refresh timer.
+ */
 function userInteraction() {
     lastUserInteraction = Date.now();
-    resetRefreshTimer(); // Reset the timer whenever there's user interaction
+    resetRefreshTimer();
 }
 
+/**
+ * Displays the refresh loader briefly during page refresh.
+ */
 function showRefreshLoader() {
-    // Show the loader
-    document.getElementById('code-refresh-loader').style.display = 'inline-block';
-    // Hide the refresh button after 1 second delay
+    const loader = document.getElementById('code-refresh-loader');
+    loader.style.display = 'inline-block';
     setTimeout(() => {
-        document.getElementById('code-refresh-loader').style.display = 'none';
+        loader.style.display = 'none';
     }, 1000);
 }
 
-// Call setup on page load
 document.addEventListener('DOMContentLoaded', function () {
     setup();
 });
 
-// Handle visibility change when user switches tabs
 document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && refreshEnabled) {
         let now = Date.now();
@@ -175,18 +200,15 @@ document.addEventListener('visibilitychange', function () {
     }
 });
 
-// Listen for user interaction (clicks, key presses, etc.)
 document.addEventListener('click', userInteraction);
 document.addEventListener('keydown', userInteraction);
 
-// Example of calling `cancelRefresh()` from elsewhere in the page
-// This function disables further refreshing for the current visit
-// cancelRefresh();
-
-////////////////
-// GET v2 API //
-////////////////
-
+/**
+ * Fetches data from the v2 API endpoint.
+ *
+ * @returns {Promise<Object>} A promise that resolves to an object containing API data.
+ * @throws {Error} If the API call fails.
+ */
 async function getV2() {
     try {
         const response = await fetch('/api/app/v2');
@@ -208,57 +230,35 @@ async function getV2() {
     }
 }
 
-///////////////////
-// Fill username //
-///////////////////
-
-// Initial check for stored username
-const storedUsername = localStorage.getItem('username');
-if (storedUsername) {
-    // If username exists in localStorage, call function without updating storage
-    fillUsername(storedUsername, false);
-} 
-
+/**
+ * Updates the UI with the username and optionally stores it in local storage.
+ *
+ * @param {string} username - The username to display.
+ * @param {boolean} [shouldStore=true] - If true, saves the username to local storage.
+ */
 function fillUsername(username, shouldStore = true) {
-    // Find the span element by its ID
     const nameTextSpan = document.getElementById('name-text');
-    
-    // Find the div with the class 'skeleton-name'
     const skeletonNameDiv = document.querySelector('.skeleton-name');
-    
-    // Remove the skeletonNameDiv if it exists
     if (skeletonNameDiv) {
         skeletonNameDiv.remove();
     }
-    
-    // Replace the span text with 'Hello, $username'
     if (nameTextSpan) {
         nameTextSpan.textContent = `Hello, ${username}`;
     }
-    
-    // Save to localStorage only if shouldStore is true
     if (shouldStore) {
         localStorage.setItem('username', username);
     }
 }
 
-///////////////////
-// Fill autoInfo //
-///////////////////
-
-// Initial check for stored username
-const storedAutoInfo = localStorage.getItem('autoInfo');
-if (storedAutoInfo) {
-    // If autoInfo exists in localStorage, call function without updating storage
-    fillAutoLink(storedAutoInfo, false);
-} 
-
+/**
+ * Updates the UI with information about auto check-in and optionally stores it.
+ *
+ * @param {string} autoInfo - The auto check-in info.
+ * @param {boolean} [shouldStore=true] - If true, saves autoInfo to local storage.
+ */
 function fillAutoLink(autoInfo, shouldStore = true) {
-    // Find the span element by its ID
     const autoInfoSpan = document.getElementById('autoInfoText');
     const autoInfoLink = document.getElementById('autoInfoLink');
-    
-    // Replace the span text based on autoInfo
     if (autoInfoSpan) {
         autoInfoSpan.textContent = autoInfo === 'join-waitlist' ? 'Join AutoCheckin Waitlist'
             : autoInfo === 'on-waitlist' ? 'View Waitlist status'
@@ -268,74 +268,76 @@ function fillAutoLink(autoInfo, shouldStore = true) {
             : autoInfo === 'sign-in' ? 'Sign in to use AutoCheckin'
             : 'Learn about AutoCheckin';
 
-        // Update link href if autoInfo is 'sign-in' and link element exists
         if (autoInfo === 'sign-in' && autoInfoLink) {
             autoInfoLink.href = '/login?intent=autocheckin';
         }
-            
-        // Display notice if there's an error
+
         if (autoInfo === 'error') {
             displayNotice(
-                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?pre=autocheckin">contact support</a>.', 
-                'error', 
-                'AutoCheckin Error', 
+                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?pre=autocheckin">contact support</a>.',
+                'error',
+                'AutoCheckin Error',
                 0
             );
         }
     }
-    
-    // Save to localStorage only if shouldStore is true
     if (shouldStore) {
         localStorage.setItem('autoInfo', autoInfo);
     }
 }
 
-/////////////////////////////////
-// Fill submit form (Non-tibl) //
-/////////////////////////////////
+// Load autoInfo from localStorage if it exists
+const storedAutoInfo = localStorage.getItem('autoInfo');
+if (storedAutoInfo) {
+    fillAutoLink(storedAutoInfo, false);
+}
 
+/**
+ * Populates the non-TIBL submission form with legacy modules.
+ *
+ * @param {Array} legacy_modules - Array of legacy module objects.
+ */
 function fillSubmitFormNonTibl(legacy_modules) {
     const submitFormElement = document.getElementById('submit-form');
-    submitFormElement.innerHTML = '';  // Clear existing content
+    submitFormElement.innerHTML = '';
 
     if (false) {
         showErrorBox("Submissions are currently disabled.", 'submit-form');
         return;
     } else {
-        var moduleOptionsHTML = '';
+        let moduleOptionsHTML = '';
         legacy_modules.forEach(module => {
             moduleOptionsHTML += `<div class="moduleOption-NonTibl" data-value="${module.module_code}">${module.module_name}</div>`;
         });
         submitFormElement.innerHTML = `
         <form class="s-form" id="submitForm">
-      <label class="formLabel" for="md">Module:</label>
-        <div id="moduleSelection-NonTibl">
-            ${moduleOptionsHTML}
-        </div>
-        <input type="hidden" name="md" id="md" required>
-      <br>
-      <label class="formLabel" for="grp">Group Number:</label>
-        <div id="groupSelection-NonTibl">
-            <!-- Add 'selected' class to pre select -->
-            <div class="groupOption-NonTibl" data-value="Lecture">Lecture</div>
-            <div class="groupOption-NonTibl" data-value="1">1</div>
-            <div class="groupOption-NonTibl" data-value="2">2</div>
-            <div class="groupOption-NonTibl" data-value="3">3</div>
-            <div class="groupOption-NonTibl" data-value="4">4</div>
-            <div class="groupOption-NonTibl" data-value="5">5</div>
-            <div class="groupOption-NonTibl" data-value="6">6</div>
-        </div>
-        <input type="hidden" name="grp" id="grp" required>
-      <br>
-      <label class="formLabel" for="chc">Check-out Code:</label>
-      <input class="chc-input" type="tel" placeholder="******" name="chc" id="chc" pattern="\\d{6}" maxlength="6" oninput="validateInput(this)" required>
-    <input type="hidden" name="inst" value="">
-    <input type="hidden" name="crs" value="">
-    <input type="hidden" name="yr" value="">
-    <br><br>
-      <button id="submit-button" class="cta-button cta-button-main" type="submit" value="SUBMIT" data-form-type="action">SUBMIT</button>
-    </form>
-    `
+            <label class="formLabel" for="md">Module:</label>
+            <div id="moduleSelection-NonTibl">
+                ${moduleOptionsHTML}
+            </div>
+            <input type="hidden" name="md" id="md" required>
+            <br>
+            <label class="formLabel" for="grp">Group Number:</label>
+            <div id="groupSelection-NonTibl">
+                <div class="groupOption-NonTibl" data-value="Lecture">Lecture</div>
+                <div class="groupOption-NonTibl" data-value="1">1</div>
+                <div class="groupOption-NonTibl" data-value="2">2</div>
+                <div class="groupOption-NonTibl" data-value="3">3</div>
+                <div class="groupOption-NonTibl" data-value="4">4</div>
+                <div class="groupOption-NonTibl" data-value="5">5</div>
+                <div class="groupOption-NonTibl" data-value="6">6</div>
+            </div>
+            <input type="hidden" name="grp" id="grp" required>
+            <br>
+            <label class="formLabel" for="chc">Check-out Code:</label>
+            <input class="chc-input" type="tel" placeholder="******" name="chc" id="chc" pattern="\\d{6}" maxlength="6" oninput="validateInput(this)" required>
+            <input type="hidden" name="inst" value="">
+            <input type="hidden" name="crs" value="">
+            <input type="hidden" name="yr" value="">
+            <br><br>
+            <button id="submit-button" class="cta-button cta-button-main" type="submit" value="SUBMIT" data-form-type="action">SUBMIT</button>
+        </form>
+        `;
         document.querySelector('.submit-skeleton').classList.add('hidden');
         document.querySelector('.submit-form').classList.remove('hidden');
 
@@ -343,8 +345,8 @@ function fillSubmitFormNonTibl(legacy_modules) {
         if (formElement) {
             formElement.addEventListener('submit', function(e) {
                 e.preventDefault();
-                var formData = new FormData(formElement);
-                var jsonData = {};
+                let formData = new FormData(formElement);
+                let jsonData = {};
                 formData.forEach((value, key) => { jsonData[key] = value; });
                 processSubmission('submitForm', jsonData);
             });
@@ -355,6 +357,12 @@ function fillSubmitFormNonTibl(legacy_modules) {
     }
 }
 
+/**
+ * Sets up selectable options for non-TIBL forms.
+ *
+ * @param {string} className - The class name of the options.
+ * @param {string} inputId - The ID of the hidden input to update.
+ */
 function setupSelectableOptionsNonTibl(className, inputId) {
     document.querySelectorAll('.' + className).forEach(item => {
         item.addEventListener('click', function() {
@@ -367,13 +375,16 @@ function setupSelectableOptionsNonTibl(className, inputId) {
     });
 }
 
-//////////////////////
-// Fill submit form //
-//////////////////////
-
+/**
+ * Populates the main submission form with session information.
+ *
+ * @param {number} sessionCount - The number of active sessions.
+ * @param {string} msg - A status message.
+ * @param {Array} sessions - Array of session objects.
+ */
 function fillSubmitForm(sessionCount, msg, sessions) {
     const submitFormElement = document.getElementById('submit-form');
-    submitFormElement.innerHTML = '';  // Clear existing content
+    submitFormElement.innerHTML = '';
 
     if (sessionCount === 0) {
         submitFormElement.textContent = 'No classes are in progress, come back later.';
@@ -384,8 +395,6 @@ function fillSubmitForm(sessionCount, msg, sessions) {
         const form = document.createElement('form');
         form.className = 's-form';
         form.id = 'submitForm';
-        //form.method = 'POST';
-        //form.action = '/api/app/submit';
 
         const overlayDiv = document.createElement('div');
         overlayDiv.id = 'overlay';
@@ -404,7 +413,7 @@ function fillSubmitForm(sessionCount, msg, sessions) {
 
         const label = document.createElement('label');
         label.htmlFor = 'md';
-        label.className = 'subtext'
+        label.className = 'subtext';
         label.textContent = sessionCount === 1 ? "One activity in session is pre-selected." : `Select from ${sessionCount} activities currently in session:`;
 
         const sessionSelectionDiv = document.createElement('div');
@@ -418,7 +427,7 @@ function fillSubmitForm(sessionCount, msg, sessions) {
             sessionOptionDiv.dataset.activityid = session.rejectID;
             sessionOptionDiv.textContent = session.description;
 
-            const img = document.createElement('div'); // div to use background image
+            const img = document.createElement('div');
             img.className = 'selectTick hidden';
             img.textContent = 'Selected';
 
@@ -503,11 +512,9 @@ function fillSubmitForm(sessionCount, msg, sessions) {
         qr_btn.value = 'Scan QR Code';
         qr_btn.dataset.formType = 'action';
 
-        // Create a span to hold the text
         const qr_text = document.createElement('span');
         qr_text.textContent = 'Scan QR Code';
 
-        // Create the SVG element
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
         svg.setAttribute("width", "20");
@@ -518,34 +525,24 @@ function fillSubmitForm(sessionCount, msg, sessions) {
         svg.setAttribute("xml:space", "preserve");
         svg.setAttribute("class", "qr-svg");
 
-        // Create the <g> element
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("id", "layer1");
         g.setAttribute("transform", "translate(47.503468,9.5701218)");
 
-        // Create the path element for the SVG
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("style", "stroke-width:0.264583");
         path.setAttribute("d", "m 135.71989,277.43468 c -2.61119,-0.51316 -4.95086,-2.23525 -5.87121,-4.32144 -1.05371,-2.3885 -1.0652,-2.97894 -0.98659,-50.69136 0.0711,-43.12746 0.10652,-46.25885 0.5382,-47.52136 0.85261,-2.49355 2.70643,-4.29402 5.22641,-5.07602 1.31497,-0.40806 3.29102,-0.45158 20.50521,-0.45158 h 19.05 l 1.56589,0.63099 c 1.97536,0.79598 3.62405,2.45681 4.43724,4.46992 l 0.61145,1.51368 0.0759,19.38072 0.0759,19.38073 h 17.32046 17.32047 l 0.002,-18.1901 c 7.9e-4,-10.271 0.11134,-18.86058 0.25376,-19.73018 0.47569,-2.90454 2.0373,-5.39383 4.03022,-6.42441 0.43438,-0.22462 1.61237,-0.57993 2.61776,-0.78955 1.59133,-0.33181 2.06462,-0.33181 3.65596,0 1.00539,0.20962 2.19305,0.56993 2.63927,0.80069 1.47725,0.7639 2.88978,2.50931 3.53052,4.36252 l 0.60118,1.73874 v 24.34167 24.34167 l -0.5807,1.41751 c -1.12136,2.73728 -2.14368,3.75959 -4.88096,4.88095 l -1.41756,0.5807 -26.45833,0.0755 c -17.77168,0.0507 -27.05633,-0.017 -28.27974,-0.20634 -3.52041,-0.54471 -5.59927,-1.97575 -6.87351,-4.73155 -0.55758,-1.20587 -0.56736,-1.49936 -0.69779,-20.93447 l -0.1323,-19.71146 -8.65959,-0.0698 -8.6596,-0.0697 -0.0717,42.1385 -0.0717,42.13851 -0.5807,1.4175 c -1.25745,3.06949 -2.97255,4.54398 -6.04172,5.19412 -2.04791,0.43378 -2.15389,0.43698 -3.79376,0.11472 z M 13.31524,273.07242 C 0.17257352,271.2865 -8.4057851,262.36298 -9.8480501,248.9771 c -0.1868909,-1.73458 -0.2475039,-11.66525 -0.1806489,-29.59793 0.09036,-24.23875 0.1462669,-27.17614 0.5488909,-28.83958 1.677826,-6.93195 4.811681,-12.18552 9.23397212,-15.47976 4.03312578,-3.00434 8.80156798,-4.91021 13.82565998,-5.52589 3.292107,-0.40344 53.59331,-0.40344 56.885417,0 4.975149,0.60969 9.851578,2.55774 13.82566,5.52313 4.658381,3.476 8.108606,9.52363 9.361228,16.40856 0.290232,1.59525 0.36103,7.48403 0.36103,30.03021 0,26.16642 -0.0324,28.19654 -0.483519,30.29479 -2.636557,12.26325 -10.661597,19.66756 -23.080919,21.29557 -4.250622,0.55721 -53.018046,0.54544 -57.133481,-0.0138 z M 71.455894,255.4043 c 1.752719,-0.68052 3.701355,-2.51464 4.463521,-4.2012 l 0.631243,-1.39685 v -28.44823 -28.44823 l -0.8769,-1.78128 c -1.036762,-2.106 -2.559471,-3.4092 -4.791303,-4.10058 -1.357614,-0.42056 -3.653642,-0.45709 -28.727631,-0.45709 -29.727901,0 -28.878192,-0.0415 -31.245559,1.52656 -1.392262,0.9222 -2.7708678,2.91342 -3.2478851,4.69115 -0.2423901,0.90334 -0.30108,7.92592 -0.2432262,29.10416 l 0.076253,27.91354 0.6083697,1.32292 c 0.6648236,1.44568 2.1536136,3.13412 3.2889826,3.73005 2.173994,1.14108 2.102517,1.1386 31.15994,1.08421 26.157524,-0.049 27.716669,-0.078 28.904195,-0.53913 z");
 
-        // Append elements
         g.appendChild(path);
         svg.appendChild(g);
 
-        // Append the text and SVG to the button
         qr_btn.appendChild(qr_text);
         qr_btn.appendChild(svg);
-        // Disable QR code button
-        //submitInfoArea.appendChild(qr_btn);
 
         submitFooter.appendChild(submitInfoArea);
 
         form.appendChild(overlayDiv);
         form.appendChild(messageContainerDiv);
-        //form.appendChild(label);
-        //form.appendChild(sessionSelectionDiv);
-        //form.appendChild(chcLabel);
-        //form.appendChild(chcInput);
         form.appendChild(autoSplashContainerDiv);
         form.appendChild(document.createElement('br'));
         form.appendChild(document.createElement('br'));
@@ -559,11 +556,11 @@ function fillSubmitForm(sessionCount, msg, sessions) {
     if (sessionCount !== 0) {
         setupSelectableOptions('sessionOptionForm', 'md');
         const formElement = document.getElementById('submitForm');
-        if(formElement) {
+        if (formElement) {
             formElement.addEventListener('submit', function(e) {
                 e.preventDefault();
-                var formData = new FormData(formElement);
-                var jsonData = {};
+                let formData = new FormData(formElement);
+                let jsonData = {};
                 formData.forEach((value, key) => { jsonData[key] = value; });
                 processSubmission('submitForm', jsonData);
             });
@@ -575,16 +572,24 @@ function fillSubmitForm(sessionCount, msg, sessions) {
     }
 }
 
+/**
+ * Validates and formats the check-out code input by allowing only up to 6 digits.
+ *
+ * @param {HTMLInputElement} input - The input element to validate.
+ */
 function validateInput(input) {
-    // Allow only numbers
     input.value = input.value.replace(/\D/g, '');
-
-    // Limit to 6 digits
     if (input.value.length > 6) {
         input.value = input.value.slice(0, 6);
     }
 }
 
+/**
+ * Sets up selectable options for session selection.
+ *
+ * @param {string} className - The class name of the session option elements.
+ * @param {string} inputId - The ID of the hidden input to update with the selected module.
+ */
 function setupSelectableOptions(className, inputId) {
     const selectedOption = document.querySelector('.' + className + '.selected');
     if (selectedOption) {
@@ -617,23 +622,447 @@ function setupSelectableOptions(className, inputId) {
     });
 }
 
+/**
+ * Populates the classes box with session information and optionally a submission form.
+ *
+ * @param {number} sessionCount - The number of active sessions.
+ * @param {string} msg - A status message.
+ * @param {Array} sessions - Array of session objects.
+ * @param {boolean} [showSubmitForm=false] - If true, shows the submission form for a selected session.
+ * @param {string|null} [activityID=null] - Specific activity ID to target for submission form override.
+ * @param {Array|null} [nextSessions=null] - Array of upcoming sessions.
+ */
+function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activityID = null, nextSessions = null) {
+    if (!showSubmitForm) {
+        storedFillClassesData = { sessionCount, msg, sessions, nextSessions };
+    }
 
+    const classesBoxElement = document.getElementById('classes-box');
+    classesBoxElement.innerHTML = '';
 
+    document.querySelectorAll('[data-source="fillClasses"]').forEach(element => {
+        if (element.dataset.escHandler) {
+            document.removeEventListener('keydown', window[element.dataset.escHandler]);
+        }
+        element.remove();
+    });
 
+    if (sessionCount === 0) {
+        classesBoxElement.innerHTML = 'No classes are in progress, come back later.';
+    } else {
+        const sessionsContainer = document.createElement('div');
+        sessionsContainer.className = 'sessions-container';
 
-////////////////////////
-// Fill codes display //
-////////////////////////
+        const codeInfo = generateCodeInfo(sessionCount, sessions);
+        sessionsContainer.innerHTML = `<p class="subtext">${codeInfo}</p>`;
 
+        const sessionsList = document.createElement('ul');
+        sessionsList.style.listStyleType = 'none';
+
+        sessions.forEach(session => {
+            const sessionLi = document.createElement('li');
+            const sessionBox = document.createElement('div');
+            sessionBox.className = 'sessionOption';
+            sessionBox.dataset.module = session.moduleCode;
+            sessionBox.dataset.activityid = session.rejectID;
+
+            const topRowDiv = document.createElement('div');
+            topRowDiv.className = 'toprowdiv';
+
+            const classDescription = document.createElement('p');
+            classDescription.className = 'toprowclass';
+            classDescription.textContent = `• ${session.description}`;
+
+            const sessionInfo = document.createElement('p');
+            sessionInfo.className = 'sessionInfo toprowclass';
+            sessionInfo.style.textAlign = 'right';
+            sessionInfo.innerHTML = `${session.startTime} - ${session.endTime}<br>${session.moduleName}`;
+
+            topRowDiv.appendChild(classDescription);
+            topRowDiv.appendChild(sessionInfo);
+            sessionBox.appendChild(topRowDiv);
+
+            const codesSection = document.createElement('div');
+            codesSection.className = 'code-content';
+
+            if (!session.codes || session.codes.length === 0 || (showSubmitForm && activityID && session.rejectID.toString() === activityID.toString())) {
+                const noCodesMessage = document.createElement('p');
+                noCodesMessage.textContent = (showSubmitForm && activityID && session.rejectID.toString() === activityID.toString()) ? 
+                    'Warning: A code already exists for this session. Only submit if you are sure the existing code is incorrect.' :
+                    'Code not provided; submit one:';
+                noCodesMessage.style.color = (showSubmitForm && activityID && session.rejectID.toString() === activityID.toString()) ? '#ff6b6b' : 'inherit';
+                codesSection.appendChild(noCodesMessage);
+
+                const submitForm = document.createElement('form');
+                submitForm.className = 's-form';
+                submitForm.id = `submitForm-${session.rejectID}`;
+
+                const formRow = document.createElement('div');
+                formRow.className = 'form-row';
+
+                const chcInput = document.createElement('input');
+                chcInput.className = 'chc-input';
+                chcInput.type = 'tel';
+                chcInput.placeholder = '******';
+                chcInput.name = 'chc';
+                chcInput.id = `chc-${session.rejectID}`;
+                chcInput.pattern = '\\d{6}';
+                chcInput.maxLength = 6;
+                chcInput.autocomplete = 'off';
+                chcInput.required = true;
+                chcInput.oninput = function() { validateInput(this); };
+
+                const submitButton = document.createElement('button');
+                submitButton.id = `submit-button-${session.rejectID}`;
+                submitButton.className = 'cta-button cta-button-main';
+                submitButton.type = 'submit';
+                submitButton.value = 'SUBMIT';
+                submitButton.dataset.formType = 'action';
+                submitButton.textContent = 'Submit Code';
+
+                const hiddenInputs = [
+                    { name: 'md', value: session.moduleCode },
+                    { name: 'grp', value: session.rejectID },
+                    { name: 'tk', value: 'random2' },
+                    { name: 'inst', value: 'yrk' },
+                    { name: 'crs', value: 'cs' },
+                    { name: 'yr', value: '1' }
+                ];
+
+                hiddenInputs.forEach(input => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = input.name;
+                    hiddenInput.value = input.value;
+                    submitForm.appendChild(hiddenInput);
+                });
+
+                formRow.appendChild(chcInput);
+                formRow.appendChild(submitButton);
+                submitForm.appendChild(formRow);
+
+                submitForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    let formData = new FormData(submitForm);
+                    let jsonData = {};
+                    formData.forEach((value, key) => { jsonData[key] = value; });
+                    processSubmission(`submitForm-${session.rejectID}`, jsonData);
+                });
+
+                codesSection.appendChild(submitForm);
+            } else {
+                const sortedCodes = [...session.codes].sort((a, b) => b.rejectScore - a.rejectScore);
+                const highestScoringCode = sortedCodes[0];
+
+                const codeWrapper = document.createElement('div');
+                codeWrapper.className = 'code-wrapper';
+
+                const codeDisplay = document.createElement('div');
+                codeDisplay.className = 'code-display';
+
+                const codeLabel = document.createElement('span');
+                codeLabel.className = 'code-label';
+                codeLabel.textContent = 'CheckOut code: ';
+
+                const copyButton = document.createElement('button');
+                copyButton.className = 'share-button chc';
+                copyButton.innerHTML = `${highestScoringCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                                <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 
+                                                0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
+                                            </svg>`;
+                copyButton.onclick = () => copyText(highestScoringCode.checkinCode, copyButton);
+
+                codeDisplay.appendChild(codeLabel);
+                codeDisplay.appendChild(copyButton);
+                
+                let verifiedCode = false;
+                if (highestScoringCode.verifiedInfo.reputation || highestScoringCode.verifiedInfo.autocheckin) {
+                    verifiedCode = true;
+                }
+
+                if (verifiedCode) {
+                    const verifiedButton = document.createElement('button');
+                    verifiedButton.className = 'share-button verified';
+                    verifiedButton.innerHTML = 'Verified';
+                    verifiedButton.setAttribute('onclick', `showVerificationModal('${JSON.stringify(highestScoringCode)}')`);
+                    codeDisplay.appendChild(verifiedButton);
+                } else {
+                    const unverifiedButton = document.createElement('button');
+                    unverifiedButton.className = 'share-button un-verified';
+                    unverifiedButton.innerHTML = 'Unverified';
+                    unverifiedButton.setAttribute('onclick', `showVerificationModal('${JSON.stringify(highestScoringCode)}')`);
+                    codeDisplay.appendChild(unverifiedButton);
+                }
+
+                const codesHtml = document.createElement('div');
+                codesHtml.className = 'code-container';
+                codesHtml.appendChild(codeDisplay);
+
+                // if (session.codes.length > 1) {
+                //     const moreCodesButton = document.createElement('button');
+                //     moreCodesButton.className = 'more-codes-button';
+                //     moreCodesButton.id = `showOtherCodes_${session.rejectID}`;
+                //     moreCodesButton.innerHTML = 'Show other codes';
+                //     moreCodesButton.setAttribute('onclick', `showOtherCodes('${session.rejectID}')`);
+                //     codesHtml.appendChild(moreCodesButton);
+
+                //     const otherCodesDiv = document.createElement('div');
+                //     otherCodesDiv.id = `otherCodes_${session.rejectID}`;
+                //     otherCodesDiv.style.display = 'none';
+
+                //     const table = document.createElement('table');
+                //     const tbody = document.createElement('tbody');
+
+                //     session.codes.slice(1).forEach(code => {
+                //         const tr = document.createElement('tr');
+                //         const tdCode = document.createElement('td');
+                //         tdCode.textContent = code.checkinCode;
+
+                //         const tdButton = document.createElement('td');
+                //         const button = document.createElement('button');
+                //         button.className = 'share-button';
+                //         button.innerHTML = 'Copy';
+                //         button.setAttribute('onclick', `copyText('${code.checkinCode}', this)`);
+                //         tdButton.appendChild(button);
+
+                //         tr.appendChild(tdCode);
+                //         tr.appendChild(tdButton);
+                //         tbody.appendChild(tr);
+                //     });
+
+                //     table.appendChild(tbody);
+                //     otherCodesDiv.appendChild(table);
+                //     codesHtml.appendChild(otherCodesDiv);
+                // }
+                
+                const codeContent = document.createElement('div');
+                codeContent.className = 'code-content';
+                codeContent.appendChild(codesHtml);
+                sessionBox.appendChild(codeContent);
+            }
+
+            sessionBox.appendChild(codesSection);
+
+            const linksContainer = document.createElement('div');
+            linksContainer.className = 'session-links';
+
+            const optionsLink = document.createElement('a');
+            optionsLink.href = '#';
+            optionsLink.className = 'options-link';
+            optionsLink.textContent = 'Options';
+            optionsLink.onclick = (e) => {
+                e.preventDefault();
+                document.getElementById(`modal-${session.rejectID}`).style.display = 'block';
+                document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'block';
+            };
+            linksContainer.appendChild(optionsLink);
+
+            if (session.codes && session.codes.length > 1) {
+                const separator = document.createElement('span');
+                separator.textContent = ' • ';
+                linksContainer.appendChild(separator);
+
+                const viewOtherCodesLink = document.createElement('a');
+                viewOtherCodesLink.href = '#';
+                viewOtherCodesLink.className = 'view-other-codes-link';
+                viewOtherCodesLink.textContent = 'View other codes';
+                viewOtherCodesLink.onclick = (e) => {
+                    e.preventDefault();
+                    document.getElementById(`other-codes-modal-${session.rejectID}`).style.display = 'block';
+                    document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'block';
+                };
+                linksContainer.appendChild(viewOtherCodesLink);
+
+                const otherCodesModal = document.createElement('div');
+                otherCodesModal.className = 'activityModal';
+                otherCodesModal.id = `other-codes-modal-${session.rejectID}`;
+                otherCodesModal.dataset.source = 'fillClasses';
+
+                const modalContent = document.createElement('div');
+                modalContent.className = 'activityModal-content';
+
+                const closeButton = document.createElement('span');
+                closeButton.className = 'close';
+                closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
+                closeButton.onclick = () => {
+                    otherCodesModal.style.display = 'none';
+                    document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'none';
+                };
+
+                const modalTitle = document.createElement('h2');
+                modalTitle.textContent = 'Other Available Codes';
+
+                const codesList = document.createElement('div');
+                codesList.className = 'other-codes-list';
+
+                session.codes.forEach(code => {
+                    const codeItem = document.createElement('div');
+                    codeItem.className = 'code-item';
+
+                    const codeText = document.createElement('span');
+                    codeText.textContent = code.checkinCode;
+                    codeItem.appendChild(codeText);
+
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'share-button';
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.setAttribute('onclick', `copyText('${code.checkinCode}', this)`);
+                    codeItem.appendChild(copyBtn);
+
+                    const reportLink = document.createElement('a');
+                    reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
+                    reportLink.className = 'report-link';
+                    reportLink.textContent = 'Report';
+                    codeItem.appendChild(reportLink);
+
+                    codesList.appendChild(codeItem);
+                });
+
+                modalContent.appendChild(closeButton);
+                modalContent.appendChild(modalTitle);
+                modalContent.appendChild(codesList);
+                otherCodesModal.appendChild(modalContent);
+                document.body.appendChild(otherCodesModal);
+            }
+
+            sessionBox.appendChild(linksContainer);
+
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'activityModalOverlay';
+            modalOverlay.id = `modal-overlay-${session.rejectID}`;
+            modalOverlay.dataset.source = 'fillClasses';
+
+            const modal = document.createElement('div');
+            modal.className = 'activityModal';
+            modal.id = `modal-${session.rejectID}`;
+            modal.dataset.source = 'fillClasses';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'activityModal-content';
+
+            const closeButton = document.createElement('span');
+            closeButton.className = 'close';
+            closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
+            closeButton.onclick = () => {
+                modal.style.display = 'none';
+                modalOverlay.style.display = 'none';
+                const otherCodesModal = document.getElementById(`other-codes-modal-${session.rejectID}`);
+                if (otherCodesModal) {
+                    otherCodesModal.style.display = 'none';
+                }
+            };
+
+            const modalTitle = document.createElement('h2');
+            modalTitle.textContent = session.description;
+
+            const linksList = document.createElement('ul');
+            linksList.className = 'modal-links';
+
+            if (session.codes && session.codes.length > 0) {
+                const submitLink = document.createElement('li');
+                submitLink.innerHTML = `<a href="#" onclick="fillClasses(storedFillClassesData.sessionCount, storedFillClassesData.msg, storedFillClassesData.sessions, true, '${session.rejectID}', storedFillClassesData.nextSessions); return false;">Submit a different code</a>`;
+                linksList.appendChild(submitLink);
+
+                session.codes.forEach(code => {
+                    const reportLink = document.createElement('li');
+                    reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
+                    linksList.appendChild(reportLink);
+                });
+            }
+
+            const settingsLink = document.createElement('li');
+            settingsLink.innerHTML = '<a href="/settings">Change course and other settings</a>';
+            linksList.appendChild(settingsLink);
+
+            const devApiLink = document.createElement('li');
+            const activityButton = document.createElement('a');
+            activityButton.className = 'activity-button';
+            activityButton.href = '#';
+            activityButton.onclick = () => {
+                modal.style.display = 'none';
+                modalOverlay.style.display = 'none';
+                openActivityModal(session.rejectID);
+            };
+            activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
+                                            <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
+                                        </svg>`;
+            devApiLink.appendChild(activityButton);
+            linksList.appendChild(devApiLink);
+
+            const helpText = document.createElement('div');
+            helpText.className = 'modal-help-text';
+            helpText.innerHTML = `<hr>
+                                    <p>Click on the verified/unverified status to learn more about a code.</p>
+                                    <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
+                                  `;
+
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(modalTitle);
+            modalContent.appendChild(linksList);
+            modalContent.appendChild(helpText);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modalOverlay);
+            document.body.appendChild(modal);
+
+            const handleModalClose = () => {
+                modal.style.display = 'none';
+                modalOverlay.style.display = 'none';
+                const otherCodesModal = document.getElementById(`other-codes-modal-${session.rejectID}`);
+                if (otherCodesModal) {
+                    otherCodesModal.style.display = 'none';
+                }
+            };
+
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    handleModalClose();
+                }
+            });
+
+            const escKeyHandler = (e) => {
+                if (e.key === 'Escape') {
+                    handleModalClose();
+                }
+            };
+            document.addEventListener('keydown', escKeyHandler);
+
+            modal.dataset.escHandler = escKeyHandler;
+
+            sessionLi.appendChild(sessionBox);
+            sessionsList.appendChild(sessionLi);
+        });
+
+        const upnextLi = document.createElement('li');
+        const upnextDiv = document.createElement('div');
+        upnextDiv.id = 'upnext-container-classes';
+        upnextLi.appendChild(upnextDiv);
+        sessionsList.appendChild(upnextLi);
+
+        sessionsContainer.appendChild(sessionsList);
+        classesBoxElement.appendChild(sessionsContainer);
+    }
+    
+    document.querySelector('.classes-box-skeleton').classList.add('hidden');
+    document.querySelector('.classes-box').classList.remove('hidden');
+    
+    if (nextSessions && nextSessions.length > 0) {
+        fetchUpNext(nextSessions, 'classes');
+    }
+}
+
+/**
+ * Populates the codes display section with session code information.
+ *
+ * @param {number} sessionCount - The number of active sessions.
+ * @param {string} msg - A status message.
+ * @param {Array} sessions - Array of session objects.
+ * @param {Array} nextSessions - Array of upcoming session objects.
+ */
 function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
     const codesDisplayElement = document.getElementById('classes-content');
-    // To preserve the height of the codes display while updating
-    // console.log(codesDisplayElement.innerText != 'Something went wrong.');
-    // if (codesDisplayElement.innerText != 'Something went wrong.') {
-    //     preserveCodesHeightWhileUpdating();
-    // }
     if (sessionCount === 0) {
-        codesDisplayElement.innerHTML = 'No classes are in progress, come back later.<div id="upnext-container"></div>';
+        codesDisplayElement.innerHTML = 'No classes are in progress, come back later.<div id="upnext-container-codes"></div>';
     } else {
         const codeInfo = generateCodeInfo(sessionCount, sessions);
         let hasCodes = false;
@@ -654,12 +1083,9 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
         function createButton(text, onClickHandler) {
             const button = document.createElement('button');
             button.innerHTML = text;
-
-            // Directly set the onClick attribute as a string
             if (typeof onClickHandler === 'string') {
                 button.setAttribute('onClick', onClickHandler);
             }
-
             return button;
         }
 
@@ -702,21 +1128,18 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 chcLabelSpan.className = 'code-label';
                 chcLabelSpan.textContent = 'CheckOut code: ';
 
-                // const chcCodeSpan = document.createElement('span');
-                // chcCodeSpan.className = 'chc-code';
-                // chcCodeSpan.textContent = firstCode.checkinCode;
-                // codeP.innerHTML = `CheckOut code: <span class="chc-code">${firstCode.checkinCode}</span>`;
-                
-                const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/></svg>`, `copyText('${firstCode.checkinCode}', this)`);
+                const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 
+                                                      0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
+                                                  </svg>`, `copyText('${firstCode.checkinCode}', this)`);
                 copyButton.className = 'share-button chc';
 
                 codeP.appendChild(chcLabelSpan);
-                //codeP.appendChild(chcCodeSpan);
                 codeP.appendChild(copyButton);
                 
                 let verifiedCode = false;
                 if (firstCode.verifiedInfo.reputation || firstCode.verifiedInfo.autocheckin) {
-                    verifiedCode = true
+                    verifiedCode = true;
                 }
 
                 if (verifiedCode) {
@@ -734,7 +1157,7 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 codesHtml.appendChild(codeP);
 
                 if (additionalCodes.length > 0) {
-                    const moreCodesButton = createButton('Show other codes', `showOtherCodes('${session.rejectID}')`)
+                    const moreCodesButton = createButton('Show other codes', `showOtherCodes('${session.rejectID}')`);
                     moreCodesButton.className = 'more-codes-button';
                     moreCodesButton.id = `showOtherCodes_${session.rejectID}`;
                     codesHtml.appendChild(moreCodesButton);
@@ -775,7 +1198,6 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
             activityButtonContainer.className = 'activity-button-container';
 
             const activityButton = createButton('', `openActivityModal('${session.rejectID}')`);
-
             activityButton.className = 'activity-button';
             activityButton.ariaLabel = `Open activity details modal for ${session.description}`;
             activityButton.appendChild(createSvgIcon());
@@ -793,23 +1215,19 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
             const closeButton = document.createElement('span');
             closeButton.className = 'close';
 
-            // First create the ESC text element
             const escText = document.createElement('p');
             escText.className = 'activityModal-esc';
             escText.textContent = '[ESC]';
 
-            // Add the X symbol and the ESC text
-            closeButton.textContent = '×';  // Using × symbol instead of &times;
+            closeButton.textContent = '×';
             closeButton.appendChild(document.createElement('br'));
             closeButton.appendChild(escText);
-
-            // Add onclick handler directly
             closeButton.setAttribute('onclick', `closeActivityModal('${session.rejectID}')`);
 
             const modalHeader = document.createElement('h2');
             modalHeader.innerHTML = `<i>${session.description}</i> details`;
 
-            const modalBody = document.createElement('div');''
+            const modalBody = document.createElement('div');
             modalBody.className = 'activityModal-body';
 
             const modalTable = document.createElement('div');
@@ -849,7 +1267,10 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 const sessionDivWarning = document.createElement('div');
                 sessionDivWarning.className = 'sessionOption warning';
                 sessionDivWarning.style.display = 'flex';
-                sessionDivWarning.innerHTML = `<svg class="sessionOptionWarningSVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg><div class="toprowdiv"><p class="toprowclass">No code available yet. Help by <a href="#" onclick="event.preventDefault(); if (navigator.share) { navigator.share({ title: document.title, text: 'Check out this site!', url: window.location.href }).then(() => console.log('Successfully shared')).catch((error) => console.log('Error sharing:', error)); } else { alert('Share API not supported in your browser.'); }">sharing this service with others</a>.</p></div>`;
+                sessionDivWarning.innerHTML = `<svg class="sessionOptionWarningSVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                    <path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+                                               </svg>
+                                               <div class="toprowdiv"><p class="toprowclass">No code available yet. Help by <a href="#" onclick="event.preventDefault(); if (navigator.share) { navigator.share({ title: document.title, text: 'Check out this site!', url: window.location.href }).then(() => console.log('Successfully shared')).catch((error) => console.log('Error sharing:', error)); } else { alert('Share API not supported in your browser.'); }">sharing this service with others</a>.</p></div>`;
                 sessionDiv.appendChild(sessionDivWarning);
             }
 
@@ -864,7 +1285,7 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
             return sessionDiv.outerHTML;
         }).join('');
 
-        codesDisplayElement.innerHTML = `<p class="subtext">${codeInfo}</p><ul>${classesHtml}</ul><div id="upnext-container"></div>`;
+        codesDisplayElement.innerHTML = `<p class="subtext">${codeInfo}</p><ul>${classesHtml}</ul><div id="upnext-container-codes"></div>`;
         if (hasCodes) {
             const checkinLink = document.createElement('p');
             checkinLink.innerHTML = `Don't have <a class="checkin-link" href="/auto">AutoCheckin</a>? Submit at <a class="checkin-link" href="https://checkin.york.ac.uk">checkin.york.ac.uk</a>`;
@@ -874,15 +1295,19 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
 
     document.querySelector('.classes-skeleton').style.display = 'none';
     document.querySelector('.classes-content').style.display = 'block';
-    fetchUpNext(nextSessions);
+    fetchUpNext(nextSessions, 'codes');
 }
 
+/**
+ * Displays a verification modal for a given code.
+ *
+ * @param {string} codeInfoString - A JSON string representing the code information.
+ */
 function showVerificationModal(codeInfoString) {
     const codeInfo = JSON.parse(codeInfoString);
     console.log(codeInfo);
     const verifiedInfo = codeInfo.verifiedInfo;
 
-    // Create modal if it doesn't exist
     if (!document.getElementById('activityModal-verified')) {
         const modal = document.createElement('div');
         modal.className = 'activityModal';
@@ -909,7 +1334,6 @@ function showVerificationModal(codeInfoString) {
         const modalTable = document.createElement('div');
         modalTable.className = 'activityModal-table';
 
-        // Create verification status messages
         const verificationData = [];
         
         if (verifiedInfo.hasOwnProperty('autocheckin')) {
@@ -928,13 +1352,11 @@ function showVerificationModal(codeInfoString) {
             });
         }
 
-        // If neither property exists
         if (verificationData.length === 0) {
             const message = document.createElement('p');
             message.textContent = 'No verification information available.';
             modalBody.appendChild(message);
         } else {
-            // Create table with verification data
             verificationData.forEach(data => {
                 const divLabel = document.createElement('div');
                 divLabel.className = 'verification-label';
@@ -996,7 +1418,6 @@ function showVerificationModal(codeInfoString) {
         modalContent.appendChild(footer);
         modal.appendChild(modalContent);
 
-        // Ensure overlay exists
         if (!document.getElementById('activityModalOverlay')) {
             const overlay = document.createElement('div');
             overlay.id = 'activityModalOverlay';
@@ -1007,33 +1428,33 @@ function showVerificationModal(codeInfoString) {
         document.body.appendChild(modal);
     }
 
-    // Use existing open function
     openActivityModal('verified');
 }
 
-
+/**
+ * Preserves the current height of the codes display container during layout updates.
+ */
 function preserveCodesHeightWhileUpdating() {
     const classesContent = document.getElementById('classes-content');
     const originalHeight = classesContent.offsetHeight + 'px';
     classesContent.style.height = originalHeight;
-
-    // Perform layout changes here
-    // ...
-
-    // After 500ms, reset the height
     setTimeout(() => {
         classesContent.style.height = '';
     }, 2000);
 }
 
-async function fetchUpNext(nextSessions) {
+/**
+ * Fetches and displays upcoming session information.
+ *
+ * @param {Array} nextSessions - Array of upcoming session objects.
+ * @param {string} containerType - The type of container ('classes' or 'codes') to target.
+ */
+async function fetchUpNext(nextSessions, containerType) {
     try {
         const sessions = nextSessions;
-
         if (sessions.length === 0) {
             return;
         }
-
         const startTime = new Date(`1970-01-01T${sessions[0].startTime}Z`);
         const startDate = new Date(sessions[0].startDate);
         const currentDate = new Date();
@@ -1073,79 +1494,86 @@ async function fetchUpNext(nextSessions) {
         upNextDiv.className = 'upnext';
         upNextDiv.innerHTML = `<fieldset class="upnext-fieldset"><legend class="newfeature-legend">Upcoming</legend>${activityReferences} ${timeString}.</fieldset>`;
 
-        const upNextContainer = document.getElementById('upnext-container');
-        upNextContainer.innerHTML = ''; // Clear existing content
-        upNextContainer.appendChild(upNextDiv);
+        const containerId = `upnext-container-${containerType}`;
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = '';
+            container.appendChild(upNextDiv);
+        }
     } catch (error) {
         displayNotice(`Can't fetch upcoming classes.`, 'warning', 'Upcoming classes', 0);
         console.error('Error fetching up next classes:', error);
     }
 }
 
+/**
+ * Toggles the display of other codes for a given activity.
+ *
+ * @param {string} activityID - The activity ID associated with the codes.
+ */
 function showOtherCodes(activityID) {
-    // Cancel refreshes that could hide the other codes
     cancelRefresh(true);
     const otherCodesDiv = document.getElementById(`otherCodes_${activityID}`);
     otherCodesDiv.style.display = otherCodesDiv.style.display === 'none' ? 'block' : 'none';
 }
 
+/**
+ * Copies the provided text to the clipboard and provides UI feedback.
+ *
+ * @param {string} text - The text to copy.
+ * @param {HTMLElement} button - The button element triggering the copy action.
+ */
 function copyText(text, button) {
     button.style.transition = 'background-color 0.3s ease-in-out, color 0.3s ease-in-out, fill 0.3s ease-in-out';
-    // Function to copy text
     navigator.clipboard.writeText(text).then(() => {
-        // Retain button size and transition to a green tick
         const originalText = button.innerText;
         const originalWidth = button.offsetWidth;
         const originalHeight = button.offsetHeight;
-        const originalBackgroundColor = window.getComputedStyle(button).backgroundColor; // Get original background color
+        const originalBackgroundColor = window.getComputedStyle(button).backgroundColor;
 
-        button.innerText = 'Copied'; // Clear text for transition
-        button.style.width = originalWidth + 'px'; // Keep the button width
-        button.style.height = originalHeight + 'px'; // Keep the button width
-        button.style.letterSpacing = 'normal'; // Remove letter spacing
-        button.style.gap = '6px'; // Remove gap
-        button.style.paddingRight = '4px'; // Change padding
+        button.innerText = 'Copied';
+        button.style.width = originalWidth + 'px';
+        button.style.height = originalHeight + 'px';
+        button.style.letterSpacing = 'normal';
+        button.style.gap = '6px';
+        button.style.paddingRight = '4px';
 
-        // Create an SVG tick element
         const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svgElement.setAttribute('class','chctick');
         svgElement.setAttribute("viewBox", "0 0 24 24");
         svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
         svgElement.setAttribute("fill", "#000000");
-        //svgElement.setAttribute("width", "24");
         svgElement.setAttribute("height", "100%");
         svgElement.style.verticalAlign = "middle";
 
-        // Create the polyline for the tick inside the SVG
         const polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         polylineElement.setAttribute("points", "16.5 8 9.5 15.5 7 13");
         polylineElement.setAttribute("style", "fill:none;stroke:var(--submit-success-colour);stroke-linecap:square;stroke-miterlimit:10;stroke-width:1.5px");
 
-        // Append polyline to SVG
         svgElement.appendChild(polylineElement);
-
-        // Insert SVG into the button
         button.appendChild(svgElement);
 
         button.style.backgroundColor = 'var(--submit-success-background)';
 
-        // Reset the button after 5 seconds
         setTimeout(() => {
             button.innerText = originalText;
             button.style.backgroundColor = '';
             button.style.width = '';
             button.style.height = '';
-            //button.removeChild(svgElement); // Remove the SVG after reset
-            button.style.backgroundColor = originalBackgroundColor; // Fade back to original background color
+            button.style.backgroundColor = originalBackgroundColor;
         }, 1500000000);
     }, (err) => {
         console.error('Could not copy text: ', err);
     });
 }
 
-
-
-
+/**
+ * Generates a descriptive message regarding the availability of codes for active sessions.
+ *
+ * @param {number} sessionCount - Number of active sessions.
+ * @param {Array} sessions - Array of session objects.
+ * @returns {string} A descriptive message about code availability.
+ */
 function generateCodeInfo(sessionCount, sessions) {
     if (sessionCount >= 5) return '';
 
@@ -1186,7 +1614,6 @@ function generateCodeInfo(sessionCount, sessions) {
                 if (count === 1) return `${(index==0)?'O':'o'}ne code available`;
                 return `${count} codes available`;
             });
-
             codeInfo = messages.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
         }
     } else if (sessionCount === 4) {
@@ -1199,7 +1626,6 @@ function generateCodeInfo(sessionCount, sessions) {
                 if (count === 1) return `${(index==0)?'O':'o'}ne code available`;
                 return `${count} codes available`;
             });
-
             codeInfo = messages.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
         }
     }
@@ -1209,18 +1635,24 @@ function generateCodeInfo(sessionCount, sessions) {
     return codeInfo;
 }
 
-////////////////////////////
-// Acitivity Detail Modal //
-////////////////////////////
-
+/**
+ * Opens the activity modal for a given activity ID.
+ *
+ * @param {string} activityID - The ID of the activity to display.
+ */
 function openActivityModal(activityID) {
-    cancelRefresh(true); // Stop any refreshes that could hide the modal
+    cancelRefresh(true);
     document.getElementById('activityModalOverlay').style.display = 'block';
     document.getElementById('activityModal-' + activityID).style.display = 'block';
     document.addEventListener('keydown', escKeyListener);
     document.getElementById('activityModalOverlay').addEventListener('click', overlayClickListener);
 }
 
+/**
+ * Closes the activity modal for a given activity ID.
+ *
+ * @param {string} activityID - The ID of the activity modal to close.
+ */
 function closeActivityModal(activityID) {
     document.getElementById('activityModalOverlay').style.display = 'none';
     document.getElementById('activityModal-' + activityID).style.display = 'none';
@@ -1228,20 +1660,32 @@ function closeActivityModal(activityID) {
     document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
 }
 
+/**
+ * Global event handler for closing modals when the Escape key is pressed.
+ *
+ * @param {KeyboardEvent} event - The keydown event.
+ */
 function escKeyListener(event) {
     if (event.key === 'Escape') {
         closeAllModals();
     }
 }
 
+/**
+ * Event handler to close all modals when clicking outside the modal content.
+ *
+ * @param {MouseEvent} event - The click event.
+ */
 function overlayClickListener(event) {
     if (event.target === document.getElementById('activityModalOverlay')) {
         closeAllModals();
     }
 }
 
+/**
+ * Closes all open modals and cleans up associated event listeners.
+ */
 function closeAllModals() {
-    // Find all modals and close any that are open
     document.querySelectorAll('.activityModal').forEach(modal => {
         modal.style.display = 'none';
     });
@@ -1250,10 +1694,13 @@ function closeAllModals() {
     document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
 }
 
-////////////////
-// Submission //
-////////////////
-
+/**
+ * Processes the submission data by generating cryptographic hashes.
+ *
+ * @param {Object} jsonObject - The submission data object.
+ * @returns {Promise<Object>} A promise that resolves with the submission response.
+ * @throws {Error} If the submission process fails.
+ */
 async function wsp1(jsonObject) {
     const encoder = new TextEncoder();
     const data = JSON.stringify(jsonObject);
@@ -1299,63 +1746,51 @@ async function wsp1(jsonObject) {
     }
 }
 
+/**
+ * Establishes a WebSocket connection to process the submission.
+ *
+ * @param {string} ws - The WebSocket parameter.
+ * @param {Object} ms - The submission data.
+ * @param {string} ws1 - The WebSocket URL.
+ * @param {string} jt - The JWT or token.
+ * @returns {Promise<Object>} A promise that resolves with the WebSocket final response.
+ */
 async function wps(ws, ms, ws1, jt) {
     return new Promise((resolve, reject) => {
         try {
-            // Open a WebSocket connection to the provided ws1 URL
             const socket = new WebSocket(ws1);
 
-            // Handle WebSocket connection open event
             socket.addEventListener('open', () => {
-                //console.log('WebSocket connection opened:', ws1);
-
-                // Step 1: Convert the ws value to Base64 and send it
                 const base64Ws = btoa(ws);
                 socket.send(base64Ws);
-                //console.log('Sent message (ws):', base64Ws);
             });
 
-            // Handle incoming messages and sequence through steps 2-4
             let step = 1;
             socket.addEventListener('message', (event) => {
-                //console.log('Received message:', event.data);
-
                 if (step === 1) {
-                    // Step 2: Send the ms value (stringified and Base64 encoded)
                     const base64Ms = btoa(JSON.stringify(ms));
                     socket.send(base64Ms);
-                    //console.log('Sent message (ms):', base64Ms);
                     step = 2;
                 } else if (step === 2) {
-                    // Step 3: Send the navigator.userAgent encoded in Base64
                     const base64UserAgent = btoa(navigator.userAgent);
                     socket.send(base64UserAgent);
-                    //console.log('Sent message (navigator.userAgent):', base64UserAgent);
                     step = 3;
                 } else if (step === 3) {
-                    // Step 4: Send the jwt as it is
                     socket.send(jt);
-                    //console.log('Sent message (auth-token):', jt);
                     step = 4;
                 } else if (step === 4) {
-                    // Final step: Decode the final message and log it as JSON
                     const finalMessage = atob(event.data);
                     const jsonResponse = JSON.parse(finalMessage);
-
-                    // Resolve the promise with the final JSON response
                     resolve(jsonResponse);
                 }
             });
 
-            // Handle WebSocket error event
             socket.addEventListener('error', (error) => {
                 console.error('WebSocket error:', error);
                 reject(error);
             });
 
-            // Handle WebSocket close event
             socket.addEventListener('close', (event) => {
-                //console.log('WebSocket connection closed:', event);
                 reject("WS connection failed, unable to submit code at this time.");
             });
 
@@ -1366,102 +1801,97 @@ async function wps(ws, ms, ws1, jt) {
     });
 }
 
+/**
+ * Stub function for barcode scanning feature.
+ * Currently displays a notice that the feature will be live soon.
+ */
 function barcodeScanner() {
-    // checkin.york.ac.uk/qr-registration/:referencePersonActivity/:status/:code
-
     startSpinner('qr-button');
-
     setTimeout(function() {
         displayNotice("This feature will be live in the next few days. Keep an eye out!", "error", "QR scanning coming soon", 0);
         endSpinner('qr-button');
-    }, 400); // 1 second
-
+    }, 400);
 }
 
-// Separate validation function to check 'grp' value
-function validateGrpField() {
-    var grpField = document.querySelector('#grp');
-    if (!grpField.value || grpField.value.trim() === "") {
+/**
+ * Validates the 'grp' field in the specified form.
+ *
+ * @param {string} formIdentifier - The ID of the form to validate.
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateGrpField(formIdentifier) {
+    const form = document.getElementById(formIdentifier);
+    if (!form) {
+        console.error(`Form with identifier "${formIdentifier}" not found.`);
+        return false;
+    }
+    const grpField = form.querySelector('input[name="grp"]');
+    if (!grpField || !grpField.value || grpField.value.trim() === "") {
         displayNotice("Select class.", 'error', 'Validation error', 0);
-        endSpinner('submit-button');
-        tryAgainButton('submit-button');
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            endSpinner(submitButton.id);
+            tryAgainButton(submitButton.id);
+        }
         return false;
     }
     return true;
 }
 
-// Added new processSubmission function below:
-
 /**
- * processSubmission - Processes a form submission programmatically.
+ * Processes a form submission.
  *
- * This revised function accepts a pre-constructed submissionData object instead of extracting data
- * directly from the form. It is no longer automatically attached to a form's submit event.
+ * @param {string} formIdentifier - The identifier of the form.
+ * @param {Object} submissionData - An object containing submission data.
  *
- * @param {string} formIdentifier - The identifier of the form associated with the submission.
- * @param {Object} submissionData - An object containing the required submission values. Expected keys include:
- *      - md: Module code.
- *      - grp: Group number.
- *      - chc: Check-out code.
- *      - tk: Token value.
- *      - inst: Institution code.
- *      - crs: Course code.
- *      - yr: Year identifier.
- *
- * This function handles UI updates (e.g., showing a spinner, enabling/disabling buttons and inputs),
- * performs necessary validation, and initiates the submission process via asynchronous API calls.
- *
- * To use, gather the submission values from the form (or elsewhere) and call:
- * processSubmission('submitForm', submissionData);
+ * This function handles UI updates, validation, and initiates the submission process via API calls.
  */
 function processSubmission(formIdentifier, submissionData) {
-    // Locate the form element using the provided identifier.
     const form = document.getElementById(formIdentifier);
     if (!form) {
         console.error(`Form with identifier "${formIdentifier}" not found.`);
         return;
     }
     
-    // Locate the submit button within the form (assumes its id is 'submit-button').
-    const submitButton = form.querySelector('#submit-button');
+    const isActivityForm = formIdentifier.includes('-');
+    const activityId = isActivityForm ? formIdentifier.split('-')[1] : '';
+    
+    const submitButton = isActivityForm 
+        ? form.querySelector(`#submit-button-${activityId}`)
+        : form.querySelector('#submit-button');
+    const codeInput = isActivityForm
+        ? form.querySelector(`#chc-${activityId}`)
+        : form.querySelector('#chc');
+
     if (!submitButton) {
         console.error('Submit button not found within the form.');
         return;
     }
 
-    // Start spinner effect on the submit button.
     startSpinner(submitButton.id);
-
-    // Stop periodic refresh that might interfere with submission.
     cancelRefresh(false);
 
-    // Validate the 'grp' field using the existing validation function.
-    if (!validateGrpField()) {
-        endSpinner(submitButton.id);
+    if (!validateGrpField(formIdentifier)) {
         return;
     }
 
-    // Process the submission using the provided submissionData.
     wsp1(submissionData)
         .then(({ ws, ws1, jt, autoSplash }) => {
-            // If an auto-splash is required, initiate it.
             if (autoSplash) {
                 startAutoSplash(jt);
             }
-            // Proceed with WebSocket-based submission.
             return wps(ws1, submissionData, ws, jt);
         })
         .then(wpfs => {
             if (wpfs.submit) {
-                // On successful submission, update the UI accordingly.
                 endSpinner(submitButton.id);
                 greenLightButton(submitButton.id);
                 createConfetti(submitButton.id);
-                greenLightInput('chc');
-                // Refresh the codes display.
+                if (codeInput) {
+                    greenLightInput(codeInput.id);
+                }
                 setup(false);
             } else {
-                // On submission failure, display an error notice.
                 endSpinner(submitButton.id);
                 displayNotice(wpfs.msg, 'error', 'Submission error', 0);
                 tryAgainButton(submitButton.id);
@@ -1475,42 +1905,35 @@ function processSubmission(formIdentifier, submissionData) {
         });
 }
 
+/**
+ * Initiates the auto check-in splash animation and processes real-time check-in via WebSocket.
+ *
+ * @param {string} jt - The JWT or token to be sent.
+ */
 function startAutoSplash(jt) {
     const autoSplashContainer = document.getElementById('autoSplashContainer');
     const submitInfoArea = document.getElementById('submitInfoArea');
     if (autoSplashContainer) {
-        // Get the original height of the container
         const originalHeight = autoSplashContainer.offsetHeight + 'px';
-
-        // Clear the container's content
         autoSplashContainer.innerHTML = '';
 
-        // Create the background element
         const autoSplashBackground = document.createElement('div');
         autoSplashBackground.id = 'autoSplashBackground';
         autoSplashBackground.className = 'autoSplashBackground';
-
-        // Set the height of the background to the original height of the container
         autoSplashBackground.style.height = originalHeight;
 
-        // Create the loading text element
         const loadingText = document.createElement('div');
         loadingText.className = 'auto-loading-text';
         loadingText.textContent = 'AutoChecking';
         loadingText.id = 'autoLoadingText';
 
-        // Create the dots element
         const dots = document.createElement('span');
         dots.className = 'dots';
         loadingText.appendChild(dots);
 
-        // Append the loading text to the background element
         autoSplashBackground.appendChild(loadingText);
-
-        // Append the background element to the container
         autoSplashContainer.appendChild(autoSplashBackground);
 
-        // Function to animate the dots
         let dotCount = 0;
         const dotInterval = setInterval(() => {
             dotCount = (dotCount % 3) + 1;
@@ -1518,56 +1941,39 @@ function startAutoSplash(jt) {
         }, 250);
 
         setTimeout(() => {
-            // Determine WebSocket protocol based on hostname and connection security
             const wsProtocol = (window.location.hostname.includes('localhost') || window.location.protocol === 'http:') ? 'ws' : 'wss';
             const wsHost = window.location.port ? `${window.location.hostname}:${window.location.port}` : window.location.hostname;
             const ws = new WebSocket(`${wsProtocol}://${wsHost}/api/submit/autosplash`);
 
             ws.onopen = function() {
-                // Send the 'tk' value as the first message
                 ws.send(jt.toString());
             };
 
-            // Set a timeout variable that we can clear later
             let timeoutId;
-
             ws.onmessage = function(event) {
-                // Clear the timeout since we received a message
                 clearTimeout(timeoutId);
-
-                // Stop the loading dots animation
                 clearInterval(dotInterval);
-
-                // Decode the base64 message and parse the JSON
                 const decodedMessage = atob(event.data);
                 console.log('Received message:', decodedMessage);
                 const response = JSON.parse(decodedMessage);
 
                 if (response.success) {
                     if (response.checkedin) {
-                        // Checked in
                         loadingText.textContent = 'Checked in!';
                         autoSplashBackground.style.background = '#00ff164f';
                     } else {
-                        // Not checked in
                         loadingText.textContent = 'Checkin unknown';
                         loadingText.style.webkitTextFillColor = 'indianred';
                         autoSplashBackground.style.background = '#81810066';
                     }
 
-                    // Display the message in submit footer
                     const messageElement = document.createElement('p');
                     messageElement.className = 'auto-checkin-message';
                     messageElement.innerHTML = response.msg;
-                    if (response.checkedin) {
-                        messageElement.style.color = 'green';
-                    } else {
-                        messageElement.style.color = 'red';
-                    }
+                    messageElement.style.color = response.checkedin ? 'green' : 'red';
                     submitInfoArea.innerHTML = '';
                     submitInfoArea.appendChild(messageElement);
                 } else {
-                    // Handle error response
                     loadingText.textContent = 'Error';
                     loadingText.style.webkitTextFillColor = 'white';
                     autoSplashBackground.style.background = 'red';
@@ -1578,20 +1984,16 @@ function startAutoSplash(jt) {
                     submitInfoArea.innerHTML = '';
                     submitInfoArea.appendChild(errorMessage);
                 }
-
-                // Close the WebSocket after receiving the message
                 ws.close();
             };
 
             ws.onerror = function() {
-                // Handle WebSocket error
                 clearInterval(dotInterval);
                 loadingText.textContent = 'Connection error';
                 autoSplashBackground.style.background = 'red';
                 ws.close();
             };
 
-            // Set a maximum timeout of 25 seconds to wait for the message
             timeoutId = setTimeout(() => {
                 if (ws.readyState === WebSocket.OPEN) {
                     ws.close();
@@ -1600,7 +2002,6 @@ function startAutoSplash(jt) {
                 loadingText.textContent = 'Not checked in';
                 autoSplashBackground.style.background = '#81810066';
                 
-                // Show timeout message below the loading text
                 const timeoutMessage = document.createElement('p');
                 timeoutMessage.className = 'auto-checkin-message';
                 timeoutMessage.innerHTML = 'Response timout. Please try again or contact <a href="/support?auto=true&priority=true"> contact priority support</a> if the error persists.';
@@ -1608,72 +2009,63 @@ function startAutoSplash(jt) {
                 submitInfoArea.innerHTML = '';
                 submitInfoArea.appendChild(messageElement);
             }, 25000);
-        }, 0);  // 2000 milliseconds = 2 seconds
+        }, 0);
     }
 }
 
-// Object to store original button texts and dimensions
-const buttonData = {};
-
-// Function to start the spinner
+/**
+ * Starts a spinner on a button element.
+ *
+ * @param {string} id - The ID of the button.
+ */
 function startSpinner(id) {
-  const button = document.getElementById(id);
-  if (button) {
-    // Store the original button text
-    const originalText = button.innerHTML;
-    
-    // Measure the button's original dimensions
-    const originalWidth = button.offsetWidth;
-    const originalHeight = button.offsetHeight;
-    
-    // Store the original text and dimensions
-    buttonData[id] = {
-      text: originalText,
-      width: originalWidth,
-      height: originalHeight
-    };
+    const button = document.getElementById(id);
+    if (button) {
+        const originalText = button.innerHTML;
+        const originalWidth = button.offsetWidth;
+        const originalHeight = button.offsetHeight;
+        buttonData[id] = {
+            text: originalText,
+            width: originalWidth,
+            height: originalHeight
+        };
+        button.style.width = `${originalWidth}px`;
+        button.style.height = `${originalHeight}px`;
 
-    // Set the button dimensions to prevent resizing
-    button.style.width = `${originalWidth}px`;
-    button.style.height = `${originalHeight}px`;
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
 
-    // Create the spinner element
-    const spinner = document.createElement('span');
-    spinner.className = 'spinner';
+        const spinnerContainer = document.createElement('div');
+        spinnerContainer.className = 'spinner-container';
+        spinnerContainer.appendChild(spinner);
 
-    // Create a container to center the spinner
-    const spinnerContainer = document.createElement('div');
-    spinnerContainer.className = 'spinner-container';
-    spinnerContainer.appendChild(spinner);
-
-    // Set the button content to the spinner container
-    button.innerHTML = '';  // Clear the button text
-    button.appendChild(spinnerContainer);
-
-    // Optionally, lock the button to prevent further clicks
-    button.disabled = true;
-  }
+        button.innerHTML = '';
+        button.appendChild(spinnerContainer);
+        button.disabled = true;
+    }
 }
 
-// Function to end the spinner and restore the original button text
+/**
+ * Ends the spinner on a button element and restores its original content.
+ *
+ * @param {string} id - The ID of the button.
+ */
 function endSpinner(id) {
-  const button = document.getElementById(id);
-  if (button && buttonData[id]) {
-    // Restore the original button text
-    button.innerHTML = buttonData[id].text;
-
-    // Reset the button dimensions
-    button.style.width = '';
-    button.style.height = '';
-
-    // Clear the stored data
-    delete buttonData[id];
-
-    // Re-enable the button if it was disabled
-    button.disabled = false;
-  }
+    const button = document.getElementById(id);
+    if (button && buttonData[id]) {
+        button.innerHTML = buttonData[id].text;
+        button.style.width = '';
+        button.style.height = '';
+        delete buttonData[id];
+        button.disabled = false;
+    }
 }
 
+/**
+ * Updates a button to indicate a successful submission.
+ *
+ * @param {string} id - The ID of the button.
+ */
 function greenLightButton(id) {
     const button = document.getElementById(id);
     if (button) {
@@ -1684,8 +2076,12 @@ function greenLightButton(id) {
     }
 }
 
+/**
+ * Creates a confetti animation effect on a button.
+ *
+ * @param {string} buttonId - The ID of the button.
+ */
 function createConfetti(buttonId) {
-    //console.log('Creating confetti for button:', buttonId);
     const button = document.getElementById(buttonId);
     if (!button) {
         console.error('Button not found with id:', buttonId);
@@ -1715,7 +2111,6 @@ function createConfetti(buttonId) {
 
     button.appendChild(fragment);
 
-    // Optional: Clean up confetti particles after animation
     setTimeout(() => {
         const particles = button.querySelectorAll('i');
         particles.forEach(particle => {
@@ -1726,6 +2121,11 @@ function createConfetti(buttonId) {
     }, 1200);
 }
 
+/**
+ * Highlights a check-out code input field upon successful submission.
+ *
+ * @param {string} id - The ID of the input field.
+ */
 function greenLightInput(id) {
     const input = document.getElementById(id);
     if (input) {
@@ -1736,6 +2136,11 @@ function greenLightInput(id) {
     }
 }
 
+/**
+ * Updates a button to indicate a failed submission and prompt for retry.
+ *
+ * @param {string} id - The ID of the button.
+ */
 function tryAgainButton(id) {
     const button = document.getElementById(id);
     if (button) {
@@ -1745,8 +2150,14 @@ function tryAgainButton(id) {
     }
 }
 
+let buttonData = {};
 
-
-
-
+/**
+ * Stores fillClasses data for reuse.
+ */
+let storedFillClassesData = {
+    sessionCount: 0,
+    msg: '',
+    sessions: []
+};
 </script>
