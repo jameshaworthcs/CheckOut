@@ -250,6 +250,12 @@ function fillUsername(username, shouldStore = true) {
     }
 }
 
+// Load username from localStorage if it exists
+const storedUsername = localStorage.getItem('username');
+if (storedUsername) {
+    fillUsername(storedUsername, false);
+}
+
 /**
  * Updates the UI with information about auto check-in and optionally stores it.
  *
