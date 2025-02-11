@@ -185,16 +185,99 @@ function showRefreshLoader() {
     }, 1000);
 }
 
+/**
+ * Helper for atomic cache operations
+ */
+const cacheManager = {
+    get() {
+        return JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+    },
+    update(updater) {
+        const cache = this.get();
+        updater(cache);
+        localStorage.setItem('checkout_cache', JSON.stringify(cache));
+        return cache;
+    }
+};
+
+// Load from checkout_cache if it exists
+const cache = cacheManager.get();
+if (cache.username) {
+    fillUsername(cache.username, false);
+}
+if (cache.autoInfo) {
+    fillAutoLink(cache.autoInfo, false);
+}
+
+/**
+ * Updates the UI with the username and optionally stores it in local storage.
+ *
+ * @param {string} username - The username to display.
+ * @param {boolean} [shouldStore=true] - If true, saves the username to local storage.
+ */
+function fillUsername(username, shouldStore = true) {
+    const nameTextSpan = document.getElementById('name-text');
+    const skeletonNameDiv = document.querySelector('.skeleton-name');
+    if (skeletonNameDiv) {
+        skeletonNameDiv.remove();
+    }
+    if (nameTextSpan) {
+        nameTextSpan.textContent = `Hello, ${username}`;
+    }
+    if (shouldStore) {
+        cacheManager.update(cache => {
+            cache.username = username;
+        });
+    }
+}
+
+/**
+ * Updates the UI with information about auto check-in and optionally stores it.
+ *
+ * @param {string} autoInfo - The auto check-in info.
+ * @param {boolean} [shouldStore=true] - If true, saves autoInfo to local storage.
+ */
+function fillAutoLink(autoInfo, shouldStore = true) {
+    const autoInfoSpan = document.getElementById('autoInfoText');
+    const autoInfoLink = document.getElementById('autoInfoLink');
+    if (autoInfoSpan) {
+        autoInfoSpan.textContent = autoInfo === 'join-waitlist' ? 'Join AutoCheckin Waitlist'
+            : autoInfo === 'on-waitlist' ? 'View Waitlist status'
+            : autoInfo === 'setup-needed' ? 'Setup AutoCheckin!'
+            : autoInfo === 'error' ? 'View AutoCheckin Error'
+            : autoInfo === 'normal' ? 'AutoCheckin dashboard'
+            : autoInfo === 'sign-in' ? 'Sign in to use AutoCheckin'
+            : 'Learn about AutoCheckin';
+
+        if (autoInfo === 'sign-in' && autoInfoLink) {
+            autoInfoLink.href = '/login?intent=autocheckin';
+        }
+
+        if (autoInfo === 'error') {
+            displayNotice(
+                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?pre=autocheckin">contact support</a>.',
+                'error',
+                'AutoCheckin Error',
+                0
+            );
+        }
+    }
+    if (shouldStore) {
+        cacheManager.update(cache => {
+            cache.autoInfo = autoInfo;
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     setup();
 
     // Legacy UI toggle functionality
     const toggle = document.querySelector('.legacy-ui-toggle');
     const container = document.querySelector('.legacy-ui-container');
-    const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
     
     // Load preference from cache
-    if (cache.showLegacyUI) {
+    if (cacheManager.get().showLegacyUI) {
         toggle.classList.add('expanded');
         container.classList.add('expanded');
         toggle.innerHTML = `
@@ -217,7 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 </svg>
                 Hide legacy UI
             `;
-            cache.showLegacyUI = true;
+            cacheManager.update(cache => {
+                cache.showLegacyUI = true;
+            });
         } else {
             toggle.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -225,9 +310,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 </svg>
                 Show legacy UI
             `;
-            cache.showLegacyUI = false;
+            cacheManager.update(cache => {
+                cache.showLegacyUI = false;
+            });
         }
-        localStorage.setItem('checkout_cache', JSON.stringify(cache));
     });
 });
 
@@ -270,75 +356,6 @@ async function getV2() {
             throw new Error('Failed to fetch data from API');
         }
     }
-}
-
-/**
- * Updates the UI with the username and optionally stores it in local storage.
- *
- * @param {string} username - The username to display.
- * @param {boolean} [shouldStore=true] - If true, saves the username to local storage.
- */
-function fillUsername(username, shouldStore = true) {
-    const nameTextSpan = document.getElementById('name-text');
-    const skeletonNameDiv = document.querySelector('.skeleton-name');
-    if (skeletonNameDiv) {
-        skeletonNameDiv.remove();
-    }
-    if (nameTextSpan) {
-        nameTextSpan.textContent = `Hello, ${username}`;
-    }
-    if (shouldStore) {
-        const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
-        cache.username = username;
-        localStorage.setItem('checkout_cache', JSON.stringify(cache));
-    }
-}
-
-/**
- * Updates the UI with information about auto check-in and optionally stores it.
- *
- * @param {string} autoInfo - The auto check-in info.
- * @param {boolean} [shouldStore=true] - If true, saves autoInfo to local storage.
- */
-function fillAutoLink(autoInfo, shouldStore = true) {
-    const autoInfoSpan = document.getElementById('autoInfoText');
-    const autoInfoLink = document.getElementById('autoInfoLink');
-    if (autoInfoSpan) {
-        autoInfoSpan.textContent = autoInfo === 'join-waitlist' ? 'Join AutoCheckin Waitlist'
-            : autoInfo === 'on-waitlist' ? 'View Waitlist status'
-            : autoInfo === 'setup-needed' ? 'Setup AutoCheckin!'
-            : autoInfo === 'error' ? 'View AutoCheckin Error'
-            : autoInfo === 'normal' ? 'AutoCheckin dashboard'
-            : autoInfo === 'sign-in' ? 'Sign in to use AutoCheckin'
-            : 'Learn about AutoCheckin';
-
-        if (autoInfo === 'sign-in' && autoInfoLink) {
-            autoInfoLink.href = '/login?intent=autocheckin';
-        }
-
-        if (autoInfo === 'error') {
-            displayNotice(
-                'AutoCheckin encountered an error. <a href="/auto">View error details</a> or <a href="/support?pre=autocheckin">contact support</a>.',
-                'error',
-                'AutoCheckin Error',
-                0
-            );
-        }
-    }
-    if (shouldStore) {
-        const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
-        cache.autoInfo = autoInfo;
-        localStorage.setItem('checkout_cache', JSON.stringify(cache));
-    }
-}
-
-// Load from checkout_cache if it exists
-const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
-if (cache.username) {
-    fillUsername(cache.username, false);
-}
-if (cache.autoInfo) {
-    fillAutoLink(cache.autoInfo, false);
 }
 
 /**
