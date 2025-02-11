@@ -1044,15 +1044,130 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
             const activityButton = document.createElement('a');
             activityButton.className = 'activity-button';
             activityButton.href = '#';
-            activityButton.onclick = () => {
+            activityButton.onclick = (e) => {
+                e.preventDefault();
+                
+                // Create activity modal if it doesn't exist
+                let activityModal = document.getElementById(`activityModal-${session.rejectID}`);
+                if (!activityModal) {
+                    activityModal = document.createElement('div');
+                    activityModal.className = 'activityModal';
+                    activityModal.id = `activityModal-${session.rejectID}`;
+                    activityModal.dataset.source = 'fillClasses';
+
+                    const modalContent = document.createElement('div');
+                    modalContent.className = 'activityModal-content';
+
+                    const closeButton = document.createElement('span');
+                    closeButton.className = 'close';
+                    closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
+                    closeButton.onclick = () => closeActivityModal(session.rejectID);
+
+                    const modalHeader = document.createElement('h2');
+                    modalHeader.innerHTML = `<i>${session.description}</i> details`;
+
+                    const modalBody = document.createElement('div');
+                    modalBody.className = 'activityModal-body';
+
+                    const modalTable = document.createElement('div');
+                    modalTable.className = 'activityModal-table';
+                    const modalData = [
+                        { label: 'Name:', value: session.description },
+                        { label: 'Module:', value: session.moduleName },
+                        { label: 'Module code:', value: session.moduleCode },
+                        { label: 'rejectID:', value: session.rejectID },
+                        { label: 'Start date:', value: session.startDate },
+                        { label: 'Start time:', value: session.startTime },
+                        { label: 'End date:', value: session.endDate },
+                        { label: 'End time:', value: session.endTime },
+                        { label: 'Location:', value: session.location },
+                    ];
+
+                    modalData.forEach(data => {
+                        const divLabel = document.createElement('div');
+                        divLabel.innerHTML = `${data.label}<br><span class="activityAPI-ref">${data.label.toLowerCase()}</span>`;
+                        const divValue = document.createElement('div');
+                        divValue.textContent = data.value;
+
+                        modalTable.appendChild(divLabel);
+                        modalTable.appendChild(divValue);
+                    });
+
+                    modalBody.appendChild(modalTable);
+                    modalBody.innerHTML += '<br><p>Visit the <a href="/api/docs">API reference</a>.</p>';
+                    modalContent.appendChild(closeButton);
+                    modalContent.appendChild(modalHeader);
+                    modalContent.appendChild(modalBody);
+                    activityModal.appendChild(modalContent);
+
+                    // Append to main-content instead of body
+                    document.querySelector('.main-content').appendChild(activityModal);
+                }
+                
+                // First hide the options modal
                 modal.style.display = 'none';
                 modalOverlay.style.display = 'none';
-                openActivityModal(session.rejectID);
+                
+                // Small delay to ensure smooth transition between modals
+                setTimeout(() => {
+                    openActivityModal(session.rejectID);
+                }, 50);
             };
             activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
                                             <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
                                         </svg>`;
             devApiLink.appendChild(activityButton);
+
+            // Create a separate metadata API modal
+            if (!document.getElementById('metadataAPIModal')) {
+                const metadataModal = document.createElement('div');
+                metadataModal.className = 'activityModal';
+                metadataModal.id = 'metadataAPIModal';
+                metadataModal.dataset.source = 'fillClasses';
+
+                const modalContent = document.createElement('div');
+                modalContent.className = 'activityModal-content';
+
+                const closeButton = document.createElement('span');
+                closeButton.className = 'close';
+                closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
+                closeButton.onclick = () => closeMetadataModal();
+
+                const modalHeader = document.createElement('h2');
+                modalHeader.id = 'metadataAPIModalHeader';
+                modalHeader.innerHTML = '';
+
+                const modalBody = document.createElement('div');
+                modalBody.className = 'activityModal-body';
+                modalBody.id = 'metadataAPIModalBody';
+
+                modalContent.appendChild(closeButton);
+                modalContent.appendChild(modalHeader);
+                modalContent.appendChild(modalBody);
+                metadataModal.appendChild(modalContent);
+
+                // Append to body instead of main-content
+                document.body.appendChild(metadataModal);
+
+                // Create overlay if it doesn't exist
+                if (!document.getElementById('metadataAPIModalOverlay')) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'metadataAPIModalOverlay';
+                    overlay.className = 'activityModalOverlay';
+                    overlay.onclick = (e) => {
+                        if (e.target === overlay) {
+                            closeMetadataModal();
+                        }
+                    };
+                    document.body.appendChild(overlay);
+                }
+            }
+
+            activityButton.onclick = (e) => {
+                e.preventDefault();
+                openMetadataModal(session);
+            };
+
             linksList.appendChild(devApiLink);
 
             const helpText = document.createElement('div');
@@ -1708,10 +1823,27 @@ function generateCodeInfo(sessionCount, sessions) {
  */
 function openActivityModal(activityID) {
     cancelRefresh(true);
-    document.getElementById('activityModalOverlay').style.display = 'block';
-    document.getElementById('activityModal-' + activityID).style.display = 'block';
+    
+    // Ensure overlay exists
+    let modalOverlay = document.getElementById('activityModalOverlay');
+    if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.className = 'activityModalOverlay';
+        modalOverlay.id = 'activityModalOverlay';
+        // Append to main-content instead of body
+        document.querySelector('.main-content').appendChild(modalOverlay);
+    }
+    
+    const modal = document.getElementById(`activityModal-${activityID}`);
+    if (!modalOverlay || !modal) {
+        console.error('Modal or overlay not found');
+        return;
+    }
+    
+    modalOverlay.style.display = 'block';
+    modal.style.display = 'block';
     document.addEventListener('keydown', escKeyListener);
-    document.getElementById('activityModalOverlay').addEventListener('click', overlayClickListener);
+    modalOverlay.addEventListener('click', overlayClickListener);
 }
 
 /**
@@ -1720,10 +1852,18 @@ function openActivityModal(activityID) {
  * @param {string} activityID - The ID of the activity modal to close.
  */
 function closeActivityModal(activityID) {
-    document.getElementById('activityModalOverlay').style.display = 'none';
-    document.getElementById('activityModal-' + activityID).style.display = 'none';
+    const modalOverlay = document.getElementById('activityModalOverlay');
+    const modal = document.getElementById(`activityModal-${activityID}`);
+    
+    if (!modalOverlay || !modal) {
+        console.error('Modal or overlay not found');
+        return;
+    }
+    
+    modalOverlay.style.display = 'none';
+    modal.style.display = 'none';
     document.removeEventListener('keydown', escKeyListener);
-    document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
+    modalOverlay.removeEventListener('click', overlayClickListener);
 }
 
 /**
@@ -1752,12 +1892,18 @@ function overlayClickListener(event) {
  * Closes all open modals and cleans up associated event listeners.
  */
 function closeAllModals() {
+    const modalOverlay = document.getElementById('activityModalOverlay');
+    if (!modalOverlay) {
+        console.error('Modal overlay not found');
+        return;
+    }
+    
     document.querySelectorAll('.activityModal').forEach(modal => {
         modal.style.display = 'none';
     });
-    document.getElementById('activityModalOverlay').style.display = 'none';
+    modalOverlay.style.display = 'none';
     document.removeEventListener('keydown', escKeyListener);
-    document.getElementById('activityModalOverlay').removeEventListener('click', overlayClickListener);
+    modalOverlay.removeEventListener('click', overlayClickListener);
 }
 
 /**
@@ -2226,4 +2372,94 @@ let storedFillClassesData = {
     msg: '',
     sessions: []
 };
+
+/**
+ * Opens the metadata API modal for a given session.
+ *
+ * @param {Object} session - The session object containing metadata.
+ */
+function openMetadataModal(session) {
+    const modal = document.getElementById('metadataAPIModal');
+    const overlay = document.getElementById('metadataAPIModalOverlay');
+    const header = document.getElementById('metadataAPIModalHeader');
+    const body = document.getElementById('metadataAPIModalBody');
+
+    if (!modal || !overlay || !header || !body) {
+        console.error('Metadata modal elements not found');
+        return;
+    }
+
+    // Close any open options modal first
+    const optionsModal = document.getElementById(`modal-${session.rejectID}`);
+    const optionsOverlay = document.getElementById(`modal-overlay-${session.rejectID}`);
+    if (optionsModal && optionsOverlay) {
+        optionsModal.style.display = 'none';
+        optionsOverlay.style.display = 'none';
+    }
+
+    header.innerHTML = `<i>${session.description}</i> details`;
+
+    const modalTable = document.createElement('div');
+    modalTable.className = 'activityModal-table';
+    
+    const modalData = [
+        { label: 'Name:', value: session.description },
+        { label: 'Module:', value: session.moduleName },
+        { label: 'Module code:', value: session.moduleCode },
+        { label: 'rejectID:', value: session.rejectID },
+        { label: 'Start date:', value: session.startDate },
+        { label: 'Start time:', value: session.startTime },
+        { label: 'End date:', value: session.endDate },
+        { label: 'End time:', value: session.endTime },
+        { label: 'Location:', value: session.location },
+    ];
+
+    modalData.forEach(data => {
+        const divLabel = document.createElement('div');
+        divLabel.innerHTML = `${data.label}<br><span class="activityAPI-ref">${data.label.toLowerCase()}</span>`;
+        const divValue = document.createElement('div');
+        divValue.textContent = data.value;
+
+        modalTable.appendChild(divLabel);
+        modalTable.appendChild(divValue);
+    });
+
+    body.innerHTML = '';
+    body.appendChild(modalTable);
+    body.innerHTML += '<br><p>Visit the <a href="/api/docs">API reference</a>.</p>';
+
+    // Small delay to ensure smooth transition between modals
+    setTimeout(() => {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+    }, 50);
+
+    // Add ESC key listener
+    document.addEventListener('keydown', metadataModalEscListener);
+}
+
+/**
+ * Closes the metadata API modal.
+ */
+function closeMetadataModal() {
+    const modal = document.getElementById('metadataAPIModal');
+    const overlay = document.getElementById('metadataAPIModalOverlay');
+    
+    if (modal && overlay) {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+        document.removeEventListener('keydown', metadataModalEscListener);
+    }
+}
+
+/**
+ * Event listener for closing the metadata modal with ESC key.
+ * 
+ * @param {KeyboardEvent} event - The keyboard event.
+ */
+function metadataModalEscListener(event) {
+    if (event.key === 'Escape') {
+        closeMetadataModal();
+    }
+}
 </script>
