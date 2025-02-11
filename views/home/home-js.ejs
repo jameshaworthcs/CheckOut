@@ -1310,8 +1310,7 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 chcLabelSpan.textContent = 'CheckOut code: ';
 
                 const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 
-                                                      0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
+                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
                                                   </svg>`, `copyText('${firstCode.checkinCode}', this)`);
                 copyButton.className = 'share-button chc';
 
@@ -2096,7 +2095,7 @@ function processSubmission(formIdentifier, submissionData) {
     wsp1(submissionData)
         .then(({ ws, ws1, jt, autoSplash }) => {
             if (autoSplash) {
-                startAutoSplash(jt);
+                startAutoSplash(jt, isActivityForm); // Pass isActivityForm flag to startAutoSplash
             }
             return wps(ws1, submissionData, ws, jt);
         })
@@ -2127,23 +2126,109 @@ function processSubmission(formIdentifier, submissionData) {
  * Initiates the auto check-in splash animation and processes real-time check-in via WebSocket.
  *
  * @param {string} jt - The JWT or token to be sent.
+ * @param {boolean} isModalVersion - Whether to show the auto splash in a modal (true for fillClasses forms)
  */
-function startAutoSplash(jt) {
-    const autoSplashContainer = document.getElementById('autoSplashContainer');
-    const submitInfoArea = document.getElementById('submitInfoArea');
+function startAutoSplash(jt, isModalVersion) {
+    let autoSplashContainer;
+    let submitInfoArea;
+    let modal;
+    let modalOverlay;
+
+    if (isModalVersion) {
+        // Create modal for fillClasses version
+        modal = document.createElement('div');
+        modal.className = 'activityModal';
+        modal.id = 'autoSplashModal';
+        modal.dataset.source = 'fillClasses';
+
+        modalOverlay = document.createElement('div');
+        modalOverlay.className = 'activityModalOverlay';
+        modalOverlay.id = 'autoSplashModalOverlay';
+        modalOverlay.dataset.source = 'fillClasses';
+        modalOverlay.style.pointerEvents = 'none'; // Disable overlay clicks initially
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'activityModal-content';
+
+        // Add a title to the modal
+        const modalTitle = document.createElement('h2');
+        modalTitle.textContent = 'AutoCheckin Status';
+        modalTitle.style.marginBottom = '20px';
+        modalContent.appendChild(modalTitle);
+
+        autoSplashContainer = document.createElement('div');
+        autoSplashContainer.id = 'autoSplashContainer';
+        autoSplashContainer.className = 'modal-auto-splash';
+        autoSplashContainer.style.marginBottom = '20px';
+
+        submitInfoArea = document.createElement('div');
+        submitInfoArea.id = 'submitInfoArea';
+        submitInfoArea.className = 'modal-submit-info';
+
+        modalContent.appendChild(autoSplashContainer);
+        modalContent.appendChild(submitInfoArea);
+        modal.appendChild(modalContent);
+
+        document.body.appendChild(modalOverlay);
+        document.body.appendChild(modal);
+
+        // Show modal
+        modal.style.display = 'block';
+        modalOverlay.style.display = 'block';
+
+        // Add ESC key listener for modal - but disable it initially
+        const escListener = (e) => {
+            if (e.key === 'Escape' && modalOverlay.style.pointerEvents === 'auto') {
+                modal.remove();
+                modalOverlay.remove();
+                document.removeEventListener('keydown', escListener);
+            }
+        };
+        document.addEventListener('keydown', escListener);
+
+        // Add click listener for overlay - but it's disabled initially
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay && modalOverlay.style.pointerEvents === 'auto') {
+                modal.remove();
+                modalOverlay.remove();
+                document.removeEventListener('keydown', escListener);
+            }
+        });
+    } else {
+        // Use existing containers for legacy form
+        autoSplashContainer = document.getElementById('autoSplashContainer');
+        submitInfoArea = document.getElementById('submitInfoArea');
+    }
+
     if (autoSplashContainer) {
-        const originalHeight = autoSplashContainer.offsetHeight + 'px';
+        const originalHeight = isModalVersion ? '200px' : autoSplashContainer.offsetHeight + 'px';
         autoSplashContainer.innerHTML = '';
 
         const autoSplashBackground = document.createElement('div');
         autoSplashBackground.id = 'autoSplashBackground';
         autoSplashBackground.className = 'autoSplashBackground';
         autoSplashBackground.style.height = originalHeight;
+        autoSplashBackground.style.display = 'flex';
+        autoSplashBackground.style.alignItems = 'center';
+        autoSplashBackground.style.justifyContent = 'center';
+        autoSplashBackground.style.position = 'relative';
 
         const loadingText = document.createElement('div');
         loadingText.className = 'auto-loading-text';
         loadingText.textContent = 'AutoChecking';
         loadingText.id = 'autoLoadingText';
+        loadingText.style.position = 'absolute';
+        loadingText.style.top = '50%';
+        loadingText.style.left = '50%';
+        loadingText.style.transform = 'translate(-50%, -50%)';
+        loadingText.style.margin = '0';
+        loadingText.style.padding = '0';
+        loadingText.style.textAlign = 'center';
+        loadingText.style.display = 'flex';
+        loadingText.style.alignItems = 'center';
+        loadingText.style.justifyContent = 'center';
+        loadingText.style.width = '100%';
+        loadingText.style.height = '100%';
 
         const dots = document.createElement('span');
         dots.className = 'dots';
@@ -2202,6 +2287,23 @@ function startAutoSplash(jt) {
                     submitInfoArea.innerHTML = '';
                     submitInfoArea.appendChild(errorMessage);
                 }
+
+                if (isModalVersion) {
+                    // Enable modal closing after response
+                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
+                    
+                    // Add close button after response is received
+                    const closeButton = document.createElement('button');
+                    closeButton.className = 'cta-button';
+                    closeButton.textContent = 'Close';
+                    closeButton.onclick = () => {
+                        modal.remove();
+                        modalOverlay.remove();
+                    };
+                    submitInfoArea.appendChild(document.createElement('br'));
+                    submitInfoArea.appendChild(closeButton);
+                }
+
                 ws.close();
             };
 
@@ -2210,6 +2312,22 @@ function startAutoSplash(jt) {
                 loadingText.textContent = 'Connection error';
                 autoSplashBackground.style.background = 'red';
                 ws.close();
+
+                if (isModalVersion) {
+                    // Enable modal closing after error
+                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
+                    
+                    // Add close button on error
+                    const closeButton = document.createElement('button');
+                    closeButton.className = 'cta-button';
+                    closeButton.textContent = 'Close';
+                    closeButton.onclick = () => {
+                        modal.remove();
+                        modalOverlay.remove();
+                    };
+                    submitInfoArea.appendChild(document.createElement('br'));
+                    submitInfoArea.appendChild(closeButton);
+                }
             };
 
             timeoutId = setTimeout(() => {
@@ -2222,10 +2340,26 @@ function startAutoSplash(jt) {
                 
                 const timeoutMessage = document.createElement('p');
                 timeoutMessage.className = 'auto-checkin-message';
-                timeoutMessage.innerHTML = 'Response timout. Please try again or contact <a href="/support?auto=true&priority=true"> contact priority support</a> if the error persists.';
+                timeoutMessage.innerHTML = 'Response timeout. Please try again or <a href="/support?auto=true&priority=true">contact priority support</a> if the error persists.';
                 timeoutMessage.style.color = 'red';
                 submitInfoArea.innerHTML = '';
-                submitInfoArea.appendChild(messageElement);
+                submitInfoArea.appendChild(timeoutMessage);
+
+                if (isModalVersion) {
+                    // Enable modal closing after timeout
+                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
+                    
+                    // Add close button after timeout
+                    const closeButton = document.createElement('button');
+                    closeButton.className = 'cta-button';
+                    closeButton.textContent = 'Close';
+                    closeButton.onclick = () => {
+                        modal.remove();
+                        modalOverlay.remove();
+                    };
+                    submitInfoArea.appendChild(document.createElement('br'));
+                    submitInfoArea.appendChild(closeButton);
+                }
             }, 25000);
         }, 0);
     }
