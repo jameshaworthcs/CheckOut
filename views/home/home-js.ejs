@@ -1675,7 +1675,6 @@ async function fetchUpNext(nextSessions, containerType) {
         const upnextSpan = document.querySelector('.upnext-container-classes-text');
         if (upnextSpan) {
             upnextSpan.innerHTML = `Nothing in progress, next up ${activityReferences} ${timeString}.`;
-            return;
         }
 
         const upNextDiv = document.createElement('div');
