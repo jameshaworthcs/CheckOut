@@ -723,6 +723,42 @@ h2 {
     align-items: flex-start;
     margin-bottom: 16px;
 }
+
+.legacy-ui-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--subtext-colour);
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.legacy-ui-toggle:hover {
+    opacity: 0.8;
+}
+
+.legacy-ui-toggle svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+.legacy-ui-toggle.expanded svg {
+    transform: rotate(90deg);
+}
+
+.legacy-ui-container {
+    display: none;
+}
+
+.legacy-ui-container.expanded {
+    display: block;
+}
     </style>
 
 
@@ -767,35 +803,43 @@ h2 {
                     <noscript>JavaScript is needed to use this website.</noscript>
 
                 </div>
-                <div class="box">
-                    <h2>Submit CheckOut code <div class="whitetick" role="img" alt="White tick"></div></h2>
-                    <div class="submit-skeleton">
-                        <div class="skeleton skeleton-header"></div>
-                        <div class="skeleton skeleton-box"></div>
-                        <div class="skeleton skeleton-box"></div>
-                        <div class="skeleton skeleton-box"></div>
-                        <div class="skeleton skeleton-box"></div>
-                        <div class="skeleton skeleton-half-box"></div>
-                    </div>
-                    <div id="submit-form" class="submit-form hidden">
-                        <p>Something went wrong.</p>
-                    </div>
-                    <noscript>JavaScript is needed to use this website.</noscript>
+                <div class="legacy-ui-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                    Show legacy UI
                 </div>
-                <div class="box">
-                    <div class="code-box-header">
-                        <h2>Current classes</h2>
-                        <div class="code-refresh-container">
-                            <span id="code-refresh-loader" class="code-refresh-loader"></span>
+                <div class="legacy-ui-container">
+                    <div class="box">
+                        <h2>Submit CheckOut code <div class="whitetick" role="img" alt="White tick"></div></h2>
+                        <div class="submit-skeleton">
+                            <div class="skeleton skeleton-header"></div>
+                            <div class="skeleton skeleton-box"></div>
+                            <div class="skeleton skeleton-box"></div>
+                            <div class="skeleton skeleton-box"></div>
+                            <div class="skeleton skeleton-box"></div>
+                            <div class="skeleton skeleton-half-box"></div>
                         </div>
+                        <div id="submit-form" class="submit-form hidden">
+                            <p>Something went wrong.</p>
+                        </div>
+                        <noscript>JavaScript is needed to use this website.</noscript>
                     </div>
-                    <div class="classes-skeleton">
-                        <div class="skeleton skeleton-header"></div>
+                    <div class="box">
+                        <div class="code-box-header">
+                            <h2>Current classes</h2>
+                            <div class="code-refresh-container">
+                                <span id="code-refresh-loader" class="code-refresh-loader"></span>
+                            </div>
+                        </div>
+                        <div class="classes-skeleton">
+                            <div class="skeleton skeleton-header"></div>
+                        </div>
+                        <div id="classes-content" class="classes-content">
+                            <p>Something went wrong.</p>
+                        </div>
+                        <noscript>JavaScript is needed to use this website.</noscript>
                     </div>
-                    <div id="classes-content" class="classes-content">
-                        <p>Something went wrong.</p>
-                    </div>
-                    <noscript>JavaScript is needed to use this website.</noscript>
                 </div>
             </div>
         </div>

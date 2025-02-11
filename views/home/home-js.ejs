@@ -187,6 +187,48 @@ function showRefreshLoader() {
 
 document.addEventListener('DOMContentLoaded', function () {
     setup();
+
+    // Legacy UI toggle functionality
+    const toggle = document.querySelector('.legacy-ui-toggle');
+    const container = document.querySelector('.legacy-ui-container');
+    const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+    
+    // Load preference from cache
+    if (cache.showLegacyUI) {
+        toggle.classList.add('expanded');
+        container.classList.add('expanded');
+        toggle.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+            </svg>
+            Hide legacy UI
+        `;
+    }
+
+    toggle.addEventListener('click', function() {
+        const isExpanded = toggle.classList.toggle('expanded');
+        container.classList.toggle('expanded');
+        
+        // Update text and save preference
+        if (isExpanded) {
+            toggle.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+                Hide legacy UI
+            `;
+            cache.showLegacyUI = true;
+        } else {
+            toggle.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+                Show legacy UI
+            `;
+            cache.showLegacyUI = false;
+        }
+        localStorage.setItem('checkout_cache', JSON.stringify(cache));
+    });
 });
 
 document.addEventListener('visibilitychange', function () {
