@@ -246,14 +246,10 @@ function fillUsername(username, shouldStore = true) {
         nameTextSpan.textContent = `Hello, ${username}`;
     }
     if (shouldStore) {
-        localStorage.setItem('username', username);
+        const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+        cache.username = username;
+        localStorage.setItem('checkout_cache', JSON.stringify(cache));
     }
-}
-
-// Load username from localStorage if it exists
-const storedUsername = localStorage.getItem('username');
-if (storedUsername) {
-    fillUsername(storedUsername, false);
 }
 
 /**
@@ -288,14 +284,19 @@ function fillAutoLink(autoInfo, shouldStore = true) {
         }
     }
     if (shouldStore) {
-        localStorage.setItem('autoInfo', autoInfo);
+        const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+        cache.autoInfo = autoInfo;
+        localStorage.setItem('checkout_cache', JSON.stringify(cache));
     }
 }
 
-// Load autoInfo from localStorage if it exists
-const storedAutoInfo = localStorage.getItem('autoInfo');
-if (storedAutoInfo) {
-    fillAutoLink(storedAutoInfo, false);
+// Load from checkout_cache if it exists
+const cache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+if (cache.username) {
+    fillUsername(cache.username, false);
+}
+if (cache.autoInfo) {
+    fillAutoLink(cache.autoInfo, false);
 }
 
 /**
