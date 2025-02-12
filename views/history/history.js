@@ -96,7 +96,7 @@ const ITEMS_PER_PAGE = 10;
         
         if (!append) {
             container.innerHTML = `
-                <p>${totalCount} ${totalCountText} found, from ${ipCount} ${ipCountText}, ${deviceCount} ${deviceCountText} and ${userCount} ${userCountText}.</p>
+                <p>${totalCount} ${totalCountText} found, from ${ipCount} ${ipCountText}, ${deviceCount} ${deviceCountText}, and ${userCount} ${userCountText}.</p>
             `;
         }
 
