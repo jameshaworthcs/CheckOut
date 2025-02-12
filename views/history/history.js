@@ -120,8 +120,8 @@ const ITEMS_PER_PAGE = 10;
               <div class="button-container">
                   <button onclick="copyText('${item.checkinCode}')" class="share-button">Copy</button>
                   ${item.visState === '0' ? 
-                      `<button onclick="visible('${item.tk}', '1')" class="share-button">Show</button>` : 
-                      `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Hide</button>`}
+                      `<button onclick="visible('${item.tk}', '1')" class="share-button">Redo/Show</button>` : 
+                      `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Undo</button>`}
               </div>
               ${item.codeState === '0' ? `<h4>⚠️ Code is blocked. Reason: ${item.codeDesc}</h4>` : ''}
               ${item.visState === '0' ? `<h4>⚠️ This code is hidden.</h4>` : ''}
