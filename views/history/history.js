@@ -86,14 +86,17 @@ const ITEMS_PER_PAGE = 10;
         const pagination = data.pagination;
         const container = document.getElementById('activeClasses');
         const ipCount = Object.keys(stats.ipCounts).length;
+        const ipCountText = ipCount === 1 ? 'IP' : 'different IPs';
         const deviceCount = Object.keys(stats.deviceIDCounts).length;
+        const deviceCountText = deviceCount === 1 ? 'device' : 'different devices';
         const userCount = Object.keys(stats.usernameCounts).length;
-        const totalCount = stats.totalCount;
         const userCountText = userCount === 1 ? 'account' : 'different accounts';
+        const totalCount = stats.totalCount;
+        const totalCountText = totalCount === 1 ? 'code' : 'codes';
         
         if (!append) {
             container.innerHTML = `
-                <p>${totalCount} codes found, from ${ipCount} different IP's, ${deviceCount} different deviceID's and ${userCount} ${userCountText}.</p>
+                <p>${totalCount} ${totalCountText} found, from ${ipCount} ${ipCountText}, ${deviceCount} ${deviceCountText}, and ${userCount} ${userCountText}.</p>
             `;
         }
 
@@ -120,8 +123,8 @@ const ITEMS_PER_PAGE = 10;
               <div class="button-container">
                   <button onclick="copyText('${item.checkinCode}')" class="share-button">Copy</button>
                   ${item.visState === '0' ? 
-                      `<button onclick="visible('${item.tk}', '1')" class="share-button">Show</button>` : 
-                      `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Hide</button>`}
+                      `<button onclick="visible('${item.tk}', '1')" class="share-button">Redo/Show</button>` : 
+                      `<button onclick="visible('${item.tk}', '0')" class="share-button hide">Undo</button>`}
               </div>
               ${item.codeState === '0' ? `<h4>⚠️ Code is blocked. Reason: ${item.codeDesc}</h4>` : ''}
               ${item.visState === '0' ? `<h4>⚠️ This code is hidden.</h4>` : ''}

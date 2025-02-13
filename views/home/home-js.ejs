@@ -1598,14 +1598,16 @@ function showVerificationModal(codeInfoString) {
         modalContent.appendChild(footer);
         modal.appendChild(modalContent);
 
-        if (!document.getElementById('activityModalOverlay')) {
-            const overlay = document.createElement('div');
-            overlay.id = 'activityModalOverlay';
-            overlay.className = 'modal-overlay';
-            document.body.appendChild(overlay);
+        // Create overlay if it doesn't exist
+        let modalOverlay = document.getElementById('activityModalOverlay');
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.className = 'activityModalOverlay';
+            modalOverlay.id = 'activityModalOverlay';
+            document.querySelector('.main-content').appendChild(modalOverlay);
         }
 
-        document.body.appendChild(modal);
+        document.querySelector('.main-content').appendChild(modal);
     }
 
     openActivityModal('verified');

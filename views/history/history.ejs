@@ -24,7 +24,82 @@
               <div id="loading-spinner" class="loader" style="display: none;"></div>
           </div>
         </div>
-        <div class="sub-table-info" id="message-container"><h3 style="padding-left: 15px;">Code History:</h3>
+        <div class="sub-table-info" id="message-container">
+          <h3>Code History</h3>
+          
+          <div class="info-card">
+            <div class="info-content">
+              <h4>Made a Mistake?</h4>
+              <p>Don't worry! If you accidentally submitted the wrong code or need to make changes, you can:</p>
+              <ul>
+                <li><span class="action-text">Undo</span> - Revert a code submission</li>
+                <li><span class="action-text">Redo</span> - Restore a previously undone submission</li>
+              </ul>
+            </div>
+          </div>
+
+          <style>
+            .info-card {
+              background: var(--content-background);
+              border: var(--box-accent-width) solid var(--accent-colour);
+              border-radius: 10px;
+              padding: 20px;
+              margin: 20px 0 0 0;
+              box-shadow: var(--shadow);
+              display: flex;
+              gap: 20px;
+              align-items: flex-start;
+            }
+            
+            .info-icon {
+              font-size: 24px;
+              color: var(--accent-colour);
+              padding-top: 4px;
+            }
+            
+            .info-content {
+              flex: 1;
+            }
+            
+            .info-content h4 {
+              margin: 0 0 10px 0;
+              color: var(--text-colour);
+            }
+            
+            .info-content p {
+              margin: 0 0 15px 0;
+              color: var(--text-colour);
+              opacity: 0.9;
+            }
+            
+            .info-content ul {
+              margin: 0;
+              padding-left: 20px;
+              color: var(--text-colour);
+              opacity: 0.9;
+            }
+            
+            .info-content li {
+              margin: 5px 0;
+            }
+            
+            .action-text {
+              font-weight: 600;
+              color: var(--text-colour);
+            }
+
+            @media (max-width: 768px) {
+              .info-card {
+                flex-direction: column;
+                gap: 15px;
+              }
+              
+              .info-icon {
+                text-align: center;
+                width: 100%;
+              }
+            }
+          </style>
           
           <div id="activeClasses">
             <p>0 codes found, from 0 different IP's, 0 different deviceID's and 0 different accounts.</p>
