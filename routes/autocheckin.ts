@@ -49,6 +49,7 @@ function autoCheckin(email, session, codes) {
 
 
 function fetchAutoCheckers(emails = [], codes = [], instant = false) {
+  
   //console.log("Running autocheckers", emails, codes, "Instant:", instant)
   // Add error handling and connection check
   db.query('SELECT 1', (err) => {
@@ -144,15 +145,27 @@ if (process.env.CHK_AUTO == "TRUE") {
 }
 
 // Import session token
-app.get('/auto/c/:cookie', function (req, res) {
+app.get('/auto/c/:cookie', async function (req, res) {
   var cookie = req.params.cookie;
   if (cookie) {
     const userID = req.session.user.id;
     const apikey = req.apikey;
-    db.query('UPDATE users SET checkintoken = ?, checkinstate = 1 WHERE id = ? OR api_token = ?', [cookie, userID, apikey], (err, result) => {
+    db.query('UPDATE users SET checkintoken = ?, checkinstate = 1 WHERE id = ? OR api_token = ?', [cookie, userID, apikey], async (err, result) => {
         if (err) throw err;
         log(req.useremail, `Enabled`, `Ported cookie with AutoCheckin extension`)
-        //res.json({"email":req.useremail, "checkintoken":cookie, "result":result});
+        
+        // Ping AutoCheckin server to update users and refresh session
+        const { makeAutoCheckinRequest } = require('../routes/api/autocheckin/autocheckin-link');
+        
+        // First request to fetch users
+        const fetchUsersResponse = await makeAutoCheckinRequest.get('fetch-users');
+        if (fetchUsersResponse.success) {
+            // If fetch users successful, make the refresh session request
+            const refreshSessionResponse = await makeAutoCheckinRequest.get(`refresh-session/${req.useremail}`);
+            console.log(`[AUTO] Session refresh for ${req.useremail}: ${refreshSessionResponse.success ? 'Success' : 'Failed'}`);
+        }
+        
+        // Keep the original fetchAutoCheckers as backup
         res.redirect('/auto/welcome')
         fetchAutoCheckers(emails = [req.useremail], codes = [], instant = true)
     });
@@ -200,6 +213,13 @@ app.post('/auto/st', function (req, res) {
     db.query(query, queryParams, (err, result) => {
       if (err) throw err;
       log(req.useremail, `${state == 1 ? "Enabled" : "Disabled"}`, `${state == 1 ? "Activated" : "Disabled"} AutoCheckin`);
+      
+      // Ping AutoCheckin server to update users list (don't wait for response)
+      const { makeAutoCheckinRequest } = require('../routes/api/autocheckin/autocheckin-link');
+      makeAutoCheckinRequest.get('fetch-users').catch(err => {
+        console.log('[AUTO] Failed to notify AutoCheckin server of user state change:', err);
+      });
+      
       res.json({
         'success': true,
         'msg': `AutoCheckin ${state == 1 ? "enabled" : "disabled"}.`

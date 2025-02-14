@@ -4,6 +4,7 @@ const moment = require('moment-timezone');
 const crypto = require('crypto');
 var autoApp = require('../../autocheckin.ts');
 const fetchAutoCheckers = autoApp.fetchAutoCheckers;
+const { makeAutoCheckinRequest } = require('../autocheckin/autocheckin-link');
 
 // Async function to check for repeat submissions
 async function checkRepeatSubmissions(submissionData) {
@@ -105,8 +106,12 @@ async function submitCode(submissionData) {
             });
 
             // Run AutoCheckin
-            if (process.env.CHK_SRV !== "BETA") {
+            if (process.env.CHK_SRV !== "BETA" || true) {
                 fetchAutoCheckers(emails = [], codes = [], instant = true);
+                // Notify AutoCheckin server to try codes (don't wait for response)
+                makeAutoCheckinRequest.get('try-codes').catch(err => {
+                    console.log('[AUTO] Failed to notify AutoCheckin server to try codes:', err);
+                });
             }
 
             return {

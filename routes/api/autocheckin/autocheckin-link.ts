@@ -155,4 +155,5 @@ app.get('*', function (req, res) {
 })
 
 module.exports = app;
+module.exports.makeAutoCheckinRequest = makeAutoCheckinRequest;
 
