@@ -1755,5 +1755,7 @@ app.get('*', function(req,res) {
   res.json({ 'success': false, msg: 'Not a valid endpoint. (app-api)' });
 })
 
+// Export the handleCourseRequest function separately
 module.exports = app;
+module.exports.handleCourseRequest = handleCourseRequest;
 

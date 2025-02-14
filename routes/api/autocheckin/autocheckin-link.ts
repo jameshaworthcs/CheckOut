@@ -2,6 +2,8 @@ const express = require('express')
 const moment = require('moment-timezone')
 var app = express.Router();
 var db = require('../../../databases/database.ts');
+const appRouter = require('../../app.ts');
+const handleCourseRequest = appRouter.handleCourseRequest;
 
 interface LogRequest {
     email: string;
@@ -25,6 +27,15 @@ app.get('/api/autocheckin/users', (req, res) => {
         if (err) throw err;
         res.json({ success: true, autoCheckinUsers: result });
     });
+});
+
+// Get the active codes for a course
+app.get('/api/autocheckin/codes/:inst/:crs/:yr', function (req, res) {
+    const { inst, crs, yr } = req.params;
+    const { username } = req;
+    const initCourse = true; // Assumed to be true as per the requirement
+
+    handleCourseRequest(inst, crs, yr, username, initCourse, res, req, false, false);
 });
 
 // Log an event to the autoCheckinLog table and update the checkinReport field

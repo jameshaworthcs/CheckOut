@@ -65,6 +65,7 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
     : 'normal';
 
   const activeAPI = {
+    success: true,
     api: 'active-codes/home-v2 (v.1.1.1)',
     userInfo: { username: req.username, perms: req.userState, autoInfo },
     tibl: true
