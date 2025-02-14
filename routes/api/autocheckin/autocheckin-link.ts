@@ -1,9 +1,39 @@
 const express = require('express')
 const moment = require('moment-timezone')
+const axios = require('axios')
+require('dotenv').config()
 var app = express.Router();
 var db = require('../../../databases/database.ts');
 const appRouter = require('../../app.ts');
 const handleCourseRequest = appRouter.handleCourseRequest;
+
+// Wrapper functions for making requests to the autocheckin server
+const makeAutoCheckinRequest = {
+    get: async (endpoint: string) => {
+        try {
+            const response = await axios.get(`${process.env.CHK_AUTO_API}/${endpoint}`);
+            return { success: true, data: response.data };
+        } catch (error) {
+            console.error(`Error making GET request to ${endpoint}:`, error);
+            return { 
+                success: false, 
+                error: error instanceof Error ? error.message : 'Unknown error occurred'
+            };
+        }
+    },
+    post: async (endpoint: string, body: any = {}) => {
+        try {
+            const response = await axios.post(`${process.env.CHK_AUTO_API}/${endpoint}`, body);
+            return { success: true, data: response.data };
+        } catch (error) {
+            console.error(`Error making POST request to ${endpoint}:`, error);
+            return { 
+                success: false, 
+                error: error instanceof Error ? error.message : 'Unknown error occurred'
+            };
+        }
+    }
+};
 
 interface LogRequest {
     email: string;
@@ -15,6 +45,8 @@ interface LogResponse {
     logsuccess: boolean;
     err?: any;
 }
+
+
 
 // Account token
 app.get('/api/autocheckin/test', (req, res) => {
@@ -99,6 +131,23 @@ app.post('/api/autocheckin/update', function (req, res) {
         });
     }
   });
+
+// Test connection to autocheckin server
+app.get('/api/autocheckin/test-server', async (req, res) => {
+    const response = await makeAutoCheckinRequest.get('state');
+    if (response.success) {
+        res.json({
+            success: response.data.success,
+            reportedConnection: response.data.data.connected
+        });
+    } else {
+        res.json({
+            success: false,
+            reportedConnection: false,
+            error: response.error
+        });
+    }
+});
 
 app.get('*', function (req, res) {
     res.status(404);
