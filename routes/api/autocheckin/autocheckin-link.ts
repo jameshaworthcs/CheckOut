@@ -9,12 +9,84 @@ const handleCourseRequest = appRouter.handleCourseRequest;
 
 // Wrapper functions for making requests to the autocheckin server
 const makeAutoCheckinRequest = {
-    get: async (endpoint: string) => {
+    get: async (endpoint: string, includeDetails: boolean = false) => {
+        const startTime = Date.now();
+        const fullUrl = `${process.env.CHK_AUTO_API}/${endpoint}`;
         try {
-            const response = await axios.get(`${process.env.CHK_AUTO_API}/${endpoint}`);
+            const response = await axios.get(fullUrl);
+            const requestDuration = Date.now() - startTime;
+            
+            if (includeDetails) {
+                const urlObject = new URL(response.config.url || fullUrl);
+                return {
+                    success: true,
+                    data: response.data,
+                    requestDetails: {
+                        url: fullUrl,
+                        parsedUrl: {
+                            protocol: urlObject.protocol,
+                            hostname: urlObject.hostname,
+                            port: urlObject.port || (urlObject.protocol === 'https:' ? '443' : '80'),
+                            pathname: urlObject.pathname,
+                            search: urlObject.search
+                        },
+                        method: 'GET',
+                        duration: requestDuration,
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: response.headers,
+                        requestHeaders: response.config.headers,
+                        networkDetails: {
+                            httpVersion: response.request?.httpVersion,
+                            localAddress: response.request?.socket?.localAddress,
+                            localPort: response.request?.socket?.localPort,
+                            remoteAddress: response.request?.socket?.remoteAddress,
+                            remotePort: response.request?.socket?.remotePort
+                        }
+                    }
+                };
+            }
             return { success: true, data: response.data };
         } catch (error) {
+            const requestDuration = Date.now() - startTime;
             console.error(`Error making GET request to ${endpoint}:`, error);
+            
+            if (includeDetails) {
+                const urlObject = new URL(fullUrl);
+                return {
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Unknown error occurred',
+                    requestDetails: {
+                        url: fullUrl,
+                        parsedUrl: {
+                            protocol: urlObject.protocol,
+                            hostname: urlObject.hostname,
+                            port: urlObject.port || (urlObject.protocol === 'https:' ? '443' : '80'),
+                            pathname: urlObject.pathname,
+                            search: urlObject.search
+                        },
+                        method: 'GET',
+                        duration: requestDuration,
+                        errorName: error instanceof Error ? error.name : 'Unknown',
+                        errorMessage: error instanceof Error ? error.message : 'Unknown error occurred',
+                        errorStack: error instanceof Error ? error.stack : undefined,
+                        axiosError: axios.isAxiosError(error) ? {
+                            status: error.response?.status,
+                            statusText: error.response?.statusText,
+                            headers: error.response?.headers,
+                            data: error.response?.data,
+                            requestHeaders: error.config?.headers,
+                            networkDetails: {
+                                httpVersion: error.request?.httpVersion,
+                                localAddress: error.request?.socket?.localAddress,
+                                localPort: error.request?.socket?.localPort,
+                                remoteAddress: error.request?.socket?.remoteAddress,
+                                remotePort: error.request?.socket?.remotePort
+                            }
+                        } : undefined
+                    }
+                };
+            }
             return { 
                 success: false, 
                 error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -134,17 +206,19 @@ app.post('/api/autocheckin/update', function (req, res) {
 
 // Test connection to autocheckin server
 app.get('/api/autocheckin/test-server', async (req, res) => {
-    const response = await makeAutoCheckinRequest.get('state');
+    const response = await makeAutoCheckinRequest.get('state', true);
     if (response.success) {
         res.json({
             success: response.data.success,
-            reportedConnection: response.data.data.connected
+            reportedConnection: response.data.data.connected,
+            requestDetails: response.requestDetails
         });
     } else {
         res.json({
             success: false,
             reportedConnection: false,
-            error: response.error
+            error: response.error,
+            requestDetails: response.requestDetails
         });
     }
 });
