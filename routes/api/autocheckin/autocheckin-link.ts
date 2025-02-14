@@ -51,7 +51,7 @@ app.post('/api/autocheckin/log', async function (req, res) {
         });
 
         // Only log to autoCheckinLog if state is not Normal
-        if (state !== 'Normal') {
+        if (state !== 'Normal' || true) {
             await new Promise((resolve, reject) => {
                 const query = `INSERT INTO autoCheckinLog (email, state, message, timestamp) VALUES (?, ?, ?, ?)`;
                 db.query(query, [email, state, message, mysqlTimestamp], (err, result) => {
@@ -70,6 +70,24 @@ app.post('/api/autocheckin/log', async function (req, res) {
         });
     }
 });
+
+// Update the checkin token for a user
+app.post('/api/autocheckin/update', function (req, res) {
+    var oldtoken = req.body.oldtoken || 'donotuse';
+    var newtoken = req.body.newtoken;
+    var email = req.body.email;
+    if (newtoken && oldtoken && email) {
+      db.query('UPDATE users SET checkintoken = ? WHERE checkintoken = ? OR email = ?', [newtoken, oldtoken, email], (err, result) => {
+          if (err) throw err;
+          res.json({success: true, result});
+      });
+    } else {
+        res.status(400).json({
+            success: false,
+            err: 'Missing required fields: newtoken'
+        });
+    }
+  });
 
 app.get('*', function (req, res) {
     res.status(404);
