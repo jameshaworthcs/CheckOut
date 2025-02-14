@@ -13,7 +13,13 @@ const makeAutoCheckinRequest = {
         const startTime = Date.now();
         const fullUrl = `${process.env.CHK_AUTO_API}/${endpoint}`;
         try {
-            const response = await axios.get(fullUrl);
+            const response = await axios.get(fullUrl, {
+                family: 6,
+                timeout: 10000,  // 10 seconds
+                // You might also want to add retry logic
+                retry: 3,
+                retryDelay: 1000
+            });
             const requestDuration = Date.now() - startTime;
             
             if (includeDetails) {
