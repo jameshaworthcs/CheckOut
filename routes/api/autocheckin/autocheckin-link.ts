@@ -18,7 +18,10 @@ const makeAutoCheckinRequest = {
                 timeout: 10000,  // 10 seconds
                 // You might also want to add retry logic
                 retry: 3,
-                retryDelay: 1000
+                retryDelay: 1000,
+                headers: {
+                    'x-checkout-key': process.env.CHECKOUT_API_KEY
+                }
             });
             const requestDuration = Date.now() - startTime;
             
@@ -101,7 +104,15 @@ const makeAutoCheckinRequest = {
     },
     post: async (endpoint: string, body: any = {}) => {
         try {
-            const response = await axios.post(`${process.env.CHK_AUTO_API}/${endpoint}`, body);
+            const response = await axios.post(
+                `${process.env.CHK_AUTO_API}/${endpoint}`, 
+                body,
+                {
+                    headers: {
+                        'x-checkout-key': process.env.CHECKOUT_API_KEY
+                    }
+                }
+            );
             return { success: true, data: response.data };
         } catch (error) {
             console.error(`Error making POST request to ${endpoint}:`, error);
