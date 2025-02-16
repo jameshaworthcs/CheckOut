@@ -895,7 +895,7 @@ async function handleCourseRequest(inst, crs, yr, username, initCourse, res, req
       }
     } catch (err) {
       console.error("Error in getCodes or apiGenCodes", err);
-      if (returnAsJson) {
+      if (returnAsJson || true) {
         return { success: false, userInfo, sessionCount: 0, tibl: false, msg: 'Error processing codes request', api: apiVersion };
       } else {
         return res.status(500).send("Error processing codes request");
