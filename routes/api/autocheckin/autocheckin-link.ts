@@ -183,7 +183,7 @@ app.post('/api/autocheckin/log', async function (req, res) {
         });
 
         // Only log to autoCheckinLog if state is not Normal
-        if (state !== 'Normal' || true) {
+        if (state !== 'Normal') {
             await new Promise((resolve, reject) => {
                 const query = `INSERT INTO autoCheckinLog (email, state, message, timestamp) VALUES (?, ?, ?, ?)`;
                 db.query(query, [email, state, message, mysqlTimestamp], (err, result) => {
