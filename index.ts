@@ -675,7 +675,7 @@ async function setIPData(req: AppRequest): Promise<void> {
     return Array.isArray(header) ? header[0] : header.split(',')[0];
   };
   const forwardedFor = req.headers['x-forwarded-for'];
-  req.usersIP = (req.headers['X-Shield-Client-IP'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
+  req.usersIP = (req.headers['cf-connecting-ip'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
   req.SpoofedIP = req.usersIP === extractFirstIP(forwardedFor) ? '' : extractFirstIP(forwardedFor);
 }
 
