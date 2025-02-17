@@ -898,12 +898,13 @@
         color: var(--text-colour);
         width: 90%;
         max-width: 500px;
+        max-height: 90vh; /* Maximum height relative to viewport */
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 1001;
-        overflow: hidden;
         display: none;
         opacity: 0;
+        overflow: hidden; /* Hide overflow on the modal container */
     }
 
     /* Add focus styles for keyboard navigation */
@@ -921,18 +922,40 @@
     .modal-content {
         position: relative;
         padding: 20px;
+        max-height: calc(90vh - 40px); /* Account for padding */
+        overflow-y: auto; /* Enable scrolling on content */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+
+    /* Style the scrollbar for webkit browsers */
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: var(--page-background);
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: var(--accent-colour);
+        border-radius: 4px;
     }
 
     .modal-content .close {
-        position: absolute;
-        right: 20px;
-        top: 10px;
+        position: sticky; /* Keep close button visible while scrolling */
+        float: right;
+        top: 0;
+        right: 0;
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
         color: var(--text-colour);
         opacity: 0.7;
         transition: opacity 0.2s;
+        background: var(--page-background);
+        padding: 0 0 10px 10px;
+        z-index: 2;
     }
 
     .modal-content .close:hover {
@@ -966,8 +989,12 @@
 
     @media (max-width: 600px) {
         .modal {
-            width: 90%;
-            height: auto;
+            width: 95%;
+            max-height: 85vh;
+            margin: 0;
+        }
+        .modal-content {
+            max-height: calc(85vh - 40px);
         }
         .modal-esc {
             display: none;
