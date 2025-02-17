@@ -5,7 +5,24 @@
 //          //
 
 const deviceIDSpan = document.getElementById('deviceID');
-const storedDeviceID = localStorage.getItem('deviceID');
+
+function getCheckoutCache() {
+    const cache = localStorage.getItem('checkout_cache');
+    return cache ? JSON.parse(cache) : {};
+}
+
+function updateCheckoutCache(key, value) {
+    const cache = getCheckoutCache();
+    cache[key] = value;
+    localStorage.setItem('checkout_cache', JSON.stringify(cache));
+}
+
+function getFromCheckoutCache(key) {
+    const cache = getCheckoutCache();
+    return cache[key];
+}
+
+const storedDeviceID = getFromCheckoutCache('deviceID');
 
 function formatDeviceID(deviceID) {
     if (deviceID.length > 10) {
@@ -16,7 +33,7 @@ function formatDeviceID(deviceID) {
 
 function toggleDeviceID() {
     const isRedacted = deviceIDSpan.dataset.redacted === 'true';
-    const deviceID = localStorage.getItem('deviceID');
+    const deviceID = getFromCheckoutCache('deviceID');
 
     if (isRedacted) {
         deviceIDSpan.textContent = formatDeviceID(deviceID);
@@ -38,7 +55,7 @@ if (storedDeviceID) {
                 const deviceID = data.deviceID;
                 deviceIDSpan.textContent = formatDeviceID(deviceID);
                 deviceIDSpan.dataset.redacted = 'true';
-                localStorage.setItem('deviceID', deviceID);
+                updateCheckoutCache('deviceID', deviceID);
             } else {
                 deviceIDSpan.textContent = 'Failed to load device ID';
             }
@@ -58,24 +75,19 @@ deviceIDSpan.addEventListener('click', toggleDeviceID);
 
 // Function to fetch account settings and update the page
 function fetchAccountSettings() {
-    const cacheKey = 'accountSettingsCache';
-    const cachedData = localStorage.getItem(cacheKey);
-    const cacheTimeKey = 'accountSettingsCacheTime';
-    const cachedTime = localStorage.getItem(cacheTimeKey);
+    const cache = getCheckoutCache();
+    const accountSettings = cache.settings;
+    const accountSettingsTime = cache.settingsTime;
 
-    // Check if cached data is available and still valid (within 30 seconds)
-    if (cachedData && cachedTime) {
+    // Check if cached data is available and still valid (within 5 seconds)
+    if (accountSettings && accountSettingsTime) {
         const now = new Date().getTime();
-        const cacheAge = (now - cachedTime) / 1000; // age in seconds
+        const cacheAge = (now - accountSettingsTime) / 1000; // age in seconds
 
         if (cacheAge < 5) {
             // Use cached data
-            updateAccountSettings(JSON.parse(cachedData));
+            updateAccountSettings(JSON.parse(accountSettings));
             return;
-        } else {
-            // Cache is too old, remove it
-            localStorage.removeItem(cacheKey);
-            localStorage.removeItem(cacheTimeKey);
         }
     }
 
@@ -85,8 +97,8 @@ function fetchAccountSettings() {
         .then(data => {
             if (data.success) {
                 // Cache the fetched data and the current time
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-                localStorage.setItem(cacheTimeKey, new Date().getTime());
+                updateCheckoutCache('settings', JSON.stringify(data));
+                updateCheckoutCache('settingsTime', new Date().getTime());
             }
             updateAccountSettings(data);
         })
