@@ -918,8 +918,65 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
             optionsLink.textContent = 'Options';
             optionsLink.onclick = (e) => {
                 e.preventDefault();
-                document.getElementById(`modal-${session.rejectID}`).style.display = 'block';
-                document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'block';
+                
+                // Create options modal content
+                const optionsModalContent = document.createElement('div');
+                
+                const linksList = document.createElement('ul');
+                linksList.className = 'modal-links';
+
+                if (session.codes && session.codes.length > 0) {
+                    const submitLink = document.createElement('li');
+                    submitLink.innerHTML = `<a href="#" onclick="fillClasses(storedFillClassesData.sessionCount, storedFillClassesData.msg, storedFillClassesData.sessions, true, '${session.rejectID}', storedFillClassesData.nextSessions); modalHelper.close('options-modal-${session.rejectID}'); return false;">Submit a different code</a>`;
+                    linksList.appendChild(submitLink);
+
+                    session.codes.forEach(code => {
+                        const reportLink = document.createElement('li');
+                        reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
+                        linksList.appendChild(reportLink);
+                    });
+                }
+
+                const settingsLink = document.createElement('li');
+                settingsLink.innerHTML = '<a href="/settings">Change course and other settings</a>';
+                linksList.appendChild(settingsLink);
+
+                const devApiLink = document.createElement('li');
+                const activityButton = document.createElement('a');
+                activityButton.className = 'activity-button';
+                activityButton.href = '#';
+                activityButton.onclick = (e) => {
+                    e.preventDefault();
+                    modalHelper.close(`options-modal-${session.rejectID}`);
+                    openMetadataModal(session);
+                };
+                activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
+                                        <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
+                                </svg>`;
+                devApiLink.appendChild(activityButton);
+                linksList.appendChild(devApiLink);
+
+                const helpText = document.createElement('div');
+                helpText.className = 'modal-help-text';
+                helpText.innerHTML = `<hr>
+                                        <p>Click on the verified/unverified status to learn more about a code.</p>
+                                        <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
+                                      `;
+
+                optionsModalContent.appendChild(linksList);
+                optionsModalContent.appendChild(helpText);
+
+                modalHelper.create({
+                    id: `options-modal-${session.rejectID}`,
+                    title: session.description,
+                    content: optionsModalContent,
+                    appendTo: '.main-content',
+                    source: 'fillClasses',
+                    onClose: () => {
+                        // Clean up any other modals that might be open
+                        modalHelper.closeAll();
+                    }
+                });
             };
             linksContainer.appendChild(optionsLink);
 
@@ -934,294 +991,24 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
                 viewOtherCodesLink.textContent = 'View other codes';
                 viewOtherCodesLink.onclick = (e) => {
                     e.preventDefault();
-                    document.getElementById(`other-codes-modal-${session.rejectID}`).style.display = 'block';
-                    document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'block';
+                    showOtherCodes(session.rejectID, session.codes);
                 };
                 linksContainer.appendChild(viewOtherCodesLink);
-
-                const otherCodesModal = document.createElement('div');
-                otherCodesModal.className = 'activityModal';
-                otherCodesModal.id = `other-codes-modal-${session.rejectID}`;
-                otherCodesModal.dataset.source = 'fillClasses';
-
-                const modalContent = document.createElement('div');
-                modalContent.className = 'activityModal-content';
-
-                const closeButton = document.createElement('span');
-                closeButton.className = 'close';
-                closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
-                closeButton.onclick = () => {
-                    otherCodesModal.style.display = 'none';
-                    document.getElementById(`modal-overlay-${session.rejectID}`).style.display = 'none';
-                };
-
-                const modalTitle = document.createElement('h2');
-                modalTitle.textContent = 'Other Available Codes';
-
-                const codesList = document.createElement('div');
-                codesList.className = 'other-codes-list';
-
-                session.codes.forEach(code => {
-                    const codeItem = document.createElement('div');
-                    codeItem.className = 'code-item';
-
-                    const codeText = document.createElement('span');
-                    codeText.textContent = code.checkinCode;
-                    codeItem.appendChild(codeText);
-
-                    const copyBtn = document.createElement('button');
-                    copyBtn.className = 'share-button';
-                    copyBtn.textContent = 'Copy';
-                    copyBtn.setAttribute('onclick', `copyText('${code.checkinCode}', this)`);
-                    codeItem.appendChild(copyBtn);
-
-                    const reportLink = document.createElement('a');
-                    reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
-                    reportLink.className = 'report-link';
-                    reportLink.textContent = 'Report';
-                    codeItem.appendChild(reportLink);
-
-                    codesList.appendChild(codeItem);
-                });
-
-                modalContent.appendChild(closeButton);
-                modalContent.appendChild(modalTitle);
-                modalContent.appendChild(codesList);
-                otherCodesModal.appendChild(modalContent);
-                document.body.appendChild(otherCodesModal);
             }
 
             sessionBox.appendChild(linksContainer);
-
-            const modalOverlay = document.createElement('div');
-            modalOverlay.className = 'activityModalOverlay';
-            modalOverlay.id = `modal-overlay-${session.rejectID}`;
-            modalOverlay.dataset.source = 'fillClasses';
-
-            const modal = document.createElement('div');
-            modal.className = 'activityModal';
-            modal.id = `modal-${session.rejectID}`;
-            modal.dataset.source = 'fillClasses';
-
-            const modalContent = document.createElement('div');
-            modalContent.className = 'activityModal-content';
-
-            const closeButton = document.createElement('span');
-            closeButton.className = 'close';
-            closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
-            closeButton.onclick = () => {
-                modal.style.display = 'none';
-                modalOverlay.style.display = 'none';
-                const otherCodesModal = document.getElementById(`other-codes-modal-${session.rejectID}`);
-                if (otherCodesModal) {
-                    otherCodesModal.style.display = 'none';
-                }
-            };
-
-            const modalTitle = document.createElement('h2');
-            modalTitle.textContent = session.description;
-
-            const linksList = document.createElement('ul');
-            linksList.className = 'modal-links';
-
-            if (session.codes && session.codes.length > 0) {
-                const submitLink = document.createElement('li');
-                submitLink.innerHTML = `<a href="#" onclick="fillClasses(storedFillClassesData.sessionCount, storedFillClassesData.msg, storedFillClassesData.sessions, true, '${session.rejectID}', storedFillClassesData.nextSessions); return false;">Submit a different code</a>`;
-                linksList.appendChild(submitLink);
-
-                session.codes.forEach(code => {
-                    const reportLink = document.createElement('li');
-                    reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
-                    linksList.appendChild(reportLink);
-                });
-            }
-
-            const settingsLink = document.createElement('li');
-            settingsLink.innerHTML = '<a href="/settings">Change course and other settings</a>';
-            linksList.appendChild(settingsLink);
-
-            const devApiLink = document.createElement('li');
-            const activityButton = document.createElement('a');
-            activityButton.className = 'activity-button';
-            activityButton.href = '#';
-            activityButton.onclick = (e) => {
-                e.preventDefault();
-                
-                // Create activity modal if it doesn't exist
-                let activityModal = document.getElementById(`activityModal-${session.rejectID}`);
-                if (!activityModal) {
-                    activityModal = document.createElement('div');
-                    activityModal.className = 'activityModal';
-                    activityModal.id = `activityModal-${session.rejectID}`;
-                    activityModal.dataset.source = 'fillClasses';
-
-                    const modalContent = document.createElement('div');
-                    modalContent.className = 'activityModal-content';
-
-                    const closeButton = document.createElement('span');
-                    closeButton.className = 'close';
-                    closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
-                    closeButton.onclick = () => closeActivityModal(session.rejectID);
-
-                    const modalHeader = document.createElement('h2');
-                    modalHeader.innerHTML = `<i>${session.description}</i> details`;
-
-                    const modalBody = document.createElement('div');
-                    modalBody.className = 'activityModal-body';
-
-                    const modalTable = document.createElement('div');
-                    modalTable.className = 'activityModal-table';
-                    const modalData = [
-                        { label: 'Name:', value: session.description },
-                        { label: 'Module:', value: session.moduleName },
-                        { label: 'Module code:', value: session.moduleCode },
-                        { label: 'rejectID:', value: session.rejectID },
-                        { label: 'Start date:', value: session.startDate },
-                        { label: 'Start time:', value: session.startTime },
-                        { label: 'End date:', value: session.endDate },
-                        { label: 'End time:', value: session.endTime },
-                        { label: 'Location:', value: session.location },
-                    ];
-
-                    modalData.forEach(data => {
-                        const divLabel = document.createElement('div');
-                        divLabel.innerHTML = `${data.label}<br><span class="activityAPI-ref">${data.label.toLowerCase()}</span>`;
-                        const divValue = document.createElement('div');
-                        divValue.textContent = data.value;
-
-                        modalTable.appendChild(divLabel);
-                        modalTable.appendChild(divValue);
-                    });
-
-                    modalBody.appendChild(modalTable);
-                    modalBody.innerHTML += '<br><p>Visit the <a href="/api/docs">API reference</a>.</p>';
-                    modalContent.appendChild(closeButton);
-                    modalContent.appendChild(modalHeader);
-                    modalContent.appendChild(modalBody);
-                    activityModal.appendChild(modalContent);
-
-                    // Append to main-content instead of body
-                    document.querySelector('.main-content').appendChild(activityModal);
-                }
-                
-                // First hide the options modal
-                modal.style.display = 'none';
-                modalOverlay.style.display = 'none';
-                
-                // Small delay to ensure smooth transition between modals
-                setTimeout(() => {
-                    openActivityModal(session.rejectID);
-                }, 50);
-            };
-            activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
-                                            <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
-                                        </svg>`;
-            devApiLink.appendChild(activityButton);
-
-            // Create a separate metadata API modal
-            if (!document.getElementById('metadataAPIModal')) {
-                const metadataModal = document.createElement('div');
-                metadataModal.className = 'activityModal';
-                metadataModal.id = 'metadataAPIModal';
-                metadataModal.dataset.source = 'fillClasses';
-
-                const modalContent = document.createElement('div');
-                modalContent.className = 'activityModal-content';
-
-                const closeButton = document.createElement('span');
-                closeButton.className = 'close';
-                closeButton.innerHTML = '×<br><p class="activityModal-esc">[ESC]</p>';
-                closeButton.onclick = () => closeMetadataModal();
-
-                const modalHeader = document.createElement('h2');
-                modalHeader.id = 'metadataAPIModalHeader';
-                modalHeader.innerHTML = '';
-
-                const modalBody = document.createElement('div');
-                modalBody.className = 'activityModal-body';
-                modalBody.id = 'metadataAPIModalBody';
-
-                modalContent.appendChild(closeButton);
-                modalContent.appendChild(modalHeader);
-                modalContent.appendChild(modalBody);
-                metadataModal.appendChild(modalContent);
-
-                // Append to body instead of main-content
-                document.body.appendChild(metadataModal);
-
-                // Create overlay if it doesn't exist
-                if (!document.getElementById('metadataAPIModalOverlay')) {
-                    const overlay = document.createElement('div');
-                    overlay.id = 'metadataAPIModalOverlay';
-                    overlay.className = 'activityModalOverlay';
-                    overlay.onclick = (e) => {
-                        if (e.target === overlay) {
-                            closeMetadataModal();
-                        }
-                    };
-                    document.body.appendChild(overlay);
-                }
-            }
-
-            activityButton.onclick = (e) => {
-                e.preventDefault();
-                openMetadataModal(session);
-            };
-
-            linksList.appendChild(devApiLink);
-
-            const helpText = document.createElement('div');
-            helpText.className = 'modal-help-text';
-            helpText.innerHTML = `<hr>
-                                    <p>Click on the verified/unverified status to learn more about a code.</p>
-                                    <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
-                                  `;
-
-            modalContent.appendChild(closeButton);
-            modalContent.appendChild(modalTitle);
-            modalContent.appendChild(linksList);
-            modalContent.appendChild(helpText);
-            modal.appendChild(modalContent);
-
-            document.body.appendChild(modalOverlay);
-            document.body.appendChild(modal);
-
-            const handleModalClose = () => {
-                modal.style.display = 'none';
-                modalOverlay.style.display = 'none';
-                const otherCodesModal = document.getElementById(`other-codes-modal-${session.rejectID}`);
-                if (otherCodesModal) {
-                    otherCodesModal.style.display = 'none';
-                }
-            };
-
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) {
-                    handleModalClose();
-                }
-            });
-
-            const escKeyHandler = (e) => {
-                if (e.key === 'Escape') {
-                    handleModalClose();
-                }
-            };
-            document.addEventListener('keydown', escKeyHandler);
-
-            modal.dataset.escHandler = escKeyHandler;
-
             sessionLi.appendChild(sessionBox);
             sessionsList.appendChild(sessionLi);
+
+            const upnextLi = document.createElement('li');
+            const upnextDiv = document.createElement('div');
+            upnextDiv.id = 'upnext-container-classes';
+            upnextLi.appendChild(upnextDiv);
+            sessionsList.appendChild(upnextLi);
+
+            sessionsContainer.appendChild(sessionsList);
+            classesBoxElement.appendChild(sessionsContainer);
         });
-
-        const upnextLi = document.createElement('li');
-        const upnextDiv = document.createElement('div');
-        upnextDiv.id = 'upnext-container-classes';
-        upnextLi.appendChild(upnextDiv);
-        sessionsList.appendChild(upnextLi);
-
-        sessionsContainer.appendChild(sessionsList);
-        classesBoxElement.appendChild(sessionsContainer);
     }
     
     document.querySelector('.classes-box-skeleton').classList.add('hidden');
@@ -1310,7 +1097,8 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 chcLabelSpan.textContent = 'CheckOut code: ';
 
                 const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
+                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 
+                                                0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
                                                   </svg>`, `copyText('${firstCode.checkinCode}', this)`);
                 copyButton.className = 'share-button chc';
 
@@ -1698,11 +1486,42 @@ async function fetchUpNext(nextSessions, containerType) {
  * Toggles the display of other codes for a given activity.
  *
  * @param {string} activityID - The activity ID associated with the codes.
+ * @param {Array} codes - Array of code objects to display.
  */
-function showOtherCodes(activityID) {
-    cancelRefresh(true);
-    const otherCodesDiv = document.getElementById(`otherCodes_${activityID}`);
-    otherCodesDiv.style.display = otherCodesDiv.style.display === 'none' ? 'block' : 'none';
+function showOtherCodes(activityID, codes) {
+    const codesList = document.createElement('div');
+    codesList.className = 'other-codes-list';
+
+    codes.forEach(code => {
+        const codeItem = document.createElement('div');
+        codeItem.className = 'code-item';
+
+        const codeText = document.createElement('span');
+        codeText.textContent = code.checkinCode;
+        codeItem.appendChild(codeText);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'share-button';
+        copyBtn.textContent = 'Copy';
+        copyBtn.setAttribute('onclick', `copyText('${code.checkinCode}', this)`);
+        codeItem.appendChild(copyBtn);
+
+        const reportLink = document.createElement('a');
+        reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
+        reportLink.className = 'report-link';
+        reportLink.textContent = 'Report';
+        codeItem.appendChild(reportLink);
+
+        codesList.appendChild(codeItem);
+    });
+
+    modalHelper.create({
+        id: `other-codes-modal-${activityID}`,
+        title: 'Other Available Codes',
+        content: codesList,
+        appendTo: '.main-content',
+        source: 'fillClasses'
+    });
 }
 
 /**
@@ -2131,240 +1950,161 @@ function processSubmission(formIdentifier, submissionData) {
  * @param {boolean} isModalVersion - Whether to show the auto splash in a modal (true for fillClasses forms)
  */
 function startAutoSplash(jt, isModalVersion) {
-    let autoSplashContainer;
-    let submitInfoArea;
-    let modal;
-    let modalOverlay;
+    const autoSplashBackground = document.createElement('div');
+    autoSplashBackground.id = 'autoSplashBackground';
+    autoSplashBackground.className = 'autoSplashBackground';
+    autoSplashBackground.style.height = '200px';
+    autoSplashBackground.style.display = 'flex';
+    autoSplashBackground.style.alignItems = 'center';
+    autoSplashBackground.style.justifyContent = 'center';
+    autoSplashBackground.style.position = 'relative';
 
-    if (isModalVersion) {
-        // Create modal for fillClasses version
-        modal = document.createElement('div');
-        modal.className = 'activityModal';
-        modal.id = 'autoSplashModal';
-        modal.dataset.source = 'fillClasses';
+    const loadingText = document.createElement('div');
+    loadingText.className = 'auto-loading-text';
+    loadingText.textContent = 'AutoChecking';
+    loadingText.id = 'autoLoadingText';
+    loadingText.style.position = 'absolute';
+    loadingText.style.top = '50%';
+    loadingText.style.left = '50%';
+    loadingText.style.transform = 'translate(-50%, -50%)';
+    loadingText.style.margin = '0';
+    loadingText.style.padding = '0';
+    loadingText.style.textAlign = 'center';
+    loadingText.style.display = 'flex';
+    loadingText.style.alignItems = 'center';
+    loadingText.style.justifyContent = 'center';
+    loadingText.style.width = '100%';
+    loadingText.style.height = '100%';
 
-        modalOverlay = document.createElement('div');
-        modalOverlay.className = 'activityModalOverlay';
-        modalOverlay.id = 'autoSplashModalOverlay';
-        modalOverlay.dataset.source = 'fillClasses';
-        modalOverlay.style.pointerEvents = 'none'; // Disable overlay clicks initially
+    const dots = document.createElement('span');
+    dots.className = 'dots';
+    loadingText.appendChild(dots);
 
-        const modalContent = document.createElement('div');
-        modalContent.className = 'activityModal-content';
+    autoSplashBackground.appendChild(loadingText);
 
-        // Add a title to the modal
-        const modalTitle = document.createElement('h2');
-        modalTitle.textContent = 'AutoCheckin Status';
-        modalTitle.style.marginBottom = '20px';
-        modalContent.appendChild(modalTitle);
+    const submitInfoArea = document.createElement('div');
+    submitInfoArea.id = 'submitInfoArea';
+    submitInfoArea.className = isModalVersion ? 'modal-submit-info' : '';
 
-        autoSplashContainer = document.createElement('div');
-        autoSplashContainer.id = 'autoSplashContainer';
-        autoSplashContainer.className = 'modal-auto-splash';
-        autoSplashContainer.style.marginBottom = '20px';
+    const modalContent = document.createElement('div');
+    modalContent.appendChild(autoSplashBackground);
+    modalContent.appendChild(submitInfoArea);
 
-        submitInfoArea = document.createElement('div');
-        submitInfoArea.id = 'submitInfoArea';
-        submitInfoArea.className = 'modal-submit-info';
+    const { modal } = modalHelper.create({
+        id: 'auto-splash-modal',
+        title: 'AutoCheckin Status',
+        content: modalContent,
+        appendTo: '.main-content',
+        showCloseButton: false
+    });
 
-        modalContent.appendChild(autoSplashContainer);
-        modalContent.appendChild(submitInfoArea);
-        modal.appendChild(modalContent);
+    let dotCount = 0;
+    const dotInterval = setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        dots.textContent = '.'.repeat(dotCount);
+    }, 250);
 
-        document.body.appendChild(modalOverlay);
-        document.body.appendChild(modal);
+    setTimeout(() => {
+        const wsProtocol = (window.location.hostname.includes('localhost') || window.location.protocol === 'http:') ? 'ws' : 'wss';
+        const wsHost = window.location.port ? `${window.location.hostname}:${window.location.port}` : window.location.hostname;
+        const ws = new WebSocket(`${wsProtocol}://${wsHost}/api/submit/autosplash`);
 
-        // Show modal
-        modal.style.display = 'block';
-        modalOverlay.style.display = 'block';
-
-        // Add ESC key listener for modal - but disable it initially
-        const escListener = (e) => {
-            if (e.key === 'Escape' && modalOverlay.style.pointerEvents === 'auto') {
-                modal.remove();
-                modalOverlay.remove();
-                document.removeEventListener('keydown', escListener);
-            }
+        ws.onopen = function() {
+            ws.send(jt.toString());
         };
-        document.addEventListener('keydown', escListener);
 
-        // Add click listener for overlay - but it's disabled initially
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay && modalOverlay.style.pointerEvents === 'auto') {
-                modal.remove();
-                modalOverlay.remove();
-                document.removeEventListener('keydown', escListener);
-            }
-        });
-    } else {
-        // Use existing containers for legacy form
-        autoSplashContainer = document.getElementById('autoSplashContainer');
-        submitInfoArea = document.getElementById('submitInfoArea');
-    }
+        let timeoutId;
+        ws.onmessage = function(event) {
+            clearTimeout(timeoutId);
+            clearInterval(dotInterval);
+            const decodedMessage = atob(event.data);
+            console.log('Received message:', decodedMessage);
+            const response = JSON.parse(decodedMessage);
 
-    if (autoSplashContainer) {
-        const originalHeight = isModalVersion ? '200px' : autoSplashContainer.offsetHeight + 'px';
-        autoSplashContainer.innerHTML = '';
-
-        const autoSplashBackground = document.createElement('div');
-        autoSplashBackground.id = 'autoSplashBackground';
-        autoSplashBackground.className = 'autoSplashBackground';
-        autoSplashBackground.style.height = originalHeight;
-        autoSplashBackground.style.display = 'flex';
-        autoSplashBackground.style.alignItems = 'center';
-        autoSplashBackground.style.justifyContent = 'center';
-        autoSplashBackground.style.position = 'relative';
-
-        const loadingText = document.createElement('div');
-        loadingText.className = 'auto-loading-text';
-        loadingText.textContent = 'AutoChecking';
-        loadingText.id = 'autoLoadingText';
-        loadingText.style.position = 'absolute';
-        loadingText.style.top = '50%';
-        loadingText.style.left = '50%';
-        loadingText.style.transform = 'translate(-50%, -50%)';
-        loadingText.style.margin = '0';
-        loadingText.style.padding = '0';
-        loadingText.style.textAlign = 'center';
-        loadingText.style.display = 'flex';
-        loadingText.style.alignItems = 'center';
-        loadingText.style.justifyContent = 'center';
-        loadingText.style.width = '100%';
-        loadingText.style.height = '100%';
-
-        const dots = document.createElement('span');
-        dots.className = 'dots';
-        loadingText.appendChild(dots);
-
-        autoSplashBackground.appendChild(loadingText);
-        autoSplashContainer.appendChild(autoSplashBackground);
-
-        let dotCount = 0;
-        const dotInterval = setInterval(() => {
-            dotCount = (dotCount % 3) + 1;
-            dots.textContent = '.'.repeat(dotCount);
-        }, 250);
-
-        setTimeout(() => {
-            const wsProtocol = (window.location.hostname.includes('localhost') || window.location.protocol === 'http:') ? 'ws' : 'wss';
-            const wsHost = window.location.port ? `${window.location.hostname}:${window.location.port}` : window.location.hostname;
-            const ws = new WebSocket(`${wsProtocol}://${wsHost}/api/submit/autosplash`);
-
-            ws.onopen = function() {
-                ws.send(jt.toString());
-            };
-
-            let timeoutId;
-            ws.onmessage = function(event) {
-                clearTimeout(timeoutId);
-                clearInterval(dotInterval);
-                const decodedMessage = atob(event.data);
-                console.log('Received message:', decodedMessage);
-                const response = JSON.parse(decodedMessage);
-
-                if (response.success) {
-                    if (response.checkedin) {
-                        loadingText.textContent = 'Checked in!';
-                        autoSplashBackground.style.background = '#00ff164f';
-                    } else {
-                        loadingText.textContent = 'Checkin unknown';
-                        loadingText.style.webkitTextFillColor = 'indianred';
-                        autoSplashBackground.style.background = '#81810066';
-                    }
-
-                    const messageElement = document.createElement('p');
-                    messageElement.className = 'auto-checkin-message';
-                    messageElement.innerHTML = response.msg;
-                    messageElement.style.color = response.checkedin ? 'green' : 'red';
-                    submitInfoArea.innerHTML = '';
-                    submitInfoArea.appendChild(messageElement);
+            if (response.success) {
+                if (response.checkedin) {
+                    loadingText.textContent = 'Checked in!';
+                    autoSplashBackground.style.background = '#00ff164f';
                 } else {
-                    loadingText.textContent = 'Error';
-                    loadingText.style.webkitTextFillColor = 'white';
-                    autoSplashBackground.style.background = 'red';
-                    const errorMessage = document.createElement('p');
-                    errorMessage.className = 'auto-checkin-message';
-                    errorMessage.innerHTML = response.msg;
-                    errorMessage.style.color = 'red';
-                    submitInfoArea.innerHTML = '';
-                    submitInfoArea.appendChild(errorMessage);
+                    loadingText.textContent = 'Checkin unknown';
+                    loadingText.style.webkitTextFillColor = 'indianred';
+                    autoSplashBackground.style.background = '#81810066';
                 }
 
-                if (isModalVersion) {
-                    // Enable modal closing after response
-                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
-                    
-                    // Add close button after response is received
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'cta-button';
-                    closeButton.textContent = 'Close';
-                    closeButton.onclick = () => {
-                        modal.remove();
-                        modalOverlay.remove();
-                    };
-                    submitInfoArea.appendChild(document.createElement('br'));
-                    submitInfoArea.appendChild(closeButton);
-                }
-
-                ws.close();
-            };
-
-            ws.onerror = function() {
-                clearInterval(dotInterval);
-                loadingText.textContent = 'Connection error';
-                autoSplashBackground.style.background = 'red';
-                ws.close();
-
-                if (isModalVersion) {
-                    // Enable modal closing after error
-                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
-                    
-                    // Add close button on error
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'cta-button';
-                    closeButton.textContent = 'Close';
-                    closeButton.onclick = () => {
-                        modal.remove();
-                        modalOverlay.remove();
-                    };
-                    submitInfoArea.appendChild(document.createElement('br'));
-                    submitInfoArea.appendChild(closeButton);
-                }
-            };
-
-            timeoutId = setTimeout(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.close();
-                }
-                clearInterval(dotInterval);
-                loadingText.textContent = 'Not checked in';
-                autoSplashBackground.style.background = '#81810066';
-                
-                const timeoutMessage = document.createElement('p');
-                timeoutMessage.className = 'auto-checkin-message';
-                timeoutMessage.innerHTML = 'Response timeout. Please try again or <a href="/support?auto=true&priority=true">contact priority support</a> if the error persists.';
-                timeoutMessage.style.color = 'red';
+                const messageElement = document.createElement('p');
+                messageElement.className = 'auto-checkin-message';
+                messageElement.innerHTML = response.msg;
+                messageElement.style.color = response.checkedin ? 'green' : 'red';
                 submitInfoArea.innerHTML = '';
-                submitInfoArea.appendChild(timeoutMessage);
+                submitInfoArea.appendChild(messageElement);
+            } else {
+                loadingText.textContent = 'Error';
+                loadingText.style.webkitTextFillColor = 'white';
+                autoSplashBackground.style.background = 'red';
+                const errorMessage = document.createElement('p');
+                errorMessage.className = 'auto-checkin-message';
+                errorMessage.innerHTML = response.msg;
+                errorMessage.style.color = 'red';
+                submitInfoArea.innerHTML = '';
+                submitInfoArea.appendChild(errorMessage);
+            }
 
-                if (isModalVersion) {
-                    // Enable modal closing after timeout
-                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
-                    
-                    // Add close button after timeout
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'cta-button';
-                    closeButton.textContent = 'Close';
-                    closeButton.onclick = () => {
-                        modal.remove();
-                        modalOverlay.remove();
-                    };
-                    submitInfoArea.appendChild(document.createElement('br'));
-                    submitInfoArea.appendChild(closeButton);
-                }
-            }, 25000);
-        }, 0);
-    }
+            // Add close button after response is received
+            const closeButton = document.createElement('button');
+            closeButton.className = 'cta-button';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = () => {
+                modalHelper.close('auto-splash-modal');
+            };
+            submitInfoArea.appendChild(document.createElement('br'));
+            submitInfoArea.appendChild(closeButton);
+
+            ws.close();
+        };
+
+        ws.onerror = function() {
+            clearInterval(dotInterval);
+            loadingText.textContent = 'Connection error';
+            autoSplashBackground.style.background = 'red';
+            ws.close();
+
+            // Add close button on error
+            const closeButton = document.createElement('button');
+            closeButton.className = 'cta-button';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = () => {
+                modalHelper.close('auto-splash-modal');
+            };
+            submitInfoArea.appendChild(document.createElement('br'));
+            submitInfoArea.appendChild(closeButton);
+        };
+
+        timeoutId = setTimeout(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            clearInterval(dotInterval);
+            loadingText.textContent = 'Not checked in';
+            autoSplashBackground.style.background = '#81810066';
+            
+            const timeoutMessage = document.createElement('p');
+            timeoutMessage.className = 'auto-checkin-message';
+            timeoutMessage.innerHTML = 'Response timeout. Please try again or <a href="/support?auto=true&priority=true">contact priority support</a> if the error persists.';
+            timeoutMessage.style.color = 'red';
+            submitInfoArea.innerHTML = '';
+            submitInfoArea.appendChild(timeoutMessage);
+
+            // Add close button after timeout
+            const closeButton = document.createElement('button');
+            closeButton.className = 'cta-button';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = () => {
+                modalHelper.close('auto-splash-modal');
+            };
+            submitInfoArea.appendChild(document.createElement('br'));
+            submitInfoArea.appendChild(closeButton);
+        }, 25000);
+    }, 0);
 }
 
 /**

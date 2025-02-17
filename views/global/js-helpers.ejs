@@ -306,6 +306,146 @@ document.addEventListener('DOMContentLoaded', function() {
 // // Update link on window resize
 // window.addEventListener('resize', updateLinkHref);
 
+/////////////////////
+// Modal Helpers ////
+/////////////////////
 
+const modalHelper = {
+    activeModals: new Set(),
+    
+    create: function({
+        id,
+        title,
+        content,
+        onClose,
+        showCloseButton = true,
+        showEscText = true,
+        appendTo = 'body',
+        source = null,
+        customClass = ''
+    }) {
+        // Close any existing modals if requested
+        this.closeAll();
+
+        // Create modal elements
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        modalOverlay.id = `modal-overlay-${id}`;
+        if (source) modalOverlay.dataset.source = source;
+
+        const modal = document.createElement('div');
+        modal.className = `modal ${customClass}`;
+        modal.id = id;
+        if (source) modal.dataset.source = source;
+
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+
+        // Add close button if requested
+        if (showCloseButton) {
+            const closeButton = document.createElement('span');
+            closeButton.className = 'close';
+            closeButton.innerHTML = '×' + (showEscText ? '<br><p class="modal-esc">[ESC]</p>' : '');
+            closeButton.onclick = () => this.close(id);
+            modalContent.appendChild(closeButton);
+        }
+
+        // Add title if provided
+        if (title) {
+            const modalTitle = document.createElement('h2');
+            modalTitle.innerHTML = title;
+            modalContent.appendChild(modalTitle);
+        }
+
+        // Add content
+        if (typeof content === 'string') {
+            modalContent.innerHTML += content;
+        } else if (content instanceof Element) {
+            modalContent.appendChild(content);
+        }
+
+        modal.appendChild(modalContent);
+
+        // Add to DOM
+        const container = appendTo === 'body' ? document.body : document.querySelector(appendTo);
+        container.appendChild(modalOverlay);
+        container.appendChild(modal);
+
+        // Setup event listeners
+        this.setupEventListeners(id, onClose);
+
+        // Track active modal
+        this.activeModals.add(id);
+
+        return { modal, overlay: modalOverlay, content: modalContent };
+    },
+
+    open: function(id) {
+        const modal = document.getElementById(id);
+        const overlay = document.getElementById(`modal-overlay-${id}`);
+        
+        if (!modal || !overlay) {
+            console.error('Modal or overlay not found:', id);
+            return;
+        }
+
+        // Close any other open modals first
+        this.closeAll();
+
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        
+        // Track active modal
+        this.activeModals.add(id);
+    },
+
+    close: function(id) {
+        const modal = document.getElementById(id);
+        const overlay = document.getElementById(`modal-overlay-${id}`);
+        
+        if (!modal || !overlay) {
+            console.error('Modal or overlay not found:', id);
+            return;
+        }
+
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+        
+        // Remove from active modals
+        this.activeModals.delete(id);
+    },
+
+    closeAll: function() {
+        this.activeModals.forEach(id => this.close(id));
+        this.activeModals.clear();
+    },
+
+    setupEventListeners: function(id, onClose) {
+        const modal = document.getElementById(id);
+        const overlay = document.getElementById(`modal-overlay-${id}`);
+        
+        if (!modal || !overlay) return;
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this.close(id);
+                if (onClose) onClose();
+            }
+        });
+
+        // Close on ESC key
+        const escListener = (e) => {
+            if (e.key === 'Escape' && this.activeModals.has(id)) {
+                this.close(id);
+                if (onClose) onClose();
+            }
+        };
+        document.addEventListener('keydown', escListener);
+
+        // Store the listener reference for cleanup
+        modal.dataset.escListener = escListener;
+    }
+};
 
 </script>

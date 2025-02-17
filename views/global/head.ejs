@@ -870,6 +870,125 @@
         margin: 0;
         white-space: nowrap;
     }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+    }
+
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--secondary-background);
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        display: none;
+        max-width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        position: relative;
+        padding: 20px;
+        color: var(--text-colour);
+    }
+
+    .modal-content .close {
+        position: absolute;
+        right: 20px;
+        top: 10px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        color: var(--text-colour);
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .modal-content .close:hover {
+        opacity: 1;
+    }
+
+    .modal-esc {
+        font-size: 12px;
+        margin: 0;
+        text-align: center;
+        opacity: 0.7;
+    }
+
+    .modal-body {
+        margin-top: 20px;
+    }
+
+    .modal-table {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px 20px;
+        margin-top: 15px;
+    }
+
+    .modal-links {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+
+    .modal-links li {
+        margin-bottom: 10px;
+    }
+
+    .modal-links a {
+        color: var(--text-colour);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-links a:hover {
+        text-decoration: underline;
+    }
+
+    .modal-help-text {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--accent-colour);
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+    }
+
+    /* Activity-specific modal styles */
+    .modal.activity-modal .modal-table {
+        background: var(--secondary-background);
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .modal.verification-modal .verification-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    .modal.verification-modal .verification-explanation {
+        grid-column: span 2;
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+        margin: 5px 0 15px;
+    }
 </style>
 <!-- <script defer data-domain="<% if(typeof rootDomain !=='undefined'){%><%- rootDomain %><%}else{%>checkout.ac<%}%>"
     src="https://t.ldn.jemedia.xyz/js/script.js"></script> -->
