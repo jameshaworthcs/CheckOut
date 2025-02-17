@@ -1184,8 +1184,7 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
                 chcLabelSpan.textContent = 'CheckOut code: ';
 
                 const copyButton = createButton(`${firstCode.checkinCode} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 
-                                                0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
+                                                      <path d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"/>
                                                   </svg>`, `copyText('${firstCode.checkinCode}', this)`);
                 copyButton.className = 'share-button chc';
 
@@ -2117,6 +2116,10 @@ function startAutoSplash(jt, isModalVersion) {
             ws.send(jt.toString());
         };
 
+        const TIMEOUT_DURATION = 25000; // 10 seconds is more reasonable
+        const MAX_RETRIES = 3;
+        let retryCount = 0;
+
         let timeoutId;
         ws.onmessage = function(event) {
             clearTimeout(timeoutId);
@@ -2167,6 +2170,13 @@ function startAutoSplash(jt, isModalVersion) {
 
         ws.onerror = function() {
             clearInterval(dotInterval);
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`Retrying connection (attempt ${retryCount}/${MAX_RETRIES})...`);
+                ws.close();
+                startAutoSplash(jt, isModalVersion);
+                return;
+            }
             loadingText.textContent = 'Connection error';
             autoSplashBackground.style.background = 'red';
             ws.close();
@@ -2187,6 +2197,12 @@ function startAutoSplash(jt, isModalVersion) {
                 ws.close();
             }
             clearInterval(dotInterval);
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`Retrying connection (attempt ${retryCount}/${MAX_RETRIES})...`);
+                startAutoSplash(jt, isModalVersion);
+                return;
+            }
             loadingText.textContent = 'Not checked in';
             autoSplashBackground.style.background = '#81810066';
             
@@ -2206,7 +2222,16 @@ function startAutoSplash(jt, isModalVersion) {
             };
             submitInfoArea.appendChild(document.createElement('br'));
             submitInfoArea.appendChild(closeButton);
-        }, 25000);
+        }, TIMEOUT_DURATION);
+
+        // Ensure cleanup on component unmount
+        return () => {
+            clearInterval(dotInterval);
+            clearTimeout(timeoutId);
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
     }, 0);
 }
 

@@ -324,8 +324,15 @@ const modalHelper = {
         source = null,
         customClass = ''
     }) {
-        // Close any existing modals if requested
-        this.closeAll();
+        // Only close modals from the same source
+        if (source) {
+            Array.from(this.activeModals).forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal && modal.dataset.source === source) {
+                    this.close(modalId);
+                }
+            });
+        }
 
         // Create modal elements
         const modalOverlay = document.createElement('div');
@@ -414,11 +421,17 @@ const modalHelper = {
     },
 
     close: function(id) {
+        // Skip if modal isn't in active modals
+        if (!this.activeModals.has(id)) {
+            return;
+        }
+
         const modal = document.getElementById(id);
         const overlay = document.getElementById(`modal-overlay-${id}`);
         
         if (!modal || !overlay) {
-            console.error('Modal or overlay not found:', id);
+            // Just remove from active modals if elements don't exist
+            this.activeModals.delete(id);
             return;
         }
 
@@ -437,8 +450,8 @@ const modalHelper = {
     },
 
     closeAll: function() {
-        this.activeModals.forEach(id => this.close(id));
-        this.activeModals.clear();
+        // Create a new array from activeModals to avoid modification during iteration
+        Array.from(this.activeModals).forEach(id => this.close(id));
     },
 
     setupEventListeners: function(id, onClose) {
