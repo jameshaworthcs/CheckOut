@@ -46,8 +46,7 @@ app.get('/manage/api/code-log/data', function (req, res) {
       res.json(result);
     });
   } catch (err) {
-    res.render('deny.ejs');
-    console.log("Unauthorized user tried to access logdata, was rejected");
+    res.status(500).json({ success: false, error: "Database error." });
   }
 });
 
