@@ -424,7 +424,7 @@
     }
 
     .main-content p {
-        font-size: 1.2em;
+        font-size: 14.4px;
         margin-bottom: 20px;
     }
 
@@ -874,6 +874,155 @@
     .code-content .cta-button {
         margin: 0;
         white-space: nowrap;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 1000;
+        display: none;
+        opacity: 0;
+    }
+
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--page-background);
+        color: var(--text-colour);
+        width: 90%;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        overflow: hidden;
+        display: none;
+        opacity: 0;
+    }
+
+    /* Add focus styles for keyboard navigation */
+    .modal *:focus {
+        outline: 2px solid var(--action-colour);
+        outline-offset: 2px;
+    }
+
+    /* Ensure focusable elements are visible */
+    .modal *:focus-visible {
+        outline: 2px solid var(--action-colour);
+        outline-offset: 2px;
+    }
+
+    .modal-content {
+        position: relative;
+        padding: 20px;
+    }
+
+    .modal-content .close {
+        position: absolute;
+        right: 20px;
+        top: 10px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        color: var(--text-colour);
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .modal-content .close:hover {
+        opacity: 1;
+    }
+
+    .modal-esc {
+        font-size: small !important;
+        opacity: .7;
+        transform: translateX(-11px);
+    }
+
+    .modal-body {
+        margin-top: 20px;
+    }
+
+    .modal-table {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px 20px;
+    }
+
+    @keyframes fadeInActivityModel {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .modal {
+            width: 90%;
+            height: auto;
+        }
+        .modal-esc {
+            display: none;
+        }
+    }
+
+    .modal-links {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+
+    .modal-links li {
+        margin-bottom: 10px;
+    }
+
+    .modal-links a {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-links a:hover {
+        text-decoration: underline;
+    }
+
+    .modal-help-text {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--accent-colour);
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+    }
+
+    /* Activity-specific modal styles */
+    .modal.activity-modal .modal-table {
+        background: var(--secondary-background);
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .modal.verification-modal .verification-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    .modal.verification-modal .verification-explanation {
+        grid-column: span 2;
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+        margin: 5px 0 15px;
     }
 </style>
 <!-- <script defer data-domain="<% if(typeof rootDomain !=='undefined'){%><%- rootDomain %><%}else{%>checkout.ac<%}%>"
