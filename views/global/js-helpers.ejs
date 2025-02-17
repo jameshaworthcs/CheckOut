@@ -336,6 +336,10 @@ const modalHelper = {
         const modal = document.createElement('div');
         modal.className = `modal ${customClass}`;
         modal.id = id;
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', `${id}-title`);
+        modal.setAttribute('aria-describedby', `${id}-description`);
         if (source) modal.dataset.source = source;
 
         const modalContent = document.createElement('div');
