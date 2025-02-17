@@ -2,12 +2,11 @@
 
 # Variables
 DB_USER="checkout"
-DB_NAME="checkout"
-OUTPUT_DIR="./db_export"
-SCHEMA_FILE="$OUTPUT_DIR/schema_only.sql"
-DATA_FILE="$OUTPUT_DIR/data_only.sql"
-COMBINED_FILE="$OUTPUT_DIR/checkout_combined.sql"
-TEMP_USERS_FILE="$OUTPUT_DIR/temp_users.sql"
+DB_NAME="checkout_dev"
+SCHEMA_FILE="schema_only.sql"
+DATA_FILE="data_only.sql"
+COMBINED_FILE="checkout_combined.sql"
+TEMP_USERS_FILE="temp_users.sql"
 
 # Tables to include data
 DATA_TABLES="Courses Institutions Modules Years globalapp perms tibl_test_test_course_0 users_dev"
@@ -15,9 +14,6 @@ DATA_TABLES="Courses Institutions Modules Years globalapp perms tibl_test_test_c
 # Prompt for MySQL password
 read -sp "Enter MySQL password for user '$DB_USER': " DB_PASS
 echo
-
-# Create output directory
-mkdir -p "$OUTPUT_DIR"
 
 # Step 1: Export schema for all tables
 echo "Exporting schema for all tables..."
