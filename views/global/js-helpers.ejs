@@ -252,39 +252,39 @@ function hideNotice() {
 // Dark mode tooltip ////
 /////////////////////////
 
-document.addEventListener('DOMContentLoaded', function() {
-    const tooltip = document.getElementById('darkTooltip');
+// document.addEventListener('DOMContentLoaded', function() {
+//     const tooltip = document.getElementById('darkTooltip');
     
-    if (tooltip && false) { // disable tooltip
-        // Check if user prefers dark mode
-        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+//     if (tooltip && false) { // disable tooltip
+//         // Check if user prefers dark mode
+//         const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        // Check if tooltip has been shown before
-        const tooltipShown = localStorage.getItem('darkTooltip') === '1';
+//         // Check if tooltip has been shown before
+//         const tooltipShown = localStorage.getItem('darkTooltip') === '1';
         
-        if (prefersDarkMode && !tooltipShown) {
-            // Make tooltip visible and add class for fade in
-            tooltip.style.visibility = 'visible';
-            tooltip.classList.add('visible');
-        }
+//         if (prefersDarkMode && !tooltipShown) {
+//             // Make tooltip visible and add class for fade in
+//             tooltip.style.visibility = 'visible';
+//             tooltip.classList.add('visible');
+//         }
 
-        // Add click handler for close button
-        const closeButton = document.getElementById('darkTooltipClose');
-        if (closeButton) {
-            closeButton.addEventListener('click', function(event) {
-                // Prevent event from bubbling up to parent elements
-                event.stopPropagation();
+//         // Add click handler for close button
+//         const closeButton = document.getElementById('darkTooltipClose');
+//         if (closeButton) {
+//             closeButton.addEventListener('click', function(event) {
+//                 // Prevent event from bubbling up to parent elements
+//                 event.stopPropagation();
                 
-                // Hide tooltip
-                tooltip.style.visibility = 'hidden';
-                tooltip.classList.remove('visible');
+//                 // Hide tooltip
+//                 tooltip.style.visibility = 'hidden';
+//                 tooltip.classList.remove('visible');
                 
-                // Mark tooltip as shown in localStorage
-                localStorage.setItem('darkTooltip', '1');
-            });
-        }
-    }
-});
+//                 // Mark tooltip as shown in localStorage
+//                 localStorage.setItem('darkTooltip', '1');
+//             });
+//         }
+//     }
+// });
 
 
 
@@ -392,6 +392,16 @@ const modalHelper = {
         // Close any other open modals first
         this.closeAll();
 
+        // Reset animation by forcing a reflow
+        modal.style.animation = 'none';
+        overlay.style.animation = 'none';
+        modal.offsetHeight; // Force reflow
+        overlay.offsetHeight; // Force reflow
+
+        // Add animation
+        modal.style.animation = 'fadeInActivityModel 0.3s ease-out forwards';
+        overlay.style.animation = 'fadeInActivityModel 0.1s ease-out forwards';
+
         modal.style.display = 'block';
         overlay.style.display = 'block';
         
@@ -408,11 +418,18 @@ const modalHelper = {
             return;
         }
 
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-        
-        // Remove from active modals
-        this.activeModals.delete(id);
+        // Add fade out animation
+        modal.style.animation = 'fadeInActivityModel 0.3s ease-out reverse forwards';
+        overlay.style.animation = 'fadeInActivityModel 0.1s ease-out reverse forwards';
+
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            
+            // Remove from active modals
+            this.activeModals.delete(id);
+        }, 300); // Match the animation duration
     },
 
     closeAll: function() {

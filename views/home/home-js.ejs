@@ -140,7 +140,6 @@ function resetRefreshTimer() {
 function checkIfShouldRefresh() {
     const now = Date.now();
     if (blockAllRefresh) {
-        console.log('No refresh');
         return;
     } else if (!refreshEnabled) {
         showRefreshLoader();
@@ -916,67 +915,109 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
             optionsLink.href = '#';
             optionsLink.className = 'options-link';
             optionsLink.textContent = 'Options';
+            
+            // Create options modal content
+            const optionsModalContent = document.createElement('div');
+            
+            const linksList = document.createElement('ul');
+            linksList.className = 'modal-links';
+
+            if (session.codes && session.codes.length > 0) {
+                const submitLink = document.createElement('li');
+                submitLink.innerHTML = `<a href="#" onclick="fillClasses(storedFillClassesData.sessionCount, storedFillClassesData.msg, storedFillClassesData.sessions, true, '${session.rejectID}', storedFillClassesData.nextSessions); modalHelper.close('options-modal-${session.rejectID}'); return false;">Submit a different code</a>`;
+                linksList.appendChild(submitLink);
+
+                session.codes.forEach(code => {
+                    const reportLink = document.createElement('li');
+                    reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
+                    linksList.appendChild(reportLink);
+                });
+            }
+
+            const settingsLink = document.createElement('li');
+            settingsLink.innerHTML = '<a href="/settings">Change course and other settings</a>';
+            linksList.appendChild(settingsLink);
+
+            const devApiLink = document.createElement('li');
+            const activityButton = document.createElement('a');
+            activityButton.className = 'activity-button';
+            activityButton.href = '#';
+            activityButton.onclick = (e) => {
+                e.preventDefault();
+                modalHelper.close(`options-modal-${session.rejectID}`);
+                modalHelper.open(`metadata-modal-${session.rejectID}`);
+            };
+            activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
+                                    <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
+                            </svg>`;
+            devApiLink.appendChild(activityButton);
+            linksList.appendChild(devApiLink);
+
+            const helpText = document.createElement('div');
+            helpText.className = 'modal-help-text';
+            helpText.innerHTML = `<hr>
+                                    <p>Click on the verified/unverified status to learn more about a code.</p>
+                                    <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
+                                  `;
+
+            optionsModalContent.appendChild(linksList);
+            optionsModalContent.appendChild(helpText);
+
+            // Create the modal once
+            modalHelper.create({
+                id: `options-modal-${session.rejectID}`,
+                title: session.description,
+                content: optionsModalContent,
+                appendTo: '.main-content',
+                source: 'fillClasses',
+                onClose: () => {
+                    // Clean up any other modals that might be open
+                    modalHelper.closeAll();
+                }
+            });
+
+            // Create the metadata modal once
+            const metadataModalContent = document.createElement('div');
+            const modalTable = document.createElement('div');
+            modalTable.className = 'modal-table';
+            
+            const modalData = [
+                { label: 'Name:', value: session.description },
+                { label: 'Module:', value: session.moduleName },
+                { label: 'Module code:', value: session.moduleCode },
+                { label: 'rejectID:', value: session.rejectID },
+                { label: 'Start date:', value: session.startDate },
+                { label: 'Start time:', value: session.startTime },
+                { label: 'End date:', value: session.endDate },
+                { label: 'End time:', value: session.endTime },
+                { label: 'Location:', value: session.location },
+            ];
+
+            modalData.forEach(data => {
+                const divLabel = document.createElement('div');
+                divLabel.innerHTML = `${data.label}<br><span class="activityAPI-ref">${data.label.toLowerCase()}</span>`;
+                const divValue = document.createElement('div');
+                divValue.textContent = data.value;
+
+                modalTable.appendChild(divLabel);
+                modalTable.appendChild(divValue);
+            });
+
+            metadataModalContent.appendChild(modalTable);
+            metadataModalContent.innerHTML += '<br><p>Visit the <a href="/api/docs">API reference</a>.</p>';
+
+            modalHelper.create({
+                id: `metadata-modal-${session.rejectID}`,
+                title: `<i>${session.description}</i> details`,
+                content: metadataModalContent,
+                appendTo: '.main-content',
+                source: 'fillClasses'
+            });
+
+            // Set up click handler to open the modal
             optionsLink.onclick = (e) => {
                 e.preventDefault();
-                
-                // Create options modal content
-                const optionsModalContent = document.createElement('div');
-                
-                const linksList = document.createElement('ul');
-                linksList.className = 'modal-links';
-
-                if (session.codes && session.codes.length > 0) {
-                    const submitLink = document.createElement('li');
-                    submitLink.innerHTML = `<a href="#" onclick="fillClasses(storedFillClassesData.sessionCount, storedFillClassesData.msg, storedFillClassesData.sessions, true, '${session.rejectID}', storedFillClassesData.nextSessions); modalHelper.close('options-modal-${session.rejectID}'); return false;">Submit a different code</a>`;
-                    linksList.appendChild(submitLink);
-
-                    session.codes.forEach(code => {
-                        const reportLink = document.createElement('li');
-                        reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
-                        linksList.appendChild(reportLink);
-                    });
-                }
-
-                const settingsLink = document.createElement('li');
-                settingsLink.innerHTML = '<a href="/settings">Change course and other settings</a>';
-                linksList.appendChild(settingsLink);
-
-                const devApiLink = document.createElement('li');
-                const activityButton = document.createElement('a');
-                activityButton.className = 'activity-button';
-                activityButton.href = '#';
-                activityButton.onclick = (e) => {
-                    e.preventDefault();
-                    modalHelper.close(`options-modal-${session.rejectID}`);
-                    openMetadataModal(session);
-                };
-                activityButton.innerHTML = `Metadata & API <svg width="24" height="24" viewBox="0 0 640 512">
-                                        <path fill="#b3b3b3" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/>
-                                </svg>`;
-                devApiLink.appendChild(activityButton);
-                linksList.appendChild(devApiLink);
-
-                const helpText = document.createElement('div');
-                helpText.className = 'modal-help-text';
-                helpText.innerHTML = `<hr>
-                                        <p>Click on the verified/unverified status to learn more about a code.</p>
-                                        <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
-                                      `;
-
-                optionsModalContent.appendChild(linksList);
-                optionsModalContent.appendChild(helpText);
-
-                modalHelper.create({
-                    id: `options-modal-${session.rejectID}`,
-                    title: session.description,
-                    content: optionsModalContent,
-                    appendTo: '.main-content',
-                    source: 'fillClasses',
-                    onClose: () => {
-                        // Clean up any other modals that might be open
-                        modalHelper.closeAll();
-                    }
-                });
+                modalHelper.open(`options-modal-${session.rejectID}`);
             };
             linksContainer.appendChild(optionsLink);
 
@@ -1273,7 +1314,6 @@ function fillCodesDisplay(sessionCount, msg, sessions, nextSessions) {
  */
 function showVerificationModal(codeInfoString) {
     const codeInfo = JSON.parse(codeInfoString);
-    console.log(codeInfo);
     const verifiedInfo = codeInfo.verifiedInfo;
 
     if (!document.getElementById('activityModal-verified')) {
@@ -2018,7 +2058,6 @@ function startAutoSplash(jt, isModalVersion) {
             clearTimeout(timeoutId);
             clearInterval(dotInterval);
             const decodedMessage = atob(event.data);
-            console.log('Received message:', decodedMessage);
             const response = JSON.parse(decodedMessage);
 
             if (response.success) {
