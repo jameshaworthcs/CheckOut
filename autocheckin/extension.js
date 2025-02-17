@@ -1,4 +1,4 @@
-// background.js
+// extension.js
 
 // Function to open a new tab with the API URL
 function openAPITab(token) {
