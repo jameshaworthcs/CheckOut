@@ -39,8 +39,12 @@ function showErrorBox(message, targetId) {
 
     const classesSkeleton = document.querySelector('.classes-skeleton');
     const classesContent = document.querySelector('.classes-content');
+    const classesBoxSkeleton = document.querySelector('.classes-box-skeleton');
+    const classesBox = document.querySelector('.classes-box');
     classesSkeleton.style.display = 'none';
     classesContent.style.display = 'block';
+    classesBoxSkeleton.style.display = 'none';
+    classesBox.style.display = 'block';
 }
 
 /**
@@ -74,6 +78,7 @@ function setup(refreshSubmit = true) {
             displayNotice(error.response.msg, 'error', 'Network error', 0);
             if (refreshSubmit) {
                 showErrorBox(error.response.msg, 'submit-form');
+                showErrorBox(error.response.msg, 'classes-box');
             }
             showErrorBox(error.response.msg, 'classes-content');
         } else {
@@ -109,6 +114,7 @@ function setupCached() {
             showErrorBox(error.response.msg, 'classes-content');
         } else {
             displayNotice(error.response.msg, 'error', 'Network error', 0);
+            showErrorBox(error.response.msg, 'classes-box');
             showErrorBox("Something went wrong. Unable to connect to API.", 'submit-form');
             showErrorBox("Something went wrong. Unable to connect to API.", 'classes-content');
         }

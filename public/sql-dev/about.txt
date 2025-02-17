@@ -1,1 +1,0 @@
-Files here are public to download table structure for local development

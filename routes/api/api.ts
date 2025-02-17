@@ -36,6 +36,9 @@ var historyRouter = require('./history/history.ts');
 // Support Router
 var supportRouter = require('./support/support.ts');
 
+// Autocheckin Router
+var autocheckinRouter = require('./autocheckin/autocheckin-link.ts');
+
 // Handle Google Authentications (/auth/google)
 app.use((req, res, next) => {
     if (req.url.startsWith("/api/auth/google/")) {
@@ -137,6 +140,16 @@ app.use((req, res, next) => {
     }
 });
 
+// Handle autocheckin requests
+app.use((req, res, next) => {
+    if (req.url.startsWith("/api/autocheckin/")) {
+        secureRoute.auth("autosysop", req, res, () => {
+            return autocheckinRouter(req, res, next);
+        });
+    } else {
+        next();
+    }
+});
 app.get('*', function (req, res) {
     res.status(404);
     res.json({ 'success': false, msg: 'Not a valid endpoint. (top-level-api)' });

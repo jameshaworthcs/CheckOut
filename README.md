@@ -123,8 +123,7 @@ Create a MySQL user specifically for the application:
 
 ### **4.3 Import the Database**
 
-1. Download the SQL schema file from:
-   [https://checkout.ac/sql-dev/db_export/checkout_combined.sql](https://checkout.ac/sql-dev/db_export/checkout_combined.sql)
+1. Use the schema file from: /databases/checkout_schema.sql
 
 2. Import the schema into MySQL:
 
@@ -159,6 +158,14 @@ The project uses TypeScript and can be started using:
 
 ```bash
 npm start
+```
+
+## **7. Login as sysop**
+
+To login as sysop, use the following API key in the 'Login with API key' form on the login page:
+
+```bash
+apikey: local
 ```
 
 This will run the application using `ts-node`. The application should now be running and ready to use!

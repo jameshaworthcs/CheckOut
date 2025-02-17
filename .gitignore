@@ -24,5 +24,7 @@ ecosystem*
 
 # OS-specific files
 .DS_Store
-checkout_combined.sql
 __pycache__
+
+# Databases
+databases/checkout_data.sql

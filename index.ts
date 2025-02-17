@@ -164,25 +164,25 @@ const useMinification: boolean = isProduction;
 const useMiniCache: boolean = isProduction;
 
 // Security configuration with helmet, environment aware
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false,
-  dnsPrefetchControl: false,
-  frameguard: false,
-  hidePoweredBy: true,
-  hsts: process.env.NODE_ENV !== "development" ? {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  } : false,
-  ieNoOpen: false,
-  noSniff: false,
-  permittedCrossDomainPolicies: false,
-  referrerPolicy: false,
-  xssFilter: true
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+//   crossOriginEmbedderPolicy: false,
+//   crossOriginOpenerPolicy: false,
+//   crossOriginResourcePolicy: false,
+//   dnsPrefetchControl: false,
+//   frameguard: false,
+//   hidePoweredBy: true,
+//   hsts: process.env.NODE_ENV !== "development" ? {
+//     maxAge: 31536000,
+//     includeSubDomains: true,
+//     preload: true
+//   } : false,
+//   ieNoOpen: false,
+//   noSniff: false,
+//   permittedCrossDomainPolicies: false,
+//   referrerPolicy: false,
+//   xssFilter: true
+// }));
 
 // Session configuration using express-session and express-mysql-session
 const MySQLStore = mysqlSession(session);
@@ -675,7 +675,7 @@ async function setIPData(req: AppRequest): Promise<void> {
     return Array.isArray(header) ? header[0] : header.split(',')[0];
   };
   const forwardedFor = req.headers['x-forwarded-for'];
-  req.usersIP = (req.headers['X-Shield-Client-IP'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
+  req.usersIP = (req.headers['cf-connecting-ip'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
   req.SpoofedIP = req.usersIP === extractFirstIP(forwardedFor) ? '' : extractFirstIP(forwardedFor);
 }
 
