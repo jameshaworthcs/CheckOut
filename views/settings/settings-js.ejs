@@ -124,18 +124,14 @@ function updateAccountSettings(data) {
         // User has an account
         const { email, username, accountCreationTime } = data.accountInfo;
         
-        // Normalize timestamps to handle different formats
-        // accountCreationTime is in ISO format (with T and Z)
-        // sessionConsentTimestamp is in MySQL format
-        const accountDate = new Date(accountCreationTime);
+        // Normalize timestamps to handle different formats and null values
+        const accountDate = accountCreationTime ? new Date(accountCreationTime) : null;
         const consentDate = new Date(data.sessionConsentTimestamp.replace(' ', 'T') + 'Z');
         
         // Use the oldest valid timestamp, keeping the original string format
-        if (!isNaN(accountDate.getTime()) && !isNaN(consentDate.getTime())) {
+        if (accountDate && !isNaN(accountDate.getTime()) && !isNaN(consentDate.getTime())) {
             oldestTimestamp = accountDate < consentDate ? accountCreationTime : data.sessionConsentTimestamp;
-            console.log('Account date:', accountDate, 'Consent date:', consentDate, 'Using:', oldestTimestamp);
-        } else if (!isNaN(accountDate.getTime())) {
-            oldestTimestamp = accountCreationTime;
+            //console.log('Account date:', accountDate, 'Consent date:', consentDate, 'Using:', oldestTimestamp);
         } else {
             oldestTimestamp = data.sessionConsentTimestamp;
         }
@@ -263,6 +259,7 @@ function calculateBirthday(inputDateStr) {
     userSinceSpan.innerHTML = output;
 }
 
+/*
 ////////////
 // Themes //
 ////////////
@@ -363,5 +360,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 2000);
   });
 });
+*/
 
 </script>
