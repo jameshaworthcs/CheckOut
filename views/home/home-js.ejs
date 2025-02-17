@@ -2093,13 +2093,19 @@ function startAutoSplash(jt, isModalVersion) {
     modalContent.appendChild(autoSplashBackground);
     modalContent.appendChild(submitInfoArea);
 
-    const { modal } = modalHelper.create({
+    // Create the modal
+    modalHelper.create({
         id: 'auto-splash-modal',
-        title: 'AutoCheckin Status',
+        title: '',
         content: modalContent,
         appendTo: '.main-content',
-        showCloseButton: false
+        showCloseButton: false,
+        source: 'autoSplash',
+        preventClose: true
     });
+
+    // Open the modal using the helper
+    modalHelper.open('auto-splash-modal');
 
     let dotCount = 0;
     const dotInterval = setInterval(() => {
@@ -2164,6 +2170,9 @@ function startAutoSplash(jt, isModalVersion) {
             };
             submitInfoArea.appendChild(document.createElement('br'));
             submitInfoArea.appendChild(closeButton);
+            
+            // Enable closing via overlay/ESC now that we have a close button
+            modalHelper.enableClose('auto-splash-modal');
 
             ws.close();
         };
