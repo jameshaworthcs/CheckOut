@@ -5,7 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node index.ts"
+    "start": "ts-node index.ts",
+    "format": "prettier --write \"**/*.{ts,js,json,md,ejs}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md,ejs}\""
   },
   "author": "",
   "license": "ISC",
@@ -51,6 +53,8 @@
     "@types/mysql": "^2.15.26",
     "@types/node": "^22.13.1",
     "@types/nodemailer": "^6.4.17",
+    "prettier": "^3.5.1",
+    "prettier-plugin-ejs": "^1.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
