@@ -2256,9 +2256,13 @@ function startAutoSplash(jt, isModalVersion) {
             const wsHost = window.location.port ? `${window.location.hostname}:${window.location.port}` : window.location.hostname;
             const ws = new WebSocket(`${wsProtocol}://${wsHost}/api/submit/autosplash`);
 
-            ws.onopen = function() {
-                ws.send(jt.toString());
-            };
+        ws.onopen = function() {
+            ws.send(jt.toString());
+        };
+
+        const TIMEOUT_DURATION = 25000;
+        const MAX_RETRIES = 3;
+        let retryCount = 0;
 
             let timeoutId;
             ws.onmessage = function(event) {
@@ -2315,62 +2319,71 @@ function startAutoSplash(jt, isModalVersion) {
                 ws.close();
             };
 
-            ws.onerror = function() {
-                clearInterval(dotInterval);
-                loadingText.textContent = 'Connection error';
-                autoSplashBackground.style.background = 'red';
+        ws.onerror = function() {
+            clearInterval(dotInterval);
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`Retrying connection (attempt ${retryCount}/${MAX_RETRIES})...`);
                 ws.close();
+                startAutoSplash(jt, isModalVersion);
+                return;
+            }
+            loadingText.textContent = 'Connection error';
+            autoSplashBackground.style.background = 'red';
+            ws.close();
 
-                if (isModalVersion) {
-                    // Enable modal closing after error
-                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
-                    
-                    // Add close button on error
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'cta-button';
-                    closeButton.textContent = 'Close';
-                    closeButton.onclick = () => {
-                        modal.remove();
-                        modalOverlay.remove();
-                    };
-                    submitInfoArea.appendChild(document.createElement('br'));
-                    submitInfoArea.appendChild(closeButton);
-                }
+            // Add close button on error
+            const closeButton = document.createElement('button');
+            closeButton.className = 'cta-button';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = () => {
+                modalHelper.close('auto-splash-modal');
             };
+            submitInfoArea.appendChild(document.createElement('br'));
+            submitInfoArea.appendChild(closeButton);
+        };
 
-            timeoutId = setTimeout(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.close();
-                }
-                clearInterval(dotInterval);
-                loadingText.textContent = 'Not checked in';
-                autoSplashBackground.style.background = '#81810066';
-                
-                const timeoutMessage = document.createElement('p');
-                timeoutMessage.className = 'auto-checkin-message';
-                timeoutMessage.innerHTML = 'Response timeout. Please try again or <a href="/support?auto=true&priority=true">contact priority support</a> if the error persists.';
-                timeoutMessage.style.color = 'red';
-                submitInfoArea.innerHTML = '';
-                submitInfoArea.appendChild(timeoutMessage);
+        timeoutId = setTimeout(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            clearInterval(dotInterval);
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`Retrying connection (attempt ${retryCount}/${MAX_RETRIES})...`);
+                startAutoSplash(jt, isModalVersion);
+                return;
+            }
+            loadingText.textContent = 'Not checked in';
+            autoSplashBackground.style.background = '#81810066';
+            
+            const timeoutMessage = document.createElement('p');
+            timeoutMessage.className = 'auto-checkin-message';
+            timeoutMessage.innerHTML = 'Response timeout. Please try again or <a href="/support?auto=true&priority=true">contact priority support</a> if the error persists.';
+            timeoutMessage.style.color = 'red';
+            submitInfoArea.innerHTML = '';
+            submitInfoArea.appendChild(timeoutMessage);
 
-                if (isModalVersion) {
-                    // Enable modal closing after timeout
-                    if (modalOverlay) modalOverlay.style.pointerEvents = 'auto';
-                    
-                    // Add close button after timeout
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'cta-button';
-                    closeButton.textContent = 'Close';
-                    closeButton.onclick = () => {
-                        modal.remove();
-                        modalOverlay.remove();
-                    };
-                    submitInfoArea.appendChild(document.createElement('br'));
-                    submitInfoArea.appendChild(closeButton);
-                }
-            }, 25000);
-        }, 0);
-    }
+            // Add close button after timeout
+            const closeButton = document.createElement('button');
+            closeButton.className = 'cta-button';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = () => {
+                modalHelper.close('auto-splash-modal');
+            };
+            submitInfoArea.appendChild(document.createElement('br'));
+            submitInfoArea.appendChild(closeButton);
+        }, TIMEOUT_DURATION);
+
+        // Ensure cleanup on component unmount
+        return () => {
+            clearInterval(dotInterval);
+            clearTimeout(timeoutId);
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
+    }, 0);
 }
 
 /**
