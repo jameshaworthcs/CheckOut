@@ -71,6 +71,14 @@ app.get('/manage/support', function (req, res) {
     res.render('manage/support/support.ejs', { username: req.username, email: req.useremail });
 })
 
+// Return request headers
+app.get('/manage/headers', function (req, res) {
+    res.json({
+        headers: req.headers
+    });
+});
+
+// Catch-all 404 route
 app.get('*', function (req, res) {
     res.status(404);
     res.render('notices/generic-msg.ejs', { msgTitle: "404 Not found", msgBody: "Management page not found. Return to <a href='/manage'>management homepage</a>.", username: req.username })
