@@ -1030,9 +1030,46 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
                 viewOtherCodesLink.href = '#';
                 viewOtherCodesLink.className = 'view-other-codes-link';
                 viewOtherCodesLink.textContent = 'View other codes';
+                
+                // Create the modal content for other codes during initialization
+                const codesList = document.createElement('div');
+                codesList.className = 'other-codes-list';
+
+                session.codes.forEach(code => {
+                    const codeItem = document.createElement('div');
+                    codeItem.className = 'code-item';
+
+                    const codeText = document.createElement('span');
+                    codeText.textContent = code.checkinCode;
+                    codeItem.appendChild(codeText);
+
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'share-button';
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.setAttribute('onclick', `copyText('${code.checkinCode}', this)`);
+                    codeItem.appendChild(copyBtn);
+
+                    const reportLink = document.createElement('a');
+                    reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
+                    reportLink.className = 'report-link';
+                    reportLink.textContent = 'Report';
+                    codeItem.appendChild(reportLink);
+
+                    codesList.appendChild(codeItem);
+                });
+
+                // Create the modal during initialization
+                modalHelper.create({
+                    id: `other-codes-modal-${session.rejectID}`,
+                    title: 'Other Available Codes',
+                    content: codesList,
+                    appendTo: '.main-content',
+                    source: 'fillClasses'
+                });
+
                 viewOtherCodesLink.onclick = (e) => {
                     e.preventDefault();
-                    showOtherCodes(session.rejectID, session.codes);
+                    showOtherCodes(session.rejectID);
                 };
                 linksContainer.appendChild(viewOtherCodesLink);
             }
@@ -1041,15 +1078,18 @@ function fillClasses(sessionCount, msg, sessions, showSubmitForm = false, activi
             sessionLi.appendChild(sessionBox);
             sessionsList.appendChild(sessionLi);
 
-            const upnextLi = document.createElement('li');
-            const upnextDiv = document.createElement('div');
-            upnextDiv.id = 'upnext-container-classes';
-            upnextLi.appendChild(upnextDiv);
-            sessionsList.appendChild(upnextLi);
-
             sessionsContainer.appendChild(sessionsList);
             classesBoxElement.appendChild(sessionsContainer);
         });
+
+        const upnextLi = document.createElement('li');
+        const upnextDiv = document.createElement('div');
+        upnextDiv.id = 'upnext-container-classes';
+        upnextLi.appendChild(upnextDiv);
+        sessionsList.appendChild(upnextLi);
+
+        sessionsContainer.appendChild(sessionsList);
+        classesBoxElement.appendChild(sessionsContainer);
     }
     
     document.querySelector('.classes-box-skeleton').classList.add('hidden');
@@ -1529,6 +1569,13 @@ async function fetchUpNext(nextSessions, containerType) {
  * @param {Array} codes - Array of code objects to display.
  */
 function showOtherCodes(activityID, codes) {
+    // First check if modal already exists and just open it if it does
+    const existingModal = document.getElementById(`other-codes-modal-${activityID}`);
+    if (existingModal) {
+        modalHelper.open(`other-codes-modal-${activityID}`);
+        return;
+    }
+
     const codesList = document.createElement('div');
     codesList.className = 'other-codes-list';
 
@@ -1555,13 +1602,24 @@ function showOtherCodes(activityID, codes) {
         codesList.appendChild(codeItem);
     });
 
-    modalHelper.create({
+    // Create and automatically display the modal
+    const { modal } = modalHelper.create({
         id: `other-codes-modal-${activityID}`,
         title: 'Other Available Codes',
         content: codesList,
         appendTo: '.main-content',
         source: 'fillClasses'
     });
+
+    // Force display styles after creation
+    const overlay = document.getElementById(`modal-overlay-other-codes-modal-${activityID}`);
+    if (modal && overlay) {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        // Reset and trigger animations
+        modal.style.animation = 'fadeInActivityModel 0.3s ease-out forwards';
+        overlay.style.animation = 'fadeInActivityModel 0.1s ease-out forwards';
+    }
 }
 
 /**
@@ -2382,5 +2440,14 @@ function metadataModalEscListener(event) {
     if (event.key === 'Escape') {
         closeMetadataModal();
     }
+}
+
+/**
+ * Shows the other codes modal for a given activity.
+ *
+ * @param {string} activityID - The activity ID associated with the codes.
+ */
+function showOtherCodes(activityID) {
+    modalHelper.open(`other-codes-modal-${activityID}`);
 }
 </script>
