@@ -259,14 +259,11 @@
 
                 <div class="form-group">
                     <label for="email" class="required-field">Email address:</label>
-                    <input type="email" id="email" name="email" 
-                        <% if (userData && userData.username !== 'Anon') { %>
-                            value="<%= userData.email %>" 
-                            disabled
-                        <% } else { %>
-                            required
-                        <% } %>
-                    >
+                    <% if (userData && userData.username !== 'Anon') { %>
+                        <input type="email" id="email" name="email" value="<%= userData.email %>" disabled>
+                    <% } else { %>
+                        <input type="email" id="email" name="email" required>
+                    <% } %>
                 </div>
 
                 <div class="form-group" id="newEmailGroup" style="display: none;">

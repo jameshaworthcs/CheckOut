@@ -139,20 +139,6 @@
 
 <body>
     <%- include('../../global/navbar'); %>
-        <p>
-            <!-- <form target="_blank" action="/undo">
-            Remove submission<br><br><small>Or use 'remove' button at the end of the row <br><br><b><u>Please use table button to remove, this form will not work. </u><b></b></b></small><br><br>
-            <input type="text" name="md" id="md" placeholder="Module Code" required>
-            <input type="text" name="tk" id="tk" placeholder="TK Token" required>
-            <input style="font-weight: bold;" type="submit" value="REMOVE [ENTER]">
-          </form>
-          <script>document.getElementById("md").focus()</script> -->
-
-
-            <!-- <div class="refresh-btn"><button id="refresh-button" >
-            Refresh Log  <i style="padding-left: 5px;" class="fas fa-sync-alt"></i>
-            
-          </button></div>-->
         <div class="container">
             <h2>Code Log</h2>
                 <p>Welcome to the code log. <br><br>To filter results, use the form below, and set the refresh to never
@@ -202,8 +188,8 @@
                     <button id="man-ref-btn">Manual Refresh</button>
                 </div>
                 <p id="last-refresh"></p>
-
-                </p><!-- Create an empty table ready to show logs -->
+                
+                <!-- Create an empty table ready to show logs -->
                 <div>
                     <div id="column-selection">
                         <!-- Checkboxes for column selection will be appended here -->
@@ -607,10 +593,6 @@
                         var refreshInterval = setInterval(refreshTable, 10000);
                     });
                 </script>
-
-
-
-
-</body>
-
+        </div>
+    </body>
 </html>
