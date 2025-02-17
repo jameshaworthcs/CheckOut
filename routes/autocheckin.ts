@@ -7,100 +7,6 @@ const { sendVerificationEmail } = require('./email.ts');
 const {spawn} = require('child_process');
 var tibl = require('./tibl.ts');
 
-function autoCheckin(email, session, codes) {
-  //console.log("AutoChecking ", email, codes);
-  var output = ''; // Store the output from the Python script
-
-  // Capture the start time
-  const startTime = Date.now();
-
-  const python = spawn('/usr/pyvenv/autoEnv/bin/python3.12', ['/var/www/checkout/autocheckin/event_checkin.py', email, session]);
-
-  // Collect data from script
-  python.stdout.on('data', function (data) {
-    // Process the data received from Python
-    const lines = data.toString().split('\n');
-    lines.forEach(line => {
-      if (line.trim()) {
-        //console.log(`${email}: ${line}`);
-      }
-    });
-    output += data.toString(); // Concatenate the data to form the complete output
-  });
-
-  // Handle errors
-  python.on('error', function (err) {
-    console.error('Error executing AutoCheckin script:', err);
-    log(email, "Fail", "Internal error with AutoCheckin - Contact support");
-  });
-
-  // On close event, process the complete output
-  python.on('close', (code) => {
-    // Capture the end time
-    const endTime = Date.now();
-
-    // Calculate the elapsed time in seconds
-    const elapsedTime = (endTime - startTime) / 1000;
-    //console.log(`Python script exited with code ${code}`);
-    console.log(`[AUTO] AutoCheckin finished in ${elapsedTime} seconds for ${email}`);
-    //console.log('Complete output:', output);
-  });
-}
-
-
-function fetchAutoCheckers(emails = [], codes = [], instant = false) {
-  
-  //console.log("Running autocheckers", emails, codes, "Instant:", instant)
-  // Add error handling and connection check
-  db.query('SELECT 1', (err) => {
-    if (err) {
-      console.error('Database connection not available, retrying in 5 seconds...');
-      setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
-      return;
-    }
-
-    db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
-      if (err) {
-        console.error('[AUTO] Database query error:', err);
-        return;
-      }
-      
-      // Convert result to array and shuffle it
-      let users = [...result];
-      users.sort(() => Math.random() - 0.5);
-      
-      users.forEach((user, index) => {
-        if (instant) {
-          // Instant processing without delays
-          if (emails.length > 0) {
-            if (emails.includes(user.email)) {
-              console.log(`[AUTO] Instantly processing ${user.email}`);
-              autoCheckin(user.email, user.checkintoken, codes);
-            }
-          } else {
-            console.log(`[AUTO] Instantly processing ${user.email}`);
-            autoCheckin(user.email, user.checkintoken, codes);
-          }
-        } else {
-          // Delayed processing with random intervals between 0-600000 milliseconds (0-10 minutes)
-          const randomDelay = Math.floor(Math.random() * 600000); // Random 0-600000 milliseconds
-          setTimeout(() => {
-            if (emails.length > 0) {
-              if (emails.includes(user.email)) {
-                console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
-                autoCheckin(user.email, user.checkintoken, codes);
-              }
-            } else {
-              console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
-              autoCheckin(user.email, user.checkintoken, codes);
-            }
-          }, randomDelay);
-        }
-      });
-    });
-  });
-}
-
 function log(email, state, message) {
   var mysqlTimestamp = moment().tz('UTC').format('YYYY-MM-DD HH:mm:ss');
   const query = `INSERT INTO autoCheckinLog (email, state, message, timestamp) VALUES (?, ?, ?, ?)`;
@@ -112,36 +18,6 @@ function log(email, state, message) {
   });
   const reportQuery = `UPDATE users SET checkinReport = ?, checkinReportTime = ? WHERE email = ?`;
   db.query(reportQuery, [state, mysqlTimestamp, email], (err, result) => {});
-}
-
-// Generate random interval between 1 and 5 hours (in milliseconds)
-function getRandomInterval() {
-  const minHours = 1;
-  const maxHours = 5;
-  return Math.floor(Math.random() * (maxHours - minHours + 1) + minHours) * 60 * 60 * 1000;
-}
-
-// Only run on AutoCheckin instances
-if (process.env.CHK_AUTO == "TRUE") {
-  // Initial run with 5 second delay
-  setTimeout(() => {
-    //console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
-    fetchAutoCheckers();
-  }, 5000);
-  
-  // Schedule recurring runs
-  let intervalId;
-  const scheduleNext = () => {
-    const newInterval = getRandomInterval();
-    console.log(`[AUTO] Next AutoCheckin scheduled in ${newInterval/1000/60/60} hours`);
-    intervalId = setTimeout(() => {
-      fetchAutoCheckers();
-      scheduleNext(); // Schedule the next run after completion
-    }, newInterval);
-  };
-  
-  // Start the scheduling cycle
-  scheduleNext();
 }
 
 // Import session token
@@ -165,33 +41,7 @@ app.get('/auto/c/:cookie', async function (req, res) {
             console.log(`[AUTO] Session refresh for ${req.useremail}: ${refreshSessionResponse.success ? 'Success' : 'Failed'}`);
         }
         
-        // Keep the original fetchAutoCheckers as backup
         res.redirect('/auto/welcome')
-        fetchAutoCheckers(emails = [req.useremail], codes = [], instant = true)
-    });
-  }
-});
-
-app.post('/auto/update', function (req, res) {
-  var cookie = req.body.cookie;
-  var newcookie = req.body.newcookie;
-  var email = req.body.email;
-  if (cookie && newcookie && req.useremail == 'autocheckin@checkout.ac.uk') {
-    db.query('UPDATE users SET checkintoken = ? WHERE checkintoken = ? OR email = ?', [newcookie, cookie, email], (err, result) => {
-        if (err) throw err;
-        res.json({"newcookie":newcookie, "oldcookie":cookie, "result":result});
-    });
-  }
-});
-
-app.get('/auto/u/:cookie/:newcookie/:email', function (req, res) {
-  var cookie = req.params.cookie;
-  var newcookie = req.params.newcookie;
-  var email = req.params.email;
-  if (cookie && newcookie && req.useremail == 'autocheckin@checkout.ac.uk') {
-    db.query('UPDATE users SET checkintoken = ? WHERE checkintoken = ? OR email = ?', [newcookie, cookie, email], (err, result) => {
-        if (err) throw err;
-        res.json({"newcookie":newcookie, "oldcookie":cookie, "result":result});
     });
   }
 });
@@ -403,5 +253,154 @@ app.get('*', function(req,res) {
 })
 
 module.exports = app;
-module.exports.fetchAutoCheckers = fetchAutoCheckers;
 module.exports.checkedIn = checkedIn;
+
+// // Generate random interval between 1 and 5 hours (in milliseconds)
+// function getRandomInterval() {
+//   const minHours = 1;
+//   const maxHours = 5;
+//   return Math.floor(Math.random() * (maxHours - minHours + 1) + minHours) * 60 * 60 * 1000;
+// }
+
+// // Only run on AutoCheckin instances
+// if (process.env.CHK_AUTO == "TRUE") {
+//   // Initial run with 5 second delay
+//   setTimeout(() => {
+//     //console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
+//     fetchAutoCheckers();
+//   }, 5000);
+  
+//   // Schedule recurring runs
+//   let intervalId;
+//   const scheduleNext = () => {
+//     const newInterval = getRandomInterval();
+//     console.log(`[AUTO] Next AutoCheckin scheduled in ${newInterval/1000/60/60} hours`);
+//     intervalId = setTimeout(() => {
+//       fetchAutoCheckers();
+//       scheduleNext(); // Schedule the next run after completion
+//     }, newInterval);
+//   };
+  
+//   // Start the scheduling cycle
+//   scheduleNext();
+// }
+
+// function autoCheckin(email, session, codes) {
+//   //console.log("AutoChecking ", email, codes);
+//   var output = ''; // Store the output from the Python script
+
+//   // Capture the start time
+//   const startTime = Date.now();
+
+//   const python = spawn('/usr/pyvenv/autoEnv/bin/python3.12', ['/var/www/checkout/autocheckin/event_checkin.py', email, session]);
+
+//   // Collect data from script
+//   python.stdout.on('data', function (data) {
+//     // Process the data received from Python
+//     const lines = data.toString().split('\n');
+//     lines.forEach(line => {
+//       if (line.trim()) {
+//         //console.log(`${email}: ${line}`);
+//       }
+//     });
+//     output += data.toString(); // Concatenate the data to form the complete output
+//   });
+
+//   // Handle errors
+//   python.on('error', function (err) {
+//     console.error('Error executing AutoCheckin script:', err);
+//     log(email, "Fail", "Internal error with AutoCheckin - Contact support");
+//   });
+
+//   // On close event, process the complete output
+//   python.on('close', (code) => {
+//     // Capture the end time
+//     const endTime = Date.now();
+
+//     // Calculate the elapsed time in seconds
+//     const elapsedTime = (endTime - startTime) / 1000;
+//     //console.log(`Python script exited with code ${code}`);
+//     console.log(`[AUTO] AutoCheckin finished in ${elapsedTime} seconds for ${email}`);
+//     //console.log('Complete output:', output);
+//   });
+// }
+
+
+// function fetchAutoCheckers(emails = [], codes = [], instant = false) {
+  
+//   //console.log("Running autocheckers", emails, codes, "Instant:", instant)
+//   // Add error handling and connection check
+//   db.query('SELECT 1', (err) => {
+//     if (err) {
+//       console.error('Database connection not available, retrying in 5 seconds...');
+//       setTimeout(() => fetchAutoCheckers(emails, codes, instant), 5000);
+//       return;
+//     }
+
+//     db.query('SELECT * FROM users WHERE checkinstate = 1', (err, result) => {
+//       if (err) {
+//         console.error('[AUTO] Database query error:', err);
+//         return;
+//       }
+      
+//       // Convert result to array and shuffle it
+//       let users = [...result];
+//       users.sort(() => Math.random() - 0.5);
+      
+//       users.forEach((user, index) => {
+//         if (instant) {
+//           // Instant processing without delays
+//           if (emails.length > 0) {
+//             if (emails.includes(user.email)) {
+//               console.log(`[AUTO] Instantly processing ${user.email}`);
+//               autoCheckin(user.email, user.checkintoken, codes);
+//             }
+//           } else {
+//             console.log(`[AUTO] Instantly processing ${user.email}`);
+//             autoCheckin(user.email, user.checkintoken, codes);
+//           }
+//         } else {
+//           // Delayed processing with random intervals between 0-600000 milliseconds (0-10 minutes)
+//           const randomDelay = Math.floor(Math.random() * 600000); // Random 0-600000 milliseconds
+//           setTimeout(() => {
+//             if (emails.length > 0) {
+//               if (emails.includes(user.email)) {
+//                 console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
+//                 autoCheckin(user.email, user.checkintoken, codes);
+//               }
+//             } else {
+//               console.log(`[AUTO] Processing ${user.email} with ${index + 1}/${users.length} delay: ${randomDelay} ms`);
+//               autoCheckin(user.email, user.checkintoken, codes);
+//             }
+//           }, randomDelay);
+//         }
+//       });
+//     });
+//   });
+// }
+
+// // Updated cookie endpoint
+// app.post('/auto/update', function (req, res) {
+//   var cookie = req.body.cookie;
+//   var newcookie = req.body.newcookie;
+//   var email = req.body.email;
+//   if (cookie && newcookie && req.useremail == 'autocheckin@checkout.ac.uk') {
+//     db.query('UPDATE users SET checkintoken = ? WHERE checkintoken = ? OR email = ?', [newcookie, cookie, email], (err, result) => {
+//         if (err) throw err;
+//         res.json({"newcookie":newcookie, "oldcookie":cookie, "result":result});
+//     });
+//   }
+// });
+
+// // Legacy update endpoint
+// app.get('/auto/u/:cookie/:newcookie/:email', function (req, res) {
+//   var cookie = req.params.cookie;
+//   var newcookie = req.params.newcookie;
+//   var email = req.params.email;
+//   if (cookie && newcookie && req.useremail == 'autocheckin@checkout.ac.uk') {
+//     db.query('UPDATE users SET checkintoken = ? WHERE checkintoken = ? OR email = ?', [newcookie, cookie, email], (err, result) => {
+//         if (err) throw err;
+//         res.json({"newcookie":newcookie, "oldcookie":cookie, "result":result});
+//     });
+//   }
+// });
