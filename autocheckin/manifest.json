@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "AutoCheckin",
+    "version": "1.2",
+    "host_permissions": [
+        "https://checkin.york.ac.uk/*"
+    ],
+    "permissions": [
+        "activeTab",
+        "cookies"
+    ],
+    "background": {
+        "service_worker": "fetch_checkin_token.js"
+    },
+    "action": {
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        }
+    },
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
+}
