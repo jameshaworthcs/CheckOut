@@ -1,220 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../../global/head'); %>
     <title>Support Management - Checkout</title>
     <style>
-        .content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+      .content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-        .filters {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+      .filters {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
 
-        .filters select,
-        .filters input {
-            padding: 8px;
-            border: 1px solid var(--accent-colour);
-            border-radius: 5px;
-            background: var(--secondary-background);
-            color: var(--text-colour);
-        }
+      .filters select,
+      .filters input {
+        padding: 8px;
+        border: 1px solid var(--accent-colour);
+        border-radius: 5px;
+        background: var(--secondary-background);
+        color: var(--text-colour);
+      }
 
-        .table-container {
-            background: var(--content-background);
-            border: var(--box-accent-width) solid var(--accent-colour);
-            border-radius: 10px;
-            padding: 20px;
-            overflow-x: auto;
-        }
+      .table-container {
+        background: var(--content-background);
+        border: var(--box-accent-width) solid var(--accent-colour);
+        border-radius: 10px;
+        padding: 20px;
+        overflow-x: auto;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
 
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--accent-colour);
-        }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--accent-colour);
+      }
 
-        th {
-            font-weight: 600;
-            color: var(--text-colour);
-        }
+      th {
+        font-weight: 600;
+        color: var(--text-colour);
+      }
 
-        td {
-            color: var(--subtext-colour);
-        }
+      td {
+        color: var(--subtext-colour);
+      }
 
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: 500;
+      }
 
-        .status-completed {
-            background-color: var(--submit-success-background);
-            color: var(--submit-success-colour);
-        }
+      .status-completed {
+        background-color: var(--submit-success-background);
+        color: var(--submit-success-colour);
+      }
 
-        .status-pending {
-            background-color: var(--submit-fail-background);
-            color: var(--submit-fail-colour);
-        }
+      .status-pending {
+        background-color: var(--submit-fail-background);
+        color: var(--submit-fail-colour);
+      }
 
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
 
-        .action-button {
-            padding: 4px 8px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            background-color: var(--cta-background);
-            color: var(--cta-button-colour);
-        }
+      .action-button {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        background-color: var(--cta-background);
+        color: var(--cta-button-colour);
+      }
 
-        .action-button:hover {
-            opacity: 0.9;
-        }
+      .action-button:hover {
+        opacity: 0.9;
+      }
 
-        .notes-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--accent-colour);
-            border-radius: 4px;
-            background: var(--secondary-background);
-            color: var(--text-colour);
-            margin-top: 4px;
-        }
+      .notes-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--accent-colour);
+        border-radius: 4px;
+        background: var(--secondary-background);
+        color: var(--text-colour);
+        margin-top: 4px;
+      }
 
-        .json-data {
-            white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
+      .json-data {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 0.9em;
+      }
 
-        .notes-container {
-            position: relative;
-        }
+      .notes-container {
+        position: relative;
+      }
 
-        .save-indicator {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            background-color: var(--submit-success-background);
-            color: var(--submit-success-colour);
-        }
+      .save-indicator {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background-color: var(--submit-success-background);
+        color: var(--submit-success-colour);
+      }
 
-        .save-indicator.show {
-            opacity: 1;
-        }
+      .save-indicator.show {
+        opacity: 1;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('../../global/navbar'); %>
 
     <div class="content">
-        <h1>Support Requests</h1>
+      <h1>Support Requests</h1>
 
-        <div class="filters">
-            <select id="statusFilter">
-                <option value="">All Status</option>
-                <option value="false">Pending</option>
-                <option value="true">Completed</option>
-            </select>
+      <div class="filters">
+        <select id="statusFilter">
+          <option value="">All Status</option>
+          <option value="false">Pending</option>
+          <option value="true">Completed</option>
+        </select>
 
-            <select id="issueTypeFilter">
-                <option value="">All Types</option>
-                <option value="change-email">Email Change</option>
-                <option value="report-code">Report Code</option>
-                <option value="feature">Feature Request</option>
-                <option value="other">Other</option>
-            </select>
+        <select id="issueTypeFilter">
+          <option value="">All Types</option>
+          <option value="change-email">Email Change</option>
+          <option value="report-code">Report Code</option>
+          <option value="feature">Feature Request</option>
+          <option value="other">Other</option>
+        </select>
 
-            <input type="date" id="startDate" placeholder="Start Date">
-            <input type="date" id="endDate" placeholder="End Date">
+        <input type="date" id="startDate" placeholder="Start Date" />
+        <input type="date" id="endDate" placeholder="End Date" />
 
-            <button class="action-button" onclick="applyFilters()">Apply Filters</button>
-        </div>
+        <button class="action-button" onclick="applyFilters()">Apply Filters</button>
+      </div>
 
-        <div class="table-container">
-            <table id="supportTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Created</th>
-                        <th>Issue Type</th>
-                        <th>Email</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be populated here -->
-                </tbody>
-            </table>
-        </div>
+      <div class="table-container">
+        <table id="supportTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Created</th>
+              <th>Issue Type</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be populated here -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script>
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
 
-        function loadSupportRequests() {
-            const statusFilter = document.getElementById('statusFilter').value;
-            const issueTypeFilter = document.getElementById('issueTypeFilter').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+      function loadSupportRequests() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const issueTypeFilter = document.getElementById('issueTypeFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
-            let url = '/manage/api/support/requests?';
-            if (statusFilter !== '') url += `&completed=${statusFilter}`;
-            if (issueTypeFilter !== '') url += `&issueType=${issueTypeFilter}`;
-            if (startDate) url += `&startDate=${startDate}`;
-            if (endDate) url += `&endDate=${endDate}`;
+        let url = '/manage/api/support/requests?';
+        if (statusFilter !== '') url += `&completed=${statusFilter}`;
+        if (issueTypeFilter !== '') url += `&issueType=${issueTypeFilter}`;
+        if (startDate) url += `&startDate=${startDate}`;
+        if (endDate) url += `&endDate=${endDate}`;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.querySelector('#supportTable tbody');
-                    tbody.innerHTML = '';
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const tbody = document.querySelector('#supportTable tbody');
+            tbody.innerHTML = '';
 
-                    data.forEach(request => {
-                        const formData = request.form_data;
-                        const tr = document.createElement('tr');
-                        
-                        tr.innerHTML = `
+            data.forEach((request) => {
+              const formData = request.form_data;
+              const tr = document.createElement('tr');
+
+              tr.innerHTML = `
                             <td>${request.id}</td>
                             <td>${formatDate(request.created_at)}</td>
                             <td>${formData.issueType}</td>
@@ -245,115 +245,114 @@
                                 <button class="action-button" onclick="deleteRequest(${request.id})">Delete</button>
                             </td>
                         `;
-                        
-                        tbody.appendChild(tr);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading support requests:', error);
-                });
-        }
 
-        function applyFilters() {
-            loadSupportRequests();
-        }
-
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Handle notes input with debounce
-        const debouncedSave = debounce((id, value) => {
-            saveNotes(id, value);
-        }, 1000);
-
-        function handleNotesInput(id, textarea) {
-            debouncedSave(id, textarea.value);
-        }
-
-        function showSaveIndicator(id) {
-            const indicator = document.getElementById(`save-indicator-${id}`);
-            indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 2000);
-        }
-
-        function saveNotes(id, notes) {
-            fetch(`/manage/api/support/update/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ notes })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSaveIndicator(id);
-                } else {
-                    console.error('Failed to update notes:', data.msg);
-                }
-            })
-            .catch(error => {
-                console.error('Error updating notes:', error);
+              tbody.appendChild(tr);
             });
-        }
+          })
+          .catch((error) => {
+            console.error('Error loading support requests:', error);
+          });
+      }
 
-        function toggleStatus(id, completed) {
-            fetch(`/manage/api/support/update/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ completed })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadSupportRequests();
-                } else {
-                    console.error('Failed to update status:', data.msg);
-                }
-            })
-            .catch(error => {
-                console.error('Error updating status:', error);
-            });
-        }
+      function applyFilters() {
+        loadSupportRequests();
+      }
 
-        function deleteRequest(id) {
-            if (!confirm('Are you sure you want to delete this support request?')) {
-                return;
+      // Debounce function
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Handle notes input with debounce
+      const debouncedSave = debounce((id, value) => {
+        saveNotes(id, value);
+      }, 1000);
+
+      function handleNotesInput(id, textarea) {
+        debouncedSave(id, textarea.value);
+      }
+
+      function showSaveIndicator(id) {
+        const indicator = document.getElementById(`save-indicator-${id}`);
+        indicator.classList.add('show');
+        setTimeout(() => {
+          indicator.classList.remove('show');
+        }, 2000);
+      }
+
+      function saveNotes(id, notes) {
+        fetch(`/manage/api/support/update/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notes }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showSaveIndicator(id);
+            } else {
+              console.error('Failed to update notes:', data.msg);
             }
+          })
+          .catch((error) => {
+            console.error('Error updating notes:', error);
+          });
+      }
 
-            fetch(`/manage/api/support/delete/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadSupportRequests();
-                } else {
-                    console.error('Failed to delete request:', data.msg);
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting request:', error);
-            });
+      function toggleStatus(id, completed) {
+        fetch(`/manage/api/support/update/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ completed }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadSupportRequests();
+            } else {
+              console.error('Failed to update status:', data.msg);
+            }
+          })
+          .catch((error) => {
+            console.error('Error updating status:', error);
+          });
+      }
+
+      function deleteRequest(id) {
+        if (!confirm('Are you sure you want to delete this support request?')) {
+          return;
         }
 
-        // Load support requests when the page loads
-        document.addEventListener('DOMContentLoaded', loadSupportRequests);
-    </script>
-</body>
+        fetch(`/manage/api/support/delete/${id}`, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadSupportRequests();
+            } else {
+              console.error('Failed to delete request:', data.msg);
+            }
+          })
+          .catch((error) => {
+            console.error('Error deleting request:', error);
+          });
+      }
 
-</html> 
+      // Load support requests when the page loads
+      document.addEventListener('DOMContentLoaded', loadSupportRequests);
+    </script>
+  </body>
+</html>

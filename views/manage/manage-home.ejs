@@ -1,273 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../global/head'); %>
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
-        <meta name="description" content="" />
-        <title>Manage - CheckOut</title>
-        <style>
-            body {
-                /* font-size: 19px;
-                background: #0D1116; */
-                display: block;
-            }
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Manage - CheckOut</title>
+    <style>
+      body {
+          /* font-size: 19px;
+          background: #0D1116; */
+          display: block;
+      }
 
-            .tool-option p {
-                margin-block-start: 0;
-                margin-block-end: 0;
-            }
+      .tool-option p {
+          margin-block-start: 0;
+          margin-block-end: 0;
+      }
 
-            .error-box {
-                margin-bottom: 18px;
-            }
+      .error-box {
+          margin-bottom: 18px;
+      }
 
-            .mainContent {
-                display: block;
-                position: relative;
-                text-align: center;
-                max-width: 400px;
-                margin: 0 auto;
-                margin-top: 20px;
-                margin-bottom: 20px;
-                padding: 20px;
-                background: var(--content-background);
-                border-radius: 7px;
-                /* border: 1px solid #3dcbff; */
-                border: var(--box-accent-width) solid var(--accent-colour);
-                box-shadow: var(--shadow)
-                transition: background-color 0.5s;
-            }
+      .mainContent {
+          display: block;
+          position: relative;
+          text-align: center;
+          max-width: 400px;
+          margin: 0 auto;
+          margin-top: 20px;
+          margin-bottom: 20px;
+          padding: 20px;
+          background: var(--content-background);
+          border-radius: 7px;
+          /* border: 1px solid #3dcbff; */
+          border: var(--box-accent-width) solid var(--accent-colour);
+          box-shadow: var(--shadow)
+          transition: background-color 0.5s;
+      }
 
-            .headerWelcome {
-                text-align: center;
-                font-size: 1.4em;
-            }
+      .headerWelcome {
+          text-align: center;
+          font-size: 1.4em;
+      }
 
-            .headerDiv {
-                margin-top: 10px;
-                margin-bottom: 5px;
-                text-align: center;
-            }
+      .headerDiv {
+          margin-top: 10px;
+          margin-bottom: 5px;
+          text-align: center;
+      }
 
-            .topIcon {
-                background-image: var(--tick-image);
-                background-repeat: no-repeat;
-                background-size: 34px;
-                float: right;
-                height: 34px;
-                width: 34px;
-            }
+      .topIcon {
+          background-image: var(--tick-image);
+          background-repeat: no-repeat;
+          background-size: 34px;
+          float: right;
+          height: 34px;
+          width: 34px;
+      }
 
-            .subtitle {
-                white-space: pre-line;
-                font-size: 17px;
-                margin-bottom: 20px;
-            }
+      .subtitle {
+          white-space: pre-line;
+          font-size: 17px;
+          margin-bottom: 20px;
+      }
 
-            .account-manage-text {
-                text-decoration: none;
-                font-size: 15px;
-                color: var(--subtext-colour);
-                margin-bottom: 10px;
-            }
+      .account-manage-text {
+          text-decoration: none;
+          font-size: 15px;
+          color: var(--subtext-colour);
+          margin-bottom: 10px;
+      }
 
-            .termsText {
-                text-decoration: none;
-                font-size: 15px;
-                color: var(--subtext-colour);
-                margin-bottom: 10px;
-            }
+      .termsText {
+          text-decoration: none;
+          font-size: 15px;
+          color: var(--subtext-colour);
+          margin-bottom: 10px;
+      }
 
-            .tosLink,
-            .tosLink:visited,
-            .tosLink:active {
-                color: var(--action-colour);
-                text-decoration: none;
-            }
+      .tosLink,
+      .tosLink:visited,
+      .tosLink:active {
+          color: var(--action-colour);
+          text-decoration: none;
+      }
 
-            .tosLink:hover {
-                color: var(--action-highlight-colour);
-                text-decoration: underline;
-            }
+      .tosLink:hover {
+          color: var(--action-highlight-colour);
+          text-decoration: underline;
+      }
 
-            .tool-option {
-                flex-grow: 1;
-                text-align: center;
-                padding: 5px 10px;
-                margin-bottom: 10px;
-                border: 1px solid #ddd;
-                box-shadow: var(--shadow2);
-                background-color: var(--secondary-background);
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color 0.3s, color 0.3s;
-                vertical-align: middle;
-                position: relative;
-            }
+      .tool-option {
+          flex-grow: 1;
+          text-align: center;
+          padding: 5px 10px;
+          margin-bottom: 10px;
+          border: 1px solid #ddd;
+          box-shadow: var(--shadow2);
+          background-color: var(--secondary-background);
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s, color 0.3s;
+          vertical-align: middle;
+          position: relative;
+      }
 
-            .selectTick {
-                background-image: var(--tick-image);
-                background-repeat: no-repeat;
-                background-size: 23px;
-                float: right;
-                height: 23px;
-                width: 23px;
-                right: 11px;
-                position: absolute;
-                bottom: 20px;
-            }
+      .selectTick {
+          background-image: var(--tick-image);
+          background-repeat: no-repeat;
+          background-size: 23px;
+          float: right;
+          height: 23px;
+          width: 23px;
+          right: 11px;
+          position: absolute;
+          bottom: 20px;
+      }
 
-            .tool-info {
-                color: var(--text-colour);
-                font-size: 15px;
-            }
+      .tool-info {
+          color: var(--text-colour);
+          font-size: 15px;
+      }
 
-            .manage-notice {
-                border-radius: 7px;
-                background-color: var(--submit-fail-background);
-                color: var(--submit-fail-colour);
-                padding: 5px;
+      .manage-notice {
+          border-radius: 7px;
+          background-color: var(--submit-fail-background);
+          color: var(--submit-fail-colour);
+          padding: 5px;
 
-            }
-        </style>
-</head>
+      }
+    </style>
+  </head>
 
-<body>
-
+  <body>
     <%- include('../global/navbar'); %>
 
-        <div class="mainContent">
-            <div id="overlay">
-                <div class="loader"></div>
-            </div>
-            <div id="headerDiv" class="headerDiv">
-                <div class="topIcon" role="img" alt=""></div><br>
-                <h3 class="headerWelcome">Manage CheckOut</h3>
-                <p class="subtitle">One stop portal for moderation and analytical tools.</p>
-            </div>
+    <div class="mainContent">
+      <div id="overlay">
+        <div class="loader"></div>
+      </div>
+      <div id="headerDiv" class="headerDiv">
+        <div class="topIcon" role="img" alt=""></div>
+        <br />
+        <h3 class="headerWelcome">Manage CheckOut</h3>
+        <p class="subtitle">One stop portal for moderation and analytical tools.</p>
+      </div>
 
-            <!-- Notice about moderator accounts being limited -->
-            <% if (limitationNotice) { %>
-             <div class="manage-notice"><b>Notice:</b> Your account is limited to the code log, please contact an admin if you require access to other tools.</div>
-             <br>
-             <% } %>
-             <div onclick="location.href='/manage/users';" id="tool-option" class="tool-option">
-                Users
-                <div class="selectTick" role="img" alt=""></div>
-                <br>
-                <p class="tool-info">
-                    Monitor, edit and simulate users
-                </p>
-            </div>
-            <div onclick="location.href='/manage/support';" id="tool-option" class="tool-option">
-                Support
-                <div class="selectTick" role="img" alt=""></div>
-                <br>
-                <p class="tool-info">
-                    Manage support requests
-                </p>
-            </div>
-            <div onclick="location.href='/manage/autocheckin';" id="tool-option" class="tool-option">
-                AutoCheckin
-                <!-- <div class="selectTick" role="img" alt=""></div> -->
-                <br>
-                <p class="tool-info">
-                    Control AutoCheckin, view logs and users
-                </p>
-            </div>
-            <div onclick="location.href='/manage/globalapp';" id="tool-option" class="tool-option">
-                Global app
-                <!-- <div class="selectTick" role="img" alt=""></div> -->
-                <br>
-                <p class="tool-info">
-                    Control CheckOut-wide parameters
-                </p>
-            </div>
-            <div onclick="location.href='/manage/courses';" id="tool-option" class="tool-option">
-                Courses
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Create and edit courses
-                </p>
-            </div>
-            <div onclick="location.href='/manage/timetables';" id="tool-option" class="tool-option">
-                Timetables
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Upload and edit .tibl's
-                </p>
-            </div>
-            <div onclick="location.href='/manage/permissions';" id="tool-option" class="tool-option">
-                Permissions
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Assign roles and access control
-                </p>
-            </div>
-            <div onclick="location.href='/manage/code-log';" id="tool-option" class="tool-option">
-                Code Log
-                <div class="selectTick" role="img" alt=""></div>
-                <br>
-                <p class="tool-info">
-                    Realtime code log with moderation tools
-                </p>
-            </div>
-            <div onclick="location.href='/manage/request-log';" id="tool-option" class="tool-option">
-                Request Log
-                <div class="selectTick" role="img" alt=""></div>
-                <br>
-                <p class="tool-info">
-                    Complete in-depth traffic log
-                </p>
-            </div>
-            <div onclick="location.href='/manage/analytics';" id="tool-option" class="tool-option">
-                Analytics
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Sitewide analytics (requires account)
-                </p>
-            </div>
-            <div onclick="location.href='/manage/ban';" id="tool-option" class="tool-option">
-                IP/Device Bans
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Bans and appeals management
-                </p>
-            </div>
-            <div onclick="location.href='/manage/audit-log';" id="tool-option" class="tool-option">
-                Audit Log
-                <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
-                <br>
-                <p class="tool-info">
-                    Transparency log for admins
-                </p>
-            </div>
+      <!-- Notice about moderator accounts being limited -->
+      <% if (limitationNotice) { %>
+      <div class="manage-notice">
+        <b>Notice:</b> Your account is limited to the code log, please contact an admin if you
+        require access to other tools.
+      </div>
+      <br />
+      <% } %>
+      <div onclick="location.href='/manage/users';" id="tool-option" class="tool-option">
+        Users
+        <div class="selectTick" role="img" alt=""></div>
+        <br />
+        <p class="tool-info">Monitor, edit and simulate users</p>
+      </div>
+      <div onclick="location.href='/manage/support';" id="tool-option" class="tool-option">
+        Support
+        <div class="selectTick" role="img" alt=""></div>
+        <br />
+        <p class="tool-info">Manage support requests</p>
+      </div>
+      <div onclick="location.href='/manage/autocheckin';" id="tool-option" class="tool-option">
+        AutoCheckin
+        <!-- <div class="selectTick" role="img" alt=""></div> -->
+        <br />
+        <p class="tool-info">Control AutoCheckin, view logs and users</p>
+      </div>
+      <div onclick="location.href='/manage/globalapp';" id="tool-option" class="tool-option">
+        Global app
+        <!-- <div class="selectTick" role="img" alt=""></div> -->
+        <br />
+        <p class="tool-info">Control CheckOut-wide parameters</p>
+      </div>
+      <div onclick="location.href='/manage/courses';" id="tool-option" class="tool-option">
+        Courses
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Create and edit courses</p>
+      </div>
+      <div onclick="location.href='/manage/timetables';" id="tool-option" class="tool-option">
+        Timetables
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Upload and edit .tibl's</p>
+      </div>
+      <div onclick="location.href='/manage/permissions';" id="tool-option" class="tool-option">
+        Permissions
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Assign roles and access control</p>
+      </div>
+      <div onclick="location.href='/manage/code-log';" id="tool-option" class="tool-option">
+        Code Log
+        <div class="selectTick" role="img" alt=""></div>
+        <br />
+        <p class="tool-info">Realtime code log with moderation tools</p>
+      </div>
+      <div onclick="location.href='/manage/request-log';" id="tool-option" class="tool-option">
+        Request Log
+        <div class="selectTick" role="img" alt=""></div>
+        <br />
+        <p class="tool-info">Complete in-depth traffic log</p>
+      </div>
+      <div onclick="location.href='/manage/analytics';" id="tool-option" class="tool-option">
+        Analytics
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Sitewide analytics (requires account)</p>
+      </div>
+      <div onclick="location.href='/manage/ban';" id="tool-option" class="tool-option">
+        IP/Device Bans
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Bans and appeals management</p>
+      </div>
+      <div onclick="location.href='/manage/audit-log';" id="tool-option" class="tool-option">
+        Audit Log
+        <!-- <img class="selectTick" src="/static/tick-white-min2.svg" alt=""> -->
+        <br />
+        <p class="tool-info">Transparency log for admins</p>
+      </div>
 
-            <div style="display: flex; justify-content: space-between;">
-                <p id="termsText" class="termsText">By using these tools, you agree to
-                    CheckOut's&nbsp;<a class="tosLink" href="/terms">Terms of
-                        Service</a>&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink"
-                        href="/terms#privacy">privacy and cookies policy</a>.</p>
-                <p id="versionText" class="footerText" hidden>v5.3.iOS<br><a id="startAgain"
-                        class="footerText footerTextLink" href="javascript:location.reload()" hidden>Change email</a>
-                </p>
-            </div>
-            <div class="account-manage-text">
-                <a class="account-manage-text" href="/account">
-                    Manage your account
-                </a>
-            </div>
-        </div>
-
-
-
-
-</body>
-
+      <div style="display: flex; justify-content: space-between">
+        <p id="termsText" class="termsText">
+          By using these tools, you agree to CheckOut's&nbsp;<a class="tosLink" href="/terms"
+            >Terms of Service</a
+          >&nbsp;and acknowledge CheckOut's&nbsp;<a class="tosLink" href="/terms#privacy"
+            >privacy and cookies policy</a
+          >.
+        </p>
+        <p id="versionText" class="footerText" hidden>
+          v5.3.iOS<br /><a
+            id="startAgain"
+            class="footerText footerTextLink"
+            href="javascript:location.reload()"
+            hidden
+            >Change email</a
+          >
+        </p>
+      </div>
+      <div class="account-manage-text">
+        <a class="account-manage-text" href="/account"> Manage your account </a>
+      </div>
+    </div>
+  </body>
 </html>

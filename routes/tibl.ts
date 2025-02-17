@@ -1,4 +1,4 @@
-var db=require('../databases/database.ts');
+var db = require('../databases/database.ts');
 
 let moduleCache = null;
 let cacheTimeout = null;
@@ -11,9 +11,9 @@ async function getModuleInfo(tiblModuleCode) {
 
   const moduleInfo = moduleCache.get(tiblModuleCode) || {
     moduleCode: null,
-    moduleName: "Other"
+    moduleName: 'Other',
   };
-  
+
   return moduleInfo;
 }
 
@@ -24,14 +24,14 @@ async function refreshModuleCache() {
       FROM Modules
     `;
     const results = await db.query(query);
-    
+
     moduleCache = new Map(
-      results.map(row => [
+      results.map((row) => [
         row.module_tibl_code,
         {
           moduleCode: row.module_code,
-          moduleName: row.module_name
-        }
+          moduleName: row.module_name,
+        },
       ])
     );
 
@@ -57,25 +57,32 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
    * - 'error': Check-in attempt failed
    * - 'normal': Default state when none of above conditions are met
    */
-  const autoInfo = req.checkinState === 0 && (req.userState?.includes('autocheckin') || req.userState?.includes('sysop')) ? 'setup-needed'
-    : req.checkinState === 0 && req.checkinReport !== 'Waitlist' ? 'join-waitlist'
-    : req.checkinReport === 'Waitlist' ? 'on-waitlist'
-    : req.checkinReport === 'Fail' ? 'error'
-    : req.userState?.includes('anon') ? 'sign-in'
-    : 'normal';
+  const autoInfo =
+    req.checkinState === 0 &&
+    (req.userState?.includes('autocheckin') || req.userState?.includes('sysop'))
+      ? 'setup-needed'
+      : req.checkinState === 0 && req.checkinReport !== 'Waitlist'
+        ? 'join-waitlist'
+        : req.checkinReport === 'Waitlist'
+          ? 'on-waitlist'
+          : req.checkinReport === 'Fail'
+            ? 'error'
+            : req.userState?.includes('anon')
+              ? 'sign-in'
+              : 'normal';
 
   const activeAPI = {
     success: true,
     api: 'active-codes/home-v2 (v.1.1.1)',
     userInfo: { username: req.username, perms: req.userState, autoInfo },
-    tibl: true
+    tibl: true,
   };
-  
+
   if (cachedUser) {
-    activeAPI.userInfo = { username: "Cached", perms: "cached" };
+    activeAPI.userInfo = { username: 'Cached', perms: 'cached' };
   }
 
-  const tibl_id = `tibl_${inst}_${crs}_${yr}`
+  const tibl_id = `tibl_${inst}_${crs}_${yr}`;
 
   try {
     const extractedData = await fetchInProgressRowsPromise(tibl_id);
@@ -88,27 +95,31 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
     } else {
       activeAPI.sessionCount = extractedData.length;
       activeAPI.msg = '';
-      activeAPI.sessions = await Promise.all(extractedData.map(async session => {
-        const moduleInfo = await getModuleInfo(session.tiblModuleCode);
-        const start = session.startTime ? session.startTime.substring(0, 5) : "";
-        const end = session.endTime ? session.endTime.substring(0, 5) : "";
-        const sessionCodes = codesObject.filter(codeObject => codeObject.groupCode == session.activityID);
+      activeAPI.sessions = await Promise.all(
+        extractedData.map(async (session) => {
+          const moduleInfo = await getModuleInfo(session.tiblModuleCode);
+          const start = session.startTime ? session.startTime.substring(0, 5) : '';
+          const end = session.endTime ? session.endTime.substring(0, 5) : '';
+          const sessionCodes = codesObject.filter(
+            (codeObject) => codeObject.groupCode == session.activityID
+          );
 
-        return {
-          startDate: session.date ? session.date.toISOString().substring(0, 10) : "",
-          startTime: start,
-          endTime: end,
-          endDate: session.endDate ? session.endDate.toISOString().substring(0, 10) : "",
-          description: session.activityReference,
-          moduleName: moduleInfo.moduleName,
-          moduleCode: moduleInfo.moduleCode,
-          tiblModuleCode: session.tiblModuleCode,
-          rejectID: session.activityID,
-          location: session.location ? session.location.split(' ')[0] : "",
-          codesCount: sessionCodes.length,
-          codes: sessionCodes,
-        };
-      }));
+          return {
+            startDate: session.date ? session.date.toISOString().substring(0, 10) : '',
+            startTime: start,
+            endTime: end,
+            endDate: session.endDate ? session.endDate.toISOString().substring(0, 10) : '',
+            description: session.activityReference,
+            moduleName: moduleInfo.moduleName,
+            moduleCode: moduleInfo.moduleCode,
+            tiblModuleCode: session.tiblModuleCode,
+            rejectID: session.activityID,
+            location: session.location ? session.location.split(' ')[0] : '',
+            codesCount: sessionCodes.length,
+            codes: sessionCodes,
+          };
+        })
+      );
     }
 
     return JSON.stringify(activeAPI, null, 2); // Return the formatted JSON
@@ -130,7 +141,6 @@ function fetchInProgressRowsPromise(tibl_id) {
   });
 }
 
-
 async function fetchInProgressRows(tibl_id, callback) {
   const query = `
     SELECT *
@@ -144,24 +154,26 @@ async function fetchInProgressRows(tibl_id, callback) {
 
   try {
     const result = await db.query(query);
-    const inProgressRows = result.filter(row => true);
-    const extractedData = await Promise.all(inProgressRows.map(async row => {
-      const moduleInfo = await getModuleInfo(row['Module code']);
-      return {
-        activityReference: row['Activity reference'],
-        size: row['Size'],
-        startTime: row['Start time'],
-        endTime: row['End time'],
-        location: row['Location(s)'],
-        sysMd: row['Module code'],
-        moduleCode: moduleInfo.moduleCode,
-        tiblModuleCode: row['Module code'],
-        activityID: row['activityID'],
-        day: row['Start day'],
-        date: row['Start date'],
-        endDate: row['End date'],
-      };
-    }));
+    const inProgressRows = result.filter((row) => true);
+    const extractedData = await Promise.all(
+      inProgressRows.map(async (row) => {
+        const moduleInfo = await getModuleInfo(row['Module code']);
+        return {
+          activityReference: row['Activity reference'],
+          size: row['Size'],
+          startTime: row['Start time'],
+          endTime: row['End time'],
+          location: row['Location(s)'],
+          sysMd: row['Module code'],
+          moduleCode: moduleInfo.moduleCode,
+          tiblModuleCode: row['Module code'],
+          activityID: row['activityID'],
+          day: row['Start day'],
+          date: row['Start date'],
+          endDate: row['End date'],
+        };
+      })
+    );
     callback(null, inProgressRows, extractedData);
   } catch (err) {
     console.error('Error fetching in-progress rows:', err);
@@ -200,8 +212,8 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
 
     const nextStartTime = result[0]['Start time'];
     const nextStartDate = result[0]['Start date'];
-    //console.log('nextStartTime:', nextStartTime); 
-    //console.log('nextStartDate:', nextStartDate); 
+    //console.log('nextStartTime:', nextStartTime);
+    //console.log('nextStartDate:', nextStartDate);
 
     const nextSessionsQuery = `
       SELECT *
@@ -211,7 +223,7 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
     //console.log('nextSessionsQuery:', nextSessionsQuery);
 
     const nextSessionsResult = await db.query(nextSessionsQuery);
-    const extractedData = nextSessionsResult.map(row => ({
+    const extractedData = nextSessionsResult.map((row) => ({
       activityReference: row['Activity reference'],
       //size: row['Size'],
       startTime: row['Start time'],
@@ -232,7 +244,6 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
   }
 }
 
-
 // only for legacy site:
 
 function webGen(frame, ios, inst, crs, yr, req, res, next) {
@@ -248,36 +259,37 @@ function webGen(frame, ios, inst, crs, yr, req, res, next) {
     let sl = '';
 
     if (extractedData.length === 0) {
-      sessionsLabel = "<br><br>There are no classes currently in session. Check back here when your class starts.";
+      sessionsLabel =
+        '<br><br>There are no classes currently in session. Check back here when your class starts.';
     } else if (extractedData.length === 1) {
       sessionsLabel = '';
       OP = 1;
-      sl = " selected";
+      sl = ' selected';
     } else if (extractedData.length > 1) {
       sessionsLabel = `Select from ${extractedData.length} activities currently in session:`;
       OP = extractedData.length;
     }
 
-    extractedData.forEach(session => {
+    extractedData.forEach((session) => {
       let md;
       let moduleCode;
 
       switch (session.moduleCode) {
-        case "sd":
-          md = "Systems and Devices";
-          moduleCode = "sd";
+        case 'sd':
+          md = 'Systems and Devices';
+          moduleCode = 'sd';
           break;
-        case "soft2":
-          md = "Software";
-          moduleCode = "soft2";
+        case 'soft2':
+          md = 'Software';
+          moduleCode = 'soft2';
           break;
-        case "theory2":
-          md = "Theory";
-          moduleCode = "theory2";
+        case 'theory2':
+          md = 'Theory';
+          moduleCode = 'theory2';
           break;
         default:
-          md = "Other";
-          moduleCode = "other";
+          md = 'Other';
+          moduleCode = 'other';
           break;
       }
 
@@ -294,18 +306,40 @@ function webGen(frame, ios, inst, crs, yr, req, res, next) {
       randomString += characters.charAt(randomIndex);
     }
 
-    const code = "production";
+    const code = 'production';
     if (frame) {
       if (ios) {
-        const courseChange = "";
-        const submitURL = "/checkin-ios/api/app/submit";
-        let iosCode = "v1.6.iOS";
-        if (req.query.dev === "1") {
-          iosCode += "<br>experimental mode";
+        const courseChange = '';
+        const submitURL = '/checkin-ios/api/app/submit';
+        let iosCode = 'v1.6.iOS';
+        if (req.query.dev === '1') {
+          iosCode += '<br>experimental mode';
         }
-        return res.render('tiblForm.ejs', { randomString, rootDomain: req.rootDomain, code: iosCode, inst, crs, yr, sessionOptionsHTML, sessionsLabel, OP, courseChange, submitURL });
+        return res.render('tiblForm.ejs', {
+          randomString,
+          rootDomain: req.rootDomain,
+          code: iosCode,
+          inst,
+          crs,
+          yr,
+          sessionOptionsHTML,
+          sessionsLabel,
+          OP,
+          courseChange,
+          submitURL,
+        });
       }
-      return res.render('tiblForm.ejs', { randomString, rootDomain: req.rootDomain, code, inst, crs, yr, sessionOptionsHTML, sessionsLabel, OP });
+      return res.render('tiblForm.ejs', {
+        randomString,
+        rootDomain: req.rootDomain,
+        code,
+        inst,
+        crs,
+        yr,
+        sessionOptionsHTML,
+        sessionsLabel,
+        OP,
+      });
     } else {
       next(null, [randomString, code, inst, crs, yr, sessionOptionsHTML, sessionsLabel, OP]);
     }
@@ -313,7 +347,7 @@ function webGen(frame, ios, inst, crs, yr, req, res, next) {
 }
 
 function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
-  fetchInProgressRows("tibl_yrk_cs_1", (err, inProgressRows, extractedData) => {
+  fetchInProgressRows('tibl_yrk_cs_1', (err, inProgressRows, extractedData) => {
     if (err) {
       return next(err);
     }
@@ -325,32 +359,34 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
     let codeTrue = false;
 
     if (extractedData.length === 0) {
-      sessionsLabel = "<br><br>There are no classes currently in session. Check back here when your class starts.";
-      sessionOptionsHTML = "No classes currently in session. Please refresh the page once your class starts.";
+      sessionsLabel =
+        '<br><br>There are no classes currently in session. Check back here when your class starts.';
+      sessionOptionsHTML =
+        'No classes currently in session. Please refresh the page once your class starts.';
     } else if (extractedData.length === 1) {
       sessionsLabel = '';
       OP = 1;
-      sl = " selected";
+      sl = ' selected';
     } else if (extractedData.length > 1) {
       sessionsLabel = `Select from ${extractedData.length} activities currently in session:`;
       OP = extractedData.length;
     }
 
-    extractedData.forEach(session => {
+    extractedData.forEach((session) => {
       let md;
 
       switch (session.moduleCode) {
-        case "sd":
-          md = "Systems and Devices";
+        case 'sd':
+          md = 'Systems and Devices';
           break;
-        case "soft2":
-          md = "Software";
+        case 'soft2':
+          md = 'Software';
           break;
-        case "theory2":
-          md = "Theory";
+        case 'theory2':
+          md = 'Theory';
           break;
         default:
-          md = "Other";
+          md = 'Other';
           break;
       }
 
@@ -358,7 +394,7 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
       const end = String(session.endTime).substring(0, 5);
       let sessionCodes = [];
 
-      codesObject.forEach(codeObject => {
+      codesObject.forEach((codeObject) => {
         if (codeObject.groupCode == session.activityID) {
           sessionCodes.push(codeObject);
         }
@@ -369,7 +405,7 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
 
         var codeTable = `<h4>Codes:</h4><table>`;
         codeTrue = true;
-        sessionCodes.forEach(codes => {
+        sessionCodes.forEach((codes) => {
           codeTable += `<tr><td>${codes.checkinCode}</td>
           <td><button onclick=copyText("${codes.checkinCode}") class="share-button">Copy</button></td>
           </tr>`;
@@ -386,18 +422,28 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
       sessionOptionsHTML += `Copy the code and submit at <a target="_parent" class="sub-table-link" href="https://checkin.york.ac.uk">checkin.york.ac.uk</a>.`;
     }
 
-    const code = "v5.2.prod";
-    const timetableBullets = "";
-    const submitIntent = "Add yours <a target=\"_parent\" class=\"sub-table-link\" href=\"/\">here</a>.";
+    const code = 'v5.2.prod';
+    const timetableBullets = '';
+    const submitIntent = 'Add yours <a target="_parent" class="sub-table-link" href="/">here</a>.';
 
     if (frame) {
-      return res.render('classv4.ejs', { sessionOptionsHTML, code, timetableBullets, submitIntent });
+      return res.render('classv4.ejs', {
+        sessionOptionsHTML,
+        code,
+        timetableBullets,
+        submitIntent,
+      });
     } else {
       next(null, [sessionOptionsHTML, code, timetableBullets, submitIntent]);
     }
   });
 }
 
-
-module.exports = { fetchInProgressRows, webGen, webGenCodes, apiGenCodes, fetchFutureActivity, fetchFutureActivityPromise };
-
+module.exports = {
+  fetchInProgressRows,
+  webGen,
+  webGenCodes,
+  apiGenCodes,
+  fetchFutureActivity,
+  fetchFutureActivityPromise,
+};

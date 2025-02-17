@@ -1,13 +1,79 @@
-<script>function showErrorBox(e,o){let t=document.getElementById(o);if(!t){console.error(`No element found with id ${o}`);return}let s=document.createElement("div");s.className="error-box",s.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>'+e,t.innerHTML="",t.appendChild(s)}document.addEventListener("DOMContentLoaded",function(){let e=document.getElementById("menu-icon"),o=document.getElementById("dropdown-menu"),t=document.querySelectorAll(".menu-item"),s=document.querySelector(".cta-button");s.addEventListener("click",function(){let s="flex"===o.style.display;o.style.display=s?"none":"flex",e.innerHTML=s?`
+<script>
+  function showErrorBox(e, o) {
+    let t = document.getElementById(o);
+    if (!t) {
+      console.error(`No element found with id ${o}`);
+      return;
+    }
+    let s = document.createElement('div');
+    (s.className = 'error-box'),
+      (s.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>' +
+        e),
+      (t.innerHTML = ''),
+      t.appendChild(s);
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    let e = document.getElementById('menu-icon'),
+      o = document.getElementById('dropdown-menu'),
+      t = document.querySelectorAll('.menu-item'),
+      s = document.querySelector('.cta-button');
+    s.addEventListener('click', function () {
+      let s = 'flex' === o.style.display;
+      (o.style.display = s ? 'none' : 'flex'),
+        (e.innerHTML = s
+          ? `
     <svg class="menu-icon-svg" width="18px" height="18px" viewBox="0 0 23 21" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 18L20 18" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
     <path d="M4 12L20 12" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
     <path d="M4 6L20 6" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>`:`
+    </svg>`
+          : `
     <svg class="menu-icon-svg" width="18px" height="18px" viewBox="0 0 23 21" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="4" y1="4" x2="20" y2="20" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
     <line x1="4" y1="20" x2="20" y2="4" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
-</svg>`,o.style.animation=s?"slideUp 0.5s forwards":"slideDown 0.5s forwards",s||(o.style.display="flex",t.forEach(e=>e.style.display="block"))}),o.addEventListener("animationend",function(e){"slideUp"===e.animationName&&(o.style.display="none")})});const styles=document.createElement("style");function updateLinkHref(){var e=document.querySelector(".cta-button");window.innerWidth<=768?e.setAttribute("href","#"):e.setAttribute("href","/account")}function setup(){getV2().then(e=>{let{sessionCount:o,msg:t,userPerms:s,sessions:r}=e;fillSubmitForm(o,t,r),fillCodesDisplay(o,t,r)}).catch(e=>{console.error(e),e.msg?showErrorBox(e.msg,"submit-form"):showErrorBox("Something went wrong. Unable to connect to API.","submit-form")})}async function getV2(){try{let e=await fetch("/api/app/v2");if(!e.ok)throw Error("Network response was not ok "+e.statusText);let o=await e.json(),{sessionCount:t,msg:s,userPerms:r,sessions:a}=o;return{sessionCount:t,msg:s,userPerms:r,sessions:a}}catch(n){throw console.error("Error fetching API:",n),Error("Failed to fetch data from API")}}function fillSubmitForm(e,o,t){let s=document.getElementById("submit-form"),r=t.map(e=>`
+</svg>`),
+        (o.style.animation = s ? 'slideUp 0.5s forwards' : 'slideDown 0.5s forwards'),
+        s || ((o.style.display = 'flex'), t.forEach((e) => (e.style.display = 'block')));
+    }),
+      o.addEventListener('animationend', function (e) {
+        'slideUp' === e.animationName && (o.style.display = 'none');
+      });
+  });
+  const styles = document.createElement('style');
+  function updateLinkHref() {
+    var e = document.querySelector('.cta-button');
+    window.innerWidth <= 768 ? e.setAttribute('href', '#') : e.setAttribute('href', '/account');
+  }
+  function setup() {
+    getV2()
+      .then((e) => {
+        let { sessionCount: o, msg: t, userPerms: s, sessions: r } = e;
+        fillSubmitForm(o, t, r), fillCodesDisplay(o, t, r);
+      })
+      .catch((e) => {
+        console.error(e),
+          e.msg
+            ? showErrorBox(e.msg, 'submit-form')
+            : showErrorBox('Something went wrong. Unable to connect to API.', 'submit-form');
+      });
+  }
+  async function getV2() {
+    try {
+      let e = await fetch('/api/app/v2');
+      if (!e.ok) throw Error('Network response was not ok ' + e.statusText);
+      let o = await e.json(),
+        { sessionCount: t, msg: s, userPerms: r, sessions: a } = o;
+      return { sessionCount: t, msg: s, userPerms: r, sessions: a };
+    } catch (n) {
+      throw (console.error('Error fetching API:', n), Error('Failed to fetch data from API'));
+    }
+  }
+  function fillSubmitForm(e, o, t) {
+    let s = document.getElementById('submit-form'),
+      r = t
+        .map(
+          (e) => `
     <li>
         Start Date: ${e.startDate}, 
         Start Time: ${e.startTime}, 
@@ -18,9 +84,23 @@
         Reject ID: ${e.rejectID}, 
         Location: ${e.location}, 
         Codes Count: ${e.codesCount}, 
-        Codes: ${e.codes.map(e=>`Group Code: ${e.groupCode}, Checkin Code: ${e.checkinCode}, Reject Score: ${e.rejectScore}, Count: ${e.count}`).join(", ")}
+        Codes: ${e.codes.map((e) => `Group Code: ${e.groupCode}, Checkin Code: ${e.checkinCode}, Reject Score: ${e.rejectScore}, Count: ${e.count}`).join(', ')}
     </li>
-`).join("");s.innerHTML=`<ul>${r}</ul>`,document.querySelector(".submit-skeleton").classList.add("hidden"),document.querySelector(".submit-form").classList.remove("hidden")}function fillCodesDisplay(e,o,t){let s=document.getElementById("classes-content");if(0==e)s.innerHTML="No classes in session.";else{let r=generateCodeInfo(e,t),a=t.map(e=>`
+`
+        )
+        .join('');
+    (s.innerHTML = `<ul>${r}</ul>`),
+      document.querySelector('.submit-skeleton').classList.add('hidden'),
+      document.querySelector('.submit-form').classList.remove('hidden');
+  }
+  function fillCodesDisplay(e, o, t) {
+    let s = document.getElementById('classes-content');
+    if (0 == e) s.innerHTML = 'No classes in session.';
+    else {
+      let r = generateCodeInfo(e, t),
+        a = t
+          .map(
+            (e) => `
         <li>
             Start Date: ${e.startDate}, 
             Start Time: ${e.startTime}, 
@@ -31,9 +111,72 @@
             Reject ID: ${e.rejectID}, 
             Location: ${e.location}, 
             Codes Count: ${e.codesCount}, 
-            Codes: ${e.codes.map(e=>`<li>Group Code: ${e.groupCode}, Checkin Code: ${e.checkinCode}, Reject Score: ${e.rejectScore}, Count: ${e.count}</li>`).join(", ")}
+            Codes: ${e.codes.map((e) => `<li>Group Code: ${e.groupCode}, Checkin Code: ${e.checkinCode}, Reject Score: ${e.rejectScore}, Count: ${e.count}</li>`).join(', ')}
         </li>
-    `).join("");s.innerHTML=`${r}<ul>${a}</ul>`}let n=document.querySelector(".classes-skeleton"),i=document.querySelector(".classes-content");n.style.display="none",i.style.display="block"}function generateCodeInfo(e,o){if(e>=5)return"";let t=o.map(e=>e.codesCount),s="";if(1===e)0===t[0]?s="No codes are available for the class in progress":1===t[0]?s="A code is available for the class in progress":t[0]>1&&(s="Multiple codes are available for the class in progress");else if(2===e)0===t[0]&&0===t[1]?s="No codes are available for either of the two classes in progress":1===t[0]&&1===t[1]?s="A code is available for each of the two classes in progress":1===t[0]&&t[1]>1?s=`A code is available for one of the two classes in progress and ${t[1]} codes are available for the other`:t[0]>1&&1===t[1]?s=`${t[0]} codes are available for one of the two classes in progress and a code is available for the other`:t[0]>1&&t[1]>1?s=`${t[0]} codes are available for one of the two classes in progress and ${t[1]} codes are available for the other`:1===t[0]||1===t[1]?s="A code is available for one of the two classes in progress":(t[0]>1||t[1]>1)&&(s="Multiple codes are available for one of the two classes in progress");else if(3===e){if(t.every(e=>0===e))s="No codes are available for the three classes in progress";else{let r=o.map((e,o)=>{let s=t[o];return 0===s?"no codes available":1===s?"one code available":`${s} codes available`});s=r.join(", ").replace(/, ([^,]*)$/," and $1 for the classes in progress")}}else if(4===e){if(t.every(e=>0===e))s="No codes are available for the four classes in progress";else{let a=o.map((e,o)=>{let s=t[o];return 0===s?"no codes available":1===s?"one code available":`${s} codes available`});s=a.join(", ").replace(/, ([^,]*)$/," and $1 for the classes in progress")}}return s+"."}styles.innerHTML=`
+    `
+          )
+          .join('');
+      s.innerHTML = `${r}<ul>${a}</ul>`;
+    }
+    let n = document.querySelector('.classes-skeleton'),
+      i = document.querySelector('.classes-content');
+    (n.style.display = 'none'), (i.style.display = 'block');
+  }
+  function generateCodeInfo(e, o) {
+    if (e >= 5) return '';
+    let t = o.map((e) => e.codesCount),
+      s = '';
+    if (1 === e)
+      0 === t[0]
+        ? (s = 'No codes are available for the class in progress')
+        : 1 === t[0]
+          ? (s = 'A code is available for the class in progress')
+          : t[0] > 1 && (s = 'Multiple codes are available for the class in progress');
+    else if (2 === e)
+      0 === t[0] && 0 === t[1]
+        ? (s = 'No codes are available for either of the two classes in progress')
+        : 1 === t[0] && 1 === t[1]
+          ? (s = 'A code is available for each of the two classes in progress')
+          : 1 === t[0] && t[1] > 1
+            ? (s = `A code is available for one of the two classes in progress and ${t[1]} codes are available for the other`)
+            : t[0] > 1 && 1 === t[1]
+              ? (s = `${t[0]} codes are available for one of the two classes in progress and a code is available for the other`)
+              : t[0] > 1 && t[1] > 1
+                ? (s = `${t[0]} codes are available for one of the two classes in progress and ${t[1]} codes are available for the other`)
+                : 1 === t[0] || 1 === t[1]
+                  ? (s = 'A code is available for one of the two classes in progress')
+                  : (t[0] > 1 || t[1] > 1) &&
+                    (s = 'Multiple codes are available for one of the two classes in progress');
+    else if (3 === e) {
+      if (t.every((e) => 0 === e)) s = 'No codes are available for the three classes in progress';
+      else {
+        let r = o.map((e, o) => {
+          let s = t[o];
+          return 0 === s
+            ? 'no codes available'
+            : 1 === s
+              ? 'one code available'
+              : `${s} codes available`;
+        });
+        s = r.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
+      }
+    } else if (4 === e) {
+      if (t.every((e) => 0 === e)) s = 'No codes are available for the four classes in progress';
+      else {
+        let a = o.map((e, o) => {
+          let s = t[o];
+          return 0 === s
+            ? 'no codes available'
+            : 1 === s
+              ? 'one code available'
+              : `${s} codes available`;
+        });
+        s = a.join(', ').replace(/, ([^,]*)$/, ' and $1 for the classes in progress');
+      }
+    }
+    return s + '.';
+  }
+  (styles.innerHTML = `
 @keyframes slideDown {
 from { opacity: 0; transform: translateY(-20px); }
 to { opacity: 1; transform: translateY(0); }
@@ -43,4 +186,11 @@ to { opacity: 1; transform: translateY(0); }
 from { opacity: 1; transform: translateY(0); }
 to { opacity: 0; transform: translateY(-20px); }
 }
-`,document.head.appendChild(styles),window.addEventListener("load",updateLinkHref),window.addEventListener("resize",updateLinkHref),document.addEventListener("DOMContentLoaded",function(){setup()});</script>
+`),
+    document.head.appendChild(styles),
+    window.addEventListener('load', updateLinkHref),
+    window.addEventListener('resize', updateLinkHref),
+    document.addEventListener('DOMContentLoaded', function () {
+      setup();
+    });
+</script>

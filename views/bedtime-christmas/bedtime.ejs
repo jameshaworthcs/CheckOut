@@ -1,295 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CheckOut is on holiday</title>
     <!-- Analytics script -->
     <script>
-        !function(){"use strict";var a=window.location,r=window.document,l="https://t.ldn.jemedia.xyz/api/event";function s(t,e){t&&console.warn("Ignoring Event: "+t),e&&e.callback&&e.callback()}function t(t,e){if(/^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(a.hostname)||"file:"===a.protocol)return s("localhost",e);if(window._phantom||window.__nightmare||window.navigator.webdriver||window.Cypress)return s(null,e);try{if("true"===window.localStorage.plausible_ignore)return s("localStorage flag",e)}catch(t){}var n={},i=(n.n=t,n.u=a.href,n.d="checkout.ac",n.r=r.referrer||null,e&&e.meta&&(n.m=JSON.stringify(e.meta)),e&&e.props&&(n.p=e.props),new XMLHttpRequest);i.open("POST",l,!0),i.setRequestHeader("Content-Type","text/plain"),i.send(JSON.stringify(n)),i.onreadystatechange=function(){4===i.readyState&&e&&e.callback&&e.callback()}}var e=window.plausible&&window.plausible.q||[];window.plausible=t;for(var n,i=0;i<e.length;i++)t.apply(this,e[i]);function p(){n!==a.pathname&&(n=a.pathname,t("pageview"))}var c,w=window.history;w.pushState&&(c=w.pushState,w.pushState=function(){c.apply(this,arguments),p()},window.addEventListener("popstate",p)),"prerender"===r.visibilityState?r.addEventListener("visibilitychange",function(){n||"visible"!==r.visibilityState||p()}):p()}();
+      !(function () {
+        'use strict';
+        var a = window.location,
+          r = window.document,
+          l = 'https://t.ldn.jemedia.xyz/api/event';
+        function s(t, e) {
+          t && console.warn('Ignoring Event: ' + t), e && e.callback && e.callback();
+        }
+        function t(t, e) {
+          if (
+            /^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(a.hostname) ||
+            'file:' === a.protocol
+          )
+            return s('localhost', e);
+          if (window._phantom || window.__nightmare || window.navigator.webdriver || window.Cypress)
+            return s(null, e);
+          try {
+            if ('true' === window.localStorage.plausible_ignore) return s('localStorage flag', e);
+          } catch (t) {}
+          var n = {},
+            i =
+              ((n.n = t),
+              (n.u = a.href),
+              (n.d = 'checkout.ac'),
+              (n.r = r.referrer || null),
+              e && e.meta && (n.m = JSON.stringify(e.meta)),
+              e && e.props && (n.p = e.props),
+              new XMLHttpRequest());
+          i.open('POST', l, !0),
+            i.setRequestHeader('Content-Type', 'text/plain'),
+            i.send(JSON.stringify(n)),
+            (i.onreadystatechange = function () {
+              4 === i.readyState && e && e.callback && e.callback();
+            });
+        }
+        var e = (window.plausible && window.plausible.q) || [];
+        window.plausible = t;
+        for (var n, i = 0; i < e.length; i++) t.apply(this, e[i]);
+        function p() {
+          n !== a.pathname && ((n = a.pathname), t('pageview'));
+        }
+        var c,
+          w = window.history;
+        w.pushState &&
+          ((c = w.pushState),
+          (w.pushState = function () {
+            c.apply(this, arguments), p();
+          }),
+          window.addEventListener('popstate', p)),
+          'prerender' === r.visibilityState
+            ? r.addEventListener('visibilitychange', function () {
+                n || 'visible' !== r.visibilityState || p();
+              })
+            : p();
+      })();
     </script>
     <style>
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #1a1a1a;
+        --link-color: #2563eb;
+        --link-hover: #1d4ed8;
+      }
+
+      @media (prefers-color-scheme: dark) {
         :root {
-            --bg-color: #ffffff;
-            --text-color: #1a1a1a;
-            --link-color: #2563eb;
-            --link-hover: #1d4ed8;
+          --bg-color: #1a1a1a;
+          --text-color: #ffffff;
+          --link-color: #60a5fa;
+          --link-hover: #93c5fd;
         }
+      }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1a;
-                --text-color: #ffffff;
-                --link-color: #60a5fa;
-                --link-hover: #93c5fd;
-            }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: background-color 0.3s ease;
+      }
+
+      .header {
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      .header a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .header a:hover {
+        color: var(--link-hover);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .emoji {
+        font-size: 8rem;
+        margin-bottom: 2rem;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .message {
+        max-width: 600px;
+        line-height: 1.6;
+        font-size: 1.2rem;
+        padding: 0 1rem;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        50% {
+          transform: translateY(-20px);
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.3s ease;
+        100% {
+          transform: translateY(0px);
         }
+      }
 
-        .header {
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
+      /* Enhanced link styles */
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
 
-        .header a {
-            color: var(--link-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
+      a:visited {
+        color: var(--link-color);
+      }
 
-        .header a:hover {
-            color: var(--link-hover);
-        }
+      a:hover {
+        color: var(--link-hover);
+      }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: center;
-        }
+      .header a,
+      .header span a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
 
-        .emoji {
-            font-size: 8rem;
-            margin-bottom: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
+      .message a {
+        border-bottom: 1px solid var(--link-color);
+        padding-bottom: 1px;
+      }
 
-        .message {
-            max-width: 600px;
-            line-height: 1.6;
-            font-size: 1.2rem;
-            padding: 0 1rem;
-        }
+      .message a:hover {
+        border-bottom-color: var(--link-hover);
+      }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
+      .footer {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 2rem);
+      }
 
-        /* Enhanced link styles */
-        a {
-            color: var(--link-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
+      .footer a {
+        color: #666;
+        font-size: 0.8rem;
+        text-decoration: none;
+      }
 
-        a:visited {
-            color: var(--link-color);
-        }
+      .footer a:hover {
+        color: var(--link-hover);
+      }
 
-        a:hover {
-            color: var(--link-hover);
-        }
+      .countdown {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        opacity: 0.8;
+      }
 
-        .header a, .header span a {
-            color: var(--link-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-        .message a {
-            border-bottom: 1px solid var(--link-color);
-            padding-bottom: 1px;
-        }
+      .modal-content {
+        background-color: var(--bg-color);
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
 
-        .message a:hover {
-            border-bottom-color: var(--link-hover);
-        }
+      .modal-button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        background-color: var(--link-color);
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
 
-        .footer {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            display: flex;
-            justify-content: space-between;
-            width: calc(100% - 2rem);
-        }
+      .modal-button:hover {
+        background-color: var(--link-hover);
+      }
 
-        .footer a {
-            color: #666;
-            font-size: 0.8rem;
-            text-decoration: none;
-        }
+      .logo {
+        margin-right: auto;
+      }
 
-        .footer a:hover {
-            color: var(--link-hover);
-        }
+      .logo img {
+        display: none;
+      }
 
-        .countdown {
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
+      /* Show different logos based on color scheme */
+      .logo img.light-logo {
+        display: block;
+        height: 40px;
+        margin: 10px 5px;
+      }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: var(--bg-color);
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-button {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            border: none;
-            background-color: var(--link-color);
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .modal-button:hover {
-            background-color: var(--link-hover);
-        }
-
-        .logo {
-            margin-right: auto;
-        }
-
-        .logo img {
-            display: none;
-        }
-
-        /* Show different logos based on color scheme */
+      @media (prefers-color-scheme: dark) {
         .logo img.light-logo {
-            display: block;
-            height: 40px;
-            margin: 10px 5px;
+          display: none;
         }
-
-        @media (prefers-color-scheme: dark) {
-            .logo img.light-logo {
-                display: none;
-            }
-            .logo img.dark-logo {
-                display: block;
-                height: 55px;
-            }
+        .logo img.dark-logo {
+          display: block;
+          height: 55px;
         }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <div class="logo">
-            <a href="/">
-                <img class="light-logo" src="/static/images/chk_d_v.svg" alt="CheckOut Logo">
-                <img class="dark-logo" src="/static/images/1.3-white.png" alt="CheckOut Logo">
-            </a>
-        </div>
-        <% if (loggedIn) { %>
-            <span><a href="/account"><%= username %></a></span>
-        <% } else { %>
-            <a href="/login?login_redirect=index&source=bedtime">Login</a>
-        <% } %>
+      <div class="logo">
+        <a href="/">
+          <img class="light-logo" src="/static/images/chk_d_v.svg" alt="CheckOut Logo" />
+          <img class="dark-logo" src="/static/images/1.3-white.png" alt="CheckOut Logo" />
+        </a>
+      </div>
+      <% if (loggedIn) { %>
+      <span><a href="/account"><%= username %></a></span>
+      <% } else { %>
+      <a href="/login?login_redirect=index&source=bedtime">Login</a>
+      <% } %>
     </header>
 
     <main class="main-content">
-        <div class="emoji">☃️</div>
-        <div class="message">
-            <%- msg %>
-        </div>
-        <div class="countdown" id="countdown">
-            ⏰ <span id="time"></span>
-        </div>
+      <div class="emoji">☃️</div>
+      <div class="message"><%- msg %></div>
+      <div class="countdown" id="countdown">⏰ <span id="time"></span></div>
     </main>
 
     <footer class="footer">
-        <a href="/terms-privacy">Terms & Privacy</a>
-        <a href="/support">Help</a>
+      <a href="/terms-privacy">Terms & Privacy</a>
+      <a href="/support">Help</a>
     </footer>
 
     <div class="modal" id="refreshModal">
-        <div class="modal-content">
-            <h2>CheckOut is now awake!</h2>
-            <p>Please refresh the page to access CheckOut. Note that it may take up to a minute for access to work due to caching.</p>
-            <button class="modal-button" onclick="window.location.reload()">Refresh Now</button>
-        </div>
+      <div class="modal-content">
+        <h2>CheckOut is now awake!</h2>
+        <p>
+          Please refresh the page to access CheckOut. Note that it may take up to a minute for
+          access to work due to caching.
+        </p>
+        <button class="modal-button" onclick="window.location.reload()">Refresh Now</button>
+      </div>
     </div>
 
     <script>
-        let hasPassedTarget = false;
-        let lastDiff = null;
+      let hasPassedTarget = false;
+      let lastDiff = null;
 
-        function updateCountdown() {
-            const now = new Date();
-            const [hours, minutes] = '<%= dayStart %>'.split(':').map(Number);
-            
-            // Create dayStart Date object for today
-            const dayStart = new Date(now);
-            dayStart.setHours(hours, minutes, 0, 0);
+      function updateCountdown() {
+        const now = new Date();
+        const [hours, minutes] = '<%= dayStart %>'.split(':').map(Number);
 
-            // If dayStart is in the past, use tomorrow's date
-            if (dayStart < now) {
-                dayStart.setDate(dayStart.getDate() + 1);
-            }
+        // Create dayStart Date object for today
+        const dayStart = new Date(now);
+        dayStart.setHours(hours, minutes, 0, 0);
 
-            const diff = dayStart - now;
-
-            // Check if we've passed the target time by detecting when diff resets
-            if (lastDiff !== null && lastDiff < diff) {
-                hasPassedTarget = true;
-            }
-            lastDiff = diff;
-
-            if (hasPassedTarget) {
-                document.getElementById('countdown').style.display = 'none';
-                document.getElementById('refreshModal').style.display = 'flex';
-                return;
-            }
-
-            const remainingHours = Math.floor(diff / (1000 * 60 * 60));
-            const remainingMinutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const remainingSeconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            let timeString = '';
-            if (remainingHours > 0) timeString += `${String(remainingHours).padStart(2, '0')}:`;
-            if (remainingHours > 0 || remainingMinutes > 0) timeString += `${String(remainingMinutes).padStart(2, '0')}:`;
-            timeString += `${String(remainingSeconds).padStart(2, '0')}`;
-
-            document.getElementById('time').textContent = timeString;
+        // If dayStart is in the past, use tomorrow's date
+        if (dayStart < now) {
+          dayStart.setDate(dayStart.getDate() + 1);
         }
 
-        // Update countdown every second
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        const diff = dayStart - now;
+
+        // Check if we've passed the target time by detecting when diff resets
+        if (lastDiff !== null && lastDiff < diff) {
+          hasPassedTarget = true;
+        }
+        lastDiff = diff;
+
+        if (hasPassedTarget) {
+          document.getElementById('countdown').style.display = 'none';
+          document.getElementById('refreshModal').style.display = 'flex';
+          return;
+        }
+
+        const remainingHours = Math.floor(diff / (1000 * 60 * 60));
+        const remainingMinutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const remainingSeconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        let timeString = '';
+        if (remainingHours > 0) timeString += `${String(remainingHours).padStart(2, '0')}:`;
+        if (remainingHours > 0 || remainingMinutes > 0)
+          timeString += `${String(remainingMinutes).padStart(2, '0')}:`;
+        timeString += `${String(remainingSeconds).padStart(2, '0')}`;
+
+        document.getElementById('time').textContent = timeString;
+      }
+
+      // Update countdown every second
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     </script>
-</body>
+  </body>
 </html>

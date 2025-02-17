@@ -1,330 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Access Tool</title>
     <style>
-        body {
-            background-color: #c0c0c0; /* Classic grey background */
-            color: #000000;
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        background-color: #c0c0c0; /* Classic grey background */
+        color: #000000;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
+      .container {
+        width: 800px;
+        margin: 10px auto 10px auto;
+        text-align: center;
+        border: 1px solid #000000; /* Border for main content */
+        background-color: #ffffff;
+      }
+
+      .logo {
+        background-color: #000000;
+        padding: 10px;
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .logo img {
+        display: block;
+        width: 100px;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin: 20px 0;
+        padding: 0;
+      }
+
+      h5 {
+        margin-block-end: 10px;
+      }
+
+      .data-links {
+        margin: 20px 0;
+        text-align: left;
+        padding: 0 20px;
+      }
+
+      .data-links h2 {
+        font-size: 20px;
+        margin: 10px 0;
+        padding: 0;
+        border-bottom: 1px dashed #000000;
+      }
+
+      a,
+      a:visited {
+        text-decoration: none;
+        color: #0000ff;
+        font-weight: bold;
+      }
+
+      .table-container {
+        max-height: 400px; /* Set the max height as needed */
+        overflow-y: auto; /* Enable vertical scrolling if content exceeds max height */
+      }
+
+      table {
+        width: 100%;
+        table-layout: fixed;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid;
+        word-wrap: break-word; /* Wraps long words to prevent overflow */
+        white-space: normal; /* Allows wrapping of text inside the cell */
+        overflow: hidden; /* Prevents content overflow */
+        text-overflow: ellipsis; /* Adds ellipsis to overflowed text */
+      }
+
+      #loading-overlay {
+        position: fixed;
+        /* top: 0;
+            left: 0; */
+        width: 800px;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      #loading-content {
+        text-align: center;
+        position: relative;
+      }
+
+      #loading-svg {
+        opacity: 1;
+      }
+
+      .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: calc(100% + 20px);
+        left: 50%;
+        margin: 5px 0 0 -20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Mobile styles */
+      @media (max-width: 600px) {
         .container {
-            width: 800px;
-            margin: 10px auto 10px auto;
-            text-align: center;
-            border: 1px solid #000000; /* Border for main content */
-            background-color: #ffffff;
-        }
-
-        .logo {
-            background-color: #000000;
-            padding: 10px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .logo img {
-            display: block;
-            width: 100px;
-        }
-
-        h1 {
-            font-size: 36px;
-            margin: 20px 0;
-            padding: 0;
-        }
-
-        h5 {
-            margin-block-end: 10px;
-        }
-
-        .data-links {
-            margin: 20px 0;
-            text-align: left;
-            padding: 0 20px;
-        }
-
-        .data-links h2 {
-            font-size: 20px;
-            margin: 10px 0;
-            padding: 0;
-            border-bottom: 1px dashed #000000;
-        }
-
-        a, a:visited {
-            text-decoration: none;
-            color: #0000FF;
-            font-weight: bold;
-        }
-
-        .table-container {
-            max-height: 400px; /* Set the max height as needed */
-            overflow-y: auto; /* Enable vertical scrolling if content exceeds max height */
-        }
-
-        table {
-            width: 100%;
-            table-layout: fixed;
-        }
-
-
-        table, th, td {
-            border: 1px solid;
-            word-wrap: break-word; /* Wraps long words to prevent overflow */
-            white-space: normal; /* Allows wrapping of text inside the cell */
-            overflow: hidden; /* Prevents content overflow */
-            text-overflow: ellipsis; /* Adds ellipsis to overflowed text */
+          width: 100%;
+          /* padding: 0 10px; */
         }
 
         #loading-overlay {
-            position: fixed;
-            /* top: 0;
-            left: 0; */
-            width: 800px;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+          width: 100%;
         }
 
-        #loading-content {
-            text-align: center;
-            position: relative;
+        h1 {
+          font-size: 24px;
         }
 
-        #loading-svg {
-            opacity: 1;
+        .data-links h2 {
+          font-size: 18px;
         }
 
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 2s linear infinite;
-            position: absolute;
-            top: calc(100% + 20px);
-            left: 50%;
-            margin: 5px 0 0 -20px;
+        .data-links a {
+          font-size: 14px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Mobile styles */
-        @media (max-width: 600px) {
-            .container {
-                width: 100%;
-                /* padding: 0 10px; */
-            }
-
-            #loading-overlay {
-                width: 100%;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .data-links h2 {
-                font-size: 18px;
-            }
-
-            .data-links a {
-                font-size: 14px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-
-        <div id="loading-overlay">
-            <div id="loading-content">
-                <svg id="loading-svg" width="100" height="100">
-                    <defs>
-                        <clipPath id="reveal-clip">
-                            <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
-                        </clipPath>
-                    </defs>
-                    <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
-                </svg>
-                <div id="loading-spinner" class="loader" style="display: none;"></div>
-            </div>
-          </div>
-
-        <h5><a href="/">Return to CheckOut</a></h5>
-        <div class="logo">
-            <img src="/static/images/1.3-white.png" alt="Logo">
+      <div id="loading-overlay">
+        <div id="loading-content">
+          <svg id="loading-svg" width="100" height="100">
+            <defs>
+              <clipPath id="reveal-clip">
+                <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+              </clipPath>
+            </defs>
+            <image
+              href="/static/tick-white-min2.svg"
+              width="100"
+              height="74"
+              clip-path="url(#reveal-clip)"
+            />
+          </svg>
+          <div id="loading-spinner" class="loader" style="display: none"></div>
         </div>
-        <h1>Data Access Tool</h1>
-        <h5>Caution: This page does not have confirmation dialogues, so please be careful to avoid accidental deletions.</h5>
-        <div class="data-links">
-            <h2>Session Information - <a href="/api/data/session">JSON</a></h2>
-            <div id="sessionData">Loading..</div>
-            <h2>Account Information - <a href="/api/data/account">JSON</a></h2>
-            <div id="accountData">Loading..</div>
-            <h2>Submission Record - <a href="/api/data/tk">JSON</a></h2>
-            <p>Please be aware that, for your privacy, this page only includes submissions from your specific <b>deviceID</b> or <b>account</b>, unlike the History page. Your <b>IP</b> address is not considered in this request.</p>
-            <div id="tkLog">Loading..</div>
-            <h2>Request Log - <a href="/api/data/requests">JSON</a></h2>
-            <p>Similar to the submission log, this page only includes request logs from your specific <b>deviceID</b> or <b>account</b>, your <b>IP</b> is not considered in this request. Some fields are ommited in this display, the <a href="/api/data/requests">JSON</a> contains every field in the database.</p>
-            <div id="requestLog">Loading..</div>
-            <h2>AutoCheckin Log - <a href="/api/data/auto">JSON</a></h2>
-            <div id="autoLog">Loading..</div>
-        </div>
+      </div>
+
+      <h5><a href="/">Return to CheckOut</a></h5>
+      <div class="logo">
+        <img src="/static/images/1.3-white.png" alt="Logo" />
+      </div>
+      <h1>Data Access Tool</h1>
+      <h5>
+        Caution: This page does not have confirmation dialogues, so please be careful to avoid
+        accidental deletions.
+      </h5>
+      <div class="data-links">
+        <h2>Session Information - <a href="/api/data/session">JSON</a></h2>
+        <div id="sessionData">Loading..</div>
+        <h2>Account Information - <a href="/api/data/account">JSON</a></h2>
+        <div id="accountData">Loading..</div>
+        <h2>Submission Record - <a href="/api/data/tk">JSON</a></h2>
+        <p>
+          Please be aware that, for your privacy, this page only includes submissions from your
+          specific <b>deviceID</b> or <b>account</b>, unlike the History page. Your
+          <b>IP</b> address is not considered in this request.
+        </p>
+        <div id="tkLog">Loading..</div>
+        <h2>Request Log - <a href="/api/data/requests">JSON</a></h2>
+        <p>
+          Similar to the submission log, this page only includes request logs from your specific
+          <b>deviceID</b> or <b>account</b>, your <b>IP</b> is not considered in this request. Some
+          fields are ommited in this display, the <a href="/api/data/requests">JSON</a> contains
+          every field in the database.
+        </p>
+        <div id="requestLog">Loading..</div>
+        <h2>AutoCheckin Log - <a href="/api/data/auto">JSON</a></h2>
+        <div id="autoLog">Loading..</div>
+      </div>
     </div>
 
-<script>
+    <script>
+      showLoadingOverlay(1);
 
-showLoadingOverlay(1)
+      function showLoadingOverlay(duration) {
+        const overlay = document.getElementById('loading-overlay');
+        const clipRect = document.getElementById('clip-rect');
+        const spinner = document.getElementById('loading-spinner');
 
-function showLoadingOverlay(duration) {
-    const overlay = document.getElementById('loading-overlay');
-    const clipRect = document.getElementById('clip-rect');
-    const spinner = document.getElementById('loading-spinner');
+        overlay.style.visibility = 'visible';
+        overlay.style.opacity = '1';
 
-    overlay.style.visibility = 'visible';
-    overlay.style.opacity = '1';
+        clipRect.setAttribute('width', '0');
 
-    clipRect.setAttribute('width', '0');
+        let startTime = null;
+        let animationCompleted = false;
 
-    let startTime = null;
-    let animationCompleted = false;
+        function animateReveal(time) {
+          if (!startTime) startTime = time;
+          const elapsed = time - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          clipRect.setAttribute('width', `${progress * 100}%`);
 
-    function animateReveal(time) {
-        if (!startTime) startTime = time;
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        clipRect.setAttribute('width', `${progress * 100}%`);
-
-        if (progress < 1) {
+          if (progress < 1) {
             requestAnimationFrame(animateReveal);
-        } else {
+          } else {
             animationCompleted = true;
             if (window.overlayDone) {
-                removeOverlay();
+              removeOverlay();
             } else {
-                spinner.style.display = 'block';
+              spinner.style.display = 'block';
             }
+          }
         }
-    }
 
-    requestAnimationFrame(animateReveal);
+        requestAnimationFrame(animateReveal);
 
-    window.endLoadingOverlay = function() {
-        window.overlayDone = true;
-        if (animationCompleted) {
+        window.endLoadingOverlay = function () {
+          window.overlayDone = true;
+          if (animationCompleted) {
             removeOverlay();
-        }
-    }
+          }
+        };
 
-    function removeOverlay() {
-        overlay.style.opacity = '0';
-        overlay.style.visibility = 'hidden';
-        clipRect.setAttribute('width', '0');
-        spinner.style.display = 'none';
+        function removeOverlay() {
+          overlay.style.opacity = '0';
+          overlay.style.visibility = 'hidden';
+          clipRect.setAttribute('width', '0');
+          spinner.style.display = 'none';
+          window.overlayDone = false;
+          animationCompleted = false;
+        }
+
         window.overlayDone = false;
-        animationCompleted = false;
-    }
+      }
 
-    window.overlayDone = false;
-}
+      // Function to create the table row
+      function createTableRow(key, value) {
+        const row = document.createElement('tr');
+        const cell1 = document.createElement('td');
+        const cell2 = document.createElement('td');
 
+        cell1.innerHTML = `<strong>${key}:</strong>`;
+        cell2.textContent = value;
 
-    // Function to create the table row
-function createTableRow(key, value) {
-    const row = document.createElement('tr');
-    const cell1 = document.createElement('td');
-    const cell2 = document.createElement('td');
+        row.appendChild(cell1);
+        row.appendChild(cell2);
 
-    cell1.innerHTML = `<strong>${key}:</strong>`;
-    cell2.textContent = value;
+        return row;
+      }
 
-    row.appendChild(cell1);
-    row.appendChild(cell2);
+      function populateSessionDiv(data) {
+        const targetDiv = document.getElementById('sessionData');
+        const table = document.createElement('table');
 
-    return row;
-}
+        let data_present = false;
 
-function populateSessionDiv(data) {
-    const targetDiv = document.getElementById('sessionData');
-    const table = document.createElement('table');
-
-    let data_present = false;
-
-    if (data.user) {
-        for (const [key, value] of Object.entries(data.user)) {
+        if (data.user) {
+          for (const [key, value] of Object.entries(data.user)) {
             table.appendChild(createTableRow(`user.${key}`, value));
+          }
+          data_present = true;
         }
-        data_present = true;
-    }
 
-    if (data.course) {
-        for (const [key, value] of Object.entries(data.course)) {
+        if (data.course) {
+          for (const [key, value] of Object.entries(data.course)) {
             table.appendChild(createTableRow(`course.${key}`, value));
+          }
+          data_present = true;
         }
-        data_present = true;
-    }
 
-    if (data.consent) {
-        for (const [key, value] of Object.entries(data.consent)) {
+        if (data.consent) {
+          for (const [key, value] of Object.entries(data.consent)) {
             table.appendChild(createTableRow(`consent.${key}`, value));
+          }
+          data_present = true;
         }
-        data_present = true;
-    }
 
-    if (data.theme) {
-        for (const [key, value] of Object.entries(data.theme)) {
+        if (data.theme) {
+          for (const [key, value] of Object.entries(data.theme)) {
             table.appendChild(createTableRow(`theme.${key}`, value));
+          }
+          data_present = true;
         }
-        data_present = true;
-    }
 
-    if (data.deviceID) {
-        table.appendChild(createTableRow(`deviceID`, data.deviceID));
-    }
+        if (data.deviceID) {
+          table.appendChild(createTableRow(`deviceID`, data.deviceID));
+        }
 
-    // Clear any existing content and append the new table
-    targetDiv.innerHTML = '';
-    targetDiv.appendChild(table);
+        // Clear any existing content and append the new table
+        targetDiv.innerHTML = '';
+        targetDiv.appendChild(table);
 
-    // Add a link to remove data if data is present
-    if (data_present) {
-        const link = document.createElement('a');
-        link.textContent = 'Remove session from server and local device.';
-        link.href = '#';
-        link.style.display = 'block';
-        link.style.marginTop = '10px';
-        link.style.color = 'red';
+        // Add a link to remove data if data is present
+        if (data_present) {
+          const link = document.createElement('a');
+          link.textContent = 'Remove session from server and local device.';
+          link.href = '#';
+          link.style.display = 'block';
+          link.style.marginTop = '10px';
+          link.style.color = 'red';
 
-        link.addEventListener('click', function(event) {
+          link.addEventListener('click', function (event) {
             event.preventDefault();
 
             localStorage.clear();
-            document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+            document.cookie.split(';').forEach(function (c) {
+              document.cookie = c
+                .replace(/^ +/, '')
+                .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+            });
 
             fetch('/api/data/session/delete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             })
-            .then(response => response.json())
-            .then(responseData => {
+              .then((response) => response.json())
+              .then((responseData) => {
                 // Clear the targetDiv to show the response
                 targetDiv.innerHTML = '';
 
@@ -332,50 +356,50 @@ function populateSessionDiv(data) {
                 const responseTable = document.createElement('table');
 
                 if (responseData.success) {
-                    responseTable.appendChild(createTableRow('Status', 'Success'));
-                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  responseTable.appendChild(createTableRow('Status', 'Success'));
+                  responseTable.appendChild(createTableRow('Message', responseData.msg));
                 } else {
-                    responseTable.appendChild(createTableRow('Status', 'Failed'));
-                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  responseTable.appendChild(createTableRow('Status', 'Failed'));
+                  responseTable.appendChild(createTableRow('Message', responseData.msg));
                 }
 
                 targetDiv.appendChild(responseTable);
-            })
-            .catch(error => {
+              })
+              .catch((error) => {
                 console.error('Error:', error);
                 targetDiv.innerHTML = '<p>Error occurred while deleting data.</p>';
-            });
-        });
+              });
+          });
 
-        targetDiv.appendChild(link);
-    } else {
-        targetDiv.innerHTML = 'No session data found.';
-    }
-}
+          targetDiv.appendChild(link);
+        } else {
+          targetDiv.innerHTML = 'No session data found.';
+        }
+      }
 
-// Function to process the JSON and populate the accountData div
-function populateAccountDiv(data) {
-    const targetDiv = document.getElementById('accountData');
-    targetDiv.innerHTML = '';
+      // Function to process the JSON and populate the accountData div
+      function populateAccountDiv(data) {
+        const targetDiv = document.getElementById('accountData');
+        targetDiv.innerHTML = '';
 
-    if (Object.keys(data).length === 0) {
-        targetDiv.textContent = 'Not signed in';
-    } else {
-        const warningLink = document.createElement('a');
-        warningLink.textContent = `Show account information for ${data.username}. WARNING this will contain sensitive data.`;
-        warningLink.href = '#';
-        warningLink.style.display = 'block';
-        warningLink.style.marginBottom = '10px';
+        if (Object.keys(data).length === 0) {
+          targetDiv.textContent = 'Not signed in';
+        } else {
+          const warningLink = document.createElement('a');
+          warningLink.textContent = `Show account information for ${data.username}. WARNING this will contain sensitive data.`;
+          warningLink.href = '#';
+          warningLink.style.display = 'block';
+          warningLink.style.marginBottom = '10px';
 
-        warningLink.addEventListener('click', function(event) {
+          warningLink.addEventListener('click', function (event) {
             event.preventDefault();
 
             const table = document.createElement('table');
 
             for (const [key, value] of Object.entries(data)) {
-                // Special handling for sync object
-                const displayValue = key === 'sync' ? JSON.stringify(value, null, 2) : value;
-                table.appendChild(createTableRow(`${key}`, displayValue));
+              // Special handling for sync object
+              const displayValue = key === 'sync' ? JSON.stringify(value, null, 2) : value;
+              table.appendChild(createTableRow(`${key}`, displayValue));
             }
 
             targetDiv.innerHTML = ''; // Clear the warning link
@@ -389,68 +413,68 @@ function populateAccountDiv(data) {
             deleteLink.style.marginTop = '10px';
             deleteLink.style.color = 'red';
 
-            deleteLink.addEventListener('click', function(event) {
-                event.preventDefault();
+            deleteLink.addEventListener('click', function (event) {
+              event.preventDefault();
 
-                fetch('/api/data/account/delete', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+              fetch('/api/data/account/delete', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((response) => response.json())
+                .then((responseData) => {
+                  // Clear the targetDiv to show the response
+                  targetDiv.innerHTML = '';
+
+                  // Create a new table to display the response
+                  const responseTable = document.createElement('table');
+
+                  if (responseData.success) {
+                    responseTable.appendChild(createTableRow('Status', 'Success'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  } else {
+                    responseTable.appendChild(createTableRow('Status', 'Failed'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  }
+
+                  targetDiv.appendChild(responseTable);
                 })
-                .then(response => response.json())
-                .then(responseData => {
-                    // Clear the targetDiv to show the response
-                    targetDiv.innerHTML = '';
-
-                    // Create a new table to display the response
-                    const responseTable = document.createElement('table');
-
-                    if (responseData.success) {
-                        responseTable.appendChild(createTableRow('Status', 'Success'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    } else {
-                        responseTable.appendChild(createTableRow('Status', 'Failed'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    }
-
-                    targetDiv.appendChild(responseTable);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    targetDiv.innerHTML = '<p>Error occurred while deleting account.</p>';
+                .catch((error) => {
+                  console.error('Error:', error);
+                  targetDiv.innerHTML = '<p>Error occurred while deleting account.</p>';
                 });
             });
 
             targetDiv.appendChild(deleteLink);
-        });
+          });
 
-        targetDiv.appendChild(warningLink);
-    }
-}
+          targetDiv.appendChild(warningLink);
+        }
+      }
 
-// Fetch session data from the API and populate the div
-fetch('/api/data/session')
-    .then(response => response.json())
-    .then(data => populateSessionDiv(data))
-    .catch(error => console.error('Error fetching session data:', error));
+      // Fetch session data from the API and populate the div
+      fetch('/api/data/session')
+        .then((response) => response.json())
+        .then((data) => populateSessionDiv(data))
+        .catch((error) => console.error('Error fetching session data:', error));
 
-// Fetch account data from the API and populate the div
-fetch('/api/data/account')
-    .then(response => response.json())
-    .then(data => populateAccountDiv(data))
-    .catch(error => console.error('Error fetching account data:', error));
+      // Fetch account data from the API and populate the div
+      fetch('/api/data/account')
+        .then((response) => response.json())
+        .then((data) => populateAccountDiv(data))
+        .catch((error) => console.error('Error fetching account data:', error));
 
-async function populateRequestLog() {
-    const targetDiv = document.getElementById('requestLog');
+      async function populateRequestLog() {
+        const targetDiv = document.getElementById('requestLog');
 
-    // Fetch log data from the API
-    fetch('/api/data/requests')
-        .then(response => response.json())
-        .then(data => {
+        // Fetch log data from the API
+        fetch('/api/data/requests')
+          .then((response) => response.json())
+          .then((data) => {
             if (data.length === 0) {
-                targetDiv.textContent = 'No log data available.';
-                return;
+              targetDiv.textContent = 'No log data available.';
+              return;
             }
 
             // Create a div to contain the table with scrollable height
@@ -463,23 +487,23 @@ async function populateRequestLog() {
 
             // Prepare keys to be displayed
             const excludeKeys = ['id', 'spoofed_ip', 'host', 'username', 'user_agent', 'referer'];
-            const keys = Object.keys(data[0]).filter(key => !excludeKeys.includes(key));
-            keys.forEach(key => {
-                const headerCell = document.createElement('th');
-                headerCell.textContent = key;
-                headerRow.appendChild(headerCell);
+            const keys = Object.keys(data[0]).filter((key) => !excludeKeys.includes(key));
+            keys.forEach((key) => {
+              const headerCell = document.createElement('th');
+              headerCell.textContent = key;
+              headerRow.appendChild(headerCell);
             });
             table.appendChild(headerRow);
 
             // Populate table rows with data
-            data.forEach(logEntry => {
-                const row = document.createElement('tr');
-                keys.forEach(key => {
-                    const cell = document.createElement('td');
-                    cell.textContent = logEntry[key];
-                    row.appendChild(cell);
-                });
-                table.appendChild(row);
+            data.forEach((logEntry) => {
+              const row = document.createElement('tr');
+              keys.forEach((key) => {
+                const cell = document.createElement('td');
+                cell.textContent = logEntry[key];
+                row.appendChild(cell);
+              });
+              table.appendChild(row);
             });
 
             // Append the table to the table container div
@@ -498,63 +522,63 @@ async function populateRequestLog() {
             deleteLink.style.marginTop = '10px';
             deleteLink.style.color = 'red';
 
-            deleteLink.addEventListener('click', function(event) {
-                event.preventDefault();
+            deleteLink.addEventListener('click', function (event) {
+              event.preventDefault();
 
-                fetch('/api/data/requests/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+              fetch('/api/data/requests/delete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((response) => response.json())
+                .then((responseData) => {
+                  // Clear the targetDiv to show the response
+                  targetDiv.innerHTML = '';
+
+                  // Create a new table to display the response
+                  const responseTable = document.createElement('table');
+
+                  if (responseData.success) {
+                    responseTable.appendChild(createTableRow('Status', 'Success'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  } else {
+                    responseTable.appendChild(createTableRow('Status', 'Failed'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  }
+
+                  targetDiv.appendChild(responseTable);
                 })
-                .then(response => response.json())
-                .then(responseData => {
-                    // Clear the targetDiv to show the response
-                    targetDiv.innerHTML = '';
-
-                    // Create a new table to display the response
-                    const responseTable = document.createElement('table');
-
-                    if (responseData.success) {
-                        responseTable.appendChild(createTableRow('Status', 'Success'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    } else {
-                        responseTable.appendChild(createTableRow('Status', 'Failed'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    }
-
-                    targetDiv.appendChild(responseTable);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
+                .catch((error) => {
+                  console.error('Error:', error);
+                  targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
                 });
             });
 
             // Append the delete link to the target div
             targetDiv.appendChild(deleteLink);
-        })
-        .catch(error => {
+          })
+          .catch((error) => {
             console.error('Error fetching log data:', error);
             targetDiv.innerHTML = '<p>Error fetching log data.</p>';
-        });
-}
+          });
+      }
 
-document.addEventListener("DOMContentLoaded", function(event){
-  populateRequestLog()
-});
+      document.addEventListener('DOMContentLoaded', function (event) {
+        populateRequestLog();
+      });
 
-function populateTKLog() {
-    const targetDiv = document.getElementById('tkLog');
-    targetDiv.innerHTML = '';
+      function populateTKLog() {
+        const targetDiv = document.getElementById('tkLog');
+        targetDiv.innerHTML = '';
 
-    // Fetch log data from the API
-    fetch('/api/data/tk')
-        .then(response => response.json())
-        .then(data => {
+        // Fetch log data from the API
+        fetch('/api/data/tk')
+          .then((response) => response.json())
+          .then((data) => {
             if (data.length === 0) {
-                targetDiv.textContent = 'No log data available.';
-                return;
+              targetDiv.textContent = 'No log data available.';
+              return;
             }
 
             // Create a div to contain the table with scrollable height
@@ -566,34 +590,34 @@ function populateTKLog() {
 
             // Prepare keys to be displayed
             const excludeKeys = ['codeID', 'source'];
-            const keys = Object.keys(data[0]).filter(key => !excludeKeys.includes(key));
+            const keys = Object.keys(data[0]).filter((key) => !excludeKeys.includes(key));
 
             // Create 4 header rows
             for (let i = 0; i < 4; i++) {
-                const headerRow = document.createElement('tr');
-                for (let j = 0; j < 5; j++) {
-                    const keyIndex = i * 5 + j;
-                    const headerCell = document.createElement('th');
-                    headerCell.textContent = keys[keyIndex] || '';
-                    headerRow.appendChild(headerCell);
-                }
-                table.appendChild(headerRow);
+              const headerRow = document.createElement('tr');
+              for (let j = 0; j < 5; j++) {
+                const keyIndex = i * 5 + j;
+                const headerCell = document.createElement('th');
+                headerCell.textContent = keys[keyIndex] || '';
+                headerRow.appendChild(headerCell);
+              }
+              table.appendChild(headerRow);
             }
 
             // Populate table rows with data
             data.forEach((logEntry, entryIndex) => {
-                const isGrayBackground = entryIndex % 2 === 0; // Determine if the block of 4 rows should have a gray background
-                for (let i = 0; i < 4; i++) {
-                    const row = document.createElement('tr');
-                    row.style.backgroundColor = isGrayBackground ? 'rgb(151 151 151)' : '#ffffff'; // Alternating block background color
-                    for (let j = 0; j < 5; j++) {
-                        const keyIndex = i * 5 + j;
-                        const cell = document.createElement('td');
-                        cell.textContent = keys[keyIndex] ? logEntry[keys[keyIndex]] : '';
-                        row.appendChild(cell);
-                    }
-                    table.appendChild(row);
+              const isGrayBackground = entryIndex % 2 === 0; // Determine if the block of 4 rows should have a gray background
+              for (let i = 0; i < 4; i++) {
+                const row = document.createElement('tr');
+                row.style.backgroundColor = isGrayBackground ? 'rgb(151 151 151)' : '#ffffff'; // Alternating block background color
+                for (let j = 0; j < 5; j++) {
+                  const keyIndex = i * 5 + j;
+                  const cell = document.createElement('td');
+                  cell.textContent = keys[keyIndex] ? logEntry[keys[keyIndex]] : '';
+                  row.appendChild(cell);
                 }
+                table.appendChild(row);
+              }
             });
 
             // Append the table to the table container div
@@ -610,61 +634,61 @@ function populateTKLog() {
             deleteLink.style.marginTop = '10px';
             deleteLink.style.color = 'red';
 
-            deleteLink.addEventListener('click', function(event) {
-                event.preventDefault();
+            deleteLink.addEventListener('click', function (event) {
+              event.preventDefault();
 
-                fetch('/api/data/tk/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+              fetch('/api/data/tk/delete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((response) => response.json())
+                .then((responseData) => {
+                  // Clear the targetDiv to show the response
+                  targetDiv.innerHTML = '';
+
+                  // Create a new table to display the response
+                  const responseTable = document.createElement('table');
+
+                  if (responseData.success) {
+                    responseTable.appendChild(createTableRow('Status', 'Success'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  } else {
+                    responseTable.appendChild(createTableRow('Status', 'Failed'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  }
+
+                  targetDiv.appendChild(responseTable);
                 })
-                .then(response => response.json())
-                .then(responseData => {
-                    // Clear the targetDiv to show the response
-                    targetDiv.innerHTML = '';
-
-                    // Create a new table to display the response
-                    const responseTable = document.createElement('table');
-
-                    if (responseData.success) {
-                        responseTable.appendChild(createTableRow('Status', 'Success'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    } else {
-                        responseTable.appendChild(createTableRow('Status', 'Failed'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    }
-
-                    targetDiv.appendChild(responseTable);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
+                .catch((error) => {
+                  console.error('Error:', error);
+                  targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
                 });
             });
 
             // Append the delete link to the target div
             targetDiv.appendChild(deleteLink);
-        })
-        .catch(error => {
+          })
+          .catch((error) => {
             console.error('Error fetching log data:', error);
             targetDiv.innerHTML = '<p>Error fetching log data.</p>';
-        });
-}
+          });
+      }
 
-populateTKLog()
+      populateTKLog();
 
-function populateAutoLogDiv() {
-    const targetDiv = document.getElementById('autoLog');
-    targetDiv.innerHTML = '';
+      function populateAutoLogDiv() {
+        const targetDiv = document.getElementById('autoLog');
+        targetDiv.innerHTML = '';
 
-    // Fetch log data from the API
-    fetch('/api/data/auto')
-        .then(response => response.json())
-        .then(data => {
+        // Fetch log data from the API
+        fetch('/api/data/auto')
+          .then((response) => response.json())
+          .then((data) => {
             if (data.length === 0) {
-                targetDiv.textContent = 'No log data available.';
-                return;
+              targetDiv.textContent = 'No log data available.';
+              return;
             }
 
             // Create a div to contain the table with scrollable height
@@ -676,23 +700,23 @@ function populateAutoLogDiv() {
             const headerRow = document.createElement('tr');
 
             // Create headers dynamically based on keys, excluding logID and email
-            const keys = Object.keys(data[0]).filter(key => key !== 'logID' && key !== 'email');
-            keys.forEach(key => {
-                const headerCell = document.createElement('th');
-                headerCell.textContent = key;
-                headerRow.appendChild(headerCell);
+            const keys = Object.keys(data[0]).filter((key) => key !== 'logID' && key !== 'email');
+            keys.forEach((key) => {
+              const headerCell = document.createElement('th');
+              headerCell.textContent = key;
+              headerRow.appendChild(headerCell);
             });
             table.appendChild(headerRow);
 
             // Populate table rows with data
-            data.forEach(logEntry => {
-                const row = document.createElement('tr');
-                keys.forEach(key => {
-                    const cell = document.createElement('td');
-                    cell.textContent = logEntry[key];
-                    row.appendChild(cell);
-                });
-                table.appendChild(row);
+            data.forEach((logEntry) => {
+              const row = document.createElement('tr');
+              keys.forEach((key) => {
+                const cell = document.createElement('td');
+                cell.textContent = logEntry[key];
+                row.appendChild(cell);
+              });
+              table.appendChild(row);
             });
 
             // Append the table to the table container div
@@ -709,52 +733,49 @@ function populateAutoLogDiv() {
             deleteLink.style.marginTop = '10px';
             deleteLink.style.color = 'red';
 
-            deleteLink.addEventListener('click', function(event) {
-                event.preventDefault();
+            deleteLink.addEventListener('click', function (event) {
+              event.preventDefault();
 
-                fetch('/api/data/auto/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+              fetch('/api/data/auto/delete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+                .then((response) => response.json())
+                .then((responseData) => {
+                  // Clear the targetDiv to show the response
+                  targetDiv.innerHTML = '';
+
+                  // Create a new table to display the response
+                  const responseTable = document.createElement('table');
+
+                  if (responseData.success) {
+                    responseTable.appendChild(createTableRow('Status', 'Success'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  } else {
+                    responseTable.appendChild(createTableRow('Status', 'Failed'));
+                    responseTable.appendChild(createTableRow('Message', responseData.msg));
+                  }
+
+                  targetDiv.appendChild(responseTable);
                 })
-                .then(response => response.json())
-                .then(responseData => {
-                    // Clear the targetDiv to show the response
-                    targetDiv.innerHTML = '';
-
-                    // Create a new table to display the response
-                    const responseTable = document.createElement('table');
-
-                    if (responseData.success) {
-                        responseTable.appendChild(createTableRow('Status', 'Success'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    } else {
-                        responseTable.appendChild(createTableRow('Status', 'Failed'));
-                        responseTable.appendChild(createTableRow('Message', responseData.msg));
-                    }
-
-                    targetDiv.appendChild(responseTable);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
+                .catch((error) => {
+                  console.error('Error:', error);
+                  targetDiv.innerHTML = '<p>Error occurred while deleting logs.</p>';
                 });
             });
 
             // Append the delete link to the target div
             targetDiv.appendChild(deleteLink);
-        })
-        .catch(error => {
+          })
+          .catch((error) => {
             console.error('Error fetching log data:', error);
             targetDiv.innerHTML = '<p>Error fetching log data.</p>';
-        });
-}
+          });
+      }
 
-populateAutoLogDiv()
-
-
-</script>
-
-</body>
+      populateAutoLogDiv();
+    </script>
+  </body>
 </html>

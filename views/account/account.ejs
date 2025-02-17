@@ -1,60 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <%- include('../global/head'); %>
+  <head>
+    <%- include('../global/head'); %>
     <%- include('../account/account-styles'); %>
-      <title>Account - CheckOut</title>
-      <style>
-      </style>
-      <%- include('../account/fancybuttons'); %>
-</head>
+    <title>Account - CheckOut</title>
+    <style></style>
+    <%- include('../account/fancybuttons'); %>
+  </head>
 
-<body>
-  <%- include('../global/navbar'); %>
+  <body>
+    <%- include('../global/navbar'); %>
     <div class="container">
       <h1>Account</h1>
-      <hr>
+      <hr />
       <div class="section-box">
-        <div class="section-title">USERNAME
+        <div class="section-title">
+          USERNAME
           <a class="box-link" href="/support?pre=change-email">Change email</a>
         </div>
         <div class="section-details">
           <p>Welcome, <i><%= username %></i>. (<%= email %>)</p>
-          <a href="/account/change-username" class="cta-button" style="margin-left: 10px;">Change username</a>
-        </div>   
+          <a href="/account/change-username" class="cta-button" style="margin-left: 10px"
+            >Change username</a
+          >
+        </div>
       </div>
       <div class="section-box">
-        <div class="section-title">PERMISSIONS
+        <div class="section-title">
+          PERMISSIONS
           <a class="box-link" href="/account/permissions">Learn about permissions</a>
         </div>
         <div class="section-details">
-          <p><%= perms %> <br><br>
-            For most users, 'normal' is.. normal! <a href="/account/permissions">Learn about permissions and ratelimits.</a>
+          <p>
+            <%= perms %>
+            <br /><br />
+            For most users, 'normal' is.. normal!
+            <a href="/account/permissions">Learn about permissions and ratelimits.</a>
           </p>
-        </div>   
+        </div>
       </div>
       <div class="section-box">
-        <div class="section-title">TOOLS
+        <div class="section-title">
+          TOOLS
           <a class="box-link" href="/data">Manage your data</a>
         </div>
         <div class="section-details">
           <div class="account-buttons-container">
-            <button id="logout-btn" onclick="logout()" style="background-color: #A94442;">Logout</button>
-            <button id="logout-all-btn" onclick="logoutAllSessions()" style="background-color: #8B2E2E;">Logout all sessions</button>
-            <button id="copy-apikey-btn" onclick="fetchAndCopyApiKey()" style="background-color: #2C8B8B;">Copy API Key</button>
-            <button id="refresh-apikey-btn" onclick="refreshApiKey()" style="background-color: #2C8B8B;">Refresh API Key</button>
+            <button id="logout-btn" onclick="logout()" style="background-color: #a94442">
+              Logout
+            </button>
+            <button
+              id="logout-all-btn"
+              onclick="logoutAllSessions()"
+              style="background-color: #8b2e2e"
+            >
+              Logout all sessions
+            </button>
+            <button
+              id="copy-apikey-btn"
+              onclick="fetchAndCopyApiKey()"
+              style="background-color: #2c8b8b"
+            >
+              Copy API Key
+            </button>
+            <button
+              id="refresh-apikey-btn"
+              onclick="refreshApiKey()"
+              style="background-color: #2c8b8b"
+            >
+              Refresh API Key
+            </button>
             <a href="/data">
-              <button id="manage-data-btn" style="background-color: #3D8B3D;">Manage data</button>
+              <button id="manage-data-btn" style="background-color: #3d8b3d">Manage data</button>
             </a>
           </div>
-          <p>If you wish to delete your account or view the information held about you, visit the <a href="/data">data access tool</a>. <br><br>To change your course or other preferences, visit <a href="/settings">settings</a> and updates will sync automatically with your account.</p>
-        </div>   
+          <p>
+            If you wish to delete your account or view the information held about you, visit the
+            <a href="/data">data access tool</a>. <br /><br />To change your course or other
+            preferences, visit <a href="/settings">settings</a> and updates will sync automatically
+            with your account.
+          </p>
+        </div>
       </div>
-      <br>
-      <hr>
-      <p class="deviceID-text">Device ID: <%= sessionID %>
-      </p>
+      <br />
+      <hr />
+      <p class="deviceID-text">Device ID: <%= sessionID %></p>
       <!-- <h2>Appeal</h2>
     <form action="/api/app/block/appeal" method="POST">
       <textarea id="reason" name="reason" placeholder="Enter your appeal here"></textarea>
@@ -69,8 +99,8 @@
         apikeyBtn.innerHTML = 'Copying API Key...';
 
         fetch('/api/account/token')
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             var apiKey = data.apiKey;
 
             var tempInput = document.createElement('input');
@@ -80,14 +110,18 @@
             document.execCommand('copy');
             document.body.removeChild(tempInput);
 
-            displayNotice('Your API key has been copied to the clipboard!', 'success', 'API Key Copied');
+            displayNotice(
+              'Your API key has been copied to the clipboard!',
+              'success',
+              'API Key Copied'
+            );
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Error:', error);
             if (typeof data !== 'undefined' && data.msg) {
-                displayNotice(data.msg, 'error');
+              displayNotice(data.msg, 'error');
             } else {
-                displayNotice(error.message || error, 'error');
+              displayNotice(error.message || error, 'error');
             }
           })
           .finally(() => {
@@ -105,15 +139,15 @@
         fetch('/api/auth/logout', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         })
-          .then(response => {
+          .then((response) => {
             if (response.redirected) {
               window.location.href = response.url;
             }
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Error:', error);
             displayNotice(error.message || error, 'error');
             // Reset button state on error
@@ -122,65 +156,65 @@
           });
       }
 
-     function logoutAllSessions() {
-       if (confirm("Warning: This will log out ALL active sessions, including your current session. You will need to log in again. Are you sure you want to continue?")) {
-         const logoutAllBtn = document.getElementById('logout-all-btn');
-         logoutAllBtn.disabled = true;
-         logoutAllBtn.innerHTML = 'Logging out all sessions...';
+      function logoutAllSessions() {
+        if (
+          confirm(
+            'Warning: This will log out ALL active sessions, including your current session. You will need to log in again. Are you sure you want to continue?'
+          )
+        ) {
+          const logoutAllBtn = document.getElementById('logout-all-btn');
+          logoutAllBtn.disabled = true;
+          logoutAllBtn.innerHTML = 'Logging out all sessions...';
 
-         fetch('/api/account/logout-all', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json'
-           }
-         })
-         .then(response => response.json())
-         .then(data => {
-           if (data.success) {
-             // Redirect to login page after successful logout
-             window.location.href = '/login';
-           } else {
-             displayNotice(data.msg || 'Failed to logout all sessions', 'error');
-             logoutAllBtn.disabled = false;
-             logoutAllBtn.innerHTML = 'Logout all sessions';
-           }
-         })
-         .catch(error => {
-           console.error('Error:', error);
-           displayNotice(error.message || 'Failed to logout all sessions', 'error');
-           logoutAllBtn.disabled = false;
-           logoutAllBtn.innerHTML = 'Logout all sessions';
-         });
-       }
-     }
+          fetch('/api/account/logout-all', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // Redirect to login page after successful logout
+                window.location.href = '/login';
+              } else {
+                displayNotice(data.msg || 'Failed to logout all sessions', 'error');
+                logoutAllBtn.disabled = false;
+                logoutAllBtn.innerHTML = 'Logout all sessions';
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+              displayNotice(error.message || 'Failed to logout all sessions', 'error');
+              logoutAllBtn.disabled = false;
+              logoutAllBtn.innerHTML = 'Logout all sessions';
+            });
+        }
+      }
 
       function refreshApiKey() {
         fetch('/api/account/token/refresh', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         })
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             console.log(data);
             if (data.success) {
               displayNotice(data.msg, 'success', 'API Key Refreshed');
             }
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Error:', error);
             if (typeof data !== 'undefined' && data.msg) {
-                displayNotice(data.msg, 'error');
+              displayNotice(data.msg, 'error');
             } else {
-                displayNotice(error.message || error, 'error');
+              displayNotice(error.message || error, 'error');
             }
           });
-
       }
-
     </script>
-
-</body>
-
+  </body>
 </html>

@@ -1,577 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('./global/head'); %>
     <title>Support - Checkout</title>
     <style>
-        /* Page-specific styles only */
-        .warning-box {
-            background-color: var(--warning-background);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
+      /* Page-specific styles only */
+      .warning-box {
+        background-color: var(--warning-background);
+        border: 1px solid var(--warning-border);
+        color: var(--warning-text);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
 
-        .warning-box p {
-            color: var(--warning-text);
-            margin-bottom: 15px;
-        }
+      .warning-box p {
+        color: var(--warning-text);
+        margin-bottom: 15px;
+      }
 
-        .warning-box p:last-child {
-            margin-bottom: 0;
-        }
+      .warning-box p:last-child {
+        margin-bottom: 0;
+      }
 
-        .content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+      .content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-        .support-container {
-            text-align: center;
-            margin-top: 40px;
-        }
+      .support-container {
+        text-align: center;
+        margin-top: 40px;
+      }
 
-        .support-title {
-            font-size: 2em;
-            margin-bottom: 20px;
-            color: var(--text-colour);
-        }
+      .support-title {
+        font-size: 2em;
+        margin-bottom: 20px;
+        color: var(--text-colour);
+      }
 
-        .support-description {
-            color: var(--subtext-colour);
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
+      .support-description {
+        color: var(--subtext-colour);
+        margin-bottom: 30px;
+        font-size: 1.1em;
+      }
 
-        .support-form {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: left;
-            background: var(--content-background);
-            padding: 30px;
-            border-radius: 10px;
-            border: var(--box-accent-width) solid var(--accent-colour);
-            box-shadow: var(--shadow);
-            position: relative;
-        }
+      .support-form {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: left;
+        background: var(--content-background);
+        padding: 30px;
+        border-radius: 10px;
+        border: var(--box-accent-width) solid var(--accent-colour);
+        box-shadow: var(--shadow);
+        position: relative;
+      }
 
-        .loading-overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+      .loading-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid var(--accent-colour);
-            border-top: 5px solid var(--content-background);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid var(--accent-colour);
+        border-top: 5px solid var(--content-background);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-        .message-box {
-            display: none;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
+      .message-box {
+        display: none;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .message-box.success {
-            background-color: var(--submit-success-background);
-            color: var(--submit-success-colour);
-        }
+      .message-box.success {
+        background-color: var(--submit-success-background);
+        color: var(--submit-success-colour);
+      }
 
-        .message-box.error {
-            background-color: var(--submit-fail-background);
-            color: var(--submit-fail-colour);
-        }
+      .message-box.error {
+        background-color: var(--submit-fail-background);
+        color: var(--submit-fail-colour);
+      }
 
-        .message-box .reference {
-            font-weight: bold;
-            margin-top: 5px;
-        }
+      .message-box .reference {
+        font-weight: bold;
+        margin-top: 5px;
+      }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+      }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-colour);
-            font-weight: 600;
-        }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-colour);
+        font-weight: 600;
+      }
 
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--accent-colour);
-            border-radius: 5px;
-            background: var(--secondary-background);
-            color: var(--text-colour);
-            font-family: var(--normal-font);
-        }
+      .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--accent-colour);
+        border-radius: 5px;
+        background: var(--secondary-background);
+        color: var(--text-colour);
+        font-family: var(--normal-font);
+      }
 
-        .form-group input,
-        .form-group textarea {
-            width: 95%; /* Adjust to match dropdown width */
-            padding: 10px;
-            border: 1px solid var(--accent-colour);
-            border-radius: 5px;
-            background: var(--secondary-background);
-            color: var(--text-colour);
-            font-family: var(--normal-font);
-        }
+      .form-group input,
+      .form-group textarea {
+        width: 95%; /* Adjust to match dropdown width */
+        padding: 10px;
+        border: 1px solid var(--accent-colour);
+        border-radius: 5px;
+        background: var(--secondary-background);
+        color: var(--text-colour);
+        font-family: var(--normal-font);
+      }
 
-        .form-group select:disabled,
-        .form-group input:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
+      .form-group select:disabled,
+      .form-group input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
 
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
+      .form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
 
-        .submit-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: var(--cta-background-main);
-            color: var(--cta-button-colour-main);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-            transition: opacity 0.2s ease;
-        }
+      .submit-button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: var(--cta-background-main);
+        color: var(--cta-button-colour-main);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: opacity 0.2s ease;
+      }
 
-        .submit-button:hover {
-            opacity: 0.9;
-        }
+      .submit-button:hover {
+        opacity: 0.9;
+      }
 
-        .autosave-notice {
-            display: block;
-            color: var(--subtext-colour);
-            font-size: 0.9em;
-            margin-top: 8px;
-        }
+      .autosave-notice {
+        display: block;
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+        margin-top: 8px;
+      }
 
-        .form-footer {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--accent-colour);
-            color: var(--subtext-colour);
-            font-size: 0.9em;
-            text-align: center;
-        }
+      .form-footer {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--accent-colour);
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+        text-align: center;
+      }
 
-        .form-footer a {
-            color: var(--action-colour);
-            text-decoration: none;
-        }
+      .form-footer a {
+        color: var(--action-colour);
+        text-decoration: none;
+      }
 
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
+      .form-footer a:hover {
+        text-decoration: underline;
+      }
 
-        .required-field::after {
-            content: '*';
-            color: #ff4444;
-            margin-left: 4px;
-        }
+      .required-field::after {
+        content: '*';
+        color: #ff4444;
+        margin-left: 4px;
+      }
 
-        .required-note {
-            color: var(--subtext-colour);
-            font-size: 0.9em;
-            margin-bottom: 20px;
-            display: block;
-        }
+      .required-note {
+        color: var(--subtext-colour);
+        font-size: 0.9em;
+        margin-bottom: 20px;
+        display: block;
+      }
 
-        .required-note span {
-            color: #ff4444;
-        }
+      .required-note span {
+        color: #ff4444;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('./global/navbar'); %>
     <div class="content">
-        <div class="support-container">
-            <h1 class="support-title">Support</h1>
-            <p class="support-description">Need help? We're here to assist you.</p>
-            
-            <form class="support-form" id="supportForm">
-                <div class="loading-overlay">
-                    <div class="loading-spinner"></div>
-                </div>
+      <div class="support-container">
+        <h1 class="support-title">Support</h1>
+        <p class="support-description">Need help? We're here to assist you.</p>
 
-                <div class="message-box success" id="successMessage">
-                    <p>Your support request has been submitted successfully. We aim to respond to all support requests within 24 hours. Please check your email for updates.</p>
-                    <!-- <p class="reference">Reference ID: <span id="referenceId"></span></p> -->
-                </div>
+        <form class="support-form" id="supportForm">
+          <div class="loading-overlay">
+            <div class="loading-spinner"></div>
+          </div>
 
-                <div class="message-box error" id="errorMessage">
-                    <p>Failed to submit support request. Please try again.</p>
-                    <p id="errorDetails"></p>
-                </div>
+          <div class="message-box success" id="successMessage">
+            <p>
+              Your support request has been submitted successfully. We aim to respond to all support
+              requests within 24 hours. Please check your email for updates.
+            </p>
+            <!-- <p class="reference">Reference ID: <span id="referenceId"></span></p> -->
+          </div>
 
-                <small class="required-note"><span>*</span> indicates a required field</small>
-                
-                <div class="form-group">
-                    <label for="issueType" class="required-field">I need help with:</label>
-                    <select id="issueType" name="issueType" required>
-                        <option value="change-email">Change email</option>
-                        <option value="report-code">Report code</option>
-                        <option value="autocheckin">AutoCheckin</option>
-                        <option value="feature">Feature request</option>
-                        <option value="other" selected>Other</option>
-                    </select>
+          <div class="message-box error" id="errorMessage">
+            <p>Failed to submit support request. Please try again.</p>
+            <p id="errorDetails"></p>
+          </div>
 
-                </div>
+          <small class="required-note"><span>*</span> indicates a required field</small>
 
-                <div class="warning-box" id="emailChangeWarning" style="display: none;">
-                    <p><b>Sign in Required</b></p>
-                    <p>You must be signed in to request an email change. Please sign in to your account first.</p>
-                </div>
+          <div class="form-group">
+            <label for="issueType" class="required-field">I need help with:</label>
+            <select id="issueType" name="issueType" required>
+              <option value="change-email">Change email</option>
+              <option value="report-code">Report code</option>
+              <option value="autocheckin">AutoCheckin</option>
+              <option value="feature">Feature request</option>
+              <option value="other" selected>Other</option>
+            </select>
+          </div>
 
-                <div class="form-group">
-                    <label for="email" class="required-field">Email address:</label>
-                    <input type="email" id="email" name="email" 
-                        <% if (userData && userData.username !== 'Anon') { %>
-                            value="<%= userData.email %>" 
-                            disabled
-                        <% } else { %>
-                            required
-                        <% } %>
-                    >
-                </div>
+          <div class="warning-box" id="emailChangeWarning" style="display: none">
+            <p><b>Sign in Required</b></p>
+            <p>
+              You must be signed in to request an email change. Please sign in to your account
+              first.
+            </p>
+          </div>
 
-                <div class="form-group" id="newEmailGroup" style="display: none;">
-                    <label for="newEmail" class="required-field">New email address:</label>
-                    <input type="email" id="newEmail" name="newEmail">
-                </div>
+          <div class="form-group">
+            <label for="email" class="required-field">Email address:</label>
+            <% if (userData && userData.username !== 'Anon') { %>
+            <input type="email" id="email" name="email" value="<%= userData.email %>" disabled />
+            <% } else { %>
+            <input type="email" id="email" name="email" required />
+            <% } %>
+          </div>
 
-                <div class="form-group" id="codeIdGroup" style="display: none;">
-                    <label for="codeId">Code ID:</label>
-                    <input type="text" id="codeId" name="codeId">
-                </div>
+          <div class="form-group" id="newEmailGroup" style="display: none">
+            <label for="newEmail" class="required-field">New email address:</label>
+            <input type="email" id="newEmail" name="newEmail" />
+          </div>
 
-                <div class="form-group" id="chcGroup" style="display: none;">
-                    <label for="chc">CheckOut code:</label>
-                    <input type="text" id="chc" name="chc">
-                </div>
+          <div class="form-group" id="codeIdGroup" style="display: none">
+            <label for="codeId">Code ID:</label>
+            <input type="text" id="codeId" name="codeId" />
+          </div>
 
-                <div class="form-group">
-                    <label for="message">Message:</label>
-                    <textarea id="message" name="message"></textarea>
-                    <small class="autosave-notice">Changes are saved automatically to your browser and will be restored if you leave the page.</small>
-                </div>
+          <div class="form-group" id="chcGroup" style="display: none">
+            <label for="chc">CheckOut code:</label>
+            <input type="text" id="chc" name="chc" />
+          </div>
 
-                <input type="hidden" id="preValue" name="pre">
-                <button type="submit" class="submit-button">Submit Support Request</button>
-                
-                <div class="form-footer">
-                    <p>Data is handled in accordance with our <a href="/terms-privacy">privacy policy</a>. We typically respond to support requests within 24 hours.</p>
-                </div>
-            </form>
-        </div>
+          <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message"></textarea>
+            <small class="autosave-notice"
+              >Changes are saved automatically to your browser and will be restored if you leave the
+              page.</small
+            >
+          </div>
+
+          <input type="hidden" id="preValue" name="pre" />
+          <button type="submit" class="submit-button">Submit Support Request</button>
+
+          <div class="form-footer">
+            <p>
+              Data is handled in accordance with our <a href="/terms-privacy">privacy policy</a>. We
+              typically respond to support requests within 24 hours.
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const preValue = urlParams.get('pre');
-            const codeId = urlParams.get('codeID');
-            const chc = urlParams.get('chc');
-            const msgParam = urlParams.get('msg');
+      document.addEventListener('DOMContentLoaded', function () {
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const preValue = urlParams.get('pre');
+        const codeId = urlParams.get('codeID');
+        const chc = urlParams.get('chc');
+        const msgParam = urlParams.get('msg');
 
-            const issueTypeSelect = document.getElementById('issueType');
-            const codeIdGroup = document.getElementById('codeIdGroup');
-            const chcGroup = document.getElementById('chcGroup');
-            const preValueInput = document.getElementById('preValue');
-            const messageInput = document.getElementById('message');
-            const emailInput = document.getElementById('email');
-            const codeIdInput = document.getElementById('codeId');
-            const chcInput = document.getElementById('chc');
-            const newEmailGroup = document.getElementById('newEmailGroup');
+        const issueTypeSelect = document.getElementById('issueType');
+        const codeIdGroup = document.getElementById('codeIdGroup');
+        const chcGroup = document.getElementById('chcGroup');
+        const preValueInput = document.getElementById('preValue');
+        const messageInput = document.getElementById('message');
+        const emailInput = document.getElementById('email');
+        const codeIdInput = document.getElementById('codeId');
+        const chcInput = document.getElementById('chc');
+        const newEmailGroup = document.getElementById('newEmailGroup');
 
-            // Function to save form data to localStorage
-            function saveToLocalStorage() {
-                const newEmailInput = document.getElementById('newEmail');
-                const formData = {
-                    issueType: issueTypeSelect.value,
-                    message: messageInput.value,
-                    email: emailInput.disabled ? null : emailInput.value,
-                    codeId: codeIdInput.disabled ? null : codeIdInput.value,
-                    chc: chcInput.disabled ? null : chcInput.value,
-                    newEmail: newEmailInput ? newEmailInput.value : null
-                };
-                localStorage.setItem('supportFormData', JSON.stringify(formData));
+        // Function to save form data to localStorage
+        function saveToLocalStorage() {
+          const newEmailInput = document.getElementById('newEmail');
+          const formData = {
+            issueType: issueTypeSelect.value,
+            message: messageInput.value,
+            email: emailInput.disabled ? null : emailInput.value,
+            codeId: codeIdInput.disabled ? null : codeIdInput.value,
+            chc: chcInput.disabled ? null : chcInput.value,
+            newEmail: newEmailInput ? newEmailInput.value : null,
+          };
+          localStorage.setItem('supportFormData', JSON.stringify(formData));
+        }
+
+        // Function to load form data from localStorage
+        function loadFromLocalStorage() {
+          const savedData = localStorage.getItem('supportFormData');
+          if (savedData) {
+            const formData = JSON.parse(savedData);
+
+            // Only restore if no pre value or pre value matches saved issue type
+            if (!preValue || preValue === formData.issueType) {
+              issueTypeSelect.value = formData.issueType;
             }
 
-            // Function to load form data from localStorage
-            function loadFromLocalStorage() {
-                const savedData = localStorage.getItem('supportFormData');
-                if (savedData) {
-                    const formData = JSON.parse(savedData);
-                    
-                    // Only restore if no pre value or pre value matches saved issue type
-                    if (!preValue || preValue === formData.issueType) {
-                        issueTypeSelect.value = formData.issueType;
-                    }
-
-                    // Only restore message if no msg parameter exists
-                    if (formData.message && !msgParam) {
-                        messageInput.value = formData.message;
-                    }
-
-                    // Restore email only if not disabled
-                    if (!emailInput.disabled && formData.email) {
-                        emailInput.value = formData.email;
-                    }
-
-                    // Restore code fields if not provided in URL params
-                    if (!codeId && formData.codeId && !codeIdInput.disabled) {
-                        codeIdInput.value = formData.codeId;
-                    }
-                    if (!chc && formData.chc && !chcInput.disabled) {
-                        chcInput.value = formData.chc;
-                    }
-
-                    // Show/hide code fields if needed
-                    if (issueTypeSelect.value === 'report-code') {
-                        codeIdGroup.style.display = 'block';
-                        chcGroup.style.display = 'block';
-                    }
-
-                    // Restore newEmail if it exists
-                    if (formData.newEmail && document.getElementById('newEmail')) {
-                        document.getElementById('newEmail').value = formData.newEmail;
-                    }
-                }
+            // Only restore message if no msg parameter exists
+            if (formData.message && !msgParam) {
+              messageInput.value = formData.message;
             }
 
-            // Set pre value if it exists
-            if (preValue) {
-                preValueInput.value = preValue;
-                // Check if the pre value is a valid option
-                const options = Array.from(issueTypeSelect.options).map(opt => opt.value);
-                if (options.includes(preValue)) {
-                    issueTypeSelect.value = preValue;
-                    issueTypeSelect.disabled = true;
-                } else {
-                    issueTypeSelect.value = 'other';
-                }
+            // Restore email only if not disabled
+            if (!emailInput.disabled && formData.email) {
+              emailInput.value = formData.email;
             }
 
-            // Handle report-code specific fields
+            // Restore code fields if not provided in URL params
+            if (!codeId && formData.codeId && !codeIdInput.disabled) {
+              codeIdInput.value = formData.codeId;
+            }
+            if (!chc && formData.chc && !chcInput.disabled) {
+              chcInput.value = formData.chc;
+            }
+
+            // Show/hide code fields if needed
             if (issueTypeSelect.value === 'report-code') {
-                codeIdGroup.style.display = 'block';
-                chcGroup.style.display = 'block';
-                
-                if (codeId) {
-                    codeIdInput.value = codeId;
-                    codeIdInput.disabled = true;
-                }
-                if (chc) {
-                    chcInput.value = chc;
-                    chcInput.disabled = true;
-                }
-                // Only set default message if no saved message exists
-                if (!messageInput.value) {
-                    messageInput.value = 'Please explain why this code should be removed below this line:\n';
-                }
+              codeIdGroup.style.display = 'block';
+              chcGroup.style.display = 'block';
             }
 
-            // Load saved data after handling URL parameters
-            loadFromLocalStorage();
-
-            // Set message from URL parameter if it exists (after loadFromLocalStorage)
-            if (msgParam) {
-                messageInput.value = msgParam;
-                //saveToLocalStorage();
+            // Restore newEmail if it exists
+            if (formData.newEmail && document.getElementById('newEmail')) {
+              document.getElementById('newEmail').value = formData.newEmail;
             }
+          }
+        }
 
-            // Function to handle issue type changes
-            issueTypeSelect.addEventListener('change', function() {
-                const isLoggedIn = emailInput.disabled; // If email is disabled, user is logged in
-                const emailChangeWarning = document.getElementById('emailChangeWarning');
-                const newEmailGroup = document.getElementById('newEmailGroup');
+        // Set pre value if it exists
+        if (preValue) {
+          preValueInput.value = preValue;
+          // Check if the pre value is a valid option
+          const options = Array.from(issueTypeSelect.options).map((opt) => opt.value);
+          if (options.includes(preValue)) {
+            issueTypeSelect.value = preValue;
+            issueTypeSelect.disabled = true;
+          } else {
+            issueTypeSelect.value = 'other';
+          }
+        }
 
-                if (this.value === 'report-code') {
-                    codeIdGroup.style.display = 'block';
-                    chcGroup.style.display = 'block';
-                    emailChangeWarning.style.display = 'none';
-                    newEmailGroup.style.display = 'none';
-                    if (!messageInput.value) {
-                        messageInput.value = 'Please explain why this code should be removed below this line:\n';
-                    }
-                } else if (this.value === 'change-email') {
-                    codeIdGroup.style.display = 'none';
-                    chcGroup.style.display = 'none';
-                    if (!isLoggedIn) {
-                        emailChangeWarning.style.display = 'block';
-                        newEmailGroup.style.display = 'none';
-                        document.getElementById('newEmail').removeAttribute('required');
-                    } else {
-                        emailChangeWarning.style.display = 'none';
-                        newEmailGroup.style.display = 'block';
-                        document.getElementById('newEmail').setAttribute('required', 'required');
-                    }
-                    if (messageInput.value === 'Please explain why this code should be removed below this line:\n') {
-                        messageInput.value = '';
-                    }
-                } else {
-                    codeIdGroup.style.display = 'none';
-                    chcGroup.style.display = 'none';
-                    emailChangeWarning.style.display = 'none';
-                    newEmailGroup.style.display = 'none';
-                    document.getElementById('newEmail').removeAttribute('required');
-                    if (messageInput.value === 'Please explain why this code should be removed below this line:\n') {
-                        messageInput.value = '';
-                    }
-                }
-                saveToLocalStorage();
-            });
+        // Handle report-code specific fields
+        if (issueTypeSelect.value === 'report-code') {
+          codeIdGroup.style.display = 'block';
+          chcGroup.style.display = 'block';
 
-            // Initial check for email change if that's the selected option
-            if (issueTypeSelect.value === 'change-email') {
-                const isLoggedIn = emailInput.disabled;
-                const emailChangeWarning = document.getElementById('emailChangeWarning');
-                const newEmailGroup = document.getElementById('newEmailGroup');
-                
-                if (!isLoggedIn) {
-                    emailChangeWarning.style.display = 'block';
-                    newEmailGroup.style.display = 'none';
-                } else {
-                    emailChangeWarning.style.display = 'none';
-                    newEmailGroup.style.display = 'block';
-                }
+          if (codeId) {
+            codeIdInput.value = codeId;
+            codeIdInput.disabled = true;
+          }
+          if (chc) {
+            chcInput.value = chc;
+            chcInput.disabled = true;
+          }
+          // Only set default message if no saved message exists
+          if (!messageInput.value) {
+            messageInput.value =
+              'Please explain why this code should be removed below this line:\n';
+          }
+        }
+
+        // Load saved data after handling URL parameters
+        loadFromLocalStorage();
+
+        // Set message from URL parameter if it exists (after loadFromLocalStorage)
+        if (msgParam) {
+          messageInput.value = msgParam;
+          //saveToLocalStorage();
+        }
+
+        // Function to handle issue type changes
+        issueTypeSelect.addEventListener('change', function () {
+          const isLoggedIn = emailInput.disabled; // If email is disabled, user is logged in
+          const emailChangeWarning = document.getElementById('emailChangeWarning');
+          const newEmailGroup = document.getElementById('newEmailGroup');
+
+          if (this.value === 'report-code') {
+            codeIdGroup.style.display = 'block';
+            chcGroup.style.display = 'block';
+            emailChangeWarning.style.display = 'none';
+            newEmailGroup.style.display = 'none';
+            if (!messageInput.value) {
+              messageInput.value =
+                'Please explain why this code should be removed below this line:\n';
             }
+          } else if (this.value === 'change-email') {
+            codeIdGroup.style.display = 'none';
+            chcGroup.style.display = 'none';
+            if (!isLoggedIn) {
+              emailChangeWarning.style.display = 'block';
+              newEmailGroup.style.display = 'none';
+              document.getElementById('newEmail').removeAttribute('required');
+            } else {
+              emailChangeWarning.style.display = 'none';
+              newEmailGroup.style.display = 'block';
+              document.getElementById('newEmail').setAttribute('required', 'required');
+            }
+            if (
+              messageInput.value ===
+              'Please explain why this code should be removed below this line:\n'
+            ) {
+              messageInput.value = '';
+            }
+          } else {
+            codeIdGroup.style.display = 'none';
+            chcGroup.style.display = 'none';
+            emailChangeWarning.style.display = 'none';
+            newEmailGroup.style.display = 'none';
+            document.getElementById('newEmail').removeAttribute('required');
+            if (
+              messageInput.value ===
+              'Please explain why this code should be removed below this line:\n'
+            ) {
+              messageInput.value = '';
+            }
+          }
+          saveToLocalStorage();
+        });
 
-            // Save changes for all form inputs
-            [messageInput, emailInput, codeIdInput, chcInput].forEach(input => {
-                input.addEventListener('input', saveToLocalStorage);
-            });
+        // Initial check for email change if that's the selected option
+        if (issueTypeSelect.value === 'change-email') {
+          const isLoggedIn = emailInput.disabled;
+          const emailChangeWarning = document.getElementById('emailChangeWarning');
+          const newEmailGroup = document.getElementById('newEmailGroup');
 
-            // Form submission
-            document.getElementById('supportForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const loadingOverlay = document.querySelector('.loading-overlay');
-                const successMessage = document.getElementById('successMessage');
-                const errorMessage = document.getElementById('errorMessage');
-                const submitButton = document.querySelector('.submit-button');
+          if (!isLoggedIn) {
+            emailChangeWarning.style.display = 'block';
+            newEmailGroup.style.display = 'none';
+          } else {
+            emailChangeWarning.style.display = 'none';
+            newEmailGroup.style.display = 'block';
+          }
+        }
 
-                // Hide any existing messages
-                successMessage.style.display = 'none';
-                errorMessage.style.display = 'none';
-                
-                // Show loading overlay
-                loadingOverlay.style.display = 'flex';
-                submitButton.disabled = true;
+        // Save changes for all form inputs
+        [messageInput, emailInput, codeIdInput, chcInput].forEach((input) => {
+          input.addEventListener('input', saveToLocalStorage);
+        });
 
-                // Get form data
-                const formData = {
-                    issueType: issueTypeSelect.value,
-                    email: emailInput.disabled ? emailInput.value : emailInput.value,
-                    message: messageInput.value
-                };
+        // Form submission
+        document.getElementById('supportForm').addEventListener('submit', function (e) {
+          e.preventDefault();
 
-                // Add conditional fields based on issue type
-                if (issueTypeSelect.value === 'change-email' && document.getElementById('newEmail')) {
-                    formData.newEmail = document.getElementById('newEmail').value;
+          const loadingOverlay = document.querySelector('.loading-overlay');
+          const successMessage = document.getElementById('successMessage');
+          const errorMessage = document.getElementById('errorMessage');
+          const submitButton = document.querySelector('.submit-button');
+
+          // Hide any existing messages
+          successMessage.style.display = 'none';
+          errorMessage.style.display = 'none';
+
+          // Show loading overlay
+          loadingOverlay.style.display = 'flex';
+          submitButton.disabled = true;
+
+          // Get form data
+          const formData = {
+            issueType: issueTypeSelect.value,
+            email: emailInput.disabled ? emailInput.value : emailInput.value,
+            message: messageInput.value,
+          };
+
+          // Add conditional fields based on issue type
+          if (issueTypeSelect.value === 'change-email' && document.getElementById('newEmail')) {
+            formData.newEmail = document.getElementById('newEmail').value;
+          }
+
+          if (issueTypeSelect.value === 'report-code') {
+            formData.codeId = codeIdInput.value;
+            formData.chc = chcInput.value;
+          }
+
+          // Submit to API
+          fetch('/api/support/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Hide loading overlay
+              loadingOverlay.style.display = 'none';
+              submitButton.disabled = false;
+
+              if (data.success) {
+                // Clear localStorage
+                localStorage.removeItem('supportFormData');
+
+                // Show success message
+                //document.getElementById('referenceId').textContent = data.requestId;
+                successMessage.style.display = 'block';
+
+                // Reset form
+                messageInput.value = '';
+                if (document.getElementById('newEmail')) {
+                  document.getElementById('newEmail').value = '';
+                }
+                if (!emailInput.disabled) {
+                  emailInput.value = '';
+                }
+                if (codeIdInput) {
+                  codeIdInput.value = '';
+                }
+                if (chcInput) {
+                  chcInput.value = '';
                 }
 
-                if (issueTypeSelect.value === 'report-code') {
-                    formData.codeId = codeIdInput.value;
-                    formData.chc = chcInput.value;
-                }
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              } else {
+                // Show error message
+                document.getElementById('errorDetails').textContent =
+                  data.msg || 'An unexpected error occurred.';
+                errorMessage.style.display = 'block';
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            })
+            .catch((error) => {
+              // Hide loading overlay
+              loadingOverlay.style.display = 'none';
+              submitButton.disabled = false;
 
-                // Submit to API
-                fetch('/api/support/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Hide loading overlay
-                    loadingOverlay.style.display = 'none';
-                    submitButton.disabled = false;
-
-                    if (data.success) {
-                        // Clear localStorage
-                        localStorage.removeItem('supportFormData');
-                        
-                        // Show success message
-                        //document.getElementById('referenceId').textContent = data.requestId;
-                        successMessage.style.display = 'block';
-                        
-                        // Reset form
-                        messageInput.value = '';
-                        if (document.getElementById('newEmail')) {
-                            document.getElementById('newEmail').value = '';
-                        }
-                        if (!emailInput.disabled) {
-                            emailInput.value = '';
-                        }
-                        if (codeIdInput) {
-                            codeIdInput.value = '';
-                        }
-                        if (chcInput) {
-                            chcInput.value = '';
-                        }
-
-                        // Scroll to success message
-                        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    } else {
-                        // Show error message
-                        document.getElementById('errorDetails').textContent = data.msg || 'An unexpected error occurred.';
-                        errorMessage.style.display = 'block';
-                        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                })
-                .catch(error => {
-                    // Hide loading overlay
-                    loadingOverlay.style.display = 'none';
-                    submitButton.disabled = false;
-
-                    // Show error message
-                    console.error('Error:', error);
-                    document.getElementById('errorDetails').textContent = 'An error occurred while submitting your request. Please try again.';
-                    errorMessage.style.display = 'block';
-                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                });
+              // Show error message
+              console.error('Error:', error);
+              document.getElementById('errorDetails').textContent =
+                'An error occurred while submitting your request. Please try again.';
+              errorMessage.style.display = 'block';
+              errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         });
+      });
     </script>
-</body>
-
-</html> 
+  </body>
+</html>

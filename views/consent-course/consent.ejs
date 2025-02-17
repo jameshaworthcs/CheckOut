@@ -1,59 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="/static/fav.svg" />
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json" />
     <title>Welcome to CheckOut</title>
     <%- include('../global/head'); %>
     <%- include('./consent-style.ejs'); %>
-</head>
-<body>
+  </head>
+  <body>
     <div id="loading-overlay">
-        <div id="loading-content">
-            <svg id="loading-svg" width="100" height="100">
-                <defs>
-                    <clipPath id="reveal-clip">
-                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
-                    </clipPath>
-                </defs>
-                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
-            </svg>
-            <div id="loading-spinner" class="loader" style="display: none;"></div>
-        </div>
+      <div id="loading-content">
+        <svg id="loading-svg" width="100" height="100">
+          <defs>
+            <clipPath id="reveal-clip">
+              <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+            </clipPath>
+          </defs>
+          <image
+            href="/static/tick-white-min2.svg"
+            width="100"
+            height="74"
+            clip-path="url(#reveal-clip)"
+          />
+        </svg>
+        <div id="loading-spinner" class="loader" style="display: none"></div>
       </div>
+    </div>
     <div class="header">
-        <div class="header-content">
-            <span>Welcome to</span>
-            <img src="/static/images/chk_d_v.svg" alt="Logo">
-        </div>
+      <div class="header-content">
+        <span>Welcome to</span>
+        <img src="/static/images/chk_d_v.svg" alt="Logo" />
+      </div>
     </div>
     <div class="content">
-        <p class="sub-text"><b>Effortlessly Discover and Distribute Checkout Codes.</b><br><br><span class="subtext">Set up your course and personalise your site preferences.</span></p>
-        <div class="course-box">
-            <div class="course-title">COURSE
-                <a class="box-link" href="/api/app/onboarding">Change course</a>
-            </div>
-            <div class="course-details" data-inst="yrk" data-yr="2" data-crs="cs">
-                <%- include('../global/icons/inst'); %>
-                <span id="inst_name">York</span>
-                <%- include('../global/icons/yr'); %>
-                <span id="yr">2</span>
-                <%- include('../global/icons/crs'); %>
-                <span id="crs_name">Computer Science</span>
-            </div>
+      <p class="sub-text">
+        <b>Effortlessly Discover and Distribute Checkout Codes.</b><br /><br /><span class="subtext"
+          >Set up your course and personalise your site preferences.</span
+        >
+      </p>
+      <div class="course-box">
+        <div class="course-title">
+          COURSE
+          <a class="box-link" href="/api/app/onboarding">Change course</a>
         </div>
-        <div class="customise-box">
-            <div class="customise-title">PERSONALISE
-            </div>
-            <div class="customise-details">
-                <div id="theme-selection-container">
-                    <p id="theme-instructions">
-                        <span class="light-mode-text">To enable dark mode, ensure dark mode is turned on in your device's settings.</span>
-                        <span class="dark-mode-text">To disable dark mode, ensure dark mode is turned off in your device's settings.</span>
-                    </p>
-                    <!--
+        <div class="course-details" data-inst="yrk" data-yr="2" data-crs="cs">
+          <%- include('../global/icons/inst'); %>
+          <span id="inst_name">York</span>
+          <%- include('../global/icons/yr'); %>
+          <span id="yr">2</span>
+          <%- include('../global/icons/crs'); %>
+          <span id="crs_name">Computer Science</span>
+        </div>
+      </div>
+      <div class="customise-box">
+        <div class="customise-title">PERSONALISE</div>
+        <div class="customise-details">
+          <div id="theme-selection-container">
+            <p id="theme-instructions">
+              <span class="light-mode-text"
+                >To enable dark mode, ensure dark mode is turned on in your device's settings.</span
+              >
+              <span class="dark-mode-text"
+                >To disable dark mode, ensure dark mode is turned off in your device's
+                settings.</span
+              >
+            </p>
+            <!--
                     <p>Select your preferred theme from the options below:</p>
                     
                     <div id="theme-selection" data-selected="null">
@@ -81,29 +95,35 @@
                       </div>
                     </div>
                     -->
-                </div>        
-            </div>
+          </div>
         </div>
-        <div class="cookie-box">
-            <div class="cookie-title"><%- include('../global/icons/cookie'); %> COOKIES
-                <a class="box-link" href="/learn-faq">Learn more</a>
-            </div>
-            <div class="cookie-details">   
-                <p>We solely use first-party cookies on our site. They are to enable functionality such as accounts, course selections and reputation building. By continuing to use this site you accept we use first-party cookies for all the purposes listed in our <a class="tosLink" href="/terms-privacy">terms of service</a>.</p>        
-            </div>
+      </div>
+      <div class="cookie-box">
+        <div class="cookie-title">
+          <%- include('../global/icons/cookie'); %> COOKIES
+          <a class="box-link" href="/learn-faq">Learn more</a>
         </div>
+        <div class="cookie-details">
+          <p>
+            We solely use first-party cookies on our site. They are to enable functionality such as
+            accounts, course selections and reputation building. By continuing to use this site you
+            accept we use first-party cookies for all the purposes listed in our
+            <a class="tosLink" href="/terms-privacy">terms of service</a>.
+          </p>
+        </div>
+      </div>
     </div>
     <div class="footer">
-        <p id="errorText"></p>
-        <button id="continue-btn">Continue</button>
-        <p id="termsText" class="termsText">
-            By continuing, you agree to CheckOut's
-            <a class="tosLink" href="/terms-privacy">Terms of Service</a>
-            and acknowledge CheckOut's
-            <a class="tosLink" href="/terms-privacy">privacy and cookies policy</a>.
-        </p>
+      <p id="errorText"></p>
+      <button id="continue-btn">Continue</button>
+      <p id="termsText" class="termsText">
+        By continuing, you agree to CheckOut's
+        <a class="tosLink" href="/terms-privacy">Terms of Service</a>
+        and acknowledge CheckOut's
+        <a class="tosLink" href="/terms-privacy">privacy and cookies policy</a>.
+      </p>
     </div>
-    
+
     <%- include('./consent-js.ejs'); %>
-</body>
+  </body>
 </html>

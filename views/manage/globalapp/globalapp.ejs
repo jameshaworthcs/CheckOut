@@ -1,388 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../../global/head'); %>
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
-        <meta name="description" content="" />
-        <title>Globalapp - CheckOut</title>
-
-</head>
-<body>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Globalapp - CheckOut</title>
+  </head>
+  <body>
     <%- include('../../global/navbar'); %>
 
-<div class="header-container">
-    <h1>CheckOut app status</h1>
-    <h6>Either you can update the current entry (show in the form below) or use a historic entry from the table (only last 10 entries are fetched). Press submit in the form, or the end of a table row to update the app status.</h6>
-</div>
-<style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        background: var(--content-background);
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: var(--shadow);
-    }
+    <div class="header-container">
+      <h1>CheckOut app status</h1>
+      <h6>
+        Either you can update the current entry (show in the form below) or use a historic entry
+        from the table (only last 10 entries are fetched). Press submit in the form, or the end of a
+        table row to update the app status.
+      </h6>
+    </div>
+    <style>
+          table {
+              border-collapse: collapse;
+              width: 100%;
+              max-width: 1200px;
+              margin: 0 auto;
+              background: var(--content-background);
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: var(--shadow);
+          }
 
-    table, th, td {
-        border: 1px solid var(--accent-colour);
-    }
+          table, th, td {
+              border: 1px solid var(--accent-colour);
+          }
 
-    th, td {
-        padding: 12px;
-        text-align: left;
-    }
+          th, td {
+              padding: 12px;
+              text-align: left;
+          }
 
-    th {
-        background: var(--secondary-background);
-        color: var(--text-colour);
-        font-weight: 600;
-    }
+          th {
+              background: var(--secondary-background);
+              color: var(--text-colour);
+              font-weight: 600;
+          }
 
-    td input[type="text"] {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--accent-colour);
-        border-radius: 5px;
-        background: var(--secondary-background);
-        color: var(--text-colour);
-    }
+          td input[type="text"] {
+              width: 100%;
+              padding: 8px;
+              border: 1px solid var(--accent-colour);
+              border-radius: 5px;
+              background: var(--secondary-background);
+              color: var(--text-colour);
+          }
 
-    td input[type="text"]:focus {
-        outline: none;
-        background: var(--input-focus);
-        border-color: var(--action-colour);
-    }
+          td input[type="text"]:focus {
+              outline: none;
+              background: var(--input-focus);
+              border-color: var(--action-colour);
+          }
 
-    #api-data-form {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        background: var(--content-background);
-        border-radius: 10px;
-        box-shadow: var(--shadow);
-    }
+          #api-data-form {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              width: 100%;
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 20px;
+              background: var(--content-background);
+              border-radius: 10px;
+              box-shadow: var(--shadow);
+          }
 
-    #api-data-form div.row {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px;
-    }
+          #api-data-form div.row {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              padding: 10px;
+          }
 
-    #api-data-form label {
-        color: var(--text-colour);
-        font-weight: 600;
-    }
+          #api-data-form label {
+              color: var(--text-colour);
+              font-weight: 600;
+          }
 
-    #api-data-form input[type="text"],
-    #api-data-form textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--accent-colour);
-        border-radius: 5px;
-        background: var(--secondary-background);
-        color: var(--text-colour);
-        resize: vertical;
-    }
+          #api-data-form input[type="text"],
+          #api-data-form textarea {
+              width: 100%;
+              padding: 8px;
+              border: 1px solid var(--accent-colour);
+              border-radius: 5px;
+              background: var(--secondary-background);
+              color: var(--text-colour);
+              resize: vertical;
+          }
 
-    #api-data-form input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--action-colour);
-    }
+          #api-data-form input[type="checkbox"] {
+              width: 18px;
+              height: 18px;
+              accent-color: var(--action-colour);
+          }
 
-    #api-data-form button,
-    table button {
-        padding: 8px 16px;
-        background: var(--cta-background-main);
-        color: var(--cta-button-colour-main);
-        border: none;
-        border-radius: 7px;
-        cursor: pointer;
-        font-weight: 550;
-        transition: background-color 0.2s;
-    }
+          #api-data-form button,
+          table button {
+              padding: 8px 16px;
+              background: var(--cta-background-main);
+              color: var(--cta-button-colour-main);
+              border: none;
+              border-radius: 7px;
+              cursor: pointer;
+              font-weight: 550;
+              transition: background-color 0.2s;
+          }
 
-    #api-data-form button:hover,
-    table button:hover {
-        background: var(--action-highlight-colour-main);
-    }
+          #api-data-form button:hover,
+          table button:hover {
+              background: var(--action-highlight-colour-main);
+          }
 
-    @media (max-width: 768px) {
-        #api-data-form {
-            grid-template-columns: 1fr;
-        }
-    }
+          @media (max-width: 768px) {
+              #api-data-form {
+                  grid-template-columns: 1fr;
+              }
+          }
 
-    #overlay {
-        display: none;
-        position: absolute; /* Changed from fixed to absolute */
-        top: 0;
-        left: 0;
-        right: 0; /* Ensure it spans the entire form area */
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.7);
-        z-index: 1000;
-    }
+          #overlay {
+              display: none;
+              position: absolute; /* Changed from fixed to absolute */
+              top: 0;
+              left: 0;
+              right: 0; /* Ensure it spans the entire form area */
+              bottom: 0;
+              background: rgba(255, 255, 255, 0.7);
+              z-index: 1000;
+          }
 
-    .loader {
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 2s linear infinite;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin: -25px 0 0 -25px;
-    }
-    /* for loader */
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+          .loader {
+              border: 5px solid #f3f3f3;
+              border-top: 5px solid #3498db;
+              border-radius: 50%;
+              width: 50px;
+              height: 50px;
+              animation: spin 2s linear infinite;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin: -25px 0 0 -25px;
+          }
+          /* for loader */
+          @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+          }
 
-    .header-container {
-        text-align: center;
-        max-width: 800px;
-        margin: 2rem auto;
-    }
+          .header-container {
+              text-align: center;
+              max-width: 800px;
+              margin: 2rem auto;
+          }
 
-    .header-container h1 {
-        margin-bottom: 1rem;
-        font-size: 2.5rem;
-    }
+          .header-container h1 {
+              margin-bottom: 1rem;
+              font-size: 2.5rem;
+          }
 
-    .header-container h6 {
-        font-size: 1rem;
-        line-height: 1.4;
-        margin-bottom: 2rem;
-    }
-}
+          .header-container h6 {
+              font-size: 1rem;
+              line-height: 1.4;
+              margin-bottom: 2rem;
+          }
+      }
+    </style>
 
-</style>
+    <form id="api-data-form">
+      <!-- Form fields will be generated dynamically using JavaScript -->
+    </form>
+    <br /><br /><br />
+    <div id="overlay" class="hidden">
+      <div class="loader"></div>
+    </div>
+    <h4>View and use past submissions:</h4>
+    <h5>
+      To use a previous entry, edit anything if needed in the row, and press submit. It will take
+      the place as the current row. Ignore the revID column.
+    </h5>
+    <table id="socs-table">
+      <!-- Table rows will be generated dynamically using JavaScript -->
+    </table>
+    <script>
+      document.getElementById('overlay').style.display = 'block';
+      document.addEventListener('DOMContentLoaded', () => {
+        const table = document.getElementById('socs-table');
+        const apiDataForm = document.getElementById('api-data-form');
 
-
-  <form id="api-data-form">
-    <!-- Form fields will be generated dynamically using JavaScript -->
-</form>
-<br><br><br>
-<div id="overlay" class="hidden">
-    <div class="loader"></div>
-</div>
-<h4>View and use past submissions:</h4>
-<h5>To use a previous entry, edit anything if needed in the row, and press submit. It will take the place as the current row. Ignore the revID column.</h5>
-<table id="socs-table">
-    <!-- Table rows will be generated dynamically using JavaScript -->
-</table>
-  <script>
-  document.getElementById('overlay').style.display = 'block';
-  document.addEventListener('DOMContentLoaded', () => {
-    const table = document.getElementById('socs-table');
-    const apiDataForm = document.getElementById('api-data-form');
-
-    // Fetch data from the server, populate the table and form
-    function fetchAndPopulateTableAndForm() {
-        table.innerHTML = '';
-        fetch('/manage/api/globalapp/data')
+        // Fetch data from the server, populate the table and form
+        function fetchAndPopulateTableAndForm() {
+          table.innerHTML = '';
+          fetch('/manage/api/globalapp/data')
             .then((response) => response.json())
             .then((data) => {
-                if (data.length > 0) {
-                    const headers = Object.keys(data[0]);
+              if (data.length > 0) {
+                const headers = Object.keys(data[0]);
 
-                    // Generate and populate the form based on the first item of the API response
-                    generateAndPopulateForm(headers, data[0]);
+                // Generate and populate the form based on the first item of the API response
+                generateAndPopulateForm(headers, data[0]);
 
-                    // Create table headers
-                    const headerRow = table.insertRow();
-                    headers.forEach((header) => {
-                        const th = document.createElement('th');
-                        th.textContent = header;
-                        headerRow.appendChild(th);
-                    });
+                // Create table headers
+                const headerRow = table.insertRow();
+                headers.forEach((header) => {
+                  const th = document.createElement('th');
+                  th.textContent = header;
+                  headerRow.appendChild(th);
+                });
 
-                    // Populate table rows
-                    data.forEach((row) => {
-                        const newRow = table.insertRow();
-                        headers.forEach((header) => {
-                            const cell = newRow.insertCell();
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.value = row[header];
-                            input.style.width = calculateInputWidth(input) + 'px'; // Use input width calculation
-                            cell.appendChild(input);
-                        });
-
-                        // Add a submit button to each row
-                        const submitButton = newRow.insertCell();
-                        submitButton.innerHTML = '<button>Update</button>';
-                        submitButton.querySelector('button').addEventListener('click', () => {
-                            updateRow(row.revID, newRow, headers);
-                        });
-                    });
-                    document.getElementById('overlay').style.display = 'none';
-                }
-            });
-    }
-
-    // Function to generate and populate the form dynamically
-    function generateAndPopulateForm(headers, data) {
-        headers.forEach((header) => {
-            if (header !== "revID") { // Exclude the revision ID from the form
-                const row = document.createElement('div');
-                row.classList.add('row');
-
-                const label = document.createElement('label');
-                label.textContent = header;
-
-                const inputContainer = document.createElement('div');
-                inputContainer.classList.add('input-container');
-
-                if (header.endsWith('State')) {
+                // Populate table rows
+                data.forEach((row) => {
+                  const newRow = table.insertRow();
+                  headers.forEach((header) => {
+                    const cell = newRow.insertCell();
                     const input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.name = header;
-                    input.checked = data[header] === 1;
+                    input.type = 'text';
+                    input.value = row[header];
+                    input.style.width = calculateInputWidth(input) + 'px'; // Use input width calculation
+                    cell.appendChild(input);
+                  });
 
-                    // Create a hidden input to store the value for submission
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = header;
-                    hiddenInput.value = input.checked ? '1' : '0'; // Set initial value based on checked state
+                  // Add a submit button to each row
+                  const submitButton = newRow.insertCell();
+                  submitButton.innerHTML = '<button>Update</button>';
+                  submitButton.querySelector('button').addEventListener('click', () => {
+                    updateRow(row.revID, newRow, headers);
+                  });
+                });
+                document.getElementById('overlay').style.display = 'none';
+              }
+            });
+        }
 
-                    // Update hidden input value based on checkbox state change
-                    input.addEventListener('change', function() {
-                        hiddenInput.value = this.checked ? '1' : '0';
-                    });
+        // Function to generate and populate the form dynamically
+        function generateAndPopulateForm(headers, data) {
+          headers.forEach((header) => {
+            if (header !== 'revID') {
+              // Exclude the revision ID from the form
+              const row = document.createElement('div');
+              row.classList.add('row');
 
-                    inputContainer.appendChild(input);
-                    inputContainer.appendChild(hiddenInput); // Ensure the hidden input is also appended for form submission
-                } else {
-                    // Use textarea for multi-line input
-                    const textarea = document.createElement('textarea');
-                    textarea.value = data[header];
-                    textarea.name = header;
-                    textarea.rows = 1; // Start with a single line
-                    // Auto-expand the textarea as the user types
-                    textarea.oninput = function() {
-                        this.style.height = 'auto';
-                        this.style.height = (this.scrollHeight) + 'px';
-                    };
+              const label = document.createElement('label');
+              label.textContent = header;
 
-                    inputContainer.appendChild(textarea);
-                }
+              const inputContainer = document.createElement('div');
+              inputContainer.classList.add('input-container');
 
-                row.appendChild(label);
-                row.appendChild(inputContainer);
-                apiDataForm.appendChild(row);
+              if (header.endsWith('State')) {
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = header;
+                input.checked = data[header] === 1;
+
+                // Create a hidden input to store the value for submission
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = header;
+                hiddenInput.value = input.checked ? '1' : '0'; // Set initial value based on checked state
+
+                // Update hidden input value based on checkbox state change
+                input.addEventListener('change', function () {
+                  hiddenInput.value = this.checked ? '1' : '0';
+                });
+
+                inputContainer.appendChild(input);
+                inputContainer.appendChild(hiddenInput); // Ensure the hidden input is also appended for form submission
+              } else {
+                // Use textarea for multi-line input
+                const textarea = document.createElement('textarea');
+                textarea.value = data[header];
+                textarea.name = header;
+                textarea.rows = 1; // Start with a single line
+                // Auto-expand the textarea as the user types
+                textarea.oninput = function () {
+                  this.style.height = 'auto';
+                  this.style.height = this.scrollHeight + 'px';
+                };
+
+                inputContainer.appendChild(textarea);
+              }
+
+              row.appendChild(label);
+              row.appendChild(inputContainer);
+              apiDataForm.appendChild(row);
             }
-        });
+          });
 
-        const submitBtn = document.createElement('button');
-        submitBtn.type = 'submit';
-        submitBtn.textContent = 'Submit Form';
-        apiDataForm.appendChild(submitBtn);
+          const submitBtn = document.createElement('button');
+          submitBtn.type = 'submit';
+          submitBtn.textContent = 'Submit Form';
+          apiDataForm.appendChild(submitBtn);
 
-        apiDataForm.addEventListener('submit', submitFormData);
-        
-    }
+          apiDataForm.addEventListener('submit', submitFormData);
+        }
 
-    // Function to submit form data to another API
-    function submitFormData(e) {
-    e.preventDefault(); // Prevent the default form submission
+        // Function to submit form data to another API
+        function submitFormData(e) {
+          e.preventDefault(); // Prevent the default form submission
 
-    const jsonData = {};
+          const jsonData = {};
 
-    // Iterate over all input and textarea elements to build the jsonData object
-    apiDataForm.querySelectorAll('input, textarea').forEach(input => {
-        // Check if the input has a name attribute
-        if (input.name) {
-            if (input.type === 'checkbox') {
+          // Iterate over all input and textarea elements to build the jsonData object
+          apiDataForm.querySelectorAll('input, textarea').forEach((input) => {
+            // Check if the input has a name attribute
+            if (input.name) {
+              if (input.type === 'checkbox') {
                 // Explicitly set 1 or 0 for named checkboxes
                 jsonData[input.name] = input.checked ? 1 : 0;
-            } else {
+              } else {
                 // Include named text and textarea inputs directly
                 jsonData[input.name] = input.value;
+              }
             }
+          });
+
+          // Debugging: Log jsonData to console to verify its structure before submission
+          console.log('Form submission data:', jsonData);
+
+          // Proceed with fetch to submit jsonData
+          fetch('/manage/api/globalapp/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: jsonData }),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.success) {
+                alert('App status updated successfully!');
+                apiDataForm.innerHTML = '';
+                fetchAndPopulateTableAndForm();
+              } else {
+                alert('Failed to submit form');
+              }
+            })
+            .catch((error) => {
+              console.error('Error submitting form:', error);
+              alert('Error submitting form');
+            });
         }
-    });
 
-    // Debugging: Log jsonData to console to verify its structure before submission
-    console.log("Form submission data:", jsonData);
-
-    // Proceed with fetch to submit jsonData
-    fetch('/manage/api/globalapp/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({data:jsonData}),
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert('App status updated successfully!');
-            apiDataForm.innerHTML = '';
-            fetchAndPopulateTableAndForm()
-        } else {
-            alert('Failed to submit form');
+        // Function to calculate the input width dynamically
+        function calculateInputWidth(input) {
+          const temp = document.createElement('span');
+          temp.innerHTML = input.value;
+          temp.style.visibility = 'hidden';
+          document.body.appendChild(temp);
+          const width = temp.offsetWidth;
+          document.body.removeChild(temp);
+          return width;
         }
-    }).catch(error => {
-        console.error('Error submitting form:', error);
-        alert('Error submitting form');
-    });
-}
 
-
-
-    // Function to calculate the input width dynamically
-    function calculateInputWidth(input) {
-        const temp = document.createElement('span');
-        temp.innerHTML = input.value;
-        temp.style.visibility = 'hidden';
-        document.body.appendChild(temp);
-        const width = temp.offsetWidth;
-        document.body.removeChild(temp);
-        return width;
-    }
-
-    // Function to update a row in the table
-    function updateRow(id, row, headers) {
-        const cells = row.getElementsByTagName('input');
-        const data = {};
-        for (let i = 0; i < cells.length; i++) {
-            if (headers[i] !== "revID") {
-                data[headers[i]] = cells[i].value;
+        // Function to update a row in the table
+        function updateRow(id, row, headers) {
+          const cells = row.getElementsByTagName('input');
+          const data = {};
+          for (let i = 0; i < cells.length; i++) {
+            if (headers[i] !== 'revID') {
+              data[headers[i]] = cells[i].value;
             }
-        }
+          }
 
-        fetch('/manage/api/globalapp/update', {
+          fetch('/manage/api/globalapp/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: data }),
-        })
+          })
             .then((response) => response.json())
             .then((result) => {
-                if (result.success) {
-                    alert('New app status submitted!');
-                    location.reload();
-                } else {
-                    alert('Failed to update row');
-                }
+              if (result.success) {
+                alert('New app status submitted!');
+                location.reload();
+              } else {
+                alert('Failed to update row');
+              }
             });
-    }
+        }
 
-    // Fetch and populate the table and form when the page loads
-    fetchAndPopulateTableAndForm();
-});
-
-</script>
-</body>
+        // Fetch and populate the table and form when the page loads
+        fetchAndPopulateTableAndForm();
+      });
+    </script>
+  </body>
 </html>

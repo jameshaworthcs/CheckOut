@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
-import session from "express-session"
-import {RedisStore} from "connect-redis"
-import {createClient} from "redis"
+import session from 'express-session';
+import { RedisStore } from 'connect-redis';
+import { createClient } from 'redis';
 const EventEmitter = require('events');
 
 let redisClient = null;
@@ -16,7 +16,7 @@ try {
     username: process.env.REDISUSER,
     password: process.env.REDISPASSWORD,
     family: 0,
-    maxRetriesPerRequest: 1
+    maxRetriesPerRequest: 1,
   });
 
   // Increase max listeners to prevent warnings
@@ -24,7 +24,7 @@ try {
 
   // Set up error handler
   redisClient.on('error', (err) => {
-    console.log("Redis client error:", err);
+    console.log('Redis client error:', err);
     USE_MYSQL_SESSION_STORE = true;
     redisClient = null;
   });
@@ -33,16 +33,15 @@ try {
   redisStore = new RedisStore({
     client: redisClient,
   });
-  
+
   // Increase max listeners for the store
   if (redisStore instanceof EventEmitter) {
     redisStore.setMaxListeners(30);
   }
-  
-  console.log("Redis store connected");
 
+  console.log('Redis store connected');
 } catch (err) {
-  console.log("Redis installation not found, using SQL session store instead:", err);
+  console.log('Redis installation not found, using SQL session store instead:', err);
   USE_MYSQL_SESSION_STORE = true;
 }
 
@@ -87,5 +86,5 @@ module.exports = {
   USE_MYSQL_SESSION_STORE,
   handleShutdown,
   getCache,
-  setCache
-}; 
+  setCache,
+};

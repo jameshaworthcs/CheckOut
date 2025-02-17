@@ -1,73 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cookie Consent</title>
     <%- include('../consent/style'); %>
-</head>
-<body>
+  </head>
+  <body>
     <div class="background"></div>
     <div class="content-wrapper">
-        <div class="content">
-            <div class="header">
-                <img src="https://rejectdopamine.com/1.3-white.png" alt="Left Logo">
-                <div class="spacer"></div>
-                <img class="headerjem" src="https://cdn.verifiedhandles.com/static-web-assets/sites/d7b834586v3b33624gf53dfg95t6cf13n64r8x971s6hd4n3b53n/images/jem-media.svg" alt="Right Logo">
-            </div>
-            <p class="text">
-                We, CheckOut, are part of the <b>CheckOut</b> family of brands. <br><br>When you use our sites and apps we use <b>cookies</b>, server and user side tracking technologies to:
-                <ul>
-                    <li>provide our sites and apps to you</li>
-                    <li>authenticate users, apply security measures, and prevent spam and abuse, and</li>
-                    <li>measure your use of our sites and apps</li>
-                </ul>
-                <hr></p>
-                <p>If you click '<b>Accept</b>', we and <a href="https://rejectdopamine.com/terms">our parters</a> will also use cookies and your personal data, such as IP address, precise location, and browsing and search data, to:
-                
-                <ul>
-                    <li>display personalised ads and content based on interest profiles</li>
-                    <li>measure the effectiveness of personalised ads and content, and</li>
-                    <li>develop and improve our products and services</li>
-                </ul>
-                If you do not want us and our partners to use cookies and personal data for these additional purposes, please navigate away from this site.
-                Clicking '<b>Accept</b>' means that you agree with CheckOut's <a href="https://rejectdopamine.com/terms">Terms of Services</a> and acknowledge CheckOut's <a href="https://rejectdopamine.com/terms">privacy and cookies policy</a>.</p>
-            </p>
-            <div class="button-container">
-                <form id="cookieForm" action="https://rejectdopamine.com/caccept" method="post">
-                <button class="accept-button">Accept</button>
-                <input type="hidden" name="wallToken" id="wallToken" value="<%= wallToken %>">
-            </form>
-                <!-- <span class="learn-more">Learn More</span> -->
-            </div>
+      <div class="content">
+        <div class="header">
+          <img src="https://rejectdopamine.com/1.3-white.png" alt="Left Logo" />
+          <div class="spacer"></div>
+          <img
+            class="headerjem"
+            src="https://cdn.verifiedhandles.com/static-web-assets/sites/d7b834586v3b33624gf53dfg95t6cf13n64r8x971s6hd4n3b53n/images/jem-media.svg"
+            alt="Right Logo"
+          />
         </div>
+        <p class="text">
+          We, CheckOut, are part of the <b>CheckOut</b> family of brands. <br /><br />When you use
+          our sites and apps we use <b>cookies</b>, server and user side tracking technologies to:
+        </p>
+        <ul>
+          <li>provide our sites and apps to you</li>
+          <li>authenticate users, apply security measures, and prevent spam and abuse, and</li>
+          <li>measure your use of our sites and apps</li>
+        </ul>
+        <hr />
+        <p class="text">
+          If you click '<b>Accept</b>', we and
+          <a href="https://rejectdopamine.com/terms">our parters</a> will also use cookies and your
+          personal data, such as IP address, precise location, and browsing and search data, to:
+        </p>
+        <ul>
+          <li>display personalised ads and content based on interest profiles</li>
+          <li>measure the effectiveness of personalised ads and content, and</li>
+          <li>develop and improve our products and services</li>
+        </ul>
+        <p class="text">
+          If you do not want us and our partners to use cookies and personal data for these
+          additional purposes, please navigate away from this site. Clicking '<b>Accept</b>' means
+          that you agree with CheckOut's
+          <a href="https://rejectdopamine.com/terms">Terms of Services</a> and acknowledge
+          CheckOut's <a href="https://rejectdopamine.com/terms">privacy and cookies policy</a>.
+        </p>
+        <div class="button-container">
+          <form id="cookieForm" action="https://rejectdopamine.com/caccept" method="post">
+            <button class="accept-button">Accept</button>
+            <input type="hidden" name="wallToken" id="wallToken" value="<%= wallToken %>" />
+          </form>
+          <!-- <span class="learn-more">Learn More</span> -->
+        </div>
+      </div>
     </div>
     <button id="readMoreButton" class="read-more">Read More</button>
-    <script>window.onload = function() {
+    <script>
+      window.onload = function () {
         var contentHeight = document.querySelector('.content').scrollHeight;
-        console.log(contentHeight)
+        console.log(contentHeight);
         var windowHeight = window.innerHeight;
-        console.log(windowHeight)
-    
+        console.log(windowHeight);
+
         if (contentHeight > windowHeight) {
-            document.getElementById('readMoreButton').style.display = 'block';
+          document.getElementById('readMoreButton').style.display = 'block';
         }
-    
-        document.getElementById('readMoreButton').addEventListener('click', function() {
-            document.querySelector('.content').scroll({
-                top: contentHeight,
-                behavior: 'smooth'
-            });
-            this.classList.add('animation');
+
+        document.getElementById('readMoreButton').addEventListener('click', function () {
+          document.querySelector('.content').scroll({
+            top: contentHeight,
+            behavior: 'smooth',
+          });
+          this.classList.add('animation');
         });
-    
-        document.querySelector('.content').addEventListener('scroll', function() {
-            document.getElementById('readMoreButton').style.display = 'none';
+
+        document.querySelector('.content').addEventListener('scroll', function () {
+          document.getElementById('readMoreButton').style.display = 'none';
         });
-    
-        document.getElementById('readMoreButton').addEventListener('click', function() {
-            this.style.display = 'none';
+
+        document.getElementById('readMoreButton').addEventListener('click', function () {
+          this.style.display = 'none';
         });
-    };</script>
-</body>
+      };
+    </script>
+  </body>
 </html>

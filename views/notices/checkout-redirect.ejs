@@ -1,84 +1,83 @@
 <style>
   #banner-notice {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: #007bff; /* Blue background */
-  color: #fff; /* White text */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  font-family: Arial, sans-serif;
-  z-index: 1000000; /* Ensure the banner appears above other content */
-}
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #007bff; /* Blue background */
+    color: #fff; /* White text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    z-index: 1000000; /* Ensure the banner appears above other content */
+  }
 
-#banner-notice img {
-  max-height: 50px; /* Adjust height as needed */
-}
+  #banner-notice img {
+    max-height: 50px; /* Adjust height as needed */
+  }
 
-#imgdiv {
+  #imgdiv {
     text-align: center;
-}
+  }
 
-.notice-text {
-  flex: 1;
-  text-align: center;
-  color: #fff; /* White text */
-  font-size: 1.1em;
-}
+  .notice-text {
+    flex: 1;
+    text-align: center;
+    color: #fff; /* White text */
+    font-size: 1.1em;
+  }
 
-#close-banner {
-  cursor: pointer;
-  color: #fff; /* White text */
-  font-size: 40px;
-  margin-right: 20px;
-}
+  #close-banner {
+    cursor: pointer;
+    color: #fff; /* White text */
+    font-size: 40px;
+    margin-right: 20px;
+  }
 
-#page-content {
-  margin-top: 60px; /* Adjust to match the height of the banner notice */
-}
-
-
+  #page-content {
+    margin-top: 60px; /* Adjust to match the height of the banner notice */
+  }
 </style>
 
 <div id="banner-notice">
-    <div id="imgdiv">
-    <img height="40px" src="/static/redirect.svg" alt="Banner Image">
-</div>
-    <div class="notice-text">
-      <p class="notice-text">You have been redirected from rejectdopamine.com to <b>checkout.ac</b>.</p>
-    </div>
-    <span id="close-banner">x</span>
+  <div id="imgdiv">
+    <img height="40px" src="/static/redirect.svg" alt="Banner Image" />
   </div>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-  var closeBtn = document.getElementById("close-banner");
-  var bannerNotice = document.getElementById("banner-notice");
+  <div class="notice-text">
+    <p class="notice-text">
+      You have been redirected from rejectdopamine.com to <b>checkout.ac</b>.
+    </p>
+  </div>
+  <span id="close-banner">x</span>
+</div>
 
-  closeBtn.addEventListener("click", function() {
-    bannerNotice.style.display = "none";
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var closeBtn = document.getElementById('close-banner');
+    var bannerNotice = document.getElementById('banner-notice');
+
+    closeBtn.addEventListener('click', function () {
+      bannerNotice.style.display = 'none';
+    });
   });
-});
 
+  // to remove params
+  // Get the current URL
+  const currentUrl = window.location.href;
 
-// to remove params
-// Get the current URL
-const currentUrl = window.location.href;
+  // Check if there are any query parameters
+  const queryStringIndex = currentUrl.indexOf('?');
 
-// Check if there are any query parameters
-const queryStringIndex = currentUrl.indexOf('?');
-
-// If there are query parameters, remove them
-let newUrl;
-if (queryStringIndex !== -1) {
+  // If there are query parameters, remove them
+  let newUrl;
+  if (queryStringIndex !== -1) {
     newUrl = currentUrl.substring(0, queryStringIndex);
-} else {
+  } else {
     newUrl = currentUrl; // No query parameters to remove
-}
+  }
 
-// Replace the URL in the browser's history
-history.replaceState({}, document.title, newUrl);
-  </script>
+  // Replace the URL in the browser's history
+  history.replaceState({}, document.title, newUrl);
+</script>

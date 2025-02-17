@@ -25,15 +25,17 @@ function getPastCodes(req, res, callback) {
       var countParams = [req.usersIP, deviceID, req.useremail];
     }
 
-    if (req.sessionID) { var deviceID = req.sessionID; } else {
+    if (req.sessionID) {
+      var deviceID = req.sessionID;
+    } else {
       var deviceID = 'null';
     }
-    
+
     // Generate a random secret of 64 bytes and convert to hex string
     const secret = crypto.randomBytes(64).toString('hex');
 
     // First get total count
-    db.query(countQuery, countParams, function(err, countResult) {
+    db.query(countQuery, countParams, function (err, countResult) {
       if (err) {
         callback(err, null);
         return;
@@ -53,32 +55,48 @@ function getPastCodes(req, res, callback) {
         const ipCounts = {};
         const deviceIDCounts = {};
 
-        result.forEach(row => {
+        result.forEach((row) => {
           // Hash usernames if not anon or guest
-          if (row.username && row.username !== 'anon@checkout.ac.uk' && row.username !== 'guest@checkout.ac.uk') {
-            const hashedUsername = crypto.createHash('sha256').update(secret + row.username).digest('hex').substring(0, 10);
+          if (
+            row.username &&
+            row.username !== 'anon@checkout.ac.uk' &&
+            row.username !== 'guest@checkout.ac.uk'
+          ) {
+            const hashedUsername = crypto
+              .createHash('sha256')
+              .update(secret + row.username)
+              .digest('hex')
+              .substring(0, 10);
             usernameCounts[hashedUsername] = (usernameCounts[hashedUsername] || 0) + 1;
           } else {
             usernameCounts[row.username] = (usernameCounts[row.username] || 0) + 1;
           }
-      
+
           // Hash IPs
-          const hashedIp = crypto.createHash('sha256').update(secret + (row.ip || '')).digest('hex').substring(0, 10);
+          const hashedIp = crypto
+            .createHash('sha256')
+            .update(secret + (row.ip || ''))
+            .digest('hex')
+            .substring(0, 10);
           ipCounts[hashedIp] = (ipCounts[hashedIp] || 0) + 1;
-      
+
           // Hash deviceIDs
-          const hashedDeviceID = crypto.createHash('sha256').update(secret + (row.deviceID || '')).digest('hex').substring(0, 10);
+          const hashedDeviceID = crypto
+            .createHash('sha256')
+            .update(secret + (row.deviceID || ''))
+            .digest('hex')
+            .substring(0, 10);
           deviceIDCounts[hashedDeviceID] = (deviceIDCounts[hashedDeviceID] || 0) + 1;
         });
 
         // Hash the results
-        const hashedResult = result.map(row => {
+        const hashedResult = result.map((row) => {
           const hashTimestamp = crypto.createHash('sha256');
           const hashIp = crypto.createHash('sha256');
           const hashUseragent = crypto.createHash('sha256');
           const hashDeviceID = crypto.createHash('sha256');
           const hashUsername = crypto.createHash('sha256');
-          
+
           hashTimestamp.update(secret + (row.timestamp || ''));
           const hashedTimestamp = hashTimestamp.digest('hex').substring(0, 10);
 
@@ -92,7 +110,11 @@ function getPastCodes(req, res, callback) {
           const hashedDeviceID = hashDeviceID.digest('hex').substring(0, 10);
 
           let hashedUsername = '';
-          if (row.username && row.username !== 'anon@checkout.ac.uk' && row.username !== 'guest@checkout.ac.uk') {
+          if (
+            row.username &&
+            row.username !== 'anon@checkout.ac.uk' &&
+            row.username !== 'guest@checkout.ac.uk'
+          ) {
             hashUsername.update(secret + row.username);
             hashedUsername = hashUsername.digest('hex').substring(0, 10);
           }
@@ -103,7 +125,7 @@ function getPastCodes(req, res, callback) {
             ip: hashedIp,
             useragent: hashedUseragent,
             deviceID: hashedDeviceID,
-            username: hashedUsername
+            username: hashedUsername,
           };
         });
 
@@ -113,21 +135,20 @@ function getPastCodes(req, res, callback) {
             totalCount,
             usernameCounts,
             ipCounts,
-            deviceIDCounts
+            deviceIDCounts,
           },
           pagination: {
             offset,
             limit,
             total: totalCount,
-            hasMore: offset + result.length < totalCount
+            hasMore: offset + result.length < totalCount,
           },
-          pastCodes: hashedResult
+          pastCodes: hashedResult,
         };
 
         callback(null, dataWithStats);
       });
     });
-
   } catch (err) {
     callback(err, null);
   }
@@ -138,19 +159,18 @@ router.get('/api/history/history', function (req, res) {
   getPastCodes(req, res, function (err, codesObject) {
     if (err) {
       res.status(500);
-      res.send("Error")
-      console.log("Error in history status", err);
+      res.send('Error');
+      console.log('Error in history status', err);
       return;
     }
-    res.header("Content-Type",'application/json');
+    res.header('Content-Type', 'application/json');
     res.send(JSON.stringify(codesObject, null, 2));
   });
 });
 
 router.get('*', function (req, res) {
-    res.status(404);
-    res.json({ 'success': false, msg: 'Not a valid endpoint. (history-api)' });
-})
+  res.status(404);
+  res.json({ success: false, msg: 'Not a valid endpoint. (history-api)' });
+});
 
-module.exports = router; 
-
+module.exports = router;

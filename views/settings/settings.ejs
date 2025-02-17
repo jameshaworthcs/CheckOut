@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <%- include('../global/head'); %>
+  <head>
+    <%- include('../global/head'); %>
     <%- include('../account/account-styles'); %>
-      <title>Settings - CheckOut</title>
-      <style>
-    .settings-box {
+    <title>Settings - CheckOut</title>
+    <style>
+      .settings-box {
         background: var(--content-background);
         border: 1px solid lightgrey;
         border-radius: 10px;
@@ -18,54 +17,54 @@
         width: 70%;
         margin: 0 auto;
         margin-top: 20px;
-    }
+      }
 
-    .settings-title {
+      .settings-title {
         display: flex;
-        opacity: .6;
+        opacity: 0.6;
         margin-bottom: 5px;
         font-size: 14px;
-    }
+      }
 
-    .settings-details {
+      .settings-details {
         display: flex;
         align-items: center;
         gap: 5px;
         /* Spacing between icons and text */
         font-size: 14px;
         margin-bottom: 5px;
-    }
+      }
 
-    .settings-title svg {
+      .settings-title svg {
         width: 16px;
         height: 16px;
         fill: rgb(155, 155, 155);
         margin-right: 5px;
         /* Icon color */
-    }
+      }
 
-    .settings-details svg {
+      .settings-details svg {
         width: 16px;
         height: 16px;
         fill: rgb(155, 155, 155);
         /* Icon color */
-    }
+      }
 
-    .image-container {
+      .image-container {
         position: relative;
         display: inline-block;
         border-radius: 15px;
         overflow: hidden;
-    }
+      }
 
-    .image-container img {
+      .image-container img {
         width: 100%;
         height: auto;
         border-radius: 15px;
         filter: blur(17px);
-    }
+      }
 
-    .image-container::after {
+      .image-container::after {
         content: 'Coming soon';
         color: white;
         font-size: 1.3em;
@@ -75,56 +74,56 @@
         transform: translate(-50%, -50%);
         text-align: center;
         width: 100%;
-    }
+      }
 
-    .box-link,
-    .box-link:active,
-    .box-link:visited {
+      .box-link,
+      .box-link:active,
+      .box-link:visited {
         /* color: #58a6ff; */
         text-decoration: none;
         margin-left: auto;
-    }
+      }
 
-    .deviceID-text {
-        opacity: .7 !important;
+      .deviceID-text {
+        opacity: 0.7 !important;
         font-size: 11px;
-    }
+      }
 
-    #theme-selection-container {
+      #theme-selection-container {
         text-align: center;
         width: 100%;
         padding-left: 5px;
         padding-right: 5px;
-    }
+      }
 
-    #theme-selection-container p {
+      #theme-selection-container p {
         margin-bottom: 20px;
-    }
+      }
 
-    #theme-selection {
+      #theme-selection {
         display: flex;
         justify-content: space-between;
         width: 100%;
-    }
+      }
 
-    .theme-column {
+      .theme-column {
         flex: 1;
         text-align: center;
         cursor: pointer;
         position: relative;
         margin: 0 10px;
-    }
+      }
 
-    .image-wrapper {
+      .image-wrapper {
         position: relative;
-    }
+      }
 
-    .theme-img {
+      .theme-img {
         width: 100%;
         max-width: 80px;
-    }
+      }
 
-    .tick-mark {
+      .tick-mark {
         /* position: absolute; */
         /* top: -11px;
         right: -9px; */
@@ -132,81 +131,97 @@
         font-size: 18px;
         display: none;
         /* Hidden by default */
-    }
+      }
 
-    .selected .tick-mark {
+      .selected .tick-mark {
         display: inline-block;
         /* Show the tick mark when the column is selected */
-    }
+      }
 
-    .theme-label {
+      .theme-label {
         font-size: 16px;
         margin-top: 10px;
-    }
+      }
 
-    .coming-soon {
+      .coming-soon {
         color: grey;
-    }
+      }
 
-    .selected .theme-label {
+      .selected .theme-label {
         font-weight: bold;
-    }
+      }
 
-    .red-flash {
+      .red-flash {
         color: red;
-    }
+      }
 
-    @media (max-width: 768px) {
-    .settings-box {
-        width: 95%;
-    }
-}
-      </style>
-</head>
+      @media (max-width: 768px) {
+        .settings-box {
+          width: 95%;
+        }
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
     <%- include('../global/navbar'); %>
-        <div class="container">
-            <h1>Settings</h1>
-            <hr>
+    <div class="container">
+      <h1>Settings</h1>
+      <hr />
 
-            <div class="settings-box">
-                <div class="settings-title">ACCOUNT
-                    <a id="signInText" class="box-link" href="/account">Sign in</a>
-                </div>
-                <div class="settings-details">
-                    <%- include('../global/icons/user'); %>
-                        <span id="accountDetails">Loading..</span>
-                </div>
-            </div>
+      <div class="settings-box">
+        <div class="settings-title">
+          ACCOUNT
+          <a id="signInText" class="box-link" href="/account">Sign in</a>
+        </div>
+        <div class="settings-details">
+          <%- include('../global/icons/user'); %>
+          <span id="accountDetails">Loading..</span>
+        </div>
+      </div>
 
-            <div class="settings-box">
-                <div class="settings-title">COURSE
-                    <a class="box-link" href="/api/app/onboarding">Change course</a>
-                </div>
-                <div class="settings-details" style="display: block;">
-                    <div style="display: flex; align-items: center; gap: 5px; font-size: 14px; margin-bottom: 5px;">
-                        <%- include('../global/icons/inst'); %>
-                        <span id="institutionName">Loading..</span>
-                        <%- include('../global/icons/crs'); %>
-                        <span id="courseName">Loading..</span>
-                      <%- include('../global/icons/yr'); %>
-                        <span id="year">Loading..</span>
-                    </div>
-                    <br>
-                    Modules: <span id="modules">Loading..</span>
-                    <p>Change your course <a href="/api/app/onboarding">here</a>.</p>
-                </div>
-            </div>
+      <div class="settings-box">
+        <div class="settings-title">
+          COURSE
+          <a class="box-link" href="/api/app/onboarding">Change course</a>
+        </div>
+        <div class="settings-details" style="display: block">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 14px;
+              margin-bottom: 5px;
+            "
+          >
+            <%- include('../global/icons/inst'); %>
+            <span id="institutionName">Loading..</span>
+            <%- include('../global/icons/crs'); %>
+            <span id="courseName">Loading..</span>
+            <%- include('../global/icons/yr'); %>
+            <span id="year">Loading..</span>
+          </div>
+          <br />
+          Modules: <span id="modules">Loading..</span>
+          <p>Change your course <a href="/api/app/onboarding">here</a>.</p>
+        </div>
+      </div>
 
-            <div class="settings-box">
-                <div class="settings-title">PERSONALISE
-                    <!-- <span id="change-customise" class="link-unavailable">Customise</span> -->
-                </div>
-                <p class="settings-details">Change your theme. If signed in, this will change the theme for all your devices!</p>
-                <div class="settings-details">
-                    <p>Themes are currently unavailable! <br><br>To use dark mode, ensure you are signed in and have enabled dark mode in your device's settings.</p>
-                    <!--
+      <div class="settings-box">
+        <div class="settings-title">
+          PERSONALISE
+          <!-- <span id="change-customise" class="link-unavailable">Customise</span> -->
+        </div>
+        <p class="settings-details">
+          Change your theme. If signed in, this will change the theme for all your devices!
+        </p>
+        <div class="settings-details">
+          <p>
+            Themes are currently unavailable! <br /><br />To use dark mode, ensure you are signed in
+            and have enabled dark mode in your device's settings.
+          </p>
+          <!--
                     <div id="theme-selection-container">
                         
                         <div id="theme-selection" data-selected="null">
@@ -232,28 +247,32 @@
                           </div>
                         </div>
                     </div>   
-                    -->         
-                </div>   
-            </div>
-
-            <div class="settings-box">
-                <div class="settings-title"><%- include('../global/icons/cookie'); %> YOUR DATA
-                    <a class="box-link" href="/data">Manage your data</a>
-                </div>
-                <div class="settings-details">   
-                    <p>As outlined in our <a href="/learn-faq">FAQ</a>, your data is yours, and we are committed to making it simple for you to view the information we hold about you or request its deletion. To access your data or submit a request, <a href="/data">click here</a>.</p>    
-                </div>
-            </div>
-
-            <br>
-            <hr>
-
-            <p class="deviceID-text">Device ID: <span id="deviceID">Loading..</span></p>
-            <p class="deviceID-text"><span id="userSince">Loading..</span></p>
+                    -->
         </div>
+      </div>
 
-        <%- include('./settings-js'); %>
+      <div class="settings-box">
+        <div class="settings-title">
+          <%- include('../global/icons/cookie'); %> YOUR DATA
+          <a class="box-link" href="/data">Manage your data</a>
+        </div>
+        <div class="settings-details">
+          <p>
+            As outlined in our <a href="/learn-faq">FAQ</a>, your data is yours, and we are
+            committed to making it simple for you to view the information we hold about you or
+            request its deletion. To access your data or submit a request,
+            <a href="/data">click here</a>.
+          </p>
+        </div>
+      </div>
 
-</body>
+      <br />
+      <hr />
 
+      <p class="deviceID-text">Device ID: <span id="deviceID">Loading..</span></p>
+      <p class="deviceID-text"><span id="userSince">Loading..</span></p>
+    </div>
+
+    <%- include('./settings-js'); %>
+  </body>
 </html>

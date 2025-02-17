@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../global/head'); %>
     <title><%= msgTitle %> - CheckOut</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
 
-        .center-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            height: 100%;
-        }
+      .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+      }
 
-        .msg-title, .msg-body {
-            margin: 0;
-        }
+      .msg-title,
+      .msg-body {
+        margin: 0;
+      }
 
-        a {
-            text-decoration: underline;
-            color: #2A79CC;
-        }
+      a {
+        text-decoration: underline;
+        color: #2a79cc;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('../global/navbar'); %>
     <div class="center-container">
-        <div>
-            <h1 class="msg-title"><%= msgTitle %></h1>
-            <p class="msg-body"><%- msgBody %></p>
-        </div>
+      <div>
+        <h1 class="msg-title"><%= msgTitle %></h1>
+        <p class="msg-body"><%- msgBody %></p>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

@@ -1,283 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>Learn & FAQ - CheckOut</title>
-    <meta name="description"
-        content="Frequently asked questions (FAQ) for CheckOut. Learn about CheckOut's processes and how to use the site.">
+    <meta
+      name="description"
+      content="Frequently asked questions (FAQ) for CheckOut. Learn about CheckOut's processes and how to use the site."
+    />
     <%- include('../global/head'); %>
-        <style>
-            <%- include('../global/faq-helpers/styles.css'); %>
-        </style>
-</head>
+    <style>
+      <%- include('../global/faq-helpers/styles.css'); %>
+    </style>
+  </head>
 
-<body>
+  <body>
     <%- include('../global/navbar'); %>
 
-        <h1>Learn & FAQ</h1>
+    <h1>Learn & FAQ</h1>
 
-        <!-- Inline SVG Definition -->
-        <svg style="display: none;">
-            <symbol id="chevron-up" viewBox="0 0 512 512">
-                <path
-                    d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z" />
-            </symbol>
-        </svg>
+    <!-- Inline SVG Definition -->
+    <svg style="display: none">
+      <symbol id="chevron-up" viewBox="0 0 512 512">
+        <path
+          d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z"
+        />
+      </symbol>
+    </svg>
 
-        <div class="accordion-section">
-            <h2>Learn</h2>
-            <div class="accordion active">
-                <div class="accordion-header">
-                    The Infrastructure Behind CheckOut
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>At CheckOut, we prioritize traditional and robust web development processes. Our scalable and
-                        resilient server network is powered by a classic stack of nginx, Varnish, and Node.js. For
-                        enhanced security, we use a <b>non-Cloudflare</b> security proxy to protect against DDoS attacks.
-                        <br><br>
-
-                        We avoid modern frameworks and technologies, focusing instead on proven, reliable methods. By
-                        not using serverless solutions, we maintain greater control over our infrastructure, ensuring
-                        better stability and performance. This traditional approach allows us to deliver consistent and
-                        secure services, minimizing the risk of downtime and technical issues. </p>
-                        
-                        <img class="lighthouse" src="https://en-gb.antialcohol.org/lighthouse/checkout-faq-lighthouse.gif" alt="100% score lighthouse test">
-
-                        <p>Pictured above is the <a class="external" href="https://developer.chrome.com/docs/lighthouse/overview">lighthouse</a> score for CheckOut.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    Device ID's and Tracking
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>We use a combination of your IP address, account information, and device ID (stored in a cookie)
-                        to identify and track your activity on our site, including submissions. This tracking system
-                        helps us build your reputation and enhance account functionality, ensuring a personalized and
-                        secure experience.<br><br>
-                        Please note that only logged-in users can access their settings page and manage their account
-                        information. For more control over your data, visit our <a href="/data">Data Control</a> page
-                        where you can reset and delete your information, and request a copy of any data we hold about
-                        you.<br><br>
-                        Displayed in the footer of the <a href="/account">account and settings</a> page, your device ID
-                        is linked to the cookie that CheckOut stores in your browser or mobile device, which is
-                        essential for reputation building and account functionality. <br><br>More information is
-                        available in the <a href="/terms-privacy">Terms and Privacy policy</a>.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    Caching
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>For performance reasons and to ensure the best user experience, especially during busy times, API
-                        and code results are hard-cached. This means the cache cannot be manually refreshed by users.
-                        However, data should not be delayed by more than a minute, and in normal use, the data displayed
-                        on the home page, for example, is updated almost instantaneously.<br><br>
-
-                        Please note that caching does not affect <a href="/auto">AutoCheckin</a> users, as their
-                        check-ins are processed instantly on the server-side.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    API
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>We are pleased to offer a RESTful API for your use. While our site is accessible to anonymous users (please refer to the FAQ section below for details on account requirements), anyone can utilize the API to retrieve data on codes, courses, classes, and other structured information related to our platform. You can explore all the available features in our <a href="/api/docs">API explorer</a>.<br><br>
-
-                    Please note that CheckOut's API is governed by fair use policies. Along with adhering to our terms of service, it's important not to use the API in ways that could negatively impact other users' experiences. This includes avoiding excessive data requests for timetables and refraining from actions like updating account information or attempting to bypass the cache. Submission of codes via the API is prohibited. <b>Only applications that have received prior approval are permitted to submit codes through the API.</b> To submit codes, please use the web forms available on our web and mobile applications. For more details, visit our <a href="/api/docs">API explorer</a>.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    Why Aren't the Website and Mobile Apps Open Source?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>We understand that many users value open-source software for its transparency and collaborative potential. However, our website and mobile apps are not currently open source, and there are two main reasons for this:<br><br></p>
-
-                        <ul>
-                            <li><b>Codebase Readiness</b>: While we appreciate the benefits of collaborative development, our codebase is not yet in a state that meets modern development standards. Bringing it up to those standards would require significant time and effort, which we believe is better spent on developing new features and improving the user experience. We are committed to delivering high-quality updates and innovations, and this focus ensures we can continue to meet the needs of our users.</li>
-                            <li><b>Security Concerns</b>: Protecting our users is a top priority. Some of the algorithms we use, particularly those designed to combat spam and manage external services, are kept confidential to enhance security. By keeping these aspects of our system closed-source, we reduce the risk of malicious actors exploiting vulnerabilities, ensuring a safer and more reliable experience for everyone.</li>
-                        </ul>
-                        
-                        <p>We hope this clarifies our approach and the reasons behind our decision. We remain committed to transparency where it counts and to delivering a secure, high-quality service for all users.</p>
-                </div>
-            </div>
+    <div class="accordion-section">
+      <h2>Learn</h2>
+      <div class="accordion active">
+        <div class="accordion-header">
+          The Infrastructure Behind CheckOut
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
         </div>
+        <div class="accordion-content">
+          <p>
+            At CheckOut, we prioritize traditional and robust web development processes. Our
+            scalable and resilient server network is powered by a classic stack of nginx, Varnish,
+            and Node.js. For enhanced security, we use a <b>non-Cloudflare</b> security proxy to
+            protect against DDoS attacks. <br /><br />
 
-        <div class="accordion-section">
-            <h2>FAQ</h2>
-            <div class="accordion active">
-                <div class="accordion-header">
-                    What modules/classes does the site support?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>CheckOut includes many timetabled and standard courses. If you can't find your course in the course selection page or have any other questions, please <a href="/support">contact our support team</a>.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    How can I spot a verified code? 
-                    <!-- <%- include('../global/icons/repeatVerified'); %> -->
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>Codes with the <span class="verified-example">Verified</span> mark have been verified through
-                            AutoCheckin or by a moderator. Submitters with high-repuation scores may also receive
-                            verification. Click on the <span class="verified-example">Verified</span> button next to a code for transparency behind the codes verification status.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    My code has not appeared on the site?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>While quality control checks and caching is taking place, your code may take up to a minute
-                        to appear on the site. This could take longer in peak times.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    What is an API 'auth_error'?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>The error code 'auth_error' occurs when trying to use an API endpoint that you have not got permissions for. As described in the <a href="/api/docs">API explorer</a>, some or all endpoints may require changing authentication requirements. You can prepare your application for this by getting an API key from <a href="/account">your account</a> and providing it in the <i>X-CheckOut-Key</i> header.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    What should I do if I spot an incorrect code?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>If you notice an incorrect code, you can use the 'Report Code' option if available on the code entry. If this option isn't visible, please <a href="/support">contact our support team</a> with details about the incorrect code. We greatly appreciate our users helping to maintain data accuracy on CheckOut.</p>
-                    
-                    <p>We work hard to ensure code accuracy through our reputation scoring system and moderation processes, but user reports are invaluable in helping us maintain high-quality data for everyone.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    What if I submit the wrong code or select the wrong session?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>If you've submitted an incorrect code or selected the wrong session, visit your <a href="/history">submission history</a> and click the 'Hide' button next to the incorrect submission. After hiding the incorrect submission, you can immediately submit the correct code or submit to the correct session.</p>
+            We avoid modern frameworks and technologies, focusing instead on proven, reliable
+            methods. By not using serverless solutions, we maintain greater control over our
+            infrastructure, ensuring better stability and performance. This traditional approach
+            allows us to deliver consistent and secure services, minimizing the risk of downtime and
+            technical issues.
+          </p>
 
-                    <p>If you can't find the submission in your history, please <a href="/support">contact our support team</a> immediately to have it removed. Taking prompt action helps prevent reputation damage and potential account restrictions.</p>
-                </div>
-            </div>
+          <img
+            class="lighthouse"
+            src="https://en-gb.antialcohol.org/lighthouse/checkout-faq-lighthouse.gif"
+            alt="100% score lighthouse test"
+          />
+
+          <p>
+            Pictured above is the
+            <a class="external" href="https://developer.chrome.com/docs/lighthouse/overview"
+              >lighthouse</a
+            >
+            score for CheckOut.
+          </p>
         </div>
-
-        <div class="accordion-section">
-            <h2>Account</h2>
-            <div class="accordion active">
-                <div class="accordion-header">
-                    Is an account required to use CheckOut?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>Currently authentication is set to <i>
-                            <%= authReq %>
-                        </i>. If set to true, an account is required for all pages on the site and mobile app. Usually,
-                        an account is not needed to access codes, however an account-only restriction may be set for
-                        submissions.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    My account is compromised, help!
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <ul>
-                        <li>If you can sign in, visit <a target="_blank" href="/account">your account</a> and click the 'Logout all sessions'
-                            button. This will sign out everyone, including yourself, so you will need to sign in again.</li>
-                        <li>If you can't sign in, <a href="/support">contact support</a>, giving your
-                            account's email address. An admin will explore the options available to secure your account.</li>
-                    </ul>
-                    <br>
-                    <p>
-                    If your Google account, passkey, or other login method is compromised, inform us using the above email. We can
-                    then remove the compromised method from your account.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    I'm unable to sign in.
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>We'll try our best to help. <a href="/support">Contact support</a>.</p>
-                </div>
-            </div>
-            <div class="accordion">
-                <div class="accordion-header">
-                    How do I change my email address?
-                    <svg class="chevron">
-                        <use href="#chevron-up"></use>
-                    </svg>
-                </div>
-                <div class="accordion-content">
-                    <p>To change your email address, please <a href="/support?pre=change-email">contact support</a>. Our team will assist you with updating your email while ensuring your account remains secure.</p>
-                </div>
-            </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          Device ID's and Tracking
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
         </div>
-
-        <div class="vulnerability-notice">
-            <h3>🔒 Security Vulnerability Reporting</h3>
-            <p>If you've discovered a security vulnerability, please email <a href="mailto:support@jemedia.xyz">support@jemedia.xyz</a> immediately. Include as much information as possible about the vulnerability, including steps to reproduce, potential impact, and any supporting documentation. We take all security reports seriously and will investigate them promptly.</p>
+        <div class="accordion-content">
+          <p>
+            We use a combination of your IP address, account information, and device ID (stored in a
+            cookie) to identify and track your activity on our site, including submissions. This
+            tracking system helps us build your reputation and enhance account functionality,
+            ensuring a personalized and secure experience.<br /><br />
+            Please note that only logged-in users can access their settings page and manage their
+            account information. For more control over your data, visit our
+            <a href="/data">Data Control</a> page where you can reset and delete your information,
+            and request a copy of any data we hold about you.<br /><br />
+            Displayed in the footer of the <a href="/account">account and settings</a> page, your
+            device ID is linked to the cookie that CheckOut stores in your browser or mobile device,
+            which is essential for reputation building and account functionality. <br /><br />More
+            information is available in the <a href="/terms-privacy">Terms and Privacy policy</a>.
+          </p>
         </div>
-
-        <div class="footer-help">
-            <div class="footer-help-title">
-                You have more questions?
-            </div>
-            <div class="footer-help-content">
-                <p><a href="/support">Get in touch</a></p>
-            </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          Caching
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
         </div>
+        <div class="accordion-content">
+          <p>
+            For performance reasons and to ensure the best user experience, especially during busy
+            times, API and code results are hard-cached. This means the cache cannot be manually
+            refreshed by users. However, data should not be delayed by more than a minute, and in
+            normal use, the data displayed on the home page, for example, is updated almost
+            instantaneously.<br /><br />
 
-        <script>
-            <%- include('../global/faq-helpers/drops.js'); %>
-        </script>
-</body>
+            Please note that caching does not affect <a href="/auto">AutoCheckin</a> users, as their
+            check-ins are processed instantly on the server-side.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          API
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            We are pleased to offer a RESTful API for your use. While our site is accessible to
+            anonymous users (please refer to the FAQ section below for details on account
+            requirements), anyone can utilize the API to retrieve data on codes, courses, classes,
+            and other structured information related to our platform. You can explore all the
+            available features in our <a href="/api/docs">API explorer</a>.<br /><br />
 
+            Please note that CheckOut's API is governed by fair use policies. Along with adhering to
+            our terms of service, it's important not to use the API in ways that could negatively
+            impact other users' experiences. This includes avoiding excessive data requests for
+            timetables and refraining from actions like updating account information or attempting
+            to bypass the cache. Submission of codes via the API is prohibited.
+            <b
+              >Only applications that have received prior approval are permitted to submit codes
+              through the API.</b
+            >
+            To submit codes, please use the web forms available on our web and mobile applications.
+            For more details, visit our <a href="/api/docs">API explorer</a>.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          Why Aren't the Website and Mobile Apps Open Source?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            We understand that many users value open-source software for its transparency and
+            collaborative potential. However, our website and mobile apps are not currently open
+            source, and there are two main reasons for this:<br /><br />
+          </p>
+
+          <ul>
+            <li>
+              <b>Codebase Readiness</b>: While we appreciate the benefits of collaborative
+              development, our codebase is not yet in a state that meets modern development
+              standards. Bringing it up to those standards would require significant time and
+              effort, which we believe is better spent on developing new features and improving the
+              user experience. We are committed to delivering high-quality updates and innovations,
+              and this focus ensures we can continue to meet the needs of our users.
+            </li>
+            <li>
+              <b>Security Concerns</b>: Protecting our users is a top priority. Some of the
+              algorithms we use, particularly those designed to combat spam and manage external
+              services, are kept confidential to enhance security. By keeping these aspects of our
+              system closed-source, we reduce the risk of malicious actors exploiting
+              vulnerabilities, ensuring a safer and more reliable experience for everyone.
+            </li>
+          </ul>
+
+          <p>
+            We hope this clarifies our approach and the reasons behind our decision. We remain
+            committed to transparency where it counts and to delivering a secure, high-quality
+            service for all users.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section">
+      <h2>FAQ</h2>
+      <div class="accordion active">
+        <div class="accordion-header">
+          What modules/classes does the site support?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            CheckOut includes many timetabled and standard courses. If you can't find your course in
+            the course selection page or have any other questions, please
+            <a href="/support">contact our support team</a>.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          How can I spot a verified code?
+          <!-- <%- include('../global/icons/repeatVerified'); %> -->
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            Codes with the <span class="verified-example">Verified</span> mark have been verified
+            through AutoCheckin or by a moderator. Submitters with high-repuation scores may also
+            receive verification. Click on the <span class="verified-example">Verified</span> button
+            next to a code for transparency behind the codes verification status.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          My code has not appeared on the site?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            While quality control checks and caching is taking place, your code may take up to a
+            minute to appear on the site. This could take longer in peak times.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          What is an API 'auth_error'?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            The error code 'auth_error' occurs when trying to use an API endpoint that you have not
+            got permissions for. As described in the <a href="/api/docs">API explorer</a>, some or
+            all endpoints may require changing authentication requirements. You can prepare your
+            application for this by getting an API key from <a href="/account">your account</a> and
+            providing it in the <i>X-CheckOut-Key</i> header.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          What should I do if I spot an incorrect code?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            If you notice an incorrect code, you can use the 'Report Code' option if available on
+            the code entry. If this option isn't visible, please
+            <a href="/support">contact our support team</a> with details about the incorrect code.
+            We greatly appreciate our users helping to maintain data accuracy on CheckOut.
+          </p>
+
+          <p>
+            We work hard to ensure code accuracy through our reputation scoring system and
+            moderation processes, but user reports are invaluable in helping us maintain
+            high-quality data for everyone.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          What if I submit the wrong code or select the wrong session?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            If you've submitted an incorrect code or selected the wrong session, visit your
+            <a href="/history">submission history</a> and click the 'Hide' button next to the
+            incorrect submission. After hiding the incorrect submission, you can immediately submit
+            the correct code or submit to the correct session.
+          </p>
+
+          <p>
+            If you can't find the submission in your history, please
+            <a href="/support">contact our support team</a> immediately to have it removed. Taking
+            prompt action helps prevent reputation damage and potential account restrictions.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section">
+      <h2>Account</h2>
+      <div class="accordion active">
+        <div class="accordion-header">
+          Is an account required to use CheckOut?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            Currently authentication is set to <i> <%= authReq %> </i>. If set to true, an account
+            is required for all pages on the site and mobile app. Usually, an account is not needed
+            to access codes, however an account-only restriction may be set for submissions.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          My account is compromised, help!
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <ul>
+            <li>
+              If you can sign in, visit <a target="_blank" href="/account">your account</a> and
+              click the 'Logout all sessions' button. This will sign out everyone, including
+              yourself, so you will need to sign in again.
+            </li>
+            <li>
+              If you can't sign in, <a href="/support">contact support</a>, giving your account's
+              email address. An admin will explore the options available to secure your account.
+            </li>
+          </ul>
+          <br />
+          <p>
+            If your Google account, passkey, or other login method is compromised, inform us using
+            the above email. We can then remove the compromised method from your account.
+          </p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          I'm unable to sign in.
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>We'll try our best to help. <a href="/support">Contact support</a>.</p>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="accordion-header">
+          How do I change my email address?
+          <svg class="chevron">
+            <use href="#chevron-up"></use>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <p>
+            To change your email address, please
+            <a href="/support?pre=change-email">contact support</a>. Our team will assist you with
+            updating your email while ensuring your account remains secure.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="vulnerability-notice">
+      <h3>🔒 Security Vulnerability Reporting</h3>
+      <p>
+        If you've discovered a security vulnerability, please email
+        <a href="mailto:support@jemedia.xyz">support@jemedia.xyz</a> immediately. Include as much
+        information as possible about the vulnerability, including steps to reproduce, potential
+        impact, and any supporting documentation. We take all security reports seriously and will
+        investigate them promptly.
+      </p>
+    </div>
+
+    <div class="footer-help">
+      <div class="footer-help-title">You have more questions?</div>
+      <div class="footer-help-content">
+        <p><a href="/support">Get in touch</a></p>
+      </div>
+    </div>
+
+    <script>
+      <%- include('../global/faq-helpers/drops.js'); %>
+    </script>
+  </body>
 </html>

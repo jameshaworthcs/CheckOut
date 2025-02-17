@@ -1,13 +1,14 @@
-<style>body {
+<style>
+  body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     font-size: 20px;
     background-color: #000;
-}
+  }
 
-/* For desktop */
-.background {
+  /* For desktop */
+  .background {
     position: fixed;
     top: 0;
     left: 0;
@@ -18,17 +19,16 @@
     background-position: center;
     filter: blur(4px);
     z-index: -1;
-}
+  }
 
-/* For mobile */
-@media only screen and (max-width: 600px) {
+  /* For mobile */
+  @media only screen and (max-width: 600px) {
     .background {
-        background-image: url('https://rejectdopamine.com/static/checkout-cookie-prod-mobile-v1.3.2.webp'); /* Change this to your mobile background */
+      background-image: url('https://rejectdopamine.com/static/checkout-cookie-prod-mobile-v1.3.2.webp'); /* Change this to your mobile background */
     }
-}
+  }
 
-
-.content {
+  .content {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -40,65 +40,65 @@
     border-radius: 10px;
     color: #ffffffc4;
     text-align: left;
-}
+  }
 
-/* For mobile */
-@media only screen and (max-width: 1200px) {
+  /* For mobile */
+  @media only screen and (max-width: 1200px) {
     .content {
-        width: calc(100% - 70px); /* Adjust padding as needed */
-        max-width: calc(100% - 70px);;
-        left: 50%;
-        top: 10%;
-        bottom: 10%;
-        transform: translate(-50%, 0);
+      width: calc(100% - 70px); /* Adjust padding as needed */
+      max-width: calc(100% - 70px);
+      left: 50%;
+      top: 10%;
+      bottom: 10%;
+      transform: translate(-50%, 0);
     }
-}
+  }
 
-.content-wrapper {
+  .content-wrapper {
     margin-bottom: 20px; /* Add margin at the bottom */
-}
+  }
 
-.header {
+  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
-}
+  }
 
-.header img {
+  .header img {
     max-height: 50px;
-}
+  }
 
-.headerjem {
+  .headerjem {
     max-height: 30px !important;
-}
+  }
 
-.text {
+  .text {
     margin-bottom: 20px;
-}
+  }
 
-.text {
+  .text {
     margin-bottom: 20px;
     color: #ffffffb9;
-}
+  }
 
-a {
+  a {
     color: #007bff; /* Link color */
     text-decoration: none;
-}
+  }
 
-a:hover {
+  a:hover {
     color: #0056b3; /* Hover color */
-}
+  }
 
-.button-container {
+  .button-container {
     display: flex;
     justify-content: center;
     align-items: center; /* Center vertically */
     margin-top: 20px; /* Add margin to separate from the text */
-}
+  }
 
-.accept-button {
+  .accept-button {
     padding: 10px 20px;
     background-color: #4285f4; /* Dark theme background */
     color: #fff;
@@ -107,27 +107,27 @@ a:hover {
     cursor: pointer;
     transition: background-color 0.3s;
     font-size: 20px;
-}
+  }
 
-.accept-button:hover {
+  .accept-button:hover {
     background-color: #555; /* Dark theme hover background */
-}
+  }
 
-.learn-more {
+  .learn-more {
     margin-left: 10px;
     color: #999;
     font-size: 14px;
     line-height: 30px; /* Adjust to vertically center */
-}
+  }
 
-/* For mobile */
-@media only screen and (max-width: 600px) {
+  /* For mobile */
+  @media only screen and (max-width: 600px) {
     .learn-more {
-        margin-left: 15 px; /* Center the text */
+      margin-left: 15 px; /* Center the text */
     }
-}
+  }
 
-.read-more {
+  .read-more {
     position: fixed;
     left: 50%;
     bottom: 14%; /* Spaced about 20% above the bottom */
@@ -141,29 +141,36 @@ a:hover {
     z-index: 999; /* Ensure it appears above other content */
     display: none; /* Initially hidden */
     font-size: 25px;
-}
+  }
 
-/* CSS for the button animation */
-.read-more.animation {
+  /* CSS for the button animation */
+  .read-more.animation {
     animation: fadeOut 0.5s forwards;
-}
+  }
 
-/* Style for the background pseudo-element */
-.read-more::before {
+  /* Style for the background pseudo-element */
+  .read-more::before {
     content: '';
     position: absolute;
     top: -67px; /* Extends 40px above the button */
     bottom: -40px; /* Extends 40px below the button */
     left: -135px; /* Extends 35px away from the left side */
     right: -135px; /* Extends 35px away from the right side */
-    background: linear-gradient(to top, rgba(0, 0, 0, 1), transparent); /* Gradient from dark black to transparent */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 1),
+      transparent
+    ); /* Gradient from dark black to transparent */
     z-index: -1; /* Ensure it's behind the button */
     border-radius: 25px; /* Oval shape */
-}
+  }
 
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
 </style>

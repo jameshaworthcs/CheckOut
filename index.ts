@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-// Import Node and NPM modules 
+// Import Node and NPM modules
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import * as http from 'http';
@@ -132,8 +132,14 @@ let loggedInRequests: number = 0;
 // Import database connections and redis functions
 const db = require('./databases/database');
 const db2 = require('./databases/database-v2');
-const { redisClient, redisStore, USE_MYSQL_SESSION_STORE, handleShutdown, getCache, setCache } = require('./databases/redis');
-
+const {
+  redisClient,
+  redisStore,
+  USE_MYSQL_SESSION_STORE,
+  handleShutdown,
+  getCache,
+  setCache,
+} = require('./databases/redis');
 
 // Import route handlers and related modules
 const appRouter = require('./routes/app');
@@ -147,7 +153,6 @@ const { authenticateUser } = require('./routes/api/auth/auth');
 const outsource = require('./outsource/outsource');
 const apiRouter = require('./routes/api/api');
 const { auth } = require('./routes/secure');
-
 
 // Initialize Express app and configure settings
 const app: express.Application = express();
@@ -200,16 +205,16 @@ const dbOptions = {
     columnNames: {
       session_id: 'session_id',
       expires: 'expires',
-      data: 'data'
-    }
-  }
+      data: 'data',
+    },
+  },
 };
 
 // Initialize session store based on availability
 let sessionStore;
 try {
   const mysqlStoreInstance = new MySQLStore(dbOptions);
-  sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : (redisStore || mysqlStoreInstance);
+  sessionStore = USE_MYSQL_SESSION_STORE ? mysqlStoreInstance : redisStore || mysqlStoreInstance;
   //console.log("Session store initialized:", sessionStore);
 } catch (err) {
   console.error('Error initializing session store:', err);
@@ -221,13 +226,13 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
-  name: "checkout_secure",
+  name: 'checkout_secure',
   rolling: true,
   proxy: true,
   cookie: {
     maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
-    httpOnly: process.env.NODE_ENV !== "development",
-    secure: process.env.NODE_ENV !== "development",
+    httpOnly: process.env.NODE_ENV !== 'development',
+    secure: process.env.NODE_ENV !== 'development',
   },
 });
 
@@ -246,7 +251,7 @@ process.on('SIGINT', async () => {
 });
 
 // Development logging using morgan if in BETA environment
-if (process.env.CHK_SRV === "BETA") {
+if (process.env.CHK_SRV === 'BETA') {
   app.use(morgan('dev'));
 }
 
@@ -264,7 +269,6 @@ const server = http.createServer(app);
 const wsHandler = require('./routes/api/submit/ws');
 wsHandler.setupWebSocket(server);
 
-
 // Cache configuration for app status
 let appStatusCache: GlobalAppRow[] | null = null;
 let cacheTimestamp: number = 0;
@@ -273,7 +277,7 @@ const CACHE_DURATION: number = 10000;
 // Utility function to fetch application status from the database with caching
 async function appStatus(req: AppRequest): Promise<GlobalAppRow[]> {
   const currentTime: number = Date.now();
-  if (appStatusCache && (currentTime - cacheTimestamp) < CACHE_DURATION) {
+  if (appStatusCache && currentTime - cacheTimestamp < CACHE_DURATION) {
     return appStatusCache.map((row: GlobalAppRow) => ({
       ...row,
       userInfo: {
@@ -306,20 +310,20 @@ async function appStatus(req: AppRequest): Promise<GlobalAppRow[]> {
 // Function to log requests to the database
 async function log(req: AppRequest): Promise<void> {
   try {
-    const ip: string = req.usersIP || "null";
+    const ip: string = req.usersIP || 'null';
     if (secureRoute.logQ(req)) {
       const logData: LogData = {
         timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
         ip: ip,
         spoofed_ip: req.SpoofedIP || null,
-        host: req.headers['host'] || "null",
-        method: req.method || "null",
-        path: req.originalUrl || "null",
-        username: req.useremail || "null",
+        host: req.headers['host'] || 'null',
+        method: req.method || 'null',
+        path: req.originalUrl || 'null',
+        username: req.useremail || 'null',
         user_id: req.userID ? Number(req.userID) : null,
-        device_id: req.sessionID || "null",
-        user_agent: req.headers['user-agent'] || "null",
-        referer: req.headers['referer'] || "null",
+        device_id: req.sessionID || 'null',
+        user_agent: req.headers['user-agent'] || 'null',
+        referer: req.headers['referer'] || 'null',
         post_data: req.body ? JSON.stringify(req.body) : null,
       };
       const sql = `
@@ -339,8 +343,9 @@ const TTL: number = 365 * 24 * 60 * 60;
 // Global middleware for additional request processing
 app.use(async (req: AppRequest, res: Response, next: NextFunction): Promise<void> => {
   req.userData = {};
-  req.userData.beta = process.env.CHK_SRV === "BETA";
-  req.userData.development = process.env.NODE_ENV === "development" && process.env.LOCAL_WARNING !== "0";
+  req.userData.beta = process.env.CHK_SRV === 'BETA';
+  req.userData.development =
+    process.env.NODE_ENV === 'development' && process.env.LOCAL_WARNING !== '0';
 
   // For static files, set minimal required properties and skip heavy processing
   if (req.url.startsWith('/static')) {
@@ -357,12 +362,12 @@ app.use(async (req: AppRequest, res: Response, next: NextFunction): Promise<void
     setCourseData(req),
     setThemeData(req),
     setIPData(req),
-    setConsentAndCookies(req)
+    setConsentAndCookies(req),
   ]);
 
   log(req);
 
-  if (process.env.CHK_SRV === "PROD") {
+  if (process.env.CHK_SRV === 'PROD') {
     try {
       res.setHeader('X-CheckOut-Backend', process.env.CHK_PROD_ID || 'undefined');
     } catch (err) {}
@@ -377,7 +382,11 @@ app.use(async (req: AppRequest, res: Response, next: NextFunction): Promise<void
 // Override res.render to include HTML minification if enabled
 app.use((req: AppRequest, res: Response, next: NextFunction): void => {
   const originalRender = res.render;
-  res.render = function (view: string, options: Record<string, any> = {}, callback?: (err: Error, html?: string) => void): Response {
+  res.render = function (
+    view: string,
+    options: Record<string, any> = {},
+    callback?: (err: Error, html?: string) => void
+  ): Response {
     const renderOptions = {
       ...options,
       userData: {
@@ -388,75 +397,84 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
         beta: req.userData?.beta || false,
         development: req.userData?.development || false,
         moderator: req.userData?.moderator || false,
-        sysop: req.userData?.sysop || false
-      }
+        sysop: req.userData?.sysop || false,
+      },
     };
     if (!useMinification) {
       return originalRender.call(this, view, renderOptions, callback);
     }
-    originalRender.call(this, view, renderOptions, async (err: Error, html?: string): Promise<void> => {
-      if (err) {
-        return callback ? callback(err) : next(err);
-      }
-      if (!html) {
-        return next(new Error("Empty HTML output"));
-      }
-      const hash: string = `${XXH.h32(0xABCD).update(html).digest().toString(16)}_${req.userID}`;
-      if (!redisClient) {
+    originalRender.call(
+      this,
+      view,
+      renderOptions,
+      async (err: Error, html?: string): Promise<void> => {
+        if (err) {
+          return callback ? callback(err) : next(err);
+        }
+        if (!html) {
+          return next(new Error('Empty HTML output'));
+        }
+        const hash: string = `${XXH.h32(0xabcd).update(html).digest().toString(16)}_${req.userID}`;
+        if (!redisClient) {
+          try {
+            const minifiedHtml: string = await minify(html, {
+              collapseWhitespace: true,
+              removeComments: true,
+              removeRedundantAttributes: true,
+              removeScriptTypeAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              minifyCSS: true,
+              minifyJS: true,
+            });
+            this.send(
+              `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`
+            );
+          } catch (minifyErr) {
+            console.error('Minification error:', minifyErr);
+            this.send(html); // Fallback to unminified HTML
+          }
+          return;
+        }
         try {
-          const minifiedHtml: string = await minify(html, {
-            collapseWhitespace: true,
-            removeComments: true,
-            removeRedundantAttributes: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            minifyCSS: true,
-            minifyJS: true,
-          });
-          this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
-        } catch (minifyErr) {
-          console.error("Minification error:", minifyErr);
-          this.send(html); // Fallback to unminified HTML
-        }
-        return;
-      }
-      try {
-        const cachedMinifiedHtml: string | null = await getCache(hash);
-        if (cachedMinifiedHtml && useMiniCache) {
-          this.send(cachedMinifiedHtml);
-        } else {
-          const minifiedHtml: string = await minify(html, {
-            collapseWhitespace: true,
-            removeComments: true,
-            removeRedundantAttributes: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            minifyCSS: true,
-            minifyJS: true,
-          });
-          const finalHtml: string = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
-          await setCache(hash, finalHtml, TTL);
-          this.send(finalHtml);
-        }
-      } catch (redisErr) {
-        console.error("Redis operation error:", redisErr);
-        try {
-          const minifiedHtml: string = await minify(html, {
-            collapseWhitespace: true,
-            removeComments: true,
-            removeRedundantAttributes: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            minifyCSS: true,
-            minifyJS: true,
-          });
-          this.send(`<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`);
-        } catch (minifyErr) {
-          console.error("Minification error:", minifyErr);
-          this.send(html); // Fallback to unminified HTML
+          const cachedMinifiedHtml: string | null = await getCache(hash);
+          if (cachedMinifiedHtml && useMiniCache) {
+            this.send(cachedMinifiedHtml);
+          } else {
+            const minifiedHtml: string = await minify(html, {
+              collapseWhitespace: true,
+              removeComments: true,
+              removeRedundantAttributes: true,
+              removeScriptTypeAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              minifyCSS: true,
+              minifyJS: true,
+            });
+            const finalHtml: string = `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`;
+            await setCache(hash, finalHtml, TTL);
+            this.send(finalHtml);
+          }
+        } catch (redisErr) {
+          console.error('Redis operation error:', redisErr);
+          try {
+            const minifiedHtml: string = await minify(html, {
+              collapseWhitespace: true,
+              removeComments: true,
+              removeRedundantAttributes: true,
+              removeScriptTypeAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              minifyCSS: true,
+              minifyJS: true,
+            });
+            this.send(
+              `<!-- Made with ❤️ by the CheckOut team. © 2025. #${hash} -->\n\n${minifiedHtml}`
+            );
+          } catch (minifyErr) {
+            console.error('Minification error:', minifyErr);
+            this.send(html); // Fallback to unminified HTML
+          }
         }
       }
-    });
+    );
     return res;
   };
   next();
@@ -465,25 +483,32 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
 // Caching headers middleware
 app.use((req: Request, res: Response, next: NextFunction): void => {
   if (req.url.startsWith('/static')) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, only-if-cached, max-stale=86400, stale-while-revalidate=0, stale-if-error=86400, immutable');
+    res.setHeader(
+      'Cache-Control',
+      'public, max-age=31536000, s-maxage=31536000, only-if-cached, max-stale=86400, stale-while-revalidate=0, stale-if-error=86400, immutable'
+    );
   } else {
-    res.setHeader('Cache-Control', 'private, no-cache, max-age=0, s-maxage=0, max-stale=0, stale-while-revalidate=0, stale-if-error=0, must-revalidate, proxy-revalidate');
+    res.setHeader(
+      'Cache-Control',
+      'private, no-cache, max-age=0, s-maxage=0, max-stale=0, stale-while-revalidate=0, stale-if-error=0, must-revalidate, proxy-revalidate'
+    );
   }
   next();
 });
 
 // Routes setup
 app.post('/api/app/block/appeal', async (req: AppRequest, res: Response): Promise<void> => {
-  const ip: string = req.usersIP || "null";
+  const ip: string = req.usersIP || 'null';
   const reason: any = req.body.reason;
   try {
-    await db.query(
-      'INSERT INTO appeals (ip, appeal_text, status) VALUES (?, ?, ?)',
-      [ip, reason, "not reviewed"]
-    );
+    await db.query('INSERT INTO appeals (ip, appeal_text, status) VALUES (?, ?, ?)', [
+      ip,
+      reason,
+      'not reviewed',
+    ]);
     res.status(201).json({
       success: true,
-      msg: 'Appeal created. Please do not submit multiple appeals. An update will be posted here if the ban is not removed upon appeal review.'
+      msg: 'Appeal created. Please do not submit multiple appeals. An update will be posted here if the ban is not removed upon appeal review.',
     });
   } catch (error) {
     console.error(error);
@@ -497,10 +522,12 @@ app.get('/api/app/state', async (req: AppRequest, res: Response): Promise<void> 
 });
 
 app.use(secureRoute.securityCheck);
-app.use(express.static('public', {
-  extensions: ['html', 'htm'],
-  dotfiles: 'allow',
-}));
+app.use(
+  express.static('public', {
+    extensions: ['html', 'htm'],
+    dotfiles: 'allow',
+  })
+);
 
 app.get('/api/docs', (req: Request, res: Response) => {
   res.render('api.ejs');
@@ -538,7 +565,9 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
 });
 
 // Static and informational routes
-app.get('/support', (req: Request, res: Response) => res.render('support.ejs', { username: (req as AppRequest).username }));
+app.get('/support', (req: Request, res: Response) =>
+  res.render('support.ejs', { username: (req as AppRequest).username })
+);
 app.get('/faq', (req: Request, res: Response) => res.redirect('/learn-faq'));
 app.get('/terms', (req: Request, res: Response) => res.redirect('/terms-privacy'));
 
@@ -546,7 +575,7 @@ app.get('/learn-faq', (req: AppRequest, res: Response) => {
   res.render('learn-faq/learn-faq.ejs', {
     authReq: req.authReq,
     ipRateLimit: req.ipRateLimit,
-    username: req.username
+    username: req.username,
   });
 });
 
@@ -564,9 +593,9 @@ app.get('/data', (req: AppRequest, res: Response) => {
 
 app.get('/success/logout', (req: AppRequest, res: Response) => {
   res.status(200).render('notices/generic-msg.ejs', {
-    msgTitle: "Logged out",
+    msgTitle: 'Logged out',
     msgBody: "Successfully logged out. <a href='/'>Homepage</a>",
-    username: 'Goodbye'
+    username: 'Goodbye',
   });
 });
 
@@ -579,9 +608,10 @@ app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
 // 404 handler
 app.get('*', (req: AppRequest, res: Response) => {
   res.status(404).render('notices/generic-msg.ejs', {
-    msgTitle: "404 Page Not Found",
-    msgBody: "Chances are the <b>link is correct</b>, we just haven't built the page yet. <a href='/'>Homepage</a>",
-    username: req.username
+    msgTitle: '404 Page Not Found',
+    msgBody:
+      "Chances are the <b>link is correct</b>, we just haven't built the page yet. <a href='/'>Homepage</a>",
+    username: req.username,
   });
 });
 
@@ -589,20 +619,23 @@ app.get('*', (req: AppRequest, res: Response) => {
 app.use((err: Error, req: AppRequest, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).render('notices/generic-msg.ejs', {
-    msgTitle: "Error with CheckOut",
-    msgBody: process.env.NODE_ENV === "development"
-      ? err.stack.replace(/\n/g, '<br>')
-      : "An error occurred while processing your request. Please try again later or <a href='/support'>contact support</a>.",
-    username: "Error"
+    msgTitle: 'Error with CheckOut',
+    msgBody:
+      process.env.NODE_ENV === 'development'
+        ? err.stack.replace(/\n/g, '<br>')
+        : "An error occurred while processing your request. Please try again later or <a href='/support'>contact support</a>.",
+    username: 'Error',
   });
 });
 
 // Start the HTTP server
 server.listen(port, () => {
   const env = process.env.CHK_SRV;
-  if (env === "PROD") {
-    console.log(`Production CheckOut ${env}:${port} Backend-${process.env.CHK_PROD_ID} initialized!`);
-  } else if (env === "AUTO") {
+  if (env === 'PROD') {
+    console.log(
+      `Production CheckOut ${env}:${port} Backend-${process.env.CHK_PROD_ID} initialized!`
+    );
+  } else if (env === 'AUTO') {
     console.log(`Production AutoCheckin ${env} running on port ${port}`);
   } else {
     console.log(`CheckOut development ${env} running on localhost:${port}`);
@@ -630,25 +663,27 @@ async function fetchAppStatus(req: AppRequest): Promise<void> {
     req.webStateLink = result[0]['webStateLink'];
     req.qualifiedURL = 'https://' + req.rootDomain;
   } catch (error) {
-    console.error("Database error in fetchAppStatus:", error);
-    throw new Error("Unable to fetch application status");
+    console.error('Database error in fetchAppStatus:', error);
+    throw new Error('Unable to fetch application status');
   }
 }
 
 async function setCourseData(req: AppRequest): Promise<void> {
-  let inst: string = "null", yr: string = "null", crs: string = "null";
+  let inst: string = 'null',
+    yr: string = 'null',
+    crs: string = 'null';
   if (req.session.course) {
-    ({ inst = "null", yr = "null", crs = "null" } = req.session.course);
+    ({ inst = 'null', yr = 'null', crs = 'null' } = req.session.course);
   }
   req.inst = inst;
   req.yr = yr;
   req.crs = crs;
-  req.initCourse = [inst, yr, crs].every(value => value !== "null");
+  req.initCourse = [inst, yr, crs].every((value) => value !== 'null');
   if (req.sync && 'inst' in req.sync && 'crs' in req.sync && 'yr' in req.sync) {
     req.inst = req.sync.inst;
     req.yr = req.sync.yr;
     req.crs = req.sync.crs;
-    req.initCourse = [req.inst, req.yr, req.crs].every(value => value !== "null");
+    req.initCourse = [req.inst, req.yr, req.crs].every((value) => value !== 'null');
   }
 }
 
@@ -675,7 +710,10 @@ async function setIPData(req: AppRequest): Promise<void> {
     return Array.isArray(header) ? header[0] : header.split(',')[0];
   };
   const forwardedFor = req.headers['x-forwarded-for'];
-  req.usersIP = (req.headers['cf-connecting-ip'] as string) || getRealIp(forwardedFor as string) || extractFirstIP(forwardedFor);
+  req.usersIP =
+    (req.headers['cf-connecting-ip'] as string) ||
+    getRealIp(forwardedFor as string) ||
+    extractFirstIP(forwardedFor);
   req.SpoofedIP = req.usersIP === extractFirstIP(forwardedFor) ? '' : extractFirstIP(forwardedFor);
 }
 
@@ -694,13 +732,12 @@ async function authenticateAndSetUserData(req: AppRequest): Promise<void> {
     if (!req.userData) req.userData = {};
     req.userData.checkinReport = req.checkinReport;
   }
-  if (req.userState === "sysop") {
+  if (req.userState === 'sysop') {
     if (!req.userData) req.userData = {};
     req.userData.sysop = true;
   }
-  if (req.userState && (req.userState.includes("sysop") || req.userState.includes("moderator"))) {
+  if (req.userState && (req.userState.includes('sysop') || req.userState.includes('moderator'))) {
     if (!req.userData) req.userData = {};
     req.userData.moderator = true;
   }
 }
-

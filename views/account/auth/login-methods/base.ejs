@@ -1,198 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <%- include('../../../global/head'); %>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <title>Login - CheckOut</title>
     <style>
-        body {
-            font-size: 19px;
-            background: var(--page-background);
-            display: block;
-        }
+      body {
+        font-size: 19px;
+        background: var(--page-background);
+        display: block;
+      }
 
-        .mainContent {
-            display: block;
-            position: relative;
-            text-align: center;
-            max-width: 400px;
-            margin: 0 auto;
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--content-background);
-            border-radius: 8px;
-            border: var(--box-accent-width) solid #3dcbff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.5s;
-        }
+      .mainContent {
+        display: block;
+        position: relative;
+        text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
+        margin-top: 20px;
+        padding: 20px;
+        background: var(--content-background);
+        border-radius: 8px;
+        border: var(--box-accent-width) solid #3dcbff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.5s;
+      }
 
-        .headerWelcome {
-            text-align: center;
-            font-size: 1.4em;
-        }
+      .headerWelcome {
+        text-align: center;
+        font-size: 1.4em;
+      }
 
-        .headerDiv {
-            margin-top: 10px;
-            margin-bottom: 5px;
-            text-align: center;
-        }
+      .headerDiv {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+      }
 
-        .topIcon {
-            background-image: var(--tick-image);
-            background-repeat: no-repeat;
-            background-size: 34px;
-            float: right;
-            height: 34px;
-            width: 34px;
-        }
+      .topIcon {
+        background-image: var(--tick-image);
+        background-repeat: no-repeat;
+        background-size: 34px;
+        float: right;
+        height: 34px;
+        width: 34px;
+      }
 
-        .error-box {
-            margin-bottom: 18px;
-            background-color: #ffcccc;
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            padding: 10px;
-            border-radius: 5px;
-        }
+      .error-box {
+        margin-bottom: 18px;
+        background-color: #ffcccc;
+        border: 1px solid #ff0000;
+        color: #ff0000;
+        padding: 10px;
+        border-radius: 5px;
+      }
 
-        .container {
-            max-width: 400px;
-            margin: 5px auto;
-            padding: 20px;
-            padding-bottom: 10px;
-            padding-top: 10px;
-            border-radius: 5px;
-        }
+      .container {
+        max-width: 400px;
+        margin: 5px auto;
+        padding: 20px;
+        padding-bottom: 10px;
+        padding-top: 10px;
+        border-radius: 5px;
+      }
 
-        .other-sign-in-options {
-            text-decoration: none;
-            font-size: 15px;
-            color: #AFAFAF;
-            margin-bottom: 10px;
-        }
+      .other-sign-in-options {
+        text-decoration: none;
+        font-size: 15px;
+        color: #afafaf;
+        margin-bottom: 10px;
+      }
 
-        .termsText {
-            font-size: 11px;
-            text-align: center;
-            margin-bottom: 8px;
-            color: #AFAFAF;
-            text-decoration: none;
-        }
+      .termsText {
+        font-size: 11px;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #afafaf;
+        text-decoration: none;
+      }
 
-        .tosLink,
-        .tosLink:visited,
-        .tosLink:active {
-            color: #58A6FF;
-            text-decoration: none;
-        }
+      .tosLink,
+      .tosLink:visited,
+      .tosLink:active {
+        color: #58a6ff;
+        text-decoration: none;
+      }
 
-        .tosLink:hover {
-            text-decoration: underline;
-        }
+      .tosLink:hover {
+        text-decoration: underline;
+      }
 
-        .back-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #AFAFAF;
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-size: 15px;
-            transition: color 0.2s ease;
-        }
+      .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #afafaf;
+        text-decoration: none;
+        margin-bottom: 20px;
+        font-size: 15px;
+        transition: color 0.2s ease;
+      }
 
-        .back-button:hover {
-            color: #3dcbff;
-        }
+      .back-button:hover {
+        color: #3dcbff;
+      }
 
-        .back-button svg {
-            width: 16px;
-            height: 16px;
-        }
+      .back-button svg {
+        width: 16px;
+        height: 16px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('../../../global/navbar'); %>
 
     <div class="mainContent">
-        <div id="headerDiv" class="headerDiv">
-            <div class="topIcon" role="img" alt="CheckOut Tick"></div><br>
-            <h3 class="headerWelcome">Welcome to CheckOut </h3>
-            <p class="subtext" style="white-space: pre-line" id="action-text1"><%- msg %></p>
-        </div>
+      <div id="headerDiv" class="headerDiv">
+        <div class="topIcon" role="img" alt="CheckOut Tick"></div>
+        <br />
+        <h3 class="headerWelcome">Welcome to CheckOut</h3>
+        <p class="subtext" style="white-space: pre-line" id="action-text1"><%- msg %></p>
+      </div>
 
-        <div id="touchbox-login" class="container">
-            <div id="error-container"></div>
-            <% if (contentTemplate === 'selection') { %>
-                <%- include('./selection') %>
-            <% } else { %>
-                <% if (contentTemplate !== 'google') { %>
-                    <a href="javascript:void(0)" onclick="redirectToLogin(this)" class="back-button">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6"/>
-                        </svg>
-                        Back to sign in options
-                    </a>
-                <% } %>
-                <%- include(`./${contentTemplate}`) %>
-            <% } %>
-        </div>
-
-        <% if (contentTemplate === 'google') { %>
-        <div class="other-sign-in-options">
-            <a class="other-sign-in-options" href="javascript:void(0)" onclick="redirectToLogin(this)">
-                Other ways to sign in
-            </a>
-        </div>
+      <div id="touchbox-login" class="container">
+        <div id="error-container"></div>
+        <% if (contentTemplate === 'selection') { %>
+        <%- include('./selection') %>
+        <% } else { %>
+        <% if (contentTemplate !== 'google') { %>
+        <a href="javascript:void(0)" onclick="redirectToLogin(this)" class="back-button">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 18l-6-6 6-6"
+            />
+          </svg>
+          Back to sign in options
+        </a>
         <% } %>
+        <%- include(`./${contentTemplate}`) %>
+        <% } %>
+      </div>
 
-        <div style="display: flex; justify-content: space-between;">
-            <p id="termsText" class="termsText">
-                Signing in means that you agree with CheckOut's&nbsp;
-                <a class="tosLink" href="/terms-privacy">Terms of Service</a>&nbsp;and acknowledge CheckOut's&nbsp;
-                <a class="tosLink" href="/terms-privacy">privacy and cookies policy</a>.
-            </p>
-        </div>
+      <% if (contentTemplate === 'google') { %>
+      <div class="other-sign-in-options">
+        <a class="other-sign-in-options" href="javascript:void(0)" onclick="redirectToLogin(this)">
+          Other ways to sign in
+        </a>
+      </div>
+      <% } %>
+
+      <div style="display: flex; justify-content: space-between">
+        <p id="termsText" class="termsText">
+          Signing in means that you agree with CheckOut's&nbsp;
+          <a class="tosLink" href="/terms-privacy">Terms of Service</a>&nbsp;and acknowledge
+          CheckOut's&nbsp; <a class="tosLink" href="/terms-privacy">privacy and cookies policy</a>.
+        </p>
+      </div>
     </div>
 
     <script>
-        function showErrorBox(message, targetId) {
-                    const targetDiv = document.getElementById(targetId);
-                    if (!targetDiv) {
-                        console.error(`No element found with id ${targetId}`);
-                        return;
-                    } else {
-                        //console.error(message);
-                    }
-
-                    const errorBox = document.createElement('div');
-                    errorBox.className = 'error-box';
-                    // class is in global head
-
-                    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>`;
-
-            errorBox.innerHTML = svgIcon + '<p>' + message + '</p>';
-            targetDiv.innerHTML = ''; // Clear the existing content
-            targetDiv.appendChild(errorBox);
-        };
-
-        function redirectToLogin(element) {
-            const currentPath = window.location.pathname;
-            const currentSearch = window.location.search;
-            const searchParams = new URLSearchParams(currentSearch);
-            
-            // Set method=selection
-            searchParams.set('method', 'selection');
-            
-            // Add intent if it doesn't exist
-            if (!searchParams.has('intent')) {
-                searchParams.set('intent', currentPath);
-            }
-            
-            window.location.href = `/login?${searchParams.toString()}`;
+      function showErrorBox(message, targetId) {
+        const targetDiv = document.getElementById(targetId);
+        if (!targetDiv) {
+          console.error(`No element found with id ${targetId}`);
+          return;
+        } else {
+          //console.error(message);
         }
+
+        const errorBox = document.createElement('div');
+        errorBox.className = 'error-box';
+        // class is in global head
+
+        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path></svg>`;
+
+        errorBox.innerHTML = svgIcon + '<p>' + message + '</p>';
+        targetDiv.innerHTML = ''; // Clear the existing content
+        targetDiv.appendChild(errorBox);
+      }
+
+      function redirectToLogin(element) {
+        const currentPath = window.location.pathname;
+        const currentSearch = window.location.search;
+        const searchParams = new URLSearchParams(currentSearch);
+
+        // Set method=selection
+        searchParams.set('method', 'selection');
+
+        // Add intent if it doesn't exist
+        if (!searchParams.has('intent')) {
+          searchParams.set('intent', currentPath);
+        }
+
+        window.location.href = `/login?${searchParams.toString()}`;
+      }
     </script>
-</body>
-</html> 
+  </body>
+</html>

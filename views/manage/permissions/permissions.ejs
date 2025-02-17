@@ -1,301 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../../global/head'); %>
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
-        <meta name="description" content="" />
-        <title>Manage Permissions - CheckOut</title>
-        <style>
-            .container {
-                padding: 2rem 1rem;
-                max-width: 1400px;
-                margin: 0 auto;
-            }
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Manage Permissions - CheckOut</title>
+    <style>
+      .container {
+        padding: 2rem 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-            .table-container {
-                overflow-x: auto;
-                width: 100%;
-                -webkit-overflow-scrolling: touch;
-                margin: 1rem 0;
-                border-radius: 8px;
-                background: linear-gradient(to right, var(--bs-body-bg) 30%, transparent),
-                    linear-gradient(to left, var(--bs-body-bg) 30%, transparent) 100% 0;
-                background-size: 50px 100%, 50px 100%;
-                background-repeat: no-repeat;
-                background-attachment: local, local;
-            }
+      .table-container {
+        overflow-x: auto;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0;
+        border-radius: 8px;
+        background:
+          linear-gradient(to right, var(--bs-body-bg) 30%, transparent),
+          linear-gradient(to left, var(--bs-body-bg) 30%, transparent) 100% 0;
+        background-size:
+          50px 100%,
+          50px 100%;
+        background-repeat: no-repeat;
+        background-attachment: local, local;
+      }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                background: var(--content-background);
-                margin: 2rem 0;
-                border-radius: 8px;
-                overflow: hidden;
-            }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--content-background);
+        margin: 2rem 0;
+        border-radius: 8px;
+        overflow: hidden;
+      }
 
-            td,
-            th {
-                padding: 1rem;
-                text-align: left;
-                border-bottom: 1px solid var(--secondary-accent-colour);
-            }
+      td,
+      th {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--secondary-accent-colour);
+      }
 
-            th {
-                background: var(--secondary-background);
-                font-weight: bold;
-            }
+      th {
+        background: var(--secondary-background);
+        font-weight: bold;
+      }
 
-            .perm-id {
-                color: #888;
-                font-size: 0.8em;
-            }
+      .perm-id {
+        color: #888;
+        font-size: 0.8em;
+      }
 
-            .action-buttons {
-                display: flex;
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
 
-            .action-btn {
-                padding: 0.5rem 1rem;
-                border-radius: 6px;
-                border: 2px solid var(--secondary-accent-colour);
-                background: var(--content-background);
-                color: var(--bs-body-color);
-                cursor: pointer;
-                transition: all 0.2s ease;
-                font-size: 0.875rem;
-                font-weight: 500;
-                white-space: nowrap;
-            }
+      .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 2px solid var(--secondary-accent-colour);
+        background: var(--content-background);
+        color: var(--bs-body-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+        white-space: nowrap;
+      }
 
-            .action-btn:hover {
-                background: var(--bs-primary);
-                color: var(--bs-emphasis-color);
-                border-color: var(--bs-primary);
-                transform: translateY(-2px);
-            }
+      .action-btn:hover {
+        background: var(--bs-primary);
+        color: var(--bs-emphasis-color);
+        border-color: var(--bs-primary);
+        transform: translateY(-2px);
+      }
 
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.4);
-            }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
 
-            .modal-content {
-                background-color: var(--content-background);
-                margin: 15% auto;
-                padding: 20px;
-                border: 1px solid var(--secondary-accent-colour);
-                border-radius: 8px;
-                width: 80%;
-                max-width: 500px;
-            }
+      .modal-content {
+        background-color: var(--content-background);
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid var(--secondary-accent-colour);
+        border-radius: 8px;
+        width: 80%;
+        max-width: 500px;
+      }
 
-            .close {
-                color: #aaa;
-                float: right;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
 
-            .close:hover {
-                color: var(--bs-body-color);
-            }
+      .close:hover {
+        color: var(--bs-body-color);
+      }
 
-            .form-group {
-                margin-bottom: 1rem;
-            }
+      .form-group {
+        margin-bottom: 1rem;
+      }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 0.5rem;
-            }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
 
-            .form-group input,
-            .form-group textarea {
-                width: 100%;
-                padding: 0.5rem;
-                border: 1px solid var(--secondary-accent-colour);
-                border-radius: 4px;
-                background: var(--secondary-background);
-                color: var(--bs-body-color);
-            }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--secondary-accent-colour);
+        border-radius: 4px;
+        background: var(--secondary-background);
+        color: var(--bs-body-color);
+      }
 
-            .add-btn {
-                margin-bottom: 1rem;
-                background: var(--submit-success-background);
-                color: var(--submit-success-colour);
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-            }
+      .add-btn {
+        margin-bottom: 1rem;
+        background: var(--submit-success-background);
+        color: var(--submit-success-colour);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
 
-            .add-btn:hover {
-                opacity: 0.9;
-            }
+      .add-btn:hover {
+        opacity: 0.9;
+      }
 
-            @media (max-width: 768px) {
-                .container {
-                    padding: 1rem 0.5rem;
-                }
-            }
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem 0.5rem;
+        }
+      }
 
-            /* Add new styles for routes input */
-            .routes-input-container {
-                border: 1px solid var(--secondary-accent-colour);
-                border-radius: 4px;
-                padding: 0.5rem;
-                background: var(--secondary-background);
-                min-height: 44px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                align-items: flex-start;
-            }
+      /* Add new styles for routes input */
+      .routes-input-container {
+        border: 1px solid var(--secondary-accent-colour);
+        border-radius: 4px;
+        padding: 0.5rem;
+        background: var(--secondary-background);
+        min-height: 44px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
 
-            .route-tag {
-                background: var(--bs-primary);
-                padding: 0.25rem 0.5rem;
-                border-radius: 4px;
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                font-size: 0.875rem;
-            }
+      .route-tag {
+        background: var(--bs-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
 
-            .route-tag .remove-route {
-                cursor: pointer;
-                font-weight: bold;
-                opacity: 0.8;
-            }
+      .route-tag .remove-route {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.8;
+      }
 
-            .route-tag .remove-route:hover {
-                opacity: 1;
-            }
+      .route-tag .remove-route:hover {
+        opacity: 1;
+      }
 
-            .routes-input {
-                border: none;
-                outline: none;
-                background: transparent;
-                color: var(--bs-body-color);
-                padding: 0.25rem;
-                margin: 0;
-                min-width: 60px;
-                flex-grow: 1;
-            }
+      .routes-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--bs-body-color);
+        padding: 0.25rem;
+        margin: 0;
+        min-width: 60px;
+        flex-grow: 1;
+      }
 
-            .routes-input::placeholder {
-                color: var(--bs-body-color);
-                opacity: 0.5;
-            }
-        </style>
-</head>
+      .routes-input::placeholder {
+        color: var(--bs-body-color);
+        opacity: 0.5;
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
     <%- include('../../global/navbar'); %>
 
-        <div class="container">
-            <h1>Permission Management</h1>
-            <button class="add-btn" onclick="showAddModal()">Add New Permission</button>
+    <div class="container">
+      <h1>Permission Management</h1>
+      <button class="add-btn" onclick="showAddModal()">Add New Permission</button>
 
-            <div class="table-container">
-                <table id="permissions-table">
-                    <thead>
-                        <tr>
-                            <th>Permission Level</th>
-                            <th>Available Routes</th>
-                            <th>Rate Limit (per min)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="permissions-body">
-                        <!-- Permissions will be populated here -->
-                    </tbody>
-                </table>
+      <div class="table-container">
+        <table id="permissions-table">
+          <thead>
+            <tr>
+              <th>Permission Level</th>
+              <th>Available Routes</th>
+              <th>Rate Limit (per min)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="permissions-body">
+            <!-- Permissions will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <form id="editForm">
+          <input type="hidden" id="editPermId" />
+          <div class="form-group">
+            <label for="editUserstate">Permission Level:</label>
+            <input type="text" id="editUserstate" required />
+          </div>
+          <div class="form-group">
+            <label for="editRoutes">Available Routes:</label>
+            <div class="routes-input-container" id="editRoutesContainer">
+              <input
+                type="text"
+                class="routes-input"
+                id="editRoutesInput"
+                placeholder="Type route and press Enter"
+              />
             </div>
-        </div>
+            <input type="hidden" id="editRoutes" />
+            <small>Press Enter or comma to add a route</small>
+          </div>
+          <div class="form-group">
+            <label for="editRatelimit">Rate Limit:</label>
+            <input type="number" id="editRatelimit" required min="0" />
+          </div>
+          <button type="submit" class="action-btn">Save Changes</button>
+        </form>
+      </div>
+    </div>
 
-        <!-- Edit Modal -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEditModal()">&times;</span>
-                <form id="editForm">
-                    <input type="hidden" id="editPermId">
-                    <div class="form-group">
-                        <label for="editUserstate">Permission Level:</label>
-                        <input type="text" id="editUserstate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editRoutes">Available Routes:</label>
-                        <div class="routes-input-container" id="editRoutesContainer">
-                            <input type="text" class="routes-input" id="editRoutesInput" placeholder="Type route and press Enter">
-                        </div>
-                        <input type="hidden" id="editRoutes">
-                        <small>Press Enter or comma to add a route</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="editRatelimit">Rate Limit:</label>
-                        <input type="number" id="editRatelimit" required min="0">
-                    </div>
-                    <button type="submit" class="action-btn">Save Changes</button>
-                </form>
+    <!-- Add Modal -->
+    <div id="addModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeAddModal()">&times;</span>
+        <form id="addForm">
+          <div class="form-group">
+            <label for="addUserstate">Permission Level:</label>
+            <input type="text" id="addUserstate" required />
+          </div>
+          <div class="form-group">
+            <label for="addRoutes">Available Routes:</label>
+            <div class="routes-input-container" id="addRoutesContainer">
+              <input
+                type="text"
+                class="routes-input"
+                id="addRoutesInput"
+                placeholder="Type route and press Enter"
+              />
             </div>
-        </div>
+            <input type="hidden" id="addRoutes" />
+            <small>Press Enter or comma to add a route</small>
+          </div>
+          <div class="form-group">
+            <label for="addRatelimit">Rate Limit:</label>
+            <input type="number" id="addRatelimit" required min="0" />
+          </div>
+          <button type="submit" class="action-btn">Add Permission</button>
+        </form>
+      </div>
+    </div>
 
-        <!-- Add Modal -->
-        <div id="addModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeAddModal()">&times;</span>
-                <form id="addForm">
-                    <div class="form-group">
-                        <label for="addUserstate">Permission Level:</label>
-                        <input type="text" id="addUserstate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="addRoutes">Available Routes:</label>
-                        <div class="routes-input-container" id="addRoutesContainer">
-                            <input type="text" class="routes-input" id="addRoutesInput" placeholder="Type route and press Enter">
-                        </div>
-                        <input type="hidden" id="addRoutes">
-                        <small>Press Enter or comma to add a route</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="addRatelimit">Rate Limit:</label>
-                        <input type="number" id="addRatelimit" required min="0">
-                    </div>
-                    <button type="submit" class="action-btn">Add Permission</button>
-                </form>
-            </div>
-        </div>
+    <script>
+      const editModal = document.getElementById('editModal');
+      const addModal = document.getElementById('addModal');
 
-        <script>
-            const editModal = document.getElementById('editModal');
-            const addModal = document.getElementById('addModal');
+      async function loadPermissions() {
+        try {
+          const response = await fetch('/manage/api/permissions/list');
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.msg || 'Failed to load permissions');
+          }
+          const tbody = document.getElementById('permissions-body');
+          tbody.innerHTML = '';
 
-            async function loadPermissions() {
-                try {
-                    const response = await fetch('/manage/api/permissions/list');
-                    const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.msg || 'Failed to load permissions');
-                    }
-                    const tbody = document.getElementById('permissions-body');
-                    tbody.innerHTML = '';
-
-                    data.forEach(perm => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
+          data.forEach((perm) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
                             <td>${perm.userstate} <span class="perm-id">#${perm.permid}</span></td>
                             <td>${formatRoutes(perm.routes)}</td>
                             <td>${perm.ratelimit === 0 ? 'Unlimited' : perm.ratelimit}</td>
@@ -304,225 +316,224 @@
                                 <button onclick="deletePermission(${perm.permid})" class="action-btn delete">Delete</button>
                             </td>
                         `;
-                        tbody.appendChild(row);
-                    });
-                } catch (error) {
-                    console.error('Error loading permissions:', error);
-                    displayNotice(error.message, 'error', 'Load Error');
-                }
-            }
+            tbody.appendChild(row);
+          });
+        } catch (error) {
+          console.error('Error loading permissions:', error);
+          displayNotice(error.message, 'error', 'Load Error');
+        }
+      }
 
-            function formatRoutes(routes) {
-                try {
-                    const routeArray = JSON.parse(routes);
-                    return routeArray.join(', ') || 'None';
-                } catch {
-                    return routes || 'None';
-                }
-            }
+      function formatRoutes(routes) {
+        try {
+          const routeArray = JSON.parse(routes);
+          return routeArray.join(', ') || 'None';
+        } catch {
+          return routes || 'None';
+        }
+      }
 
-            function showAddModal() {
-                addModal.style.display = 'block';
-            }
+      function showAddModal() {
+        addModal.style.display = 'block';
+      }
 
-            function closeAddModal() {
-                addModal.style.display = 'none';
-            }
+      function closeAddModal() {
+        addModal.style.display = 'none';
+      }
 
-            function closeEditModal() {
-                editModal.style.display = 'none';
-            }
+      function closeEditModal() {
+        editModal.style.display = 'none';
+      }
 
-            function createRouteTag(route, container, hiddenInput) {
-                const tag = document.createElement('span');
-                tag.className = 'route-tag';
-                tag.innerHTML = `
+      function createRouteTag(route, container, hiddenInput) {
+        const tag = document.createElement('span');
+        tag.className = 'route-tag';
+        tag.innerHTML = `
                     ${route}
                     <span class="remove-route">&times;</span>
                 `;
-                
-                tag.querySelector('.remove-route').addEventListener('click', () => {
-                    tag.remove();
-                    updateHiddenInput(container, hiddenInput);
-                });
-                
-                container.insertBefore(tag, container.querySelector('.routes-input'));
-                updateHiddenInput(container, hiddenInput);
+
+        tag.querySelector('.remove-route').addEventListener('click', () => {
+          tag.remove();
+          updateHiddenInput(container, hiddenInput);
+        });
+
+        container.insertBefore(tag, container.querySelector('.routes-input'));
+        updateHiddenInput(container, hiddenInput);
+      }
+
+      function updateHiddenInput(container, hiddenInput) {
+        const routes = Array.from(container.querySelectorAll('.route-tag')).map((tag) =>
+          tag.textContent.trim().replace('×', '').trim()
+        );
+        hiddenInput.value = JSON.stringify(routes);
+      }
+
+      function setupRoutesInput(container, hiddenInput, input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const route = input.value.trim();
+            if (route) {
+              createRouteTag(route, container, hiddenInput);
+              input.value = '';
             }
-
-            function updateHiddenInput(container, hiddenInput) {
-                const routes = Array.from(container.querySelectorAll('.route-tag'))
-                    .map(tag => tag.textContent.trim().replace('×', '').trim());
-                hiddenInput.value = JSON.stringify(routes);
+          } else if (e.key === 'Backspace' && input.value === '') {
+            const tags = container.querySelectorAll('.route-tag');
+            if (tags.length > 0) {
+              tags[tags.length - 1].remove();
+              updateHiddenInput(container, hiddenInput);
             }
+          }
+        });
+      }
 
-            function setupRoutesInput(container, hiddenInput, input) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ',') {
-                        e.preventDefault();
-                        const route = input.value.trim();
-                        if (route) {
-                            createRouteTag(route, container, hiddenInput);
-                            input.value = '';
-                        }
-                    } else if (e.key === 'Backspace' && input.value === '') {
-                        const tags = container.querySelectorAll('.route-tag');
-                        if (tags.length > 0) {
-                            tags[tags.length - 1].remove();
-                            updateHiddenInput(container, hiddenInput);
-                        }
-                    }
-                });
-            }
+      function editPermission(permid, userstate, routes, ratelimit) {
+        document.getElementById('editPermId').value = permid;
+        document.getElementById('editUserstate').value = userstate;
 
-            function editPermission(permid, userstate, routes, ratelimit) {
-                document.getElementById('editPermId').value = permid;
-                document.getElementById('editUserstate').value = userstate;
-                
-                const container = document.getElementById('editRoutesContainer');
-                const hiddenInput = document.getElementById('editRoutes');
-                const input = container.querySelector('.routes-input');
-                
-                // Clear existing tags
-                container.querySelectorAll('.route-tag').forEach(tag => tag.remove());
-                
-                // Add new tags
-                let routesArray;
-                try {
-                    // Handle both string JSON and direct array
-                    routesArray = typeof routes === 'string' ? JSON.parse(routes) : routes;
-                    if (Array.isArray(routesArray)) {
-                        routesArray.forEach(route => {
-                            createRouteTag(route, container, hiddenInput);
-                        });
-                    }
-                } catch (e) {
-                    console.error('Error parsing routes:', e);
-                }
-                
-                document.getElementById('editRatelimit').value = ratelimit;
-                editModal.style.display = 'block';
-            }
+        const container = document.getElementById('editRoutesContainer');
+        const hiddenInput = document.getElementById('editRoutes');
+        const input = container.querySelector('.routes-input');
 
-            async function deletePermission(permid) {
-                if (confirm('Are you sure you want to delete this permission?')) {
-                    try {
-                        const response = await fetch(`/manage/api/permissions/delete/${permid}`, {
-                            method: 'DELETE'
-                        });
-                        const data = await response.json();
-                        if (!response.ok) {
-                            throw new Error(data.msg || 'Failed to delete permission');
-                        }
-                        displayNotice('Permission deleted successfully', 'success');
-                        loadPermissions();
-                    } catch (error) {
-                        console.error('Error deleting permission:', error);
-                        displayNotice(error.message, 'error', 'Delete Error');
-                    }
-                }
-            }
+        // Clear existing tags
+        container.querySelectorAll('.route-tag').forEach((tag) => tag.remove());
 
-            document.getElementById('editForm').onsubmit = async function(event) {
-                event.preventDefault();
-                const permid = document.getElementById('editPermId').value;
-                const userstate = document.getElementById('editUserstate').value;
-                let routes;
-                try {
-                    routes = JSON.parse(document.getElementById('editRoutes').value);
-                    if (!Array.isArray(routes)) {
-                        displayNotice('Routes must be a valid array', 'error');
-                        return;
-                    }
-                } catch (e) {
-                    displayNotice('Invalid route format', 'error');
-                    return;
-                }
-                const ratelimit = document.getElementById('editRatelimit').value;
-
-                try {
-                    const response = await fetch('/manage/api/permissions/update', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ permid, userstate, routes, ratelimit })
-                    });
-                    const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.msg || 'Failed to update permission');
-                    }
-                    displayNotice('Permission updated successfully', 'success');
-                    loadPermissions();
-                    closeEditModal();
-                } catch (error) {
-                    console.error('Error updating permission:', error);
-                    displayNotice(error.message, 'error', 'Update Error');
-                }
-            };
-
-            document.getElementById('addForm').onsubmit = async function(event) {
-                event.preventDefault();
-                const userstate = document.getElementById('addUserstate').value;
-                let routes;
-                try {
-                    routes = JSON.parse(document.getElementById('addRoutes').value || '[]');
-                    if (!Array.isArray(routes)) {
-                        displayNotice('Routes must be a valid array', 'error');
-                        return;
-                    }
-                } catch (e) {
-                    displayNotice('Invalid route format', 'error');
-                    return;
-                }
-                const ratelimit = document.getElementById('addRatelimit').value;
-
-                try {
-                    const response = await fetch('/manage/api/permissions/add', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userstate, routes, ratelimit })
-                    });
-                    const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.msg || 'Failed to add permission');
-                    }
-                    displayNotice('Permission added successfully', 'success');
-                    loadPermissions();
-                    closeAddModal();
-                } catch (error) {
-                    console.error('Error adding permission:', error);
-                    displayNotice(error.message, 'error', 'Add Error');
-                }
-            };
-
-            // Close modals when clicking outside
-            window.onclick = function(event) {
-                if (event.target === editModal) {
-                    closeEditModal();
-                }
-                if (event.target === addModal) {
-                    closeAddModal();
-                }
-            };
-
-            // Load permissions when the page loads
-            document.addEventListener('DOMContentLoaded', loadPermissions);
-
-            // Initialize routes input when the document loads
-            document.addEventListener('DOMContentLoaded', () => {
-                const editContainer = document.getElementById('editRoutesContainer');
-                const editHiddenInput = document.getElementById('editRoutes');
-                const editInput = editContainer.querySelector('.routes-input');
-                
-                const addContainer = document.getElementById('addRoutesContainer');
-                const addHiddenInput = document.getElementById('addRoutes');
-                const addInput = addContainer.querySelector('.routes-input');
-                
-                setupRoutesInput(editContainer, editHiddenInput, editInput);
-                setupRoutesInput(addContainer, addHiddenInput, addInput);
-                loadPermissions();
+        // Add new tags
+        let routesArray;
+        try {
+          // Handle both string JSON and direct array
+          routesArray = typeof routes === 'string' ? JSON.parse(routes) : routes;
+          if (Array.isArray(routesArray)) {
+            routesArray.forEach((route) => {
+              createRouteTag(route, container, hiddenInput);
             });
-        </script>
+          }
+        } catch (e) {
+          console.error('Error parsing routes:', e);
+        }
 
-</body>
+        document.getElementById('editRatelimit').value = ratelimit;
+        editModal.style.display = 'block';
+      }
 
-</html> 
+      async function deletePermission(permid) {
+        if (confirm('Are you sure you want to delete this permission?')) {
+          try {
+            const response = await fetch(`/manage/api/permissions/delete/${permid}`, {
+              method: 'DELETE',
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              throw new Error(data.msg || 'Failed to delete permission');
+            }
+            displayNotice('Permission deleted successfully', 'success');
+            loadPermissions();
+          } catch (error) {
+            console.error('Error deleting permission:', error);
+            displayNotice(error.message, 'error', 'Delete Error');
+          }
+        }
+      }
+
+      document.getElementById('editForm').onsubmit = async function (event) {
+        event.preventDefault();
+        const permid = document.getElementById('editPermId').value;
+        const userstate = document.getElementById('editUserstate').value;
+        let routes;
+        try {
+          routes = JSON.parse(document.getElementById('editRoutes').value);
+          if (!Array.isArray(routes)) {
+            displayNotice('Routes must be a valid array', 'error');
+            return;
+          }
+        } catch (e) {
+          displayNotice('Invalid route format', 'error');
+          return;
+        }
+        const ratelimit = document.getElementById('editRatelimit').value;
+
+        try {
+          const response = await fetch('/manage/api/permissions/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ permid, userstate, routes, ratelimit }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.msg || 'Failed to update permission');
+          }
+          displayNotice('Permission updated successfully', 'success');
+          loadPermissions();
+          closeEditModal();
+        } catch (error) {
+          console.error('Error updating permission:', error);
+          displayNotice(error.message, 'error', 'Update Error');
+        }
+      };
+
+      document.getElementById('addForm').onsubmit = async function (event) {
+        event.preventDefault();
+        const userstate = document.getElementById('addUserstate').value;
+        let routes;
+        try {
+          routes = JSON.parse(document.getElementById('addRoutes').value || '[]');
+          if (!Array.isArray(routes)) {
+            displayNotice('Routes must be a valid array', 'error');
+            return;
+          }
+        } catch (e) {
+          displayNotice('Invalid route format', 'error');
+          return;
+        }
+        const ratelimit = document.getElementById('addRatelimit').value;
+
+        try {
+          const response = await fetch('/manage/api/permissions/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userstate, routes, ratelimit }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.msg || 'Failed to add permission');
+          }
+          displayNotice('Permission added successfully', 'success');
+          loadPermissions();
+          closeAddModal();
+        } catch (error) {
+          console.error('Error adding permission:', error);
+          displayNotice(error.message, 'error', 'Add Error');
+        }
+      };
+
+      // Close modals when clicking outside
+      window.onclick = function (event) {
+        if (event.target === editModal) {
+          closeEditModal();
+        }
+        if (event.target === addModal) {
+          closeAddModal();
+        }
+      };
+
+      // Load permissions when the page loads
+      document.addEventListener('DOMContentLoaded', loadPermissions);
+
+      // Initialize routes input when the document loads
+      document.addEventListener('DOMContentLoaded', () => {
+        const editContainer = document.getElementById('editRoutesContainer');
+        const editHiddenInput = document.getElementById('editRoutes');
+        const editInput = editContainer.querySelector('.routes-input');
+
+        const addContainer = document.getElementById('addRoutesContainer');
+        const addHiddenInput = document.getElementById('addRoutes');
+        const addInput = addContainer.querySelector('.routes-input');
+
+        setupRoutesInput(editContainer, editHiddenInput, editInput);
+        setupRoutesInput(addContainer, addHiddenInput, addInput);
+        loadPermissions();
+      });
+    </script>
+  </body>
+</html>

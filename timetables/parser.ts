@@ -5,10 +5,10 @@ const readline = require('readline');
 // Create readline interface
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
-console.log("Starting TIBL CSV to DB parser");
+console.log('Starting TIBL CSV to DB parser');
 
 // Prompt for password
 rl.question('Enter MySQL password: ', (password) => {
@@ -17,7 +17,7 @@ rl.question('Enter MySQL password: ', (password) => {
     host: '127.0.0.1',
     user: 'checkout',
     password: password,
-    database: 'checkout'
+    database: 'checkout',
   });
 
   // Establish MySQL connection
@@ -43,32 +43,40 @@ rl.question('Enter MySQL password: ', (password) => {
 
       // Extract column names
       let descriptionCount = 0;
-      const columns = rows.shift().trim().split(';').map(col => {
-        col = col.replace(/"/g, '');
-        if (col === 'Description') {
-          descriptionCount++;
-          if (descriptionCount === 2) {
-            // Account for duplicate 'Description' header
-            return 'Description2';
+      const columns = rows
+        .shift()
+        .trim()
+        .split(';')
+        .map((col) => {
+          col = col.replace(/"/g, '');
+          if (col === 'Description') {
+            descriptionCount++;
+            if (descriptionCount === 2) {
+              // Account for duplicate 'Description' header
+              return 'Description2';
+            }
           }
-        }
-        return col;
-      });
-
+          return col;
+        });
 
       // Prepare SQL INSERT query
       const tableName = 'tibl_yrk_cs_2';
-      const insertQuery = `INSERT INTO ${tableName} (${columns.map(col => `\`${col}\``).join(', ')}) VALUES ?`;
+      const insertQuery = `INSERT INTO ${tableName} (${columns.map((col) => `\`${col}\``).join(', ')}) VALUES ?`;
 
       // Parse data and insert into MySQL table
-      const values = rows.map(row => row.trim().split(';').map(val => {
-        // If the value is an empty string and the column expects an integer, replace it with null
-        if (val === '' && columns[rows.indexOf(row)] === 'Number of students') {
-          return null;
-        }
-        // Otherwise, return the value
-        return val.replace(/"/g, '');
-      }));
+      const values = rows.map((row) =>
+        row
+          .trim()
+          .split(';')
+          .map((val) => {
+            // If the value is an empty string and the column expects an integer, replace it with null
+            if (val === '' && columns[rows.indexOf(row)] === 'Number of students') {
+              return null;
+            }
+            // Otherwise, return the value
+            return val.replace(/"/g, '');
+          })
+      );
       //console.log(values);
 
       connection.query(insertQuery, [values], (err, result) => {
@@ -86,4 +94,3 @@ rl.question('Enter MySQL password: ', (password) => {
     });
   });
 });
-

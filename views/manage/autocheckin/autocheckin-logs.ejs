@@ -1,174 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AutoCheckin Log - CheckOut</title>
     <style>
-        html {
-            scrollbar-color: white #1a1a1a;
-        }
-        
+      html {
+        scrollbar-color: white #1a1a1a;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 0;
+      }
+
+      /* Light mode styles */
+      @media (prefers-color-scheme: light) {
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
+          background-color: #ffffff;
+          color: #000000;
         }
-
-        /* Light mode styles */
-        @media (prefers-color-scheme: light) {
-            body {
-                background-color: #ffffff;
-                color: #000000;
-            }
-            table {
-                background-color: #f2f2f2;
-            }
-            th {
-                background-color: #cccccc;
-            }
-            tr.fail {
-                background-color: #ffcccc;
-            }
-            tr.checkin {
-                font-weight: bold;
-                background-color: #ccffcc;
-            }
-            tr:nth-child(even) {
-                background-color: #e6e6e6;
-            }
+        table {
+          background-color: #f2f2f2;
         }
-
-        /* Dark mode styles */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1a1a1a;
-                color: #ffffff;
-            }
-            table {
-                background-color: #333333;
-            }
-            th {
-                background-color: #444444;
-            }
-            tr.fail {
-                background-color: #550000 !important;
-            }
-            tr.checkin {
-                font-weight: bold;
-                background-color: #005500 !important;
-            }
-            tr:nth-child(even) {
-                background-color: #444444;
-            }
-        }
-
-        /* Header row styles */
         th {
-            padding: 8px;
-            text-align: left;
+          background-color: #cccccc;
         }
+        tr.fail {
+          background-color: #ffcccc;
+        }
+        tr.checkin {
+          font-weight: bold;
+          background-color: #ccffcc;
+        }
+        tr:nth-child(even) {
+          background-color: #e6e6e6;
+        }
+      }
 
-        /* Table cell styles */
-        td {
-            padding: 8px;
-            text-align: left;
+      /* Dark mode styles */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1a1a1a;
+          color: #ffffff;
         }
+        table {
+          background-color: #333333;
+        }
+        th {
+          background-color: #444444;
+        }
+        tr.fail {
+          background-color: #550000 !important;
+        }
+        tr.checkin {
+          font-weight: bold;
+          background-color: #005500 !important;
+        }
+        tr:nth-child(even) {
+          background-color: #444444;
+        }
+      }
 
-        /* Message styles */
-        #session-message {
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
+      /* Header row styles */
+      th {
+        padding: 8px;
+        text-align: left;
+      }
 
-        .green-text {
-            color: green;
-        }
+      /* Table cell styles */
+      td {
+        padding: 8px;
+        text-align: left;
+      }
 
-        .red-text {
-            color: red;
-        }
+      /* Message styles */
+      #session-message {
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
 
-        .hidden-message {
-            text-align: center;
-            font-style: italic;
-            font-size: 0.9em;
-        }
+      .green-text {
+        color: green;
+      }
 
-        .manage-link {
-            text-decoration: none;
-            color: #3498db;
-        }
+      .red-text {
+        color: red;
+      }
 
-        #email-info {
-            margin-bottom: 10px;
-        }
+      .hidden-message {
+        text-align: center;
+        font-style: italic;
+        font-size: 0.9em;
+      }
 
-        #overlay {
-            display: none;
-            position: absolute; /* Changed from fixed to absolute */
-            top: 0;
-            left: 0;
-            right: 0; /* Ensure it spans the entire form area */
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.7);
-            z-index: 1000;
-        }
+      .manage-link {
+        text-decoration: none;
+        color: #3498db;
+      }
 
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin: -25px 0 0 -25px;
-        }
-        /* for loader */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      #email-info {
+        margin-bottom: 10px;
+      }
 
-        .error-box {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #ff0000;
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 5px;
-            z-index: 1500;
-        }
+      #overlay {
+        display: none;
+        position: absolute; /* Changed from fixed to absolute */
+        top: 0;
+        left: 0;
+        right: 0; /* Ensure it spans the entire form area */
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        z-index: 1000;
+      }
 
+      .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -25px 0 0 -25px;
+      }
+      /* for loader */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-box {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #ff0000;
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 1500;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="email-info"></div>
-<div id="session-message"></div>
-<!-- <h2>Log Data</h2> -->
-<!-- <label>
+    <div id="session-message"></div>
+    <!-- <h2>Log Data</h2> -->
+    <!-- <label>
     <input type="checkbox" id="display-logs-checkbox"> Display operational logs
 </label> -->
-<br>
-<table id="log-table">
-    <thead>
+    <br />
+    <table id="log-table">
+      <thead>
         <tr>
-            <th>State</th>
-            <th>Message</th>
-            <th>Timestamp</th>
+          <th>State</th>
+          <th>Message</th>
+          <th>Timestamp</th>
         </tr>
-    </thead>
-    <tbody id="log-table-body"></tbody>
-</table>
-<div id="post-table"></div>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
+      </thead>
+      <tbody id="log-table-body"></tbody>
+    </table>
+    <div id="post-table"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         const isFrame = urlParams.get('frame') === 'true';
         const logTableBody = document.getElementById('log-table-body');
@@ -179,81 +182,95 @@
         let fullLogs = false;
 
         if (!isFrame) {
-            emailInfo.innerHTML = `Viewing logs for <a class="manage-link" href="/auto">Manage</a>`;
+          emailInfo.innerHTML = `Viewing logs for <a class="manage-link" href="/auto">Manage</a>`;
         }
 
         function fetchLogData() {
-            var email = urlParams.get('email');
-            const logDataUrl = '/manage/api/autocheckin/logs?email=' + email;
-            fetch(logDataUrl)
-                .then(response => response.json())
-                .then(data => {
-                    logTableBody.innerHTML = '';
-                    var email = data[0].email;
-                    emailInfo.innerHTML = `Viewing logs for ${email}` // ${!isFrame ? '<a class="manage-link" href="/auto">Manage</a>' : ''}`;
+          var email = urlParams.get('email');
+          const logDataUrl = '/manage/api/autocheckin/logs?email=' + email;
+          fetch(logDataUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              logTableBody.innerHTML = '';
+              var email = data[0].email;
+              emailInfo.innerHTML = `Viewing logs for ${email}`; // ${!isFrame ? '<a class="manage-link" href="/auto">Manage</a>' : ''}`;
 
-                    var sessionState;
-                    if (data[0].state === 'Fail') {
-                        sessionState = 'in error state';
-                    } else if (data[0].state === 'Disabled') {
-                        sessionState = 'disabled';
-                    } else if (data[0].state === 'Enabled') {
-                        sessionState = 'enabled';
-                    } else {
-                        sessionState = 'active';
-                    }
+              var sessionState;
+              if (data[0].state === 'Fail') {
+                sessionState = 'in error state';
+              } else if (data[0].state === 'Disabled') {
+                sessionState = 'disabled';
+              } else if (data[0].state === 'Enabled') {
+                sessionState = 'enabled';
+              } else {
+                sessionState = 'active';
+              }
 
-                    const timestamp = new Date(data[0].timestamp).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, day: 'numeric', month: 'short', year: 'numeric' });
-                    // cba to show this
-                    //sessionMessage.innerHTML = `Your session is <span class="${sessionState === 'active' || sessionState === 'enabled' ? 'green-text' : 'red-text'}">${sessionState}</span> as of ${timestamp}`;
+              const timestamp = new Date(data[0].timestamp).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              });
+              // cba to show this
+              //sessionMessage.innerHTML = `Your session is <span class="${sessionState === 'active' || sessionState === 'enabled' ? 'green-text' : 'red-text'}">${sessionState}</span> as of ${timestamp}`;
 
-                    let duplicatesCount = 0;
-                    let currentMessage = null;
-                    let combinedRow = null;
-                    let lastCombinedRow = null;
+              let duplicatesCount = 0;
+              let currentMessage = null;
+              let combinedRow = null;
+              let lastCombinedRow = null;
 
-                    data.forEach((entry, index) => {
-                        if (entry.message === currentMessage) {
-                            duplicatesCount++;
-                        } else {
-                            if (combinedRow && duplicatesCount > 0) {
-                                const hiddenRow = document.createElement('tr');
-                                hiddenRow.innerHTML = `
+              data.forEach((entry, index) => {
+                if (entry.message === currentMessage) {
+                  duplicatesCount++;
+                } else {
+                  if (combinedRow && duplicatesCount > 0) {
+                    const hiddenRow = document.createElement('tr');
+                    hiddenRow.innerHTML = `
                                     <td colspan="3" class="hidden-message">${duplicatesCount} duplicate log entries like the one above were hidden</td>
                                 `;
-                                logTableBody.insertBefore(hiddenRow, lastCombinedRow.nextSibling);
-                                duplicatesCount = 0;
-                            }
-                            currentMessage = entry.message;
-                            const row = document.createElement('tr');
-                            row.className = entry.state.toLowerCase();
-                            const timestamp = new Date(entry.timestamp).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, day: 'numeric', month: 'short', year: 'numeric' });
-                            row.innerHTML = `
+                    logTableBody.insertBefore(hiddenRow, lastCombinedRow.nextSibling);
+                    duplicatesCount = 0;
+                  }
+                  currentMessage = entry.message;
+                  const row = document.createElement('tr');
+                  row.className = entry.state.toLowerCase();
+                  const timestamp = new Date(entry.timestamp).toLocaleString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  });
+                  row.innerHTML = `
                                 <td>${entry.state}</td>
                                 <td>${entry.message}</td>
                                 <td>${timestamp}</td>
                             `;
-                            logTableBody.appendChild(row);
-                            combinedRow = row;
-                        }
-                        lastCombinedRow = combinedRow;
-                    });
+                  logTableBody.appendChild(row);
+                  combinedRow = row;
+                }
+                lastCombinedRow = combinedRow;
+              });
 
-                    if (combinedRow && duplicatesCount > 0) {
-                        const hiddenRow = document.createElement('tr');
-                        hiddenRow.innerHTML = `
+              if (combinedRow && duplicatesCount > 0) {
+                const hiddenRow = document.createElement('tr');
+                hiddenRow.innerHTML = `
                             <td colspan="3" class="hidden-message">${duplicatesCount} duplicate log entries like the one above were hidden</td>
                         `;
-                        logTableBody.insertBefore(hiddenRow, lastCombinedRow.nextSibling);
-                    }
+                logTableBody.insertBefore(hiddenRow, lastCombinedRow.nextSibling);
+              }
 
-                    //postTable.innerHTML = isFrame ? '<a href="/auto/log?frame=false" target="_blank">Open log in new tab</a>' : '';
-                    postTable.innerHTML = '<p>Data is refreshed every 10 seconds.</p>'
-                })
-                .catch(error => {
-                    console.error('Error fetching log data:', error);
-                    logTableBody.innerHTML = `<tr><td colspan="3" class="error-message">Error loading log data: ${error.message}</td></tr>`;
-                });
+              //postTable.innerHTML = isFrame ? '<a href="/auto/log?frame=false" target="_blank">Open log in new tab</a>' : '';
+              postTable.innerHTML = '<p>Data is refreshed every 10 seconds.</p>';
+            })
+            .catch((error) => {
+              console.error('Error fetching log data:', error);
+              logTableBody.innerHTML = `<tr><td colspan="3" class="error-message">Error loading log data: ${error.message}</td></tr>`;
+            });
         }
 
         // displayLogsCheckbox.addEventListener('change', function() {
@@ -265,7 +282,7 @@
 
         postTable.innerHTML = 'Loading...';
         fetchLogData();
-    });
-</script>
-</body>
+      });
+    </script>
+  </body>
 </html>

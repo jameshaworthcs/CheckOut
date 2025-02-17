@@ -22,23 +22,23 @@ async function verifyJWT(token) {
     const decoded = await new Promise((resolve, reject) => {
       jwt.verify(token, serverSecret, (err, decoded) => {
         if (err) {
-          return reject(err);  // Token is invalid or expired
+          return reject(err); // Token is invalid or expired
         }
-        resolve(decoded);  // Token is valid
+        resolve(decoded); // Token is valid
       });
     });
 
     // If token is valid, return decoded data and isValid = true
     return {
-      jwtValidated: decoded,  // This will be the decoded payload object
-      isValid: true
+      jwtValidated: decoded, // This will be the decoded payload object
+      isValid: true,
     };
   } catch (error) {
     // If any error occurs, it means the token is invalid
     console.error('Token verification error:', error);
     return {
       jwtValidated: null,
-      isValid: false
+      isValid: false,
     };
   }
 }
@@ -98,13 +98,11 @@ function pollForCheckIn(email, chc, ws) {
           ws.send(btoa(JSON.stringify(timeoutResult)));
           ws.close();
           clearInterval(interval);
-
         }
       });
     }, intervalTime);
   });
 }
-
 
 async function handleAutoSplashConnection(ws, request) {
   ws.on('message', async (message) => {
@@ -135,9 +133,7 @@ async function handleAutoSplashConnection(ws, request) {
         } = jwtResult.jwtValidated;
 
         const userPermissions = await secureRoute.checkPermissions(userState);
-        const allowedServices = userPermissions.flatMap((perms) =>
-          perms.routes
-        );
+        const allowedServices = userPermissions.flatMap((perms) => perms.routes);
         // Validate chc to be a 6 digit integer
         const chcPattern = /^\d{6}$/;
         if (!chcPattern.test(chc)) {
@@ -175,7 +171,7 @@ async function handleAutoSplashConnection(ws, request) {
       finalResponse = {
         success: false,
         checkedin: false,
-        msg: "Internal error processing AutoCheckin request.",
+        msg: 'Internal error processing AutoCheckin request.',
       };
       ws.send(btoa(JSON.stringify(finalResponse)));
       ws.close(1002, 'Invalid message format or sequence');
@@ -199,9 +195,8 @@ module.exports.handleAutoSplashConnection = handleAutoSplashConnection;
 
 app.get('*', function (req, res) {
   res.status(404);
-  res.json({ 'success': false, msg: 'Not a valid endpoint. (autosplash-ws-api)' });
+  res.json({ success: false, msg: 'Not a valid endpoint. (autosplash-ws-api)' });
 });
 
 module.exports = app;
 module.exports.handleAutoSplashConnection = handleAutoSplashConnection;
-
