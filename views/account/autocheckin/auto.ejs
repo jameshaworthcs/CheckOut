@@ -1,294 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../../global/head'); %>
-        <%- include('../account-styles'); %>
-            <title>AutoCheckin - CheckOut</title>
-            <style>
-                #manage-btn {
-                    background-color: #03426c;
-                }
+    <%- include('../account-styles'); %>
+    <title>AutoCheckin - CheckOut</title>
+    <style>
+      #manage-btn {
+        background-color: #03426c;
+      }
 
-                #log-btn {
-                    background-color: #1f692e;
-                    margin-left: 10px;
-                }
+      #log-btn {
+        background-color: #1f692e;
+        margin-left: 10px;
+      }
 
-                #state-btn {
-                    margin-left: 10px;
-                    margin-block-start: 10px;
-                }
+      #state-btn {
+        margin-left: 10px;
+        margin-block-start: 10px;
+      }
 
-                button:hover {
-                    background-color: #0056b3;
-                }
+      button:hover {
+        background-color: #0056b3;
+      }
 
-                #overlay2 {
-                    display: none;
-                    position: absolute;
-                    /* Changed from fixed to absolute */
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    /* Ensure it spans the entire form area */
-                    bottom: 0;
-                    background: rgba(255, 255, 255, 0.7);
-                    z-index: 1000;
-                }
+      #overlay2 {
+        display: none;
+        position: absolute;
+        /* Changed from fixed to absolute */
+        top: 0;
+        left: 0;
+        right: 0;
+        /* Ensure it spans the entire form area */
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        z-index: 1000;
+      }
 
-                .loader2 {
-                    border: 5px solid #f3f3f3;
-                    border-top: 5px solid #3498db;
-                    border-radius: 50%;
-                    width: 50px;
-                    height: 50px;
-                    animation: spin 2s linear infinite;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    margin: -25px 0 0 -25px;
-                }
-                .loader3 {
-                    border: 5px solid #f3f3f3;
-                    border-top: 5px solid #3498db;
-                    border-radius: 50%;
-                    width: 50px;
-                    height: 50px;
-                    animation: spin 2s linear infinite;
-                    position: absolute;
-                    /* top: 50%;
+      .loader2 {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -25px 0 0 -25px;
+      }
+      .loader3 {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        /* top: 50%;
                     left: 50%; */
-                    /* margin: -25px 0 0 -25px; */
-                }
+        /* margin: -25px 0 0 -25px; */
+      }
 
-                /* for loader */
-                @keyframes spin {
-                    0% {
-                        transform: rotate(0deg);
-                    }
+      /* for loader */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
 
-                    100% {
-                        transform: rotate(360deg);
-                    }
-                }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-                .green-text {
-                    color: green;
-                }
+      .green-text {
+        color: green;
+      }
 
-                .red-text {
-                    color: red;
-                }
+      .red-text {
+        color: red;
+      }
 
-                .yellow-text {
-                    color: rgb(180, 180, 20);
-                }
+      .yellow-text {
+        color: rgb(180, 180, 20);
+      }
 
-                .red {
-                    background-color: #7b2828;
-                    color: white;
-                }
+      .red {
+        background-color: #7b2828;
+        color: white;
+      }
 
-                .green {
-                    background-color: green;
-                    color: white;
-                }
+      .green {
+        background-color: green;
+        color: white;
+      }
 
-                .message-box {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background-color: #fff;
-                    padding: 20px;
-                    border: 1px solid #000;
-                    border-radius: 5px;
-                    z-index: 1500;
-                    color: black;
-                }
+      .message-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        z-index: 1500;
+        color: black;
+      }
 
-                .message-box a {
-                    margin-top: 10px;
-                }
+      .message-box a {
+        margin-top: 10px;
+      }
 
-                #autoSummary {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 70%;
-  margin: 0 auto;
-  /* background-color: #333; */
-  transition: background-color 0.3s ease;
-  color: var(--text-color);
-  border-radius: 15px;
-  padding: 20px;
-  text-align: center;
-}
+      #autoSummary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 70%;
+        margin: 0 auto;
+        /* background-color: #333; */
+        transition: background-color 0.3s ease;
+        color: var(--text-color);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+      }
 
-#autoSummary .emoji {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
+      #autoSummary .emoji {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
 
-#autoSummary .status {
-  font-size: 1.1rem;
-}
+      #autoSummary .status {
+        font-size: 1.1rem;
+      }
 
-@media (max-width: 768px) {
-  #autoSummary {
-    width: 95%;
-  }
-}
+      @media (max-width: 768px) {
+        #autoSummary {
+          width: 95%;
+        }
+      }
+    </style>
+    <%- include('../fancybuttons'); %>
+  </head>
 
-            </style>
-            <%- include('../fancybuttons'); %>
-</head>
-
-<body>
+  <body>
     <div id="overlay2" class="hidden">
-        <div class="loader2"></div>
+      <div class="loader2"></div>
     </div>
     <%- include('../../global/navbar'); %>
-        <div class="container">
-            <h1>AutoCheckin</h1>
-            <hr>
-            <div id="autoSummary"><div class="loader3"></div></div>
-            <p><%- msg %></p><br><%- enabledMsg %><br>
-                <!-- <div id="apikey-container">
+    <div class="container">
+      <h1>AutoCheckin</h1>
+      <hr />
+      <div id="autoSummary"><div class="loader3"></div></div>
+      <p><%- msg %></p>
+      <br /><%- enabledMsg %><br />
+      <!-- <div id="apikey-container">
             <span id="show-btn" onclick="showApiKey()">Show API Key</span>
             <span id="apikey"></span>
             <button id="copy-btn" onclick="copyApiKey()">Copy</button>
             <button id="hide-btn" onclick="hideApiKey()">Hide</button>
             <div id="loader" class="loader" style="display: none;"></div>
         </div> -->
-                <br>
-                <a href="/account">
-                    <button id="manage-btn">Manage account</button></a>
-                <!-- <a href="/auto/log">
+      <br />
+      <a href="/account"> <button id="manage-btn">Manage account</button></a>
+      <!-- <a href="/auto/log">
                     <button id="log-btn">AutoCheckin Log</button></a> -->
-                <button id="state-btn" class="<%= checkinState === 'enabled' ? 'red' : 'green' %>"
-                    onclick="state('<%= checkinState === 'enabled' ? 0 : 1 %>')">
-                    <%= checkinState==='enabled' ? 'Disable AutoCheckin' : 'Enable AutoCheckin' %>
-                </button>
-                <!-- <h2>Appeal</h2>
+      <button
+        id="state-btn"
+        class="<%= checkinState === 'enabled' ? 'red' : 'green' %>"
+        onclick="state('<%= checkinState === 'enabled' ? 0 : 1 %>')"
+      >
+        <%= checkinState==='enabled' ? 'Disable AutoCheckin' : 'Enable AutoCheckin' %>
+      </button>
+      <!-- <h2>Appeal</h2>
         <form action="/api/app/block/appeal" method="POST">
           <textarea id="reason" name="reason" placeholder="Enter your appeal here"></textarea>
           <button type="submit">Submit Appeal</button>
         </form> -->
 
-        <!-- If there is log data: -->
+      <!-- If there is log data: -->
 
-        <% if (typeof showLog !=='undefined' && showLog) { %>
-            <br>
-            <br>
-            <hr>
-            <br>
-        
-            <iframe onclick='window.open();' src="/auto/log?frame=true" style="border:0px #ffffff none;" name="logFrame" scrolling="yes"
-                frameborder="0" marginheight="0px" marginwidth="0px" height="500px" width="100%" allowfullscreen></iframe>
-                <p><a target="_blank" class="external" href="/auto/log?frame=false">Open log in new tab</a></p>
-            <% } %>
-    
-        </div>
+      <% if (typeof showLog !=='undefined' && showLog) { %>
+      <br />
+      <br />
+      <hr />
+      <br />
 
-        <script>
-            function state(newState) {
-                document.getElementById('overlay2').style.display = 'block'; // Show overlay
+      <iframe
+        onclick="window.open();"
+        src="/auto/log?frame=true"
+        style="border: 0px #ffffff none"
+        name="logFrame"
+        scrolling="yes"
+        frameborder="0"
+        marginheight="0px"
+        marginwidth="0px"
+        height="500px"
+        width="100%"
+        allowfullscreen
+      ></iframe>
+      <p>
+        <a target="_blank" class="external" href="/auto/log?frame=false">Open log in new tab</a>
+      </p>
+      <% } %>
+    </div>
 
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "/auto/st", true);
-                xhr.setRequestHeader("Content-Type", "application/json");
+    <script>
+      function state(newState) {
+        document.getElementById('overlay2').style.display = 'block'; // Show overlay
 
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        showMessage(response.msg);
-                    } else {
-                        showMessage('Error: ' + xhr.statusText);
-                    }
-                };
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/auto/st', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-                xhr.onerror = function () {
-                    showMessage('Network error occurred');
-                    document.getElementById('overlay2').style.display = 'none'; // Hide overlay
-                };
-
-                xhr.send(JSON.stringify({ state: parseInt(newState) }));
-            }
-
-            function showMessage(msg) {
-                var messageBox = document.createElement('div');
-                messageBox.classList.add('message-box');
-                messageBox.innerHTML = '<p>' + msg + '</p><a href="/auto">View Account</a>';
-                document.body.appendChild(messageBox);
-            }
-
-window.onload = function() {
-  function fetchCheckinStatus() {
-    fetch('/auto/state')
-      .then(response => response.json())
-      .then(data => {
-        const autoSummaryDiv = document.getElementById('autoSummary');
-        if (data.length > 0) {
-          const status = data[0].checkinReport;
-          let statusMessage = '';
-          let emoji = '';
-          let backgroundColor = '';
-
-          switch (status) {
-            case 'Enabled':
-              statusMessage = "Setup complete, we're finalising everything on our side";
-              emoji = '🔄'; // Check mark emoji
-              backgroundColor = 'rgba(0, 128, 0, 0.13)'; // Full green with 13% opacity
-              break;
-            case 'Normal':
-            case 'Checkin':
-              statusMessage = "AutoCheckin operational and ready";
-              emoji = '✅'; // Refresh emoji
-              backgroundColor = 'rgba(255, 255, 0, 0.13)'; // Full yellow with 13% opacity
-              break;
-            case 'Fail':
-              statusMessage = "There is an error with your account, please check the logs below.";
-              emoji = '⚠️'; // Warning emoji
-              backgroundColor = 'rgba(255, 0, 0, 0.13)'; // Full red with 13% opacity
-              break;
-            default:
-              statusMessage = "Unknown status";
-              emoji = '❓'; // Question mark emoji
-              backgroundColor = 'rgba(0, 0, 255, 0.13)'; // Full blue with 13% opacity for unknown
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            showMessage(response.msg);
+          } else {
+            showMessage('Error: ' + xhr.statusText);
           }
+        };
 
-          autoSummaryDiv.style.backgroundColor = backgroundColor;
-          autoSummaryDiv.innerHTML = `
+        xhr.onerror = function () {
+          showMessage('Network error occurred');
+          document.getElementById('overlay2').style.display = 'none'; // Hide overlay
+        };
+
+        xhr.send(JSON.stringify({ state: parseInt(newState) }));
+      }
+
+      function showMessage(msg) {
+        var messageBox = document.createElement('div');
+        messageBox.classList.add('message-box');
+        messageBox.innerHTML = '<p>' + msg + '</p><a href="/auto">View Account</a>';
+        document.body.appendChild(messageBox);
+      }
+
+      window.onload = function () {
+        function fetchCheckinStatus() {
+          fetch('/auto/state')
+            .then((response) => response.json())
+            .then((data) => {
+              const autoSummaryDiv = document.getElementById('autoSummary');
+              if (data.length > 0) {
+                const status = data[0].checkinReport;
+                let statusMessage = '';
+                let emoji = '';
+                let backgroundColor = '';
+
+                switch (status) {
+                  case 'Enabled':
+                    statusMessage = "Setup complete, we're finalising everything on our side";
+                    emoji = '🔄'; // Check mark emoji
+                    backgroundColor = 'rgba(0, 128, 0, 0.13)'; // Full green with 13% opacity
+                    break;
+                  case 'Normal':
+                  case 'Checkin':
+                    statusMessage = 'AutoCheckin operational and ready';
+                    emoji = '✅'; // Refresh emoji
+                    backgroundColor = 'rgba(255, 255, 0, 0.13)'; // Full yellow with 13% opacity
+                    break;
+                  case 'Fail':
+                    statusMessage =
+                      'There is an error with your account, please check the logs below.';
+                    emoji = '⚠️'; // Warning emoji
+                    backgroundColor = 'rgba(255, 0, 0, 0.13)'; // Full red with 13% opacity
+                    break;
+                  default:
+                    statusMessage = 'Unknown status';
+                    emoji = '❓'; // Question mark emoji
+                    backgroundColor = 'rgba(0, 0, 255, 0.13)'; // Full blue with 13% opacity for unknown
+                }
+
+                autoSummaryDiv.style.backgroundColor = backgroundColor;
+                autoSummaryDiv.innerHTML = `
             <div class="emoji">${emoji}</div>
             <div class="status">${statusMessage}</div>
           `;
-        } else {
-          autoSummaryDiv.innerHTML = '<div class="status">No data available.</div>';
+              } else {
+                autoSummaryDiv.innerHTML = '<div class="status">No data available.</div>';
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching the auto state:', error);
+              document.getElementById('autoSummary').innerHTML =
+                '<div class="status">Failed to load data.</div>';
+            });
         }
-      })
-      .catch(error => {
-        console.error('Error fetching the auto state:', error);
-        document.getElementById('autoSummary').innerHTML = '<div class="status">Failed to load data.</div>';
-      });
-  }
 
-  // Initial API call
-  fetchCheckinStatus();
+        // Initial API call
+        fetchCheckinStatus();
 
-  // Repeat API call after 5 seconds, but only once
-  setTimeout(fetchCheckinStatus, 5000);
-};
-
-
-        </script>
-
-</body>
-
+        // Repeat API call after 5 seconds, but only once
+        setTimeout(fetchCheckinStatus, 5000);
+      };
+    </script>
+  </body>
 </html>

@@ -1,83 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../global/head'); %>
     <title>Welcome to AutoCheckin</title>
     <%- include('./styles/shared'); %>
     <style>
-        img.webstore-img {
-            width: 186px;
-            display: block;
-            margin: 0 auto;
-        }
+      img.webstore-img {
+        width: 186px;
+        display: block;
+        margin: 0 auto;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="loading-overlay">
-        <div id="loading-content">
-            <svg id="loading-svg" width="100" height="100">
-                <defs>
-                    <clipPath id="reveal-clip">
-                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
-                    </clipPath>
-                </defs>
-                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
-            </svg>
-            <div id="loading-spinner" class="loader" style="display: none;"></div>
-        </div>
+      <div id="loading-content">
+        <svg id="loading-svg" width="100" height="100">
+          <defs>
+            <clipPath id="reveal-clip">
+              <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+            </clipPath>
+          </defs>
+          <image
+            href="/static/tick-white-min2.svg"
+            width="100"
+            height="74"
+            clip-path="url(#reveal-clip)"
+          />
+        </svg>
+        <div id="loading-spinner" class="loader" style="display: none"></div>
+      </div>
     </div>
     <%- include('../global/navbar'); %>
     <div class="header">
-        <div class="header-content">
-            <span>Let's setup <b>AutoCheckin</b></span>
-            <%- include('../global/icons/sparkle'); %>
-        </div>
+      <div class="header-content">
+        <span>Let's setup <b>AutoCheckin</b></span>
+        <%- include('../global/icons/sparkle'); %>
+      </div>
     </div>
     <div class="content">
-        <p class="sub-text"><b>Congratulations, you've been accepted.</b><br><br><span class="subtext">This won't take long.</span></p>
-        <div class="info-section">
-            <h3>Instructions</h3>
-            <ol class="styled-list">
-                <li>Use a laptop or PC with a Chrome-based browser<br><small>You'll need to be using a laptop or PC with a browser like Google Chrome, Microsoft Edge, or Brave.</small></li>
-                <li>Install the extension<br><small>Click the link below to install the extension from the Chrome Web Store.</small></li>
-                <a target="_blank" href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"><img class="webstore-img" src="/static/images/webstore.svg" alt="Chrome webstore link" srcset=""></a>
-                <li>Sign into checkin<br><small>After installing the extension, open a new tab and navigate to <a target="_blank" href="https://checkin.york.ac.uk/">checkin.york.ac.uk</a><br>Sign in, and you should land on the 'Self Registration' page.</small></li>
-                <li>Run the AutoCheckin extension<br><small>On the 'Self Registration' page, click the AutoCheckin extension icon you just installed.</small></li>
-            </ol>
-        </div>
+      <p class="sub-text">
+        <b>Congratulations, you've been accepted.</b><br /><br /><span class="subtext"
+          >This won't take long.</span
+        >
+      </p>
+      <div class="info-section">
+        <h3>Instructions</h3>
+        <ol class="styled-list">
+          <li>
+            Use a laptop or PC with a Chrome-based browser<br /><small
+              >You'll need to be using a laptop or PC with a browser like Google Chrome, Microsoft
+              Edge, or Brave.</small
+            >
+          </li>
+          <li>
+            Install the extension<br /><small
+              >Click the link below to install the extension from the Chrome Web Store.</small
+            >
+          </li>
+          <a
+            target="_blank"
+            href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"
+            ><img
+              class="webstore-img"
+              src="/static/images/webstore.svg"
+              alt="Chrome webstore link"
+              srcset=""
+          /></a>
+          <li>
+            Sign into checkin<br /><small
+              >After installing the extension, open a new tab and navigate to
+              <a target="_blank" href="https://checkin.york.ac.uk/">checkin.york.ac.uk</a><br />Sign
+              in, and you should land on the 'Self Registration' page.</small
+            >
+          </li>
+          <li>
+            Run the AutoCheckin extension<br /><small
+              >On the 'Self Registration' page, click the AutoCheckin extension icon you just
+              installed.</small
+            >
+          </li>
+        </ol>
+      </div>
     </div>
     <div class="footer">
-        <p id="termsText" class="termsText">
-            Need help? <a class="tosLink" href="/support">Get in touch</a>
-            <br><br>
-            <a class="tosLink" href="/">return to CheckOut</a>
-        </p>
+      <p id="termsText" class="termsText">
+        Need help? <a class="tosLink" href="/support">Get in touch</a> <br /><br />
+        <a class="tosLink" href="/">return to CheckOut</a>
+      </p>
     </div>
 
     <script>
-        function adjustFooterPosition() {
-            const content = document.querySelector('.content');
-            const footer = document.querySelector('.footer');
-            const contentHeight = content.scrollHeight;
-            const viewportHeight = window.innerHeight;
-            const headerHeight = document.querySelector('.header').offsetHeight;
-            const footerHeight = footer.offsetHeight;
+      function adjustFooterPosition() {
+        const content = document.querySelector('.content');
+        const footer = document.querySelector('.footer');
+        const contentHeight = content.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const footerHeight = footer.offsetHeight;
 
-            if (contentHeight + headerHeight + footerHeight > viewportHeight) {
-                footer.style.position = 'sticky';
-                footer.style.bottom = '0';
-                footer.style.marginTop = 'auto';
-            } else {
-                footer.style.position = 'relative';
-                footer.style.bottom = 'auto';
-            }
+        if (contentHeight + headerHeight + footerHeight > viewportHeight) {
+          footer.style.position = 'sticky';
+          footer.style.bottom = '0';
+          footer.style.marginTop = 'auto';
+        } else {
+          footer.style.position = 'relative';
+          footer.style.bottom = 'auto';
         }
+      }
 
-        document.addEventListener('DOMContentLoaded', adjustFooterPosition);
-        window.addEventListener('resize', adjustFooterPosition);
+      document.addEventListener('DOMContentLoaded', adjustFooterPosition);
+      window.addEventListener('resize', adjustFooterPosition);
     </script>
-</body>
-
+  </body>
 </html>

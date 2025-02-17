@@ -1,98 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>API Explorer - CheckOut</title>
-    <meta name="description"
-        content="API explorer for CheckOut. Learn about CheckOut's API's and how to use them.">
+    <meta
+      name="description"
+      content="API explorer for CheckOut. Learn about CheckOut's API's and how to use them."
+    />
     <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
     <link rel="stylesheet" type="text/css" href="index.css" />
 
     <style>
-    @font-face {
+      @font-face {
         font-family: Minecraft;
         src: url(/static/fonts/minecraft.woff2);
-    }
+      }
 
-    .swagger-ui .info li, .swagger-ui .info p, .swagger-ui .info table {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+      .swagger-ui .info li,
+      .swagger-ui .info p,
+      .swagger-ui .info table {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
         font-size: 16px;
-    }
+      }
 
-    .swagger-ui .info a {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+      .swagger-ui .info a {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
         font-size: 16px;
-    }
+      }
 
-    .swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
+      .swagger-ui .opblock-description-wrapper p,
+      .swagger-ui .opblock-external-docs-wrapper p,
+      .swagger-ui .opblock-title_normal p {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
         font-size: 16px;
-    }
+      }
 
-    .swagger-ui {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .response-col_links {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
-    
-    .swagger-ui .btn {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui .response-col_links {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .opblock .opblock-summary-description {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui .btn {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .opblock-tag small {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui .opblock .opblock-summary-description {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .info .title {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui .opblock-tag small {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui select {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui .info .title {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .topbar .download-url-wrapper .download-url-button {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
-    
-    
-    .swagger-ui button, .swagger-ui input, .swagger-ui optgroup, .swagger-ui select, .swagger-ui textarea {
-        font-family: 'Segoe UI',SegoeUI,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    }
+      .swagger-ui select {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
 
-    .swagger-ui .opblock .opblock-summary-operation-id, .swagger-ui .opblock .opblock-summary-path, .swagger-ui .opblock .opblock-summary-path__deprecated {
+      .swagger-ui .topbar .download-url-wrapper .download-url-button {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+
+      .swagger-ui button,
+      .swagger-ui input,
+      .swagger-ui optgroup,
+      .swagger-ui select,
+      .swagger-ui textarea {
+        font-family: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+
+      .swagger-ui .opblock .opblock-summary-operation-id,
+      .swagger-ui .opblock .opblock-summary-path,
+      .swagger-ui .opblock .opblock-summary-path__deprecated {
         font-family: Minecraft;
         font-weight: 400;
-    }
+      }
 
-    .swagger-ui .scheme-container {
+      .swagger-ui .scheme-container {
         background: none;
         box-shadow: none;
-    }
+      }
     </style>
     <!-- Global styles after swagger styles due to conflicts -->
     <%- include('./global/head'); %>
     <style>
-        .swagger-ui :is(title, h1, h2, h3, h4, h5, h6, span, p, div, td, tr, button) {
+      .swagger-ui :is(title, h1, h2, h3, h4, h5, h6, span, p, div, td, tr, button) {
         color: var(--text-colour) !important;
-    }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <%- include('./global/navbar'); %>
 
     <div id="swagger-ui"></div>
-        <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
-        <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
-        <script src="./swagger-initializer.js" charset="UTF-8"> </script>
-    </body>
-       
-
+    <script src="./swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+    <script src="./swagger-initializer.js" charset="UTF-8"></script>
+  </body>
 </html>

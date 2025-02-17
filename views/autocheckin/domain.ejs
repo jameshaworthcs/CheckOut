@@ -1,76 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../global/head'); %>
     <title>Welcome to AutoCheckin</title>
     <%- include('./styles/shared'); %>
     <style>
-        /* Page-specific styles only */
-        .promo-container {
-            height: 241px;
-        }
-        .warning-box {
-            background-color: var(--warning-background);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
+      /* Page-specific styles only */
+      .promo-container {
+        height: 241px;
+      }
+      .warning-box {
+        background-color: var(--warning-background);
+        border: 1px solid var(--warning-border);
+        color: var(--warning-text);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
 
-        .warning-box p {
-            color: var(--warning-text);
-            margin-bottom: 15px;
-        }
+      .warning-box p {
+        color: var(--warning-text);
+        margin-bottom: 15px;
+      }
 
-        .warning-box p:last-child {
-            margin-bottom: 0;
-        }
+      .warning-box p:last-child {
+        margin-bottom: 0;
+      }
 
-        .warning-box a {
-            color: var(--warning-text);
-            text-decoration: underline;
-        }
+      .warning-box a {
+        color: var(--warning-text);
+        text-decoration: underline;
+      }
 
-        .warning-box small {
-            opacity: 0.8;
-        }
+      .warning-box small {
+        opacity: 0.8;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="loading-overlay">
-        <div id="loading-content">
-            <svg id="loading-svg" width="100" height="100">
-                <defs>
-                    <clipPath id="reveal-clip">
-                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
-                    </clipPath>
-                </defs>
-                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
-            </svg>
-            <div id="loading-spinner" class="loader" style="display: none;"></div>
-        </div>
+      <div id="loading-content">
+        <svg id="loading-svg" width="100" height="100">
+          <defs>
+            <clipPath id="reveal-clip">
+              <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+            </clipPath>
+          </defs>
+          <image
+            href="/static/tick-white-min2.svg"
+            width="100"
+            height="74"
+            clip-path="url(#reveal-clip)"
+          />
+        </svg>
+        <div id="loading-spinner" class="loader" style="display: none"></div>
+      </div>
     </div>
     <%- include('../global/navbar'); %>
     <div class="header">
-        <div class="header-content">
-            <span>Let's setup <b>AutoCheckin</b></span>
-            <%- include('../global/icons/sparkle'); %>
-        </div>
+      <div class="header-content">
+        <span>Let's setup <b>AutoCheckin</b></span>
+        <%- include('../global/icons/sparkle'); %>
+      </div>
     </div>
     <div class="content">
-        <p class="sub-text"><b>Congratulations, you've been accepted.</b><br><br><span class="subtext">This won't take long.</span></p>
-        <div class="info-section">
-            <div class="warning-box">
-                <p><b>For your security, setup can only be completed on checkout.ac</b></p>
-                <p>We do not allow rejectdopamine.com or beta.checkout.ac for setting up AutoCheckin. This is to keep your account secure.</p>
-                <p>Visit <a target="_blank" href="https://checkout.ac/auto">checkout.ac/auto</a> to continue setup.</p>
-                <p><small>Once setup, you can continue to use alternative domains.</small></p>
-            </div>
+      <p class="sub-text">
+        <b>Congratulations, you've been accepted.</b><br /><br /><span class="subtext"
+          >This won't take long.</span
+        >
+      </p>
+      <div class="info-section">
+        <div class="warning-box">
+          <p><b>For your security, setup can only be completed on checkout.ac</b></p>
+          <p>
+            We do not allow rejectdopamine.com or beta.checkout.ac for setting up AutoCheckin. This
+            is to keep your account secure.
+          </p>
+          <p>
+            Visit <a target="_blank" href="https://checkout.ac/auto">checkout.ac/auto</a> to
+            continue setup.
+          </p>
+          <p><small>Once setup, you can continue to use alternative domains.</small></p>
         </div>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

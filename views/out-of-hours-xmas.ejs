@@ -1,74 +1,152 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><script defer data-domain="rejectdopamine.com" src="https://t.ldn.jemedia.xyz/js/script.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><title>Christmassy Bedtime</title><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎄</text></svg>"><style>body{background-color:#000;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;font-family:Garamond;font-size:25px}.centered-text{margin-bottom:5px;text-align:center}img{max-width:97%;max-height:100%}@media (min-width:1000px){img{max-width:1000px}}#fixed-link,.sub-table-link,.sub-table-link:visited{color:#58a6ff;text-decoration:none}#fixed-link{position:fixed;bottom:20px;font-size:15px;right:20px;background-color:#0000003d;padding:10px;border-radius:1px;font-family: Arial, Helvetica, sans-serif;display:none}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.createElement("a");e.id="fixed-link",e.href="/admin",e.innerHTML="Admin",e.style.marginLeft="15px",e.style.paddingLeft="0px";document.body.appendChild(e),setTimeout(function(){e.style.display="block"},0)});</script></head><body><div class="centered-text"><p>It's Christmas 🎄! <!--  <%= startMsg %>.--> <br><br>Click anywhere to get a new AI generated image.</p></div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script
+      defer
+      data-domain="rejectdopamine.com"
+      src="https://t.ldn.jemedia.xyz/js/script.js"
+    ></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Christmassy Bedtime</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎄</text></svg>"
+    />
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Garamond;
+        font-size: 25px;
+      }
+      .centered-text {
+        margin-bottom: 5px;
+        text-align: center;
+      }
+      img {
+        max-width: 97%;
+        max-height: 100%;
+      }
+      @media (min-width: 1000px) {
+        img {
+          max-width: 1000px;
+        }
+      }
+      #fixed-link,
+      .sub-table-link,
+      .sub-table-link:visited {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      #fixed-link {
+        position: fixed;
+        bottom: 20px;
+        font-size: 15px;
+        right: 20px;
+        background-color: #0000003d;
+        padding: 10px;
+        border-radius: 1px;
+        font-family: Arial, Helvetica, sans-serif;
+        display: none;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var e = document.createElement('a');
+        (e.id = 'fixed-link'),
+          (e.href = '/admin'),
+          (e.innerHTML = 'Admin'),
+          (e.style.marginLeft = '15px'),
+          (e.style.paddingLeft = '0px');
+        document.body.appendChild(e),
+          setTimeout(function () {
+            e.style.display = 'block';
+          }, 0);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="centered-text">
+      <p>
+        It's Christmas 🎄!
+        <!--  <%= startMsg %>.-->
+        <br /><br />Click anywhere to get a new AI generated image.
+      </p>
+    </div>
     <!--  -->
-    
+
     <!-- <img src="/cat.jpg" alt="Cat Image"> -->
 
-<img id="randomImage" src="">
+    <img id="randomImage" src="" />
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Function to generate a random integer between min and max (inclusive)
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Function to generate a random integer between min and max (inclusive)
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
 
-    // Keep track of previously generated random numbers
-    var previousRandomNumbers = [];
-    
-    // Number of images to preload in advance
-    var numImagesToPreload = 63; // changed from 64 nsfw image
-    // Function to preload images
-    function preloadImages() {
-        for (var i = 1; i < numImagesToPreload; i++) {
+        // Keep track of previously generated random numbers
+        var previousRandomNumbers = [];
+
+        // Number of images to preload in advance
+        var numImagesToPreload = 63; // changed from 64 nsfw image
+        // Function to preload images
+        function preloadImages() {
+          for (var i = 1; i < numImagesToPreload; i++) {
             var randomNumber = i;
             var imageUrl = `https://en-gb.antialcohol.org/reject-ai-generator/xc57n983467bcn5984b69/${randomNumber}.webp`;
 
             // Create a new Image object and set its source
             var img = new Image();
             img.src = imageUrl;
+          }
         }
-    }
 
-    // Function to update the image source with a new unique random integer
-    function updateImage() {
-        var randomNumber;
+        // Function to update the image source with a new unique random integer
+        function updateImage() {
+          var randomNumber;
 
-        // Check if all potential integers have been used
-        if (previousRandomNumbers.length === 62) { // again this should be 63 incl. nsfw image
+          // Check if all potential integers have been used
+          if (previousRandomNumbers.length === 62) {
+            // again this should be 63 incl. nsfw image
             // If so, clear the array to start again
             previousRandomNumbers = [];
             // Preload more images after clearing the array
             preloadImages();
+          }
+
+          do {
+            randomNumber = getRandomInt(1, 62); // should be 1,63 incl. nsfw image
+          } while (previousRandomNumbers.includes(randomNumber));
+
+          // Add the current random number to the list of previous numbers
+          previousRandomNumbers.push(randomNumber);
+
+          var imageUrl = `https://en-gb.antialcohol.org/reject-ai-generator/xc57n983467bcn5984b69/${randomNumber}.webp`;
+
+          // Update the image source
+          document.getElementById('randomImage').src = imageUrl;
         }
 
-        do {
-            randomNumber = getRandomInt(1, 62); // should be 1,63 incl. nsfw image
-        } while (previousRandomNumbers.includes(randomNumber));
+        // Initial image generation on page load
+        updateImage();
 
-        // Add the current random number to the list of previous numbers
-        previousRandomNumbers.push(randomNumber);
+        // Preload images on page load
+        preloadImages();
 
-        var imageUrl = `https://en-gb.antialcohol.org/reject-ai-generator/xc57n983467bcn5984b69/${randomNumber}.webp`;
-
-        // Update the image source
-        document.getElementById("randomImage").src = imageUrl;
-    }
-
-    // Initial image generation on page load
-    updateImage();
-
-    // Preload images on page load
-    preloadImages();
-
-    // Add event listener to the entire document to generate a new image on click
-    document.addEventListener("click", updateImage);
-});
-</script>
-
-
-</body></html>
-
-
-
+        // Add event listener to the entire document to generate a new image on click
+        document.addEventListener('click', updateImage);
+      });
+    </script>
+  </body>
+</html>
 
 <!-- Current time: <%= currentTime %> -->

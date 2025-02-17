@@ -7,12 +7,12 @@
   </picture>
 </p>
 
-
 Welcome to the **CheckOut** repository! Follow these instructions to get the application up and running smoothly.
 
 ---
 
 ## **Table of Contents**
+
 1. [Clone the Repository](#1-clone-the-repository)
 2. [Install Node.js](#2-install-nodejs)
 3. [Install Dependencies](#3-install-dependencies)
@@ -41,6 +41,7 @@ cd CheckOut
 Ensure Node.js is installed on your machine:
 
 ### **On Ubuntu**
+
 1. Update your package list:
    ```bash
    sudo apt update
@@ -99,21 +100,21 @@ Create a MySQL user specifically for the application:
    sudo mysql -u root -p
    ```
 2. Enable password
-    ```sql
-    CREATE USER 'checkout'@'localhost' IDENTIFIED WITH mysql_native_password BY 'development';
-    ```
+   ```sql
+   CREATE USER 'checkout'@'localhost' IDENTIFIED WITH mysql_native_password BY 'development';
+   ```
 3. Grant the user access to the `checkout_dev` database:
    ```sql
    GRANT ALL PRIVILEGES ON checkout_dev.* TO 'checkout'@'localhost';
    ```
 4. Create database
-    ```sql
-    CREATE DATABASE checkout_dev;
-    ```
+   ```sql
+   CREATE DATABASE checkout_dev;
+   ```
 5. Flush privileges
-    ```sql
-    FLUSH PRIVILEGES;
-    ```
+   ```sql
+   FLUSH PRIVILEGES;
+   ```
 6. Exit the MySQL shell:
    ```sql
    EXIT;
@@ -128,6 +129,7 @@ Create a MySQL user specifically for the application:
 2. Import the schema into MySQL:
 
    **Note:** it will ask you for a password, use password 'development'. **Ignore error about users_dev not existing.**
+
    ```bash
    sudo mysql -u checkout -p checkout_dev < checkout_combined.sql
    ```
@@ -135,10 +137,11 @@ Create a MySQL user specifically for the application:
 3. Configure timezone support
 
    **Note:** it will ask you for a password, use password 'development'. **Ignore unable to load errors.**
-    Run the below command:
-    ```bash
-    sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | sudo mysql -u root -p mysql
-    ```
+   Run the below command:
+
+   ```bash
+   sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | sudo mysql -u root -p mysql
+   ```
 
 ---
 
@@ -179,9 +182,10 @@ npm install
 ```
 
 Key development dependencies include:
+
 - TypeScript
 - ts-node
-- Various type definitions (@types/*)
+- Various type definitions (@types/\*)
 
 ---
 

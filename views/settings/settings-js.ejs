@@ -1,115 +1,114 @@
 <script>
+  //          //
+  // DeviceID //
+  //          //
 
-//          //
-// DeviceID //
-//          //
+  const deviceIDSpan = document.getElementById('deviceID');
 
-const deviceIDSpan = document.getElementById('deviceID');
-
-function getCheckoutCache() {
+  function getCheckoutCache() {
     const cache = localStorage.getItem('checkout_cache');
     return cache ? JSON.parse(cache) : {};
-}
+  }
 
-function updateCheckoutCache(key, value) {
+  function updateCheckoutCache(key, value) {
     const cache = getCheckoutCache();
     cache[key] = value;
     localStorage.setItem('checkout_cache', JSON.stringify(cache));
-}
+  }
 
-function getFromCheckoutCache(key) {
+  function getFromCheckoutCache(key) {
     const cache = getCheckoutCache();
     return cache[key];
-}
+  }
 
-const storedDeviceID = getFromCheckoutCache('deviceID');
+  const storedDeviceID = getFromCheckoutCache('deviceID');
 
-function formatDeviceID(deviceID) {
+  function formatDeviceID(deviceID) {
     if (deviceID.length > 10) {
-        return deviceID.slice(0, 5) + '...' + deviceID.slice(-5);
+      return deviceID.slice(0, 5) + '...' + deviceID.slice(-5);
     }
     return deviceID; // In case the deviceID is very short, return it as is
-}
+  }
 
-function toggleDeviceID() {
+  function toggleDeviceID() {
     const isRedacted = deviceIDSpan.dataset.redacted === 'true';
     const deviceID = getFromCheckoutCache('deviceID');
 
     if (isRedacted) {
-        deviceIDSpan.textContent = formatDeviceID(deviceID);
-        deviceIDSpan.dataset.redacted = 'false';
+      deviceIDSpan.textContent = formatDeviceID(deviceID);
+      deviceIDSpan.dataset.redacted = 'false';
     } else {
-        deviceIDSpan.textContent = deviceID;
-        deviceIDSpan.dataset.redacted = 'true';
+      deviceIDSpan.textContent = deviceID;
+      deviceIDSpan.dataset.redacted = 'true';
     }
-}
+  }
 
-if (storedDeviceID) {
+  if (storedDeviceID) {
     deviceIDSpan.textContent = formatDeviceID(storedDeviceID);
     deviceIDSpan.dataset.redacted = 'true';
-} else {
+  } else {
     fetch('/api/app/sessionID')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const deviceID = data.deviceID;
-                deviceIDSpan.textContent = formatDeviceID(deviceID);
-                deviceIDSpan.dataset.redacted = 'true';
-                updateCheckoutCache('deviceID', deviceID);
-            } else {
-                deviceIDSpan.textContent = 'Failed to load device ID';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching device ID:', error);
-            deviceIDSpan.textContent = 'Error loading device ID';
-        });
-}
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const deviceID = data.deviceID;
+          deviceIDSpan.textContent = formatDeviceID(deviceID);
+          deviceIDSpan.dataset.redacted = 'true';
+          updateCheckoutCache('deviceID', deviceID);
+        } else {
+          deviceIDSpan.textContent = 'Failed to load device ID';
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching device ID:', error);
+        deviceIDSpan.textContent = 'Error loading device ID';
+      });
+  }
 
-// Add click event listener to toggle between full and redacted ID
-deviceIDSpan.addEventListener('click', toggleDeviceID);
+  // Add click event listener to toggle between full and redacted ID
+  deviceIDSpan.addEventListener('click', toggleDeviceID);
 
-//         //
-// Account //
-//         //
+  //         //
+  // Account //
+  //         //
 
-// Function to fetch account settings and update the page
-function fetchAccountSettings() {
+  // Function to fetch account settings and update the page
+  function fetchAccountSettings() {
     const cache = getCheckoutCache();
     const accountSettings = cache.settings;
     const accountSettingsTime = cache.settingsTime;
 
     // Check if cached data is available and still valid (within 5 seconds)
     if (accountSettings && accountSettingsTime) {
-        const now = new Date().getTime();
-        const cacheAge = (now - accountSettingsTime) / 1000; // age in seconds
+      const now = new Date().getTime();
+      const cacheAge = (now - accountSettingsTime) / 1000; // age in seconds
 
-        if (cacheAge < 5) {
-            // Use cached data
-            updateAccountSettings(JSON.parse(accountSettings));
-            return;
-        }
+      if (cacheAge < 5) {
+        // Use cached data
+        updateAccountSettings(JSON.parse(accountSettings));
+        return;
+      }
     }
 
     // If no valid cache, fetch from API
     fetch('/api/settings/account')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Cache the fetched data and the current time
-                updateCheckoutCache('settings', JSON.stringify(data));
-                updateCheckoutCache('settingsTime', new Date().getTime());
-            }
-            updateAccountSettings(data);
-        })
-        .catch(error => {
-            console.error('Error fetching account settings:', error);
-            document.getElementById('accountDetails').textContent = 'Error loading account details';
-        });
-}
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Cache the fetched data and the current time
+          updateCheckoutCache('settings', JSON.stringify(data));
+          updateCheckoutCache('settingsTime', new Date().getTime());
+        }
+        updateAccountSettings(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching account settings:', error);
+        document.getElementById('accountDetails').textContent = 'Error loading account details';
+      });
+  }
 
-// Function to update the account settings UI
-function updateAccountSettings(data) {
+  // Function to update the account settings UI
+  function updateAccountSettings(data) {
     const accountDetailsSpan = document.getElementById('accountDetails');
     const signInTextLink = document.getElementById('signInText');
     const institutionNameSpan = document.getElementById('institutionName');
@@ -119,107 +118,114 @@ function updateAccountSettings(data) {
 
     // Get both timestamps and use the oldest one
     let oldestTimestamp;
-    
+
     if (data.success && data.account) {
-        // User has an account
-        const { email, username, accountCreationTime } = data.accountInfo;
-        
-        // Normalize timestamps to handle different formats and null values
-        const accountDate = accountCreationTime ? new Date(accountCreationTime) : null;
-        const consentDate = new Date(data.sessionConsentTimestamp.replace(' ', 'T') + 'Z');
-        
-        // Use the oldest valid timestamp, keeping the original string format
-        if (accountDate && !isNaN(accountDate.getTime()) && !isNaN(consentDate.getTime())) {
-            oldestTimestamp = accountDate < consentDate ? accountCreationTime : data.sessionConsentTimestamp;
-            //console.log('Account date:', accountDate, 'Consent date:', consentDate, 'Using:', oldestTimestamp);
-        } else {
-            oldestTimestamp = data.sessionConsentTimestamp;
-        }
+      // User has an account
+      const { email, username, accountCreationTime } = data.accountInfo;
 
-        // Update accountDetails to greet the user by username
-        accountDetailsSpan.textContent = `Hello, ${username}`;
+      // Normalize timestamps to handle different formats and null values
+      const accountDate = accountCreationTime ? new Date(accountCreationTime) : null;
+      const consentDate = new Date(data.sessionConsentTimestamp.replace(' ', 'T') + 'Z');
 
-        // Update signInText to be their email
-        signInTextLink.textContent = email;
-
-        // Create and append the CTA button
-        const ctaButton = document.createElement('a');
-        ctaButton.href = '/account';
-        ctaButton.className = 'cta-button';
-        ctaButton.textContent = 'Account settings';
-        ctaButton.style.marginLeft = '10px';
-        accountDetailsSpan.parentNode.appendChild(ctaButton);
-    } else {
-        // User is not signed in, use session consent timestamp
+      // Use the oldest valid timestamp, keeping the original string format
+      if (accountDate && !isNaN(accountDate.getTime()) && !isNaN(consentDate.getTime())) {
+        oldestTimestamp =
+          accountDate < consentDate ? accountCreationTime : data.sessionConsentTimestamp;
+        //console.log('Account date:', accountDate, 'Consent date:', consentDate, 'Using:', oldestTimestamp);
+      } else {
         oldestTimestamp = data.sessionConsentTimestamp;
-        accountDetailsSpan.innerHTML = 'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
+      }
+
+      // Update accountDetails to greet the user by username
+      accountDetailsSpan.textContent = `Hello, ${username}`;
+
+      // Update signInText to be their email
+      signInTextLink.textContent = email;
+
+      // Create and append the CTA button
+      const ctaButton = document.createElement('a');
+      ctaButton.href = '/account';
+      ctaButton.className = 'cta-button';
+      ctaButton.textContent = 'Account settings';
+      ctaButton.style.marginLeft = '10px';
+      accountDetailsSpan.parentNode.appendChild(ctaButton);
+    } else {
+      // User is not signed in, use session consent timestamp
+      oldestTimestamp = data.sessionConsentTimestamp;
+      accountDetailsSpan.innerHTML =
+        'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
     }
 
     // Update course details if we have course data
     if (data.courseDetails && data.courseDetails.success) {
-        const { institution_name, course_name, year, modules } = data.courseDetails;
-        
-        // Update individual elements if they exist
-        if (institutionNameSpan) institutionNameSpan.textContent = institution_name;
-        if (courseNameSpan) courseNameSpan.textContent = course_name;
-        if (yearSpan) yearSpan.textContent = year;
-        if (modulesSpan) modulesSpan.textContent = modules.map(module => module.module_name).join(', ');
+      const { institution_name, course_name, year, modules } = data.courseDetails;
+
+      // Update individual elements if they exist
+      if (institutionNameSpan) institutionNameSpan.textContent = institution_name;
+      if (courseNameSpan) courseNameSpan.textContent = course_name;
+      if (yearSpan) yearSpan.textContent = year;
+      if (modulesSpan)
+        modulesSpan.textContent = modules.map((module) => module.module_name).join(', ');
     } else {
-        // Clear or set default text if no course data
-        if (institutionNameSpan) institutionNameSpan.textContent = 'Not set';
-        if (courseNameSpan) courseNameSpan.textContent = 'Not set';
-        if (yearSpan) yearSpan.textContent = 'Not set';
-        if (modulesSpan) modulesSpan.textContent = 'No modules available';
+      // Clear or set default text if no course data
+      if (institutionNameSpan) institutionNameSpan.textContent = 'Not set';
+      if (courseNameSpan) courseNameSpan.textContent = 'Not set';
+      if (yearSpan) yearSpan.textContent = 'Not set';
+      if (modulesSpan) modulesSpan.textContent = 'No modules available';
     }
 
     // Calculate birthday using the oldest timestamp
     calculateBirthday(oldestTimestamp);
-}
+  }
 
-// Call the function to fetch account settings
-fetchAccountSettings();
+  // Call the function to fetch account settings
+  fetchAccountSettings();
 
-function calculateBirthday(inputDateStr) {
+  function calculateBirthday(inputDateStr) {
     const userSinceSpan = document.getElementById('userSince');
-    
+
     // Handle both MySQL format and ISO format
     // If it already contains 'T' and 'Z', it's ISO format, otherwise treat as MySQL format
     let inputDate;
     if (inputDateStr.includes('T') && inputDateStr.includes('Z')) {
-        inputDate = new Date(inputDateStr);
+      inputDate = new Date(inputDateStr);
     } else {
-        inputDate = new Date(inputDateStr.replace(' ', 'T') + 'Z');
+      inputDate = new Date(inputDateStr.replace(' ', 'T') + 'Z');
     }
-    
+
     // Check if the date is invalid
     if (isNaN(inputDate.getTime())) {
-        userSinceSpan.innerHTML = 'Invalid date';
-        return;
+      userSinceSpan.innerHTML = 'Invalid date';
+      return;
     }
 
     // Convert the input date to Europe/London time
     const londonTime = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/London',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: true,
-        timeZoneName: 'short'
-    }).formatToParts(inputDate).map(({ type, value }) => {
+      timeZone: 'Europe/London',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZoneName: 'short',
+    })
+      .formatToParts(inputDate)
+      .map(({ type, value }) => {
         if (type === 'hour' || type === 'minute') {
-            return value + ':';
+          return value + ':';
         } else if (type === 'second') {
-            return value;
+          return value;
         } else if (type === 'day' || type === 'month' || type === 'year') {
-            return value + ' ';
+          return value + ' ';
         } else if (type === 'literal') {
-            return '';
+          return '';
         }
         return value + ' ';
-    }).join('').trim();
+      })
+      .join('')
+      .trim();
 
     // Use the inputDate in the user's local timezone to calculate the difference
     const now = new Date(); // Current date and time in the user's timezone
@@ -228,9 +234,9 @@ function calculateBirthday(inputDateStr) {
     let diffInSeconds = Math.floor((now - inputDate) / 1000);
 
     if (diffInSeconds < 0) {
-        // If the time is in the future, return the time traveller message
-        userSinceSpan.innerHTML = 'CheckOut time traveller';
-        return;
+      // If the time is in the future, return the time traveller message
+      userSinceSpan.innerHTML = 'CheckOut time traveller';
+      return;
     }
 
     const years = Math.floor(diffInSeconds / (365 * 24 * 60 * 60));
@@ -257,9 +263,9 @@ function calculateBirthday(inputDateStr) {
     output += ` (${londonTime})`;
 
     userSinceSpan.innerHTML = output;
-}
+  }
 
-/*
+  /*
 ////////////
 // Themes //
 ////////////
@@ -361,5 +367,4 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 */
-
 </script>

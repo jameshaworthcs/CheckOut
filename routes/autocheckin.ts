@@ -1,10 +1,10 @@
 const express = require('express');
-var db=require('../databases/database.ts');
+var db = require('../databases/database.ts');
 var app = express.Router();
 const moment = require('moment-timezone');
 const crypto = require('crypto');
 const { sendVerificationEmail } = require('./email.ts');
-const {spawn} = require('child_process');
+const { spawn } = require('child_process');
 var tibl = require('./tibl.ts');
 
 function log(email, state, message) {
@@ -26,23 +26,31 @@ app.get('/auto/c/:cookie', async function (req, res) {
   if (cookie) {
     const userID = req.session.user.id;
     const apikey = req.apikey;
-    db.query('UPDATE users SET checkintoken = ?, checkinstate = 1 WHERE id = ? OR api_token = ?', [cookie, userID, apikey], async (err, result) => {
+    db.query(
+      'UPDATE users SET checkintoken = ?, checkinstate = 1 WHERE id = ? OR api_token = ?',
+      [cookie, userID, apikey],
+      async (err, result) => {
         if (err) throw err;
-        log(req.useremail, `Enabled`, `Ported cookie with AutoCheckin extension`)
-        
+        log(req.useremail, `Enabled`, `Ported cookie with AutoCheckin extension`);
+
         // Ping AutoCheckin server to update users and refresh session
         const { makeAutoCheckinRequest } = require('../routes/api/autocheckin/autocheckin-link');
-        
+
         // First request to fetch users
         const fetchUsersResponse = await makeAutoCheckinRequest.get('fetch-users');
         if (fetchUsersResponse.success) {
-            // If fetch users successful, make the refresh session request
-            const refreshSessionResponse = await makeAutoCheckinRequest.get(`refresh-session/${req.useremail}`);
-            console.log(`[AUTO] Session refresh for ${req.useremail}: ${refreshSessionResponse.success ? 'Success' : 'Failed'}`);
+          // If fetch users successful, make the refresh session request
+          const refreshSessionResponse = await makeAutoCheckinRequest.get(
+            `refresh-session/${req.useremail}`
+          );
+          console.log(
+            `[AUTO] Session refresh for ${req.useremail}: ${refreshSessionResponse.success ? 'Success' : 'Failed'}`
+          );
         }
-        
-        res.redirect('/auto/welcome')
-    });
+
+        res.redirect('/auto/welcome');
+      }
+    );
   }
 });
 
@@ -62,43 +70,46 @@ app.post('/auto/st', function (req, res) {
 
     db.query(query, queryParams, (err, result) => {
       if (err) throw err;
-      log(req.useremail, `${state == 1 ? "Enabled" : "Disabled"}`, `${state == 1 ? "Activated" : "Disabled"} AutoCheckin`);
-      
+      log(
+        req.useremail,
+        `${state == 1 ? 'Enabled' : 'Disabled'}`,
+        `${state == 1 ? 'Activated' : 'Disabled'} AutoCheckin`
+      );
+
       // Ping AutoCheckin server to update users list (don't wait for response)
       const { makeAutoCheckinRequest } = require('../routes/api/autocheckin/autocheckin-link');
-      makeAutoCheckinRequest.get('fetch-users').catch(err => {
+      makeAutoCheckinRequest.get('fetch-users').catch((err) => {
         console.log('[AUTO] Failed to notify AutoCheckin server of user state change:', err);
       });
-      
+
       res.json({
-        'success': true,
-        'msg': `AutoCheckin ${state == 1 ? "enabled" : "disabled"}.`
+        success: true,
+        msg: `AutoCheckin ${state == 1 ? 'enabled' : 'disabled'}.`,
       });
     });
   } else {
     res.json({
-      'success': false,
-      'msg': 'AutoCheckin state not updated, something went wrong.'
+      success: false,
+      msg: 'AutoCheckin state not updated, something went wrong.',
     });
   }
 });
-
 
 app.post('/auto/log', function (req, res) {
   // Define the values for the log entry
   if (req.useremail == 'autocheckin@checkout.ac.uk') {
     const email = req.body.email;
     const state = req.body.state;
-    if (state == "Normal") {
+    if (state == 'Normal') {
       var mysqlTimestamp = moment().tz('UTC').format('YYYY-MM-DD HH:mm:ss');
       const query = `UPDATE users SET checkinReport = ?, checkinReportTime = ? WHERE email = ?`;
       // Execute the query
       db.query(query, [state, mysqlTimestamp, email], (err, result) => {
         if (err) {
           console.error('Error inserting log entry:', err);
-          res.json({'logsuccess': false, 'err': err})
+          res.json({ logsuccess: false, err: err });
         } else {
-          res.json({'logsuccess': true})
+          res.json({ logsuccess: true });
         }
       });
     } else {
@@ -111,19 +122,19 @@ app.post('/auto/log', function (req, res) {
       db.query(query, [email, state, message, mysqlTimestamp], (err, result) => {
         if (err) {
           console.error('Error inserting log entry:', err);
-          res.json({'logsuccess': false, 'err': err})
+          res.json({ logsuccess: false, err: err });
         } else {
-          res.json({'logsuccess': true})
+          res.json({ logsuccess: true });
         }
       });
     }
   } else {
-    res.json({'logsuccess': false, 'auth': 'invalid'})
+    res.json({ logsuccess: false, auth: 'invalid' });
   }
 });
 
 app.get('/auto/log', function (req, res) {
-  res.render('account/autocheckin/log.ejs')
+  res.render('account/autocheckin/log.ejs');
 });
 
 app.get('/auto/logdata', function (req, res) {
@@ -151,38 +162,41 @@ function checkedIn(email, chc, callback) {
     ORDER BY timestamp DESC 
     LIMIT 10
   `;
-  
+
   // Execute the query
   db.query(query, [email], (err, result) => {
     if (err) return callback(err, null);
 
     // Look for a matching message that contains the 'chc' value
-    const match = result.find(log => log.message.includes(chc.toString()));
+    const match = result.find((log) => log.message.includes(chc.toString()));
 
     if (match) {
       // If a match is found, return an object with the checkedIn status and the message
       callback(null, {
         checkedIn: true,
-        message: match.message
+        message: match.message,
       });
     } else {
       // If no match is found, return checkedIn: false and a not found message
       callback(null, {
         checkedIn: false,
-        message: 'No matching check-in found yet'
+        message: 'No matching check-in found yet',
       });
     }
   });
 }
 
-
 app.get('/auto/state', function (req, res) {
   const userID = req.session.user.id;
   const apikey = req.apikey;
-  db.query('SELECT checkinReport, checkinReportTime, checkinstate, username FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
+  db.query(
+    'SELECT checkinReport, checkinReportTime, checkinstate, username FROM users WHERE id = ? OR api_token = ?',
+    [userID, apikey],
+    (err, result) => {
       if (err) throw err;
       res.json(result);
-  });
+    }
+  );
 });
 
 app.get('/auto', function (req, res) {
@@ -190,7 +204,11 @@ app.get('/auto', function (req, res) {
   const apikey = req.apikey;
   db.query('SELECT * FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
     if (err) throw err;
-    if (result[0].checkinReport === "Disabled" || result[0].checkinReport === "Waitlist" || result[0].checkinstate == 0) {
+    if (
+      result[0].checkinReport === 'Disabled' ||
+      result[0].checkinReport === 'Waitlist' ||
+      result[0].checkinstate == 0
+    ) {
       // New or returning user needs to port cookie
       if (req.headers.host == req.rootDomain) {
         res.render('autocheckin/setup');
@@ -199,45 +217,64 @@ app.get('/auto', function (req, res) {
       }
     } else {
       // User has setup AutoCheckin
-      db.query('SELECT * FROM autoCheckinLog WHERE email = ? ORDER BY timestamp DESC LIMIT 1', [result[0].email], (err, logResult) => {
-        if (err) throw err;
-        const enabled = result[0].checkinReport === 'Fail' ? `<span class="red-text">in error state</span>` :
-        result[0].checkinReport === 'Disabled' ? `<span class="red-text">disabled</span>` :
-          result[0].checkinReport === 'Enabled' ? `<span class="yellow-text">pending</span> (this can take up to an hour to change)` :
-              `<span class="green-text">active</span>`;
-        const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-GB', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-          timeZone: 'Europe/London'
-        });
-        var enabledMsg = `CheckOut's AutoCheckin service reports your session ${enabled} as of ${timestamp}.<br>View logs for your account below.`
-        
-        const checkinState = result[0].checkinstate === 1 ? "enabled" : "disabled";
-        const msg = `Signed in as ${result[0].username} (${result[0].email}) and AutoCheckin is <b>${checkinState}</b>.`;
-        res.render('account/autocheckin/auto', { msg, email: result[0].email, enabledMsg, showLog: true, checkinState, username: result[0].username })
-      });
+      db.query(
+        'SELECT * FROM autoCheckinLog WHERE email = ? ORDER BY timestamp DESC LIMIT 1',
+        [result[0].email],
+        (err, logResult) => {
+          if (err) throw err;
+          const enabled =
+            result[0].checkinReport === 'Fail'
+              ? `<span class="red-text">in error state</span>`
+              : result[0].checkinReport === 'Disabled'
+                ? `<span class="red-text">disabled</span>`
+                : result[0].checkinReport === 'Enabled'
+                  ? `<span class="yellow-text">pending</span> (this can take up to an hour to change)`
+                  : `<span class="green-text">active</span>`;
+          const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-GB', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            timeZone: 'Europe/London',
+          });
+          var enabledMsg = `CheckOut's AutoCheckin service reports your session ${enabled} as of ${timestamp}.<br>View logs for your account below.`;
+
+          const checkinState = result[0].checkinstate === 1 ? 'enabled' : 'disabled';
+          const msg = `Signed in as ${result[0].username} (${result[0].email}) and AutoCheckin is <b>${checkinState}</b>.`;
+          res.render('account/autocheckin/auto', {
+            msg,
+            email: result[0].email,
+            enabledMsg,
+            showLog: true,
+            checkinState,
+            username: result[0].username,
+          });
+        }
+      );
     }
   });
 });
 
-app.get('/auto/faq', function(req,res) {
-  res.render('account/autocheckin/auto-faq')
-})
+app.get('/auto/faq', function (req, res) {
+  res.render('account/autocheckin/auto-faq');
+});
 
-app.get('/auto/emailwelcome', function(req,res) {
-  res.render('autocheckin/welcome-email')
-})
+app.get('/auto/emailwelcome', function (req, res) {
+  res.render('autocheckin/welcome-email');
+});
 
-app.get('/auto/welcome', function(req,res) {
+app.get('/auto/welcome', function (req, res) {
   const userID = req.session.user.id;
   const apikey = req.apikey;
   db.query('SELECT * FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
     if (err) throw err;
-    if (result[0].checkinReport === "Disabled" || result[0].checkinReport === "Waitlist" || result[0].checkinstate == 0) {
+    if (
+      result[0].checkinReport === 'Disabled' ||
+      result[0].checkinReport === 'Waitlist' ||
+      result[0].checkinstate == 0
+    ) {
       // New or returning user needs to port cookie
       res.render('autocheckin/setup');
     } else {
@@ -245,12 +282,12 @@ app.get('/auto/welcome', function(req,res) {
       res.render('autocheckin/welcome');
     }
   });
-})
+});
 
-app.get('*', function(req,res) {
+app.get('*', function (req, res) {
   res.status(404);
-  res.send("Not a valid endpoint");
-})
+  res.send('Not a valid endpoint');
+});
 
 module.exports = app;
 module.exports.checkedIn = checkedIn;
@@ -269,7 +306,7 @@ module.exports.checkedIn = checkedIn;
 //     //console.log('[AUTO] Running initial AutoCheckin after 5 second startup delay');
 //     fetchAutoCheckers();
 //   }, 5000);
-  
+
 //   // Schedule recurring runs
 //   let intervalId;
 //   const scheduleNext = () => {
@@ -280,7 +317,7 @@ module.exports.checkedIn = checkedIn;
 //       scheduleNext(); // Schedule the next run after completion
 //     }, newInterval);
 //   };
-  
+
 //   // Start the scheduling cycle
 //   scheduleNext();
 // }
@@ -325,9 +362,8 @@ module.exports.checkedIn = checkedIn;
 //   });
 // }
 
-
 // function fetchAutoCheckers(emails = [], codes = [], instant = false) {
-  
+
 //   //console.log("Running autocheckers", emails, codes, "Instant:", instant)
 //   // Add error handling and connection check
 //   db.query('SELECT 1', (err) => {
@@ -342,11 +378,11 @@ module.exports.checkedIn = checkedIn;
 //         console.error('[AUTO] Database query error:', err);
 //         return;
 //       }
-      
+
 //       // Convert result to array and shuffle it
 //       let users = [...result];
 //       users.sort(() => Math.random() - 0.5);
-      
+
 //       users.forEach((user, index) => {
 //         if (instant) {
 //           // Instant processing without delays

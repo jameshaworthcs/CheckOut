@@ -2,27 +2,26 @@
   /* @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"); */
 
   body {
-  /* font-family: "Poppins", sans-serif; */
-  background: url(/static/tile-v1.png);
-  background-position: center;
-  position: relative;
-  z-index: 1; /* Make sure body content is above the ::before */
-}
+    /* font-family: "Poppins", sans-serif; */
+    background: url(/static/tile-v1.png);
+    background-position: center;
+    position: relative;
+    z-index: 1; /* Make sure body content is above the ::before */
+  }
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Dark overlay with 50% opacity */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* Ensure support for Safari */
-  z-index: -1; /* Place behind the body content */
-  pointer-events: none; /* Ensure it doesn't block interaction */
-}
-
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay with 50% opacity */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Ensure support for Safari */
+    z-index: -1; /* Place behind the body content */
+    pointer-events: none; /* Ensure it doesn't block interaction */
+  }
 
   html,
   body {
@@ -40,7 +39,7 @@ body::before {
 
   .container p {
     margin-bottom: 10px;
-    opacity: .9;
+    opacity: 0.9;
   }
 
   .container {
@@ -95,7 +94,7 @@ body::before {
   .deviceID-text {
     text-align: center;
     font-size: small;
-    opacity: .65;
+    opacity: 0.65;
   }
 
   .section-box {
@@ -114,7 +113,7 @@ body::before {
 
   .section-title {
     display: flex;
-    opacity: .6;
+    opacity: 0.6;
     margin-bottom: 5px;
     font-size: 14px;
   }
@@ -128,10 +127,9 @@ body::before {
   }
 
   .section-details button {
-      flex: 0 1 auto; /* Ensure buttons take only as much width as they need */
-      margin-bottom: 5px; /* Optional: additional space between rows */
+    flex: 0 1 auto; /* Ensure buttons take only as much width as they need */
+    margin-bottom: 5px; /* Optional: additional space between rows */
   }
-
 
   .section-title svg {
     width: 16px;
@@ -164,7 +162,7 @@ body::before {
     .container {
       width: 90%;
     }
-    
+
     .section-box {
       width: 95%;
     }

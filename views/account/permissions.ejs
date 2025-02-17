@@ -1,170 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <%- include('../global/head'); %>
-        <title>Permissions - CheckOut</title>
-        <style>
-            .container {
-                max-width: 800px;
-                width: 90%;
-                margin: 2rem auto;
-                padding: 0 1rem;
-            }
+    <title>Permissions - CheckOut</title>
+    <style>
+      .container {
+        max-width: 800px;
+        width: 90%;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
 
-            .text-center {
-                text-align: center;
-            }
+      .text-center {
+        text-align: center;
+      }
 
-            .info-section {
-                margin-top: 0rem;
-                background: var(--content-background);
-                padding: 1rem;
-                border-radius: 6px;
-            }
+      .info-section {
+        margin-top: 0rem;
+        background: var(--content-background);
+        padding: 1rem;
+        border-radius: 6px;
+      }
 
-            .info-section ul {
-                text-align: left;
-                margin: 0;
-                padding-left: 1.5rem;
-            }
+      .info-section ul {
+        text-align: left;
+        margin: 0;
+        padding-left: 1.5rem;
+      }
 
-            .return-link {
-                display: block;
-                text-align: center;
-                margin-top: 1rem;
-            }
+      .return-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+      }
 
-            .perms-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 2rem 0;
-                background: var(--content-background);
-                border-radius: 6px;
-                overflow: hidden;
-            }
+      .perms-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 2rem 0;
+        background: var(--content-background);
+        border-radius: 6px;
+        overflow: hidden;
+      }
 
-            .perms-table th,
-            .perms-table td {
-                padding: 1rem;
-                text-align: left;
-                border-bottom: 1px solid var(--secondary-accent-colour);
-            }
+      .perms-table th,
+      .perms-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--secondary-accent-colour);
+      }
 
-            .perms-table th {
-                background: var(--secondary-background);
-                font-weight: bold;
-            }
+      .perms-table th {
+        background: var(--secondary-background);
+        font-weight: bold;
+      }
 
-            .perms-table tr:last-child td {
-                border-bottom: none;
-            }
+      .perms-table tr:last-child td {
+        border-bottom: none;
+      }
 
-            .perms-table tr.current-user {
-                background: var(--submit-success-background);
-            }
+      .perms-table tr.current-user {
+        background: var(--submit-success-background);
+      }
 
-            .perm-id {
-                color: #888;
-                font-size: 0.8em;
-                margin-left: 0.5rem;
-            }
+      .perm-id {
+        color: #888;
+        font-size: 0.8em;
+        margin-left: 0.5rem;
+      }
 
-            .routes-cell {
-                max-width: 300px;
-                word-wrap: break-word;
-            }
+      .routes-cell {
+        max-width: 300px;
+        word-wrap: break-word;
+      }
 
-            .explanation {
-                margin: 1rem 0;
-                line-height: 1.6;
-            }
+      .explanation {
+        margin: 1rem 0;
+        line-height: 1.6;
+      }
 
-            .user-permissions {
-                background: var(--content-background);
-                padding: 1rem;
-                border-radius: 6px;
-                margin: 1rem 0;
-            }
+      .user-permissions {
+        background: var(--content-background);
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+      }
 
-            .user-permissions h4 {
-                margin-top: 0;
-            }
+      .user-permissions h4 {
+        margin-top: 0;
+      }
 
-            .permission-tag {
-                display: inline-block;
-                background: var(--secondary-background);
-                padding: 0.3rem 0.6rem;
-                border-radius: 4px;
-                margin: 0.2rem;
-                font-size: 0.9em;
-            }
-            @media (prefers-color-scheme: light  ) {
-                .permission-tag {
-                    background: var(--cta-background);
-                }
-            }
-        </style>
-</head>
+      .permission-tag {
+        display: inline-block;
+        background: var(--secondary-background);
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        margin: 0.2rem;
+        font-size: 0.9em;
+      }
+      @media (prefers-color-scheme: light) {
+        .permission-tag {
+          background: var(--cta-background);
+        }
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
     <%- include('../global/navbar'); %>
 
-        <div class="container">
-            <h1 class="text-center">Learn about permissions</h1>
+    <div class="container">
+      <h1 class="text-center">Learn about permissions</h1>
 
-            <div class="info-section">
-                <h3>Understanding Permissions</h3>
-                <p class="explanation">
-                    Permissions in CheckOut determine what features you can access and how frequently you can make requests. 
-                    Each permission level inherits access from the levels within it, meaning if you have 'moderator' permissions, 
-                    you automatically have access to all 'normal' user features as well. Additionally, permission levels can be combined, i.e. normal and autocheckin to get autocheckin features.  
-                </p>
-                <p class="explanation">
-                    Rate limits control how many requests you can make per minute to prevent system overload. 
-                    When you have multiple permission levels, the highest rate limit is applied. A rate limit of 0 means unlimited requests.
-                </p>
-            </div>
+      <div class="info-section">
+        <h3>Understanding Permissions</h3>
+        <p class="explanation">
+          Permissions in CheckOut determine what features you can access and how frequently you can
+          make requests. Each permission level inherits access from the levels within it, meaning if
+          you have 'moderator' permissions, you automatically have access to all 'normal' user
+          features as well. Additionally, permission levels can be combined, i.e. normal and
+          autocheckin to get autocheckin features.
+        </p>
+        <p class="explanation">
+          Rate limits control how many requests you can make per minute to prevent system overload.
+          When you have multiple permission levels, the highest rate limit is applied. A rate limit
+          of 0 means unlimited requests.
+        </p>
+      </div>
 
-            <div class="user-permissions">
-                <h4>Your Current Permissions</h4>
-                <div id="userPermissionsContainer">Loading your permissions...</div>
-            </div>
+      <div class="user-permissions">
+        <h4>Your Current Permissions</h4>
+        <div id="userPermissionsContainer">Loading your permissions...</div>
+      </div>
 
-            <div class="info-section">
-                <h3>Permission Levels</h3>
-                <div id="permsTableContainer">Loading permissions data...</div>
-            </div>
+      <div class="info-section">
+        <h3>Permission Levels</h3>
+        <div id="permsTableContainer">Loading permissions data...</div>
+      </div>
 
-            <a href="/account" class="return-link">Return to Account</a>
-        </div>
+      <a href="/account" class="return-link">Return to Account</a>
+    </div>
 
-        <script>
-            async function loadPermissionsTable() {
-                try {
-                    const response = await fetch('/api/account/permissions');
-                    const data = await response.json();
-                    
-                    if (!data.success) {
-                        throw new Error(data.msg || 'Failed to load permissions');
-                    }
+    <script>
+      async function loadPermissionsTable() {
+        try {
+          const response = await fetch('/api/account/permissions');
+          const data = await response.json();
 
-                    // Update user permissions section
-                    const userPermissionsHtml = `
-                        <p>Your permission levels: ${data.userStates.map(state => 
-                            `<span class="permission-tag">${state}</span>`
-                        ).join(' ')}
+          if (!data.success) {
+            throw new Error(data.msg || 'Failed to load permissions');
+          }
+
+          // Update user permissions section
+          const userPermissionsHtml = `
+                        <p>Your permission levels: ${data.userStates
+                          .map((state) => `<span class="permission-tag">${state}</span>`)
+                          .join(' ')}
                         </p>
                         <p>Your rate limit: <span class="permission-tag">${data.highestRateLimit === 0 ? 'Unlimited' : `${data.highestRateLimit} requests/min`}</span></p>
-                        <p>Your inherited features: ${data.inheritedRoutes.map(route => 
-                            `<span class="permission-tag">${route}</span>`
-                        ).join(' ')}
+                        <p>Your inherited features: ${data.inheritedRoutes
+                          .map((route) => `<span class="permission-tag">${route}</span>`)
+                          .join(' ')}
                         </p>
                     `;
-                    document.getElementById('userPermissionsContainer').innerHTML = userPermissionsHtml;
+          document.getElementById('userPermissionsContainer').innerHTML = userPermissionsHtml;
 
-                    // Update permissions table
-                    const tableHtml = `
+          // Update permissions table
+          const tableHtml = `
                         <table class="perms-table">
                             <thead>
                                 <tr>
@@ -174,40 +176,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.permissions.map(perm => `
+                                ${data.permissions
+                                  .map(
+                                    (perm) => `
                                     <tr class="${data.userStates.includes(perm.userstate) ? 'current-user' : ''}">
                                         <td>${perm.userstate} <span class="perm-id">#${perm.permid}</span></td>
                                         <td class="routes-cell">${formatRoutes(perm.routes)}</td>
                                         <td>${perm.ratelimit === 0 ? 'Unlimited' : perm.ratelimit}</td>
                                     </tr>
-                                `).join('')}
+                                `
+                                  )
+                                  .join('')}
                             </tbody>
                         </table>
                     `;
 
-                    document.getElementById('permsTableContainer').innerHTML = tableHtml;
-                } catch (error) {
-                    console.error('Error loading permissions:', error);
-                    document.getElementById('permsTableContainer').innerHTML = 
-                        '<p class="error">Failed to load permissions data. Please try again later.</p>';
-                    document.getElementById('userPermissionsContainer').innerHTML = 
-                        '<p class="error">Failed to load your permissions. Please try again later.</p>';
-                }
-            }
+          document.getElementById('permsTableContainer').innerHTML = tableHtml;
+        } catch (error) {
+          console.error('Error loading permissions:', error);
+          document.getElementById('permsTableContainer').innerHTML =
+            '<p class="error">Failed to load permissions data. Please try again later.</p>';
+          document.getElementById('userPermissionsContainer').innerHTML =
+            '<p class="error">Failed to load your permissions. Please try again later.</p>';
+        }
+      }
 
-            function formatRoutes(routes) {
-                try {
-                    const routeArray = JSON.parse(routes);
-                    return routeArray.join(', ') || 'None';
-                } catch {
-                    return routes || 'None';
-                }
-            }
+      function formatRoutes(routes) {
+        try {
+          const routeArray = JSON.parse(routes);
+          return routeArray.join(', ') || 'None';
+        } catch {
+          return routes || 'None';
+        }
+      }
 
-            // Load the table when the page loads
-            loadPermissionsTable();
-        </script>
-
-</body>
-
-</html> 
+      // Load the table when the page loads
+      loadPermissionsTable();
+    </script>
+  </body>
+</html>

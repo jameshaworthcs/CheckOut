@@ -1,9 +1,9 @@
 <% if (typeof site_notice !== 'undefined') { %>
-    <div class="navbar-wrapper">
-        <div class="navbar">
-            <p class="site-notice"><%- site_notice %></p>
-        </div>
-    </div>
+<div class="navbar-wrapper">
+  <div class="navbar">
+    <p class="site-notice"><%- site_notice %></p>
+  </div>
+</div>
 <% } %>
 <!-- <% if (typeof userData != 'undefined' && typeof userData.beta != 'undefined' && userData.beta === true) { %>
     <div class="navbar-wrapper">
@@ -13,11 +13,15 @@
     </div>
 <% } %> -->
 <% if (typeof userData != 'undefined' && typeof userData.development != 'undefined' && userData.development === true) { %>
-    <div class="navbar-wrapper">
-        <div class="navbar">
-            <p class="site-notice"><b>Caution:</b> This is a local instance of CheckOut! User data is unlikely to be secure. If this is unexpected, <a href='mailto:checkout@jemedia.xyz'>contact support</a> for the official site. To hide this warning set LOCAL_WARNING=0 in your .env.local file.</p>
-        </div>
-    </div>
+<div class="navbar-wrapper">
+  <div class="navbar">
+    <p class="site-notice">
+      <b>Caution:</b> This is a local instance of CheckOut! User data is unlikely to be secure. If
+      this is unexpected, <a href="mailto:checkout@jemedia.xyz">contact support</a> for the official
+      site. To hide this warning set LOCAL_WARNING=0 in your .env.local file.
+    </p>
+  </div>
+</div>
 <% } %>
 <!-- <div class="navbar-wrapper">
     <div class="navbar navbar-warning">
@@ -25,84 +29,69 @@
     </div>
 </div> -->
 <div class="navbar-wrapper">
-<div class="navbar">
+  <div class="navbar">
     <div>
-        <a id="logo-link" class="logo-link" href="/">
-            <!-- <img src="<%- include('../global/icons/logo'); %>" alt="Logo" class="logo"> -->
-            <div src="" alt="Logo" class="logo" role="img" aria-label="Logo"></div>
-        </a>
-        <% if (typeof userData != 'undefined' && typeof userData.beta != 'undefined' && userData.beta === true) { %>
-            <!-- beta -->
-        <% } %>
+      <a id="logo-link" class="logo-link" href="/">
+        <!-- <img src="<%- include('../global/icons/logo'); %>" alt="Logo" class="logo"> -->
+        <div src="" alt="Logo" class="logo" role="img" aria-label="Logo"></div>
+      </a>
+      <% if (typeof userData != 'undefined' && typeof userData.beta != 'undefined' && userData.beta === true) { %>
+      <!-- beta -->
+      <% } %>
     </div>
     <div class="navbar-links">
-        <a id="autocheckin-link" href="/auto">
-            <%- include('../global/icons/sparkle'); %>
-            <span class="auto-history-text">AutoCheckin</span>
-            <!-- <span class="status-bubble status-bubble-empty">✅</span> -->
-        </a>
-        <a id="history-link" href="/history">
-            <%- include('../global/icons/history'); %>
-            <span id="history-nav-text" class="auto-history-text">History</span>
-            <!-- <span class="status-bubble status-bubble-filled">123</span> -->
-        </a>
-        <a id="navbar-cta-button" href="#" class="cta-button">
-            <div class="menu-icon" id="menu-icon">
-                <%- include('../global/icons/menu'); %>
-            </div>
-            <% if(typeof cacheUsername != 'undefined' || typeof userData == 'undefined' || typeof userData.username == 'undefined'){%>
-                <span id="name-text">Hello, Anon</span>
-                <!-- <div class="skeleton-name"></div> -->
-            <%}else{%>
-                <span id="name-text">Hello, <%- userData.username %></span>
-            <%}%>
-            <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
-                <div class="cta-tooltip">
-                    <span id="darkTooltip" class="cta-tooltiptext">Dark mode is here for anons! Sign in to sync devices and access extras. <span id="darkTooltipClose">Hide</span></span>
-                </div>
-            <%}else{%>
-                <!-- No tooltip needed for logged in user -->
-            <%}%>
-        </a>
+      <a id="autocheckin-link" href="/auto">
+        <%- include('../global/icons/sparkle'); %>
+        <span class="auto-history-text">AutoCheckin</span>
+        <!-- <span class="status-bubble status-bubble-empty">✅</span> -->
+      </a>
+      <a id="history-link" href="/history">
+        <%- include('../global/icons/history'); %>
+        <span id="history-nav-text" class="auto-history-text">History</span>
+        <!-- <span class="status-bubble status-bubble-filled">123</span> -->
+      </a>
+      <a id="navbar-cta-button" href="#" class="cta-button">
+        <div class="menu-icon" id="menu-icon"><%- include('../global/icons/menu'); %></div>
+        <% if(typeof cacheUsername != 'undefined' || typeof userData == 'undefined' || typeof userData.username == 'undefined'){%>
+        <span id="name-text">Hello, Anon</span>
+        <!-- <div class="skeleton-name"></div> -->
+        <%}else{%>
+        <span id="name-text">Hello, <%- userData.username %></span>
+        <%}%>
+        <% if(( typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon")){%>
+        <div class="cta-tooltip">
+          <span id="darkTooltip" class="cta-tooltiptext"
+            >Dark mode is here for anons! Sign in to sync devices and access extras.
+            <span id="darkTooltipClose">Hide</span></span
+          >
+        </div>
+        <%}else{%>
+        <!-- No tooltip needed for logged in user -->
+        <%}%>
+      </a>
     </div>
     <div class="dropdown-menu" id="dropdown-menu">
-        <a class="menu-item menu-item-desktop" href="/auto">
-            <%- include('../global/icons/sparkle'); %>
-            AutoCheckin
-        </a>
-        <a class="menu-item menu-item-desktop" href="/history">
-            <%- include('../global/icons/history'); %>
-            History
-        </a>
-        <% if(typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon") { %>
-            <a id="signin-link" class="menu-item" href="/login">
-                <b><u>Sign in</u></b>
-            </a>
-        <% } else { %>
-            <a id="account-link" class="menu-item" href="/account">
-                Account
-            </a>
-        <% } %>
-        <a id="settings-link" class="menu-item" href="/settings">
-            Settings
-        </a>
-        <a class="menu-item" href="/learn-faq">
-            Learn & FAQ
-        </a>
-        <a class="menu-item" href="/terms-privacy">
-            Terms & Privacy
-        </a>
-        <a class="menu-item" href="/support">
-            Support
-        </a>
-        <a class="menu-item" href="/api/docs">
-            API
-        </a>
-        <% if (typeof userData != 'undefined' && typeof userData.moderator != 'undefined' && userData.moderator === true) { %>
-            <a id="manage-link" class="menu-item" href="/manage">
-                Management Tools
-            </a>
-        <% } %>
+      <a class="menu-item menu-item-desktop" href="/auto">
+        <%- include('../global/icons/sparkle'); %> AutoCheckin
+      </a>
+      <a class="menu-item menu-item-desktop" href="/history">
+        <%- include('../global/icons/history'); %> History
+      </a>
+      <% if(typeof userData == 'undefined' || typeof userData.username == 'undefined' || userData.username == "Anon") { %>
+      <a id="signin-link" class="menu-item" href="/login">
+        <b><u>Sign in</u></b>
+      </a>
+      <% } else { %>
+      <a id="account-link" class="menu-item" href="/account"> Account </a>
+      <% } %>
+      <a id="settings-link" class="menu-item" href="/settings"> Settings </a>
+      <a class="menu-item" href="/learn-faq"> Learn & FAQ </a>
+      <a class="menu-item" href="/terms-privacy"> Terms & Privacy </a>
+      <a class="menu-item" href="/support"> Support </a>
+      <a class="menu-item" href="/api/docs"> API </a>
+      <% if (typeof userData != 'undefined' && typeof userData.moderator != 'undefined' && userData.moderator === true) { %>
+      <a id="manage-link" class="menu-item" href="/manage"> Management Tools </a>
+      <% } %>
     </div>
-</div>
+  </div>
 </div>

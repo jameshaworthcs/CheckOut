@@ -1,379 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <%- include('../global/head'); %>
     <title>Welcome to AutoCheckin</title>
     <%- include('./styles/shared'); %>
     <style>
-        .info-section h3 {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
+      .info-section h3 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
 
-        .info-section {
-            padding-top: 1.5rem;
-        }
+      .info-section {
+        padding-top: 1.5rem;
+      }
 
+      .feature-list {
+        box-shadow: var(--shadow);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+      }
 
-        .feature-list {
-            box-shadow: var(--shadow);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
+      .feature-item {
+        box-shadow: var(--shadow2);
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        background: var(--code-background);
+      }
 
-        .feature-item {
-            box-shadow: var(--shadow2);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            background: var(--code-background);
-        }
+      .feature-item.right {
+        margin-left: 20px;
+      }
 
-        .feature-item.right {
-            margin-left: 20px;
-        }
-
-        .feature-item.left {
-            margin-right: 20px;
-        }
+      .feature-item.left {
+        margin-right: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="loading-overlay">
-        <div id="loading-content">
-            <svg id="loading-svg" width="100" height="100">
-                <defs>
-                    <clipPath id="reveal-clip">
-                        <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
-                    </clipPath>
-                </defs>
-                <image href="/static/tick-white-min2.svg" width="100" height="74" clip-path="url(#reveal-clip)" />
-            </svg>
-            <div id="loading-spinner" class="loader" style="display: none;"></div>
-        </div>
+      <div id="loading-content">
+        <svg id="loading-svg" width="100" height="100">
+          <defs>
+            <clipPath id="reveal-clip">
+              <rect id="clip-rect" x="0" y="0" width="0" height="100%" />
+            </clipPath>
+          </defs>
+          <image
+            href="/static/tick-white-min2.svg"
+            width="100"
+            height="74"
+            clip-path="url(#reveal-clip)"
+          />
+        </svg>
+        <div id="loading-spinner" class="loader" style="display: none"></div>
+      </div>
     </div>
     <%- include('../global/navbar'); %>
     <div class="header">
-        <div class="header-content">
-            <span>Welcome to <b>AutoCheckin</b></span>
-            <%- include('../global/icons/sparkle'); %>
-        </div>
+      <div class="header-content">
+        <span>Welcome to <b>AutoCheckin</b></span>
+        <%- include('../global/icons/sparkle'); %>
+      </div>
     </div>
     <div class="content">
-        <p class="sub-text"><b>You'll love what AutoCheckin can do for you.</b><br><br><span class="subtext">Say hello to <b>the most effortless</b> way to checkin.</span></p>
-        
-        <div class="info-section">
-            <h3>Introducing AutoCheckin</h3>
-            <div class="feature-list">
-                <div class="feature-item right">
-                    Skip Duo Authentication and the check-in site entirely.
-                </div>
-                <div class="feature-item left">
-                    Set up once, and remain logged in for as long as you need.
-                </div>
-                <div class="feature-item right">
-                    AutoCheckin keeps a record of your timetable and sessions.
-                </div>
-            </div>
-        </div>
+      <p class="sub-text">
+        <b>You'll love what AutoCheckin can do for you.</b><br /><br /><span class="subtext"
+          >Say hello to <b>the most effortless</b> way to checkin.</span
+        >
+      </p>
 
-        <div class="info-section">
-            <h3>Security & Privacy</h3>
-            <div class="feature-list">
-                <div class="feature-item left">
-                    You're in control: share check-in codes or keep them private.
-                </div>
-                <div class="feature-item right">
-                    Impossible for us to access anything outside of CheckIn.
-                </div>
-                <div class="feature-item left">
-                    Login can't be used for e:Vision, VLE, email, or other services.
-                </div>
-            </div>
+      <div class="info-section">
+        <h3>Introducing AutoCheckin</h3>
+        <div class="feature-list">
+          <div class="feature-item right">
+            Skip Duo Authentication and the check-in site entirely.
+          </div>
+          <div class="feature-item left">
+            Set up once, and remain logged in for as long as you need.
+          </div>
+          <div class="feature-item right">
+            AutoCheckin keeps a record of your timetable and sessions.
+          </div>
         </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Security & Privacy</h3>
+        <div class="feature-list">
+          <div class="feature-item left">
+            You're in control: share check-in codes or keep them private.
+          </div>
+          <div class="feature-item right">
+            Impossible for us to access anything outside of CheckIn.
+          </div>
+          <div class="feature-item left">
+            Login can't be used for e:Vision, VLE, email, or other services.
+          </div>
+        </div>
+      </div>
     </div>
     <div class="footer">
-        <p id="errorText"></p>
-        <% 
-        let waitlistButtonText;
-        let subtext;
-        let actionType;
-        let greyButton = "";
-        
-        if (typeof userData === 'undefined' || typeof userData.checkinReport === 'undefined') {
-            actionType = "1";
-            waitlistButtonText = "Register or sign in to join Waitlist"
-            subtext = `Set up already? <a class="tosLink" href="?login">Sign in</a> to access your AutoCheckin.`
-        } else if (userData.checkinReport === "Waitlist") {
-            actionType = "2";
-            greyButton = "grey";
-            waitlistButtonText = "You're on the Waitlist"
-            subtext = `Thanks for joining the waitlist, ${userData.username||"name"}. You'll need to activate AutoCheckin later. Expect an email if you're accepted. <a id="leave-waitlist" class="tosLink" href="">Leave waitlist.</a>`
-        } else {
-            actionType = "3";
-            waitlistButtonText = "Join the Waitlist"
-            subtext = `Joining the waitlist won't activate AutoCheckin until you choose. We'll notify you by email if accepted.`
-        }        
-        %>
+      <p id="errorText"></p>
+      <% let waitlistButtonText; let subtext; let actionType; let greyButton = ""; if (typeof
+      userData === 'undefined' || typeof userData.checkinReport === 'undefined') { actionType = "1";
+      waitlistButtonText = "Register or sign in to join Waitlist" subtext = `Set up already?
+      <a class="tosLink" href="?login">Sign in</a> to access your AutoCheckin.` } else if
+      (userData.checkinReport === "Waitlist") { actionType = "2"; greyButton = "grey";
+      waitlistButtonText = "You're on the Waitlist" subtext = `Thanks for joining the waitlist,
+      ${userData.username||"name"}. You'll need to activate AutoCheckin later. Expect an email if
+      you're accepted. <a id="leave-waitlist" class="tosLink" href="">Leave waitlist.</a>` } else {
+      actionType = "3"; waitlistButtonText = "Join the Waitlist" subtext = `Joining the waitlist
+      won't activate AutoCheckin until you choose. We'll notify you by email if accepted.` } %>
 
-        <button id="continue-btn" class="<%- greyButton %>" data-action="<%- actionType %>"><%- waitlistButtonText %></button>
-        <p id="termsText" class="termsText">
-            <%- subtext %>
-            <br><br>
-            <a class="tosLink" href="/">return to CheckOut</a>
-        </p>
+      <button id="continue-btn" class="<%- greyButton %>" data-action="<%- actionType %>">
+        <%- waitlistButtonText %>
+      </button>
+      <p id="termsText" class="termsText">
+        <%- subtext %>
+        <br /><br />
+        <a class="tosLink" href="/">return to CheckOut</a>
+      </p>
     </div>
 
     <script>
-function adjustFooterPosition() {
-    const content = document.querySelector('.content');
-    const footer = document.querySelector('.footer');
-    const contentHeight = content.scrollHeight;
-    const viewportHeight = window.innerHeight;
-    const headerHeight = document.querySelector('.header').offsetHeight;
-    const footerHeight = footer.offsetHeight;
+      function adjustFooterPosition() {
+          const content = document.querySelector('.content');
+          const footer = document.querySelector('.footer');
+          const contentHeight = content.scrollHeight;
+          const viewportHeight = window.innerHeight;
+          const headerHeight = document.querySelector('.header').offsetHeight;
+          const footerHeight = footer.offsetHeight;
 
-    if (contentHeight + headerHeight + footerHeight > viewportHeight) {
-        footer.style.position = 'sticky';
-        footer.style.bottom = '0';
-        footer.style.marginTop = 'auto';
-    } else {
-        footer.style.position = 'relative';
-        footer.style.bottom = 'auto';
-    }
-}
+          if (contentHeight + headerHeight + footerHeight > viewportHeight) {
+              footer.style.position = 'sticky';
+              footer.style.bottom = '0';
+              footer.style.marginTop = 'auto';
+          } else {
+              footer.style.position = 'relative';
+              footer.style.bottom = 'auto';
+          }
+      }
 
-document.addEventListener('DOMContentLoaded', adjustFooterPosition);
-window.addEventListener('resize', adjustFooterPosition);
+      document.addEventListener('DOMContentLoaded', adjustFooterPosition);
+      window.addEventListener('resize', adjustFooterPosition);
 
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        let activeElement = document.activeElement;
-        if (!activeElement || (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))) {
-            document.getElementById('continue-btn').click();
-        }
-    }
-});
+      document.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+              let activeElement = document.activeElement;
+              if (!activeElement || (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))) {
+                  document.getElementById('continue-btn').click();
+              }
+          }
+      });
 
-function showLoadingOverlay(duration) {
-    const overlay = document.getElementById('loading-overlay');
-    const clipRect = document.getElementById('clip-rect');
-    const spinner = document.getElementById('loading-spinner');
+      function showLoadingOverlay(duration) {
+          const overlay = document.getElementById('loading-overlay');
+          const clipRect = document.getElementById('clip-rect');
+          const spinner = document.getElementById('loading-spinner');
 
-    overlay.style.visibility = 'visible';
-    overlay.style.opacity = '1';
+          overlay.style.visibility = 'visible';
+          overlay.style.opacity = '1';
 
-    clipRect.setAttribute('width', '0');
+          clipRect.setAttribute('width', '0');
 
-    let startTime = null;
-    let animationCompleted = false;
+          let startTime = null;
+          let animationCompleted = false;
 
-    function animateReveal(time) {
-        if (!startTime) startTime = time;
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        clipRect.setAttribute('width', `${progress * 100}%`);
+          function animateReveal(time) {
+              if (!startTime) startTime = time;
+              const elapsed = time - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+              clipRect.setAttribute('width', `${progress * 100}%`);
 
-        if (progress < 1) {
-            requestAnimationFrame(animateReveal);
-        } else {
-            animationCompleted = true;
-            if (window.overlayDone) {
-                removeOverlay();
-            } else {
-                spinner.style.display = 'block';
-            }
-        }
-    }
+              if (progress < 1) {
+                  requestAnimationFrame(animateReveal);
+              } else {
+                  animationCompleted = true;
+                  if (window.overlayDone) {
+                      removeOverlay();
+                  } else {
+                      spinner.style.display = 'block';
+                  }
+              }
+          }
 
-    requestAnimationFrame(animateReveal);
+          requestAnimationFrame(animateReveal);
 
-    window.endLoadingOverlay = function() {
-        window.overlayDone = true;
-        if (animationCompleted) {
-            removeOverlay();
-        }
-    }
+          window.endLoadingOverlay = function() {
+              window.overlayDone = true;
+              if (animationCompleted) {
+                  removeOverlay();
+              }
+          }
 
-    function removeOverlay() {
-        overlay.style.opacity = '0';
-        overlay.style.visibility = 'hidden';
-        clipRect.setAttribute('width', '0');
-        spinner.style.display = 'none';
-        window.overlayDone = false;
-        animationCompleted = false;
-    }
+          function removeOverlay() {
+              overlay.style.opacity = '0';
+              overlay.style.visibility = 'hidden';
+              clipRect.setAttribute('width', '0');
+              spinner.style.display = 'none';
+              window.overlayDone = false;
+              animationCompleted = false;
+          }
 
-    window.overlayDone = false;
-}
+          window.overlayDone = false;
+      }
 
-function updateQueryParameter(url, key, value) {
-        let urlObj = new URL(url);
-        urlObj.searchParams.set(key, value);
-        return urlObj.toString();
-    }
+      function updateQueryParameter(url, key, value) {
+              let urlObj = new URL(url);
+              urlObj.searchParams.set(key, value);
+              return urlObj.toString();
+          }
 
-document.getElementById('continue-btn').addEventListener('click', function() {
-    // Function to preload the page and then swap the content or reload the page
-    function preloadAndSwapPage(url) {
-        let preloadedPage;
+      document.getElementById('continue-btn').addEventListener('click', function() {
+          // Function to preload the page and then swap the content or reload the page
+          function preloadAndSwapPage(url) {
+              let preloadedPage;
 
-        // Use the Fetch API to preload the page with the updated URL
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                preloadedPage = html;
-            })
-            .catch(error => {
-                console.error('Error preloading the page:', error);
-            });
+              // Use the Fetch API to preload the page with the updated URL
+              fetch(url)
+                  .then(response => response.text())
+                  .then(html => {
+                      preloadedPage = html;
+                  })
+                  .catch(error => {
+                      console.error('Error preloading the page:', error);
+                  });
 
-        // Wait 500ms, then swap the page content with the preloaded content
-        setTimeout(() => {
-            if (preloadedPage) {
-                document.open();
-                document.write(preloadedPage);
-                document.close();
-            } else {
-                // Fallback to a regular reload if preloading fails
-                window.location.href = url;
-            }
-        }, 300);
-    }
+              // Wait 500ms, then swap the page content with the preloaded content
+              setTimeout(() => {
+                  if (preloadedPage) {
+                      document.open();
+                      document.write(preloadedPage);
+                      document.close();
+                  } else {
+                      // Fallback to a regular reload if preloading fails
+                      window.location.href = url;
+                  }
+              }, 300);
+          }
 
-    // Get 1,2 or 3
-    const actionType = document.getElementById('continue-btn').getAttribute('data-action');
+          // Get 1,2 or 3
+          const actionType = document.getElementById('continue-btn').getAttribute('data-action');
 
-    if (actionType === "1") {
-        // Sign in
-        showLoadingOverlay(450);
-        let currentUrl = window.location.href;
-        let updatedUrl = updateQueryParameter(currentUrl, 'login', '');
-        preloadAndSwapPage(updatedUrl);
-    } else if (actionType === "2") {
-        // Already on waitlist
-        document.getElementById('continue-btn').textContent = "You're ALREADY ON on the waitlist";
-    } else {
-        // To join waitlist
-        showLoadingOverlay(450);
-        fetch('/api/account/waitlist', { // First save course details
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({"action": "join", "waitlist": "AutoCheckin"})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.endLoadingOverlay();
-                let parsedURL = new URL(window.location.href);
-                parsedURL.searchParams.delete('login');
-                parsedURL.searchParams.delete('left');
-                preloadAndSwapPage(parsedURL);
-            } else {
-                throw new Error(data.msg || 'Failed to join waitlist.');
-            }
-        })
-        
-        .catch(error => {
-            // If any of the API calls fail, hide the loading overlay and show the error message
-            window.endLoadingOverlay();
-            if (error.message) {
-                // If there's a response from the server with an error message
-                displayNotice(error.message, "error")
-            } else {
-                // For network errors or other unexpected issues
-                displayNotice("Unable to join waitlist.", "error")
-            }
-        });
-    }
-});
+          if (actionType === "1") {
+              // Sign in
+              showLoadingOverlay(450);
+              let currentUrl = window.location.href;
+              let updatedUrl = updateQueryParameter(currentUrl, 'login', '');
+              preloadAndSwapPage(updatedUrl);
+          } else if (actionType === "2") {
+              // Already on waitlist
+              document.getElementById('continue-btn').textContent = "You're ALREADY ON on the waitlist";
+          } else {
+              // To join waitlist
+              showLoadingOverlay(450);
+              fetch('/api/account/waitlist', { // First save course details
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({"action": "join", "waitlist": "AutoCheckin"})
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.endLoadingOverlay();
+                      let parsedURL = new URL(window.location.href);
+                      parsedURL.searchParams.delete('login');
+                      parsedURL.searchParams.delete('left');
+                      preloadAndSwapPage(parsedURL);
+                  } else {
+                      throw new Error(data.msg || 'Failed to join waitlist.');
+                  }
+              })
 
-<% if (actionType === "2") { %>
+              .catch(error => {
+                  // If any of the API calls fail, hide the loading overlay and show the error message
+                  window.endLoadingOverlay();
+                  if (error.message) {
+                      // If there's a response from the server with an error message
+                      displayNotice(error.message, "error")
+                  } else {
+                      // For network errors or other unexpected issues
+                      displayNotice("Unable to join waitlist.", "error")
+                  }
+              });
+          }
+      });
 
-    var leaveWaitlistButton = document.getElementById('leave-waitlist');
-    if (leaveWaitlistButton) {
-        leaveWaitlistButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        showLoadingOverlay(450);
+      <% if (actionType === "2") { %>
 
-        // Function to preload the page and then swap the content or reload the page
-        function preloadAndSwapPage(url) {
-            let preloadedPage;
+          var leaveWaitlistButton = document.getElementById('leave-waitlist');
+          if (leaveWaitlistButton) {
+              leaveWaitlistButton.addEventListener('click', function(event) {
+              event.preventDefault();
+              showLoadingOverlay(450);
 
-            // Use the Fetch API to preload the page with the updated URL
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    preloadedPage = html;
-                })
-                .catch(error => {
-                    console.error('Error preloading the page:', error);
-                });
+              // Function to preload the page and then swap the content or reload the page
+              function preloadAndSwapPage(url) {
+                  let preloadedPage;
 
-            // Wait 500ms, then swap the page content with the preloaded content
-            setTimeout(() => {
-                if (preloadedPage) {
-                    document.open();
-                    document.write(preloadedPage);
-                    document.close();
-                    // Update the browser's address bar with the new URL without reloading the page
-                    history.pushState(null, '', url);
-                    displayWaitlistNotice();
-                } else {
-                    // Fallback to a regular reload if preloading fails
-                    window.location.href = url;
-                }
-            }, 300);
-        }
+                  // Use the Fetch API to preload the page with the updated URL
+                  fetch(url)
+                      .then(response => response.text())
+                      .then(html => {
+                          preloadedPage = html;
+                      })
+                      .catch(error => {
+                          console.error('Error preloading the page:', error);
+                      });
 
-        // To leave waitlist
-        showLoadingOverlay(450);
-        fetch('/api/account/waitlist', { // First save course details
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({"action": "leave", "waitlist": "AutoCheckin"})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.endLoadingOverlay();
-                let parsedURL = new URL(window.location.href);
-                parsedURL.searchParams.delete('login');
-                parsedURL = updateQueryParameter(parsedURL, 'left', 'true');
-                preloadAndSwapPage(parsedURL);
-                console.log(parsedURL)
-            } else {
-                throw new Error(data.msg || 'Failed to leave waitlist.');
-            }
-        })
-        
-        .catch(error => {
-            // If any of the API calls fail, hide the loading overlay and show the error message
-            window.endLoadingOverlay();
-            if (error.message) {
-                // If there's a response from the server with an error message
-                displayNotice(error.message, "error")
-            } else {
-                // For network errors or other unexpected issues
-                displayNotice("Unable to leave waitlist.", "error")
-            }
-        });
-    });
-    }
+                  // Wait 500ms, then swap the page content with the preloaded content
+                  setTimeout(() => {
+                      if (preloadedPage) {
+                          document.open();
+                          document.write(preloadedPage);
+                          document.close();
+                          // Update the browser's address bar with the new URL without reloading the page
+                          history.pushState(null, '', url);
+                          displayWaitlistNotice();
+                      } else {
+                          // Fallback to a regular reload if preloading fails
+                          window.location.href = url;
+                      }
+                  }, 300);
+              }
 
-    function displayWaitlistNotice() {
-        const queryString = window.location.href;
-        const urlParams = new URLSearchParams(queryString);
-        if (urlParams.has('left') || true) {
-            displayNotice("You've left the waitlist");
-        }
-    }
-<% } %>
+              // To leave waitlist
+              showLoadingOverlay(450);
+              fetch('/api/account/waitlist', { // First save course details
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({"action": "leave", "waitlist": "AutoCheckin"})
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.endLoadingOverlay();
+                      let parsedURL = new URL(window.location.href);
+                      parsedURL.searchParams.delete('login');
+                      parsedURL = updateQueryParameter(parsedURL, 'left', 'true');
+                      preloadAndSwapPage(parsedURL);
+                      console.log(parsedURL)
+                  } else {
+                      throw new Error(data.msg || 'Failed to leave waitlist.');
+                  }
+              })
+
+              .catch(error => {
+                  // If any of the API calls fail, hide the loading overlay and show the error message
+                  window.endLoadingOverlay();
+                  if (error.message) {
+                      // If there's a response from the server with an error message
+                      displayNotice(error.message, "error")
+                  } else {
+                      // For network errors or other unexpected issues
+                      displayNotice("Unable to leave waitlist.", "error")
+                  }
+              });
+          });
+          }
+
+          function displayWaitlistNotice() {
+              const queryString = window.location.href;
+              const urlParams = new URLSearchParams(queryString);
+              if (urlParams.has('left') || true) {
+                  displayNotice("You've left the waitlist");
+              }
+          }
+      <% } %>
     </script>
-</body>
+  </body>
 </html>

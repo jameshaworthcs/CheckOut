@@ -1,168 +1,172 @@
 <script>
-// JS Global Helpers
+  // JS Global Helpers
 
-///////////////////
-// Dropdown menu //
-///////////////////
+  ///////////////////
+  // Dropdown menu //
+  ///////////////////
 
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const menuIcon = document.getElementById('menu-icon');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const menuItems = document.querySelectorAll('.menu-item');
     const ctaButton = document.getElementById('navbar-cta-button');
 
     function createSVG(isOpen) {
-        const svgProps = {
-            width: "18px",
-            height: "18px",
-            viewBox: "0 0 23 21",
-            fill: "none",
-            xmlns: "http://www.w3.org/2000/svg"
-        };
+      const svgProps = {
+        width: '18px',
+        height: '18px',
+        viewBox: '0 0 23 21',
+        fill: 'none',
+        xmlns: 'http://www.w3.org/2000/svg',
+      };
 
-        const paths = {
-            open: [
-                { d: "M4 18L20 18", strokeWidth: "2.5", strokeLinecap: "round" },
-                { d: "M4 12L20 12", strokeWidth: "2.5", strokeLinecap: "round" },
-                { d: "M4 6L20 6", strokeWidth: "2.5", strokeLinecap: "round" }
-            ],
-            close: [
-                { x1: "4", y1: "4", x2: "20", y2: "20", strokeWidth: "2.5", strokeLinecap: "round" },
-                { x1: "4", y1: "20", x2: "20", y2: "4", strokeWidth: "2.5", strokeLinecap: "round" }
-            ]
-        };
+      const paths = {
+        open: [
+          { d: 'M4 18L20 18', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { d: 'M4 12L20 12', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { d: 'M4 6L20 6', strokeWidth: '2.5', strokeLinecap: 'round' },
+        ],
+        close: [
+          { x1: '4', y1: '4', x2: '20', y2: '20', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { x1: '4', y1: '20', x2: '20', y2: '4', strokeWidth: '2.5', strokeLinecap: 'round' },
+        ],
+      };
 
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        Object.keys(svgProps).forEach(key => svg.setAttribute(key, svgProps[key]));
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      Object.keys(svgProps).forEach((key) => svg.setAttribute(key, svgProps[key]));
 
-        const elements = isOpen ? paths.open : paths.close;
-        elements.forEach(attr => {
-            const el = document.createElementNS("http://www.w3.org/2000/svg", isOpen ? "path" : "line");
-            Object.keys(attr).forEach(key => {
-                const attrName = key === 'strokeWidth' ? 'stroke-width' : key === 'strokeLinecap' ? 'stroke-linecap' : key;
-                el.setAttribute(attrName, attr[key]);
-            });
-            svg.appendChild(el);
+      const elements = isOpen ? paths.open : paths.close;
+      elements.forEach((attr) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', isOpen ? 'path' : 'line');
+        Object.keys(attr).forEach((key) => {
+          const attrName =
+            key === 'strokeWidth'
+              ? 'stroke-width'
+              : key === 'strokeLinecap'
+                ? 'stroke-linecap'
+                : key;
+          el.setAttribute(attrName, attr[key]);
         });
+        svg.appendChild(el);
+      });
 
-        svg.classList.add('menu-icon-svg');
-        return svg;
+      svg.classList.add('menu-icon-svg');
+      return svg;
     }
 
     function updateDropdownPosition() {
-        const buttonRect = ctaButton.getBoundingClientRect();
-        const dropdownWidth = dropdownMenu.offsetWidth;
-        const leftPosition = buttonRect.left + (buttonRect.width / 2) - (dropdownWidth / 2);
-        dropdownMenu.style.left = `${leftPosition}px`;
-        dropdownMenu.style.top = `${buttonRect.bottom + 11}px`; // Position it directly below the button
+      const buttonRect = ctaButton.getBoundingClientRect();
+      const dropdownWidth = dropdownMenu.offsetWidth;
+      const leftPosition = buttonRect.left + buttonRect.width / 2 - dropdownWidth / 2;
+      dropdownMenu.style.left = `${leftPosition}px`;
+      dropdownMenu.style.top = `${buttonRect.bottom + 11}px`; // Position it directly below the button
     }
 
     if (ctaButton) {
-        ctaButton.addEventListener('click', function() {
-            const isOpen = dropdownMenu.style.display === 'flex';
-            dropdownMenu.style.display = isOpen ? 'none' : 'flex';
-            menuIcon.innerHTML = '';
-            menuIcon.appendChild(createSVG(isOpen));
+      ctaButton.addEventListener('click', function () {
+        const isOpen = dropdownMenu.style.display === 'flex';
+        dropdownMenu.style.display = isOpen ? 'none' : 'flex';
+        menuIcon.innerHTML = '';
+        menuIcon.appendChild(createSVG(isOpen));
 
-            dropdownMenu.style.animation = isOpen ? 'slideUp 0.5s forwards' : 'slideDown 0.5s forwards';
+        dropdownMenu.style.animation = isOpen ? 'slideUp 0.5s forwards' : 'slideDown 0.5s forwards';
 
-            if (!isOpen) {
-                dropdownMenu.style.display = 'flex';
-                menuItems.forEach(item => item.style.display = 'block');
-                updateDropdownPosition();
-            }
-        });
+        if (!isOpen) {
+          dropdownMenu.style.display = 'flex';
+          menuItems.forEach((item) => (item.style.display = 'block'));
+          updateDropdownPosition();
+        }
+      });
     }
 
     if (dropdownMenu) {
-        dropdownMenu.addEventListener('animationend', function(event) {
-            if (event.animationName === 'slideUp') {
-                dropdownMenu.style.display = 'none';
-            }
-        });
+      dropdownMenu.addEventListener('animationend', function (event) {
+        if (event.animationName === 'slideUp') {
+          dropdownMenu.style.display = 'none';
+        }
+      });
 
-        // Listen for window resize and scroll to adjust dropdown position
-        window.addEventListener('resize', function() {
-            if (dropdownMenu.style.display === 'flex') {
-                updateDropdownPosition();
-            }
-        });
+      // Listen for window resize and scroll to adjust dropdown position
+      window.addEventListener('resize', function () {
+        if (dropdownMenu.style.display === 'flex') {
+          updateDropdownPosition();
+        }
+      });
 
-        window.addEventListener('scroll', function() {
-            if (dropdownMenu.style.display === 'flex') {
-                updateDropdownPosition();
-            }
-        });
+      window.addEventListener('scroll', function () {
+        if (dropdownMenu.style.display === 'flex') {
+          updateDropdownPosition();
+        }
+      });
     }
-});
+  });
 
+  ////////////////////////
+  // Keyboard Shortcuts //
+  ////////////////////////
 
-
-////////////////////////
-// Keyboard Shortcuts //
-////////////////////////
-
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener('DOMContentLoaded', function () {
     // Array of shortcuts
     const shortcuts = [
-        { key: "q", elementId: "navbar-cta-button" },
-        { key: "i", elementId: "logo-link" },
-        { key: "m", elementId: "manage-link" },
-        { key: "s", elementId: "submit-button" },
-        { key: "/", elementId: "settings-link" },
-        { key: "h", elementId: "history-link" },
-        { key: "a", elementId: "autocheckin-link" }
+      { key: 'q', elementId: 'navbar-cta-button' },
+      { key: 'i', elementId: 'logo-link' },
+      { key: 'm', elementId: 'manage-link' },
+      { key: 's', elementId: 'submit-button' },
+      { key: '/', elementId: 'settings-link' },
+      { key: 'h', elementId: 'history-link' },
+      { key: 'a', elementId: 'autocheckin-link' },
     ];
 
     // Function to handle key press
     function handleKeyPress(event) {
-        const key = event.key;
-        const shortcut = shortcuts.find(s => s.key === key);
+      const key = event.key;
+      const shortcut = shortcuts.find((s) => s.key === key);
 
-        // Check if the focused element is an input, textarea, or contenteditable element
-        const activeElement = document.activeElement;
-        const isTextInput = activeElement.tagName === 'INPUT' ||
-                            activeElement.tagName === 'TEXTAREA' ||
-                            activeElement.isContentEditable;
+      // Check if the focused element is an input, textarea, or contenteditable element
+      const activeElement = document.activeElement;
+      const isTextInput =
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.isContentEditable;
 
-        if (!isTextInput && shortcut) {
-            const element = document.getElementById(shortcut.elementId);
-            if (element) {
-                element.click();
-            }
+      if (!isTextInput && shortcut) {
+        const element = document.getElementById(shortcut.elementId);
+        if (element) {
+          element.click();
         }
+      }
     }
 
     // Add event listener for keydown
-    document.addEventListener("keydown", handleKeyPress);
-});
+    document.addEventListener('keydown', handleKeyPress);
+  });
 
-/////////////////////////
-// Notification banner //
-/////////////////////////
+  /////////////////////////
+  // Notification banner //
+  /////////////////////////
 
-function displayNotice(message, type = 'success', headerText = '', duration = 5000) {
+  function displayNotice(message, type = 'success', headerText = '', duration = 5000) {
     let bannerTimeout;
     // Remove any existing notification banner first
     const existingBanner = document.getElementById('notification-banner');
     if (existingBanner) {
-        existingBanner.remove();
-        if (typeof bannerTimeout != undefined) {
-            clearTimeout(bannerTimeout)
-        }
+      existingBanner.remove();
+      if (typeof bannerTimeout != undefined) {
+        clearTimeout(bannerTimeout);
+      }
     }
 
     // Define colors based on type
     const colors = {
-        success: '#4CAF50', // Green
-        warning: '#FFC107', // Yellow
-        error: '#F44336'    // Red
+      success: '#4CAF50', // Green
+      warning: '#FFC107', // Yellow
+      error: '#F44336', // Red
     };
 
     const defaultHeaders = {
-        success: 'Success',
-        warning: 'Warning',
-        error: 'Error'
+      success: 'Success',
+      warning: 'Warning',
+      error: 'Error',
     };
 
     // Set the header text if not provided
@@ -193,7 +197,7 @@ function displayNotice(message, type = 'success', headerText = '', duration = 50
     header.style.display = 'flex';
     header.style.justifyContent = 'space-between';
     header.style.alignItems = 'center';
-    
+
     const headerTextElement = document.createElement('span');
     headerTextElement.textContent = headerText;
 
@@ -226,321 +230,317 @@ function displayNotice(message, type = 'success', headerText = '', duration = 50
     banner.style.opacity = '0';
     banner.style.transition = 'opacity 0.5s ease-in-out';
     setTimeout(() => {
-        banner.style.opacity = '1';
+      banner.style.opacity = '1';
     }, 10);
 
     // Automatically hide the banner after the specified duration (if not 0)
     if (duration > 0) {
-        bannerTimeout = setTimeout(() => {
-            hideNotice();
-        }, duration);
+      bannerTimeout = setTimeout(() => {
+        hideNotice();
+      }, duration);
     }
-}
+  }
 
-function hideNotice() {
+  function hideNotice() {
     const banner = document.getElementById('notification-banner');
     if (banner) {
-        // Fade out the banner
-        banner.style.opacity = '0';
-        setTimeout(() => {
-            if (banner) banner.remove();
-        }, 500); // Match this to the fade-out duration
+      // Fade out the banner
+      banner.style.opacity = '0';
+      setTimeout(() => {
+        if (banner) banner.remove();
+      }, 500); // Match this to the fade-out duration
     }
-}
+  }
 
-/////////////////////////
-// Dark mode tooltip ////
-/////////////////////////
+  /////////////////////////
+  // Dark mode tooltip ////
+  /////////////////////////
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     const tooltip = document.getElementById('darkTooltip');
-    
-//     if (tooltip && false) { // disable tooltip
-//         // Check if user prefers dark mode
-//         const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-//         // Check if tooltip has been shown before
-//         const tooltipShown = localStorage.getItem('darkTooltip') === '1';
-        
-//         if (prefersDarkMode && !tooltipShown) {
-//             // Make tooltip visible and add class for fade in
-//             tooltip.style.visibility = 'visible';
-//             tooltip.classList.add('visible');
-//         }
+  // document.addEventListener('DOMContentLoaded', function() {
+  //     const tooltip = document.getElementById('darkTooltip');
 
-//         // Add click handler for close button
-//         const closeButton = document.getElementById('darkTooltipClose');
-//         if (closeButton) {
-//             closeButton.addEventListener('click', function(event) {
-//                 // Prevent event from bubbling up to parent elements
-//                 event.stopPropagation();
-                
-//                 // Hide tooltip
-//                 tooltip.style.visibility = 'hidden';
-//                 tooltip.classList.remove('visible');
-                
-//                 // Mark tooltip as shown in localStorage
-//                 localStorage.setItem('darkTooltip', '1');
-//             });
-//         }
-//     }
-// });
+  //     if (tooltip && false) { // disable tooltip
+  //         // Check if user prefers dark mode
+  //         const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+  //         // Check if tooltip has been shown before
+  //         const tooltipShown = localStorage.getItem('darkTooltip') === '1';
 
+  //         if (prefersDarkMode && !tooltipShown) {
+  //             // Make tooltip visible and add class for fade in
+  //             tooltip.style.visibility = 'visible';
+  //             tooltip.classList.add('visible');
+  //         }
 
+  //         // Add click handler for close button
+  //         const closeButton = document.getElementById('darkTooltipClose');
+  //         if (closeButton) {
+  //             closeButton.addEventListener('click', function(event) {
+  //                 // Prevent event from bubbling up to parent elements
+  //                 event.stopPropagation();
 
-// No longer needed as account always results in dropdown
+  //                 // Hide tooltip
+  //                 tooltip.style.visibility = 'hidden';
+  //                 tooltip.classList.remove('visible');
 
-// function updateLinkHref() {
-//     var link = document.querySelector('.cta-button');
-//     if (window.innerWidth <= 768) {
-//         link.setAttribute('href', '#');
-//     } else {
-//         link.setAttribute('href', '/account');
-//     }
-// }
+  //                 // Mark tooltip as shown in localStorage
+  //                 localStorage.setItem('darkTooltip', '1');
+  //             });
+  //         }
+  //     }
+  // });
 
-// // Update link on load
-// window.addEventListener('load', updateLinkHref);
+  // No longer needed as account always results in dropdown
 
-// // Update link on window resize
-// window.addEventListener('resize', updateLinkHref);
+  // function updateLinkHref() {
+  //     var link = document.querySelector('.cta-button');
+  //     if (window.innerWidth <= 768) {
+  //         link.setAttribute('href', '#');
+  //     } else {
+  //         link.setAttribute('href', '/account');
+  //     }
+  // }
 
-/////////////////////
-// Modal Helpers ////
-/////////////////////
+  // // Update link on load
+  // window.addEventListener('load', updateLinkHref);
 
-const modalHelper = {
+  // // Update link on window resize
+  // window.addEventListener('resize', updateLinkHref);
+
+  /////////////////////
+  // Modal Helpers ////
+  /////////////////////
+
+  const modalHelper = {
     activeModals: new Set(),
     eventListeners: new Map(), // Store event listeners for cleanup/reattachment
-    
-    create: function({
-        id,
-        title,
-        content,
-        onClose,
-        showCloseButton = true,
-        showEscText = true,
-        appendTo = 'body',
-        source = null,
-        customClass = '',
-        preventClose = false
+
+    create: function ({
+      id,
+      title,
+      content,
+      onClose,
+      showCloseButton = true,
+      showEscText = true,
+      appendTo = 'body',
+      source = null,
+      customClass = '',
+      preventClose = false,
     }) {
-        // Only close modals from the same source
-        if (source) {
-            Array.from(this.activeModals).forEach(modalId => {
-                const modal = document.getElementById(modalId);
-                if (modal && modal.dataset.source === source) {
-                    this.close(modalId);
-                }
-            });
-        }
-
-        // Create modal elements
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        modalOverlay.id = `modal-overlay-${id}`;
-        if (source) modalOverlay.dataset.source = source;
-        if (preventClose) modalOverlay.dataset.preventClose = 'true';
-
-        const modal = document.createElement('div');
-        modal.className = `modal ${customClass}`;
-        modal.id = id;
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('aria-labelledby', `${id}-title`);
-        modal.setAttribute('aria-describedby', `${id}-description`);
-        if (source) modal.dataset.source = source;
-        if (preventClose) modal.dataset.preventClose = 'true';
-
-        const modalContent = document.createElement('div');
-        modalContent.className = 'modal-content';
-
-        // Add close button if requested
-        if (showCloseButton) {
-            const closeButton = document.createElement('span');
-            closeButton.className = 'close';
-            closeButton.innerHTML = '×' + (showEscText ? '<br><p class="modal-esc">[ESC]</p>' : '');
-            closeButton.onclick = () => this.close(id);
-            modalContent.appendChild(closeButton);
-        }
-
-        // Add title if provided
-        if (title) {
-            const modalTitle = document.createElement('h2');
-            modalTitle.innerHTML = title;
-            modalContent.appendChild(modalTitle);
-        }
-
-        // Add content
-        if (typeof content === 'string') {
-            modalContent.innerHTML += content;
-        } else if (content instanceof Element) {
-            modalContent.appendChild(content);
-        }
-
-        modal.appendChild(modalContent);
-
-        // Add to DOM
-        const container = appendTo === 'body' ? document.body : document.querySelector(appendTo);
-        container.appendChild(modalOverlay);
-        container.appendChild(modal);
-
-        // Setup event listeners
-        this.setupEventListeners(id, onClose);
-
-        // Track active modal
-        this.activeModals.add(id);
-
-        return { modal, overlay: modalOverlay, content: modalContent };
-    },
-
-    open: function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        
-        if (!modal || !overlay) {
-            console.error('Modal or overlay not found:', id);
-            return;
-        }
-
-        // Close only modals from different sources
-        const modalSource = modal.dataset.source;
-        Array.from(this.activeModals).forEach(activeId => {
-            const activeModal = document.getElementById(activeId);
-            if (activeModal && activeModal.dataset.source !== modalSource) {
-                this.close(activeId);
-            }
+      // Only close modals from the same source
+      if (source) {
+        Array.from(this.activeModals).forEach((modalId) => {
+          const modal = document.getElementById(modalId);
+          if (modal && modal.dataset.source === source) {
+            this.close(modalId);
+          }
         });
+      }
 
-        // Reset animation by forcing a reflow
-        modal.style.animation = 'none';
-        overlay.style.animation = 'none';
-        modal.offsetHeight; // Force reflow
-        overlay.offsetHeight; // Force reflow
+      // Create modal elements
+      const modalOverlay = document.createElement('div');
+      modalOverlay.className = 'modal-overlay';
+      modalOverlay.id = `modal-overlay-${id}`;
+      if (source) modalOverlay.dataset.source = source;
+      if (preventClose) modalOverlay.dataset.preventClose = 'true';
 
-        // Add animation
-        modal.style.animation = 'fadeInActivityModel 0.3s ease-out forwards';
-        overlay.style.animation = 'fadeInActivityModel 0.1s ease-out forwards';
+      const modal = document.createElement('div');
+      modal.className = `modal ${customClass}`;
+      modal.id = id;
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', `${id}-title`);
+      modal.setAttribute('aria-describedby', `${id}-description`);
+      if (source) modal.dataset.source = source;
+      if (preventClose) modal.dataset.preventClose = 'true';
 
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
-        
-        // Track active modal
-        this.activeModals.add(id);
+      const modalContent = document.createElement('div');
+      modalContent.className = 'modal-content';
+
+      // Add close button if requested
+      if (showCloseButton) {
+        const closeButton = document.createElement('span');
+        closeButton.className = 'close';
+        closeButton.innerHTML = '×' + (showEscText ? '<br><p class="modal-esc">[ESC]</p>' : '');
+        closeButton.onclick = () => this.close(id);
+        modalContent.appendChild(closeButton);
+      }
+
+      // Add title if provided
+      if (title) {
+        const modalTitle = document.createElement('h2');
+        modalTitle.innerHTML = title;
+        modalContent.appendChild(modalTitle);
+      }
+
+      // Add content
+      if (typeof content === 'string') {
+        modalContent.innerHTML += content;
+      } else if (content instanceof Element) {
+        modalContent.appendChild(content);
+      }
+
+      modal.appendChild(modalContent);
+
+      // Add to DOM
+      const container = appendTo === 'body' ? document.body : document.querySelector(appendTo);
+      container.appendChild(modalOverlay);
+      container.appendChild(modal);
+
+      // Setup event listeners
+      this.setupEventListeners(id, onClose);
+
+      // Track active modal
+      this.activeModals.add(id);
+
+      return { modal, overlay: modalOverlay, content: modalContent };
     },
 
-    close: function(id) {
-        // Skip if modal isn't in active modals
-        if (!this.activeModals.has(id)) {
-            return;
+    open: function (id) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+
+      if (!modal || !overlay) {
+        console.error('Modal or overlay not found:', id);
+        return;
+      }
+
+      // Close only modals from different sources
+      const modalSource = modal.dataset.source;
+      Array.from(this.activeModals).forEach((activeId) => {
+        const activeModal = document.getElementById(activeId);
+        if (activeModal && activeModal.dataset.source !== modalSource) {
+          this.close(activeId);
         }
+      });
 
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        
-        if (!modal || !overlay) {
-            // Just remove from active modals if elements don't exist
-            this.activeModals.delete(id);
-            return;
+      // Reset animation by forcing a reflow
+      modal.style.animation = 'none';
+      overlay.style.animation = 'none';
+      modal.offsetHeight; // Force reflow
+      overlay.offsetHeight; // Force reflow
+
+      // Add animation
+      modal.style.animation = 'fadeInActivityModel 0.3s ease-out forwards';
+      overlay.style.animation = 'fadeInActivityModel 0.1s ease-out forwards';
+
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+
+      // Track active modal
+      this.activeModals.add(id);
+    },
+
+    close: function (id) {
+      // Skip if modal isn't in active modals
+      if (!this.activeModals.has(id)) {
+        return;
+      }
+
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+
+      if (!modal || !overlay) {
+        // Just remove from active modals if elements don't exist
+        this.activeModals.delete(id);
+        return;
+      }
+
+      // Add fade out animation
+      modal.style.animation = 'fadeInActivityModel 0.3s ease-out reverse forwards';
+      overlay.style.animation = 'fadeInActivityModel 0.1s ease-out reverse forwards';
+
+      // Wait for animation to complete before hiding
+      setTimeout(() => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+
+        // Remove from active modals
+        this.activeModals.delete(id);
+      }, 300); // Match the animation duration
+    },
+
+    closeAll: function () {
+      // Create a new array from activeModals to avoid modification during iteration
+      Array.from(this.activeModals).forEach((id) => this.close(id));
+    },
+
+    setupEventListeners: function (id, onClose) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+
+      if (!modal || !overlay) return;
+
+      // Create the event listeners but only attach if not prevented
+      const overlayClickListener = (e) => {
+        if (e.target === overlay) {
+          this.close(id);
+          if (onClose) onClose();
         }
+      };
 
-        // Add fade out animation
-        modal.style.animation = 'fadeInActivityModel 0.3s ease-out reverse forwards';
-        overlay.style.animation = 'fadeInActivityModel 0.1s ease-out reverse forwards';
-
-        // Wait for animation to complete before hiding
-        setTimeout(() => {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-            
-            // Remove from active modals
-            this.activeModals.delete(id);
-        }, 300); // Match the animation duration
-    },
-
-    closeAll: function() {
-        // Create a new array from activeModals to avoid modification during iteration
-        Array.from(this.activeModals).forEach(id => this.close(id));
-    },
-
-    setupEventListeners: function(id, onClose) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        
-        if (!modal || !overlay) return;
-
-        // Create the event listeners but only attach if not prevented
-        const overlayClickListener = (e) => {
-            if (e.target === overlay) {
-                this.close(id);
-                if (onClose) onClose();
-            }
-        };
-
-        const escListener = (e) => {
-            if (e.key === 'Escape' && this.activeModals.has(id)) {
-                this.close(id);
-                if (onClose) onClose();
-            }
-        };
-
-        // Store listeners for later use
-        this.eventListeners.set(id, {
-            overlayClickListener,
-            escListener,
-            onClose
-        });
-
-        // Only attach listeners if not prevented
-        if (!modal.dataset.preventClose) {
-            this.attachEventListeners(id);
+      const escListener = (e) => {
+        if (e.key === 'Escape' && this.activeModals.has(id)) {
+          this.close(id);
+          if (onClose) onClose();
         }
-    },
+      };
 
-    attachEventListeners: function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        const listeners = this.eventListeners.get(id);
-        
-        if (!modal || !overlay || !listeners) return;
+      // Store listeners for later use
+      this.eventListeners.set(id, {
+        overlayClickListener,
+        escListener,
+        onClose,
+      });
 
-        overlay.addEventListener('click', listeners.overlayClickListener);
-        document.addEventListener('keydown', listeners.escListener);
-    },
-
-    detachEventListeners: function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        const listeners = this.eventListeners.get(id);
-        
-        if (!modal || !overlay || !listeners) return;
-
-        overlay.removeEventListener('click', listeners.overlayClickListener);
-        document.removeEventListener('keydown', listeners.escListener);
-    },
-
-    enableClose: function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        
-        if (!modal || !overlay) return;
-
-        delete modal.dataset.preventClose;
-        delete overlay.dataset.preventClose;
+      // Only attach listeners if not prevented
+      if (!modal.dataset.preventClose) {
         this.attachEventListeners(id);
+      }
     },
 
-    disableClose: function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById(`modal-overlay-${id}`);
-        
-        if (!modal || !overlay) return;
+    attachEventListeners: function (id) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+      const listeners = this.eventListeners.get(id);
 
-        modal.dataset.preventClose = 'true';
-        overlay.dataset.preventClose = 'true';
-        this.detachEventListeners(id);
-    }
-};
+      if (!modal || !overlay || !listeners) return;
 
+      overlay.addEventListener('click', listeners.overlayClickListener);
+      document.addEventListener('keydown', listeners.escListener);
+    },
+
+    detachEventListeners: function (id) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+      const listeners = this.eventListeners.get(id);
+
+      if (!modal || !overlay || !listeners) return;
+
+      overlay.removeEventListener('click', listeners.overlayClickListener);
+      document.removeEventListener('keydown', listeners.escListener);
+    },
+
+    enableClose: function (id) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+
+      if (!modal || !overlay) return;
+
+      delete modal.dataset.preventClose;
+      delete overlay.dataset.preventClose;
+      this.attachEventListeners(id);
+    },
+
+    disableClose: function (id) {
+      const modal = document.getElementById(id);
+      const overlay = document.getElementById(`modal-overlay-${id}`);
+
+      if (!modal || !overlay) return;
+
+      modal.dataset.preventClose = 'true';
+      overlay.dataset.preventClose = 'true';
+      this.detachEventListeners(id);
+    },
+  };
 </script>
