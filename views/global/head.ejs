@@ -901,6 +901,18 @@
         opacity: 0;
     }
 
+    /* Add focus styles for keyboard navigation */
+    .modal *:focus {
+        outline: 2px solid var(--action-colour);
+        outline-offset: 2px;
+    }
+
+    /* Ensure focusable elements are visible */
+    .modal *:focus-visible {
+        outline: 2px solid var(--action-colour);
+        outline-offset: 2px;
+    }
+
     .modal-content {
         position: relative;
         padding: 20px;
