@@ -100,6 +100,10 @@ function fetchAccountSettings() {
 function updateAccountSettings(data) {
     const accountDetailsSpan = document.getElementById('accountDetails');
     const signInTextLink = document.getElementById('signInText');
+    const institutionNameSpan = document.getElementById('institutionName');
+    const courseNameSpan = document.getElementById('courseName');
+    const yearSpan = document.getElementById('year');
+    const modulesSpan = document.getElementById('modules');
 
     // Get both timestamps and use the oldest one
     let oldestTimestamp;
@@ -141,6 +145,23 @@ function updateAccountSettings(data) {
         // User is not signed in, use session consent timestamp
         oldestTimestamp = data.sessionConsentTimestamp;
         accountDetailsSpan.innerHTML = 'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
+    }
+
+    // Update course details if we have course data
+    if (data.courseDetails && data.courseDetails.success) {
+        const { institution_name, course_name, year, modules } = data.courseDetails;
+        
+        // Update individual elements if they exist
+        if (institutionNameSpan) institutionNameSpan.textContent = institution_name;
+        if (courseNameSpan) courseNameSpan.textContent = course_name;
+        if (yearSpan) yearSpan.textContent = year;
+        if (modulesSpan) modulesSpan.textContent = modules.map(module => module.module_name).join(', ');
+    } else {
+        // Clear or set default text if no course data
+        if (institutionNameSpan) institutionNameSpan.textContent = 'Not set';
+        if (courseNameSpan) courseNameSpan.textContent = 'Not set';
+        if (yearSpan) yearSpan.textContent = 'Not set';
+        if (modulesSpan) modulesSpan.textContent = 'No modules available';
     }
 
     // Calculate birthday using the oldest timestamp

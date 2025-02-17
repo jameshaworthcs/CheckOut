@@ -1,6 +1,7 @@
 const express = require('express')
 var app = express.Router();
 var db=require('../../../databases/database.ts');
+const { courseDetails } = require('../course/course-find.ts');
 
 async function obscureEmail(email) {
     // Split the email into the local part (before @) and domain (after @)
@@ -27,16 +28,29 @@ app.get('/api/settings/account', async function (req, res) {
         sessionConsentTimestamp = '2030-01-01 01:01:01';
     }
 
+    // Get course details regardless of login state
+    let courseInfo = { success: false };
+    try {
+        const inst = req.inst;
+        const crs = req.crs;
+        const yr = req.yr;
+        
+        courseInfo = await courseDetails(inst, crs, yr);
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        courseInfo = { success: false, reason: 'Failed to fetch course details' };
+    }
+
     if (req.userState != 'anon') {
         // Get user info including accountCreationTime
         db.query('SELECT email, username, accountCreationTime FROM users WHERE id = ?', [req.userID], async (err, results) => {
             if (err) {
                 console.error('Error fetching user data:', err);
-                return res.status(500).json({ success: false, msg: 'Failed to fetch account data' });
+                return res.status(500).json({ success: false, msg: 'Failed to fetch account data', courseDetails: courseInfo });
             }
 
             if (results.length === 0) {
-                return res.status(404).json({ success: false, msg: 'User not found' });
+                return res.status(404).json({ success: false, msg: 'User not found', courseDetails: courseInfo });
             }
 
             const user = results[0];
@@ -46,10 +60,10 @@ app.get('/api/settings/account', async function (req, res) {
                 username: user.username,
                 accountCreationTime: user.accountCreationTime
             }
-            res.json({ 'success': true, account: true, sessionConsentTimestamp, accountInfo });
+            res.json({ 'success': true, account: true, sessionConsentTimestamp, accountInfo, courseDetails: courseInfo });
         });
     } else {
-        res.json({ 'success': true, account: false, sessionConsentTimestamp });
+        res.json({ 'success': true, account: false, sessionConsentTimestamp, courseDetails: courseInfo });
     }
 })
 

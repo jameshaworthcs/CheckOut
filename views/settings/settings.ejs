@@ -184,7 +184,17 @@
                 <div class="settings-title">COURSE
                     <a class="box-link" href="/api/app/onboarding">Change course</a>
                 </div>
-                <div class="settings-details">
+                <div class="settings-details" style="display: block;">
+                    <div style="display: flex; align-items: center; gap: 5px; font-size: 14px; margin-bottom: 5px;">
+                        <%- include('../global/icons/inst'); %>
+                        <span id="institutionName">Loading..</span>
+                        <%- include('../global/icons/crs'); %>
+                        <span id="courseName">Loading..</span>
+                      <%- include('../global/icons/yr'); %>
+                        <span id="year">Loading..</span>
+                    </div>
+                    <br>
+                    Modules: <span id="modules">Loading..</span>
                     <p>Change your course <a href="/api/app/onboarding">here</a>.</p>
                 </div>
             </div>
