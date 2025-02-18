@@ -85,6 +85,14 @@
         background: none;
         box-shadow: none;
       }
+
+      /* For navbar sizing */
+      .navbar-wrapper, 
+      .navbar-wrapper *,
+      .navbar-wrapper *:before,
+      .navbar-wrapper *:after {
+        box-sizing: content-box !important;
+      }
     </style>
     <!-- Global styles after swagger styles due to conflicts -->
     <%- include('./global/head'); %>
