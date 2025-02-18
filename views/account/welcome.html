@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="/static/fav.svg" />
+<link rel="manifest" href="/manifest.json">
+<!-- <script>
+    !function(){"use strict";var a=window.location,r=window.document,l="https://t.ldn.jemedia.xyz/api/event";function s(t,e){t&&console.warn("Ignoring Event: "+t),e&&e.callback&&e.callback()}function t(t,e){if(/^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(a.hostname)||"file:"===a.protocol)return s("localhost",e);if(window._phantom||window.__nightmare||window.navigator.webdriver||window.Cypress)return s(null,e);try{if("true"===window.localStorage.plausible_ignore)return s("localStorage flag",e)}catch(t){}var n={},i=(n.n=t,n.u=a.href,n.d="checkout.ac",n.r=r.referrer||null,e&&e.meta&&(n.m=JSON.stringify(e.meta)),e&&e.props&&(n.p=e.props),new XMLHttpRequest);i.open("POST",l,!0),i.setRequestHeader("Content-Type","text/plain"),i.send(JSON.stringify(n)),i.onreadystatechange=function(){4===i.readyState&&e&&e.callback&&e.callback()}}var e=window.plausible&&window.plausible.q||[];window.plausible=t;for(var n,i=0;i<e.length;i++)t.apply(this,e[i]);function p(){n!==a.pathname&&(n=a.pathname,t("pageview"))}var c,w=window.history;w.pushState&&(c=w.pushState,w.pushState=function(){c.apply(this,arguments),p()},window.addEventListener("popstate",p)),"prerender"===r.visibilityState?r.addEventListener("visibilitychange",function(){n||"visible"!==r.visibilityState||p()}):p()}();
+</script> -->
+<script defer src="https://umami-production-6d4e.up.railway.app/script.js" data-website-id="9697c408-ab3f-4745-9e6b-c14011234434"></script>
+<style>
+    @font-face {
+        font-family: W95FA;
+        src: url(/static/fonts/w95fa.woff2);
+    }
+
+    @font-face {
+        font-family: Minecraft;
+        src: url(/static/fonts/minecraft.woff2);
+    }
+
+    :root {
+        --normal-font: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --text-colour: #D9E9E7;
+        --subtext-colour: #8b98a9;
+        --accent-colour: #333e4f;
+        --navbar-border-colour: #333e4f;
+        --page-background: #10151d;
+        --content-background: #080a0e99;
+        --action-colour: #b895fd;
+        --cta-button-colour: #D9E9E7;
+        --cta-button-colour-main: black;
+        --cta-background: #2C3F4F;
+        --cta-background-main: #b895fd;
+        --header-colour: #D9E9E7;
+        --action-highlight-colour: #284a66;
+        --action-highlight-colour-main: #e4d5ff;
+        --navbar-background-colour: #10151d;
+    }
+
+    @media (prefers-color-scheme: light) {
+        :root {
+            --text-colour: #2b2b2b;
+            --subtext-colour: #828282;
+            --accent-colour: #e4e4e455;
+            --navbar-border-colour: #E0E0E0;
+            --page-background: #FFFFFF;
+            --content-background: #FFFFFF;
+            --cta-button-colour: #000000;
+            --cta-button-colour-main: #FFF;
+            --cta-background: #F2F2F2;
+            --cta-background-main: #1652f0;
+            --action-colour: #1652f0;
+            --header-colour: #828282;
+            --action-highlight-colour: #dbdbdb;
+            --action-highlight-colour-main: #1654f097;
+            --navbar-background-colour: #FFFFFF;
+        }
+    }
+
+    html {
+        scrollbar-color: #222744 var(--page-background);
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--normal-font);
+        background-color: var(--page-background);
+        color: var(--text-colour);
+        min-height: 100vh;
+    }
+
+    a {
+        text-decoration: underline;
+        color: var(--action-colour);
+    }
+
+    .navbar-wrapper {
+        width: 100%;
+        border-bottom: 1px solid var(--navbar-border-colour);
+        background-color: var(--navbar-background-colour);
+    }
+
+    .navbar {
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 5%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .navbar a:not(.cta-button) {
+        color: var(--header-colour);
+        text-decoration: none;
+        margin: 0 10px;
+    }
+
+    .nav-icon {
+        height: 20px;
+        fill: var(--header-colour);
+        vertical-align: middle;
+        margin-block-end: 3px;
+        margin-left: 20px;
+        margin-right: 4px;
+    }
+
+    .logo {
+        background-image: var(--logo-image);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 102px;
+        width: 102px;
+        background-position-y: 13px;
+        height: 44px;
+        padding-top: 5px;
+        padding-bottom: 0;
+        /* for ios */  
+        border: none;           /* Remove border */
+        font-size: 30px;          /* Extra protection for alt text */
+        margin-left: 10px;
+        color: var(--text-colour);
+    }
+
+    .cta-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--cta-background);
+        background-size: auto 270%;
+        color: var(--cta-button-colour);
+        text-decoration: none;
+        border-radius: 7px;
+        padding-inline-start: 0.75rem;
+        padding-inline-end: 0.75rem;
+        font-size: 0.87rem;
+        font-weight: 550;
+        cursor: pointer;
+        border: var(--cta-border);
+    }
+
+    .cta-button-main {
+        background-color: var(--cta-background-main);
+        color: var(--cta-button-colour-main);
+    }
+
+    .cta-button:hover {
+        background-color: var(--action-highlight-colour);
+    }
+
+    .cta-button-main:hover {
+        opacity: 0.9;
+        background-color: var(--action-highlight-colour-main);
+    }
+
+    .menu-icon {
+        display: inline-flex;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        vertical-align: middle;
+        transform: translateY(-2px);
+        margin-right: 6.5px;
+    }
+
+    .menu-icon-svg {
+        stroke: var(--cta-button-colour);
+    }
+
+    .menu-item-desktop {
+        display: none !important;
+    }
+
+    a.menu-item {
+        /* color: var(--cta-button-colour); */
+        color: var(--text-colour);
+    }
+
+    /* For dropdown menu animation */
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 60px; /* Adjust as needed */
+        background-color: var(--navbar-background-colour);
+        background-size: auto 540%;
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: var(--shadow);
+        width: 200px;
+        text-align: center;
+        flex-direction: column;
+        z-index: 2000;
+    }
+    
+
+
+    .dropdown-menu a {
+        padding: 10px;
+        border-bottom: 1px solid lightgrey;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .navbar a:not(.cta-button):not(.logo-link) {
+            display: none;
+        }
+    }
+</style>
+<script>
+
+  ///////////////////
+  // Dropdown menu //
+  ///////////////////
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const menuIcon = document.getElementById('menu-icon');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const ctaButton = document.getElementById('navbar-cta-button');
+
+    function createSVG(isOpen) {
+      const svgProps = {
+        width: '18px',
+        height: '18px',
+        viewBox: '0 0 23 21',
+        fill: 'none',
+        xmlns: 'http://www.w3.org/2000/svg',
+      };
+
+      const paths = {
+        open: [
+          { d: 'M4 18L20 18', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { d: 'M4 12L20 12', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { d: 'M4 6L20 6', strokeWidth: '2.5', strokeLinecap: 'round' },
+        ],
+        close: [
+          { x1: '4', y1: '4', x2: '20', y2: '20', strokeWidth: '2.5', strokeLinecap: 'round' },
+          { x1: '4', y1: '20', x2: '20', y2: '4', strokeWidth: '2.5', strokeLinecap: 'round' },
+        ],
+      };
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      Object.keys(svgProps).forEach((key) => svg.setAttribute(key, svgProps[key]));
+
+      const elements = isOpen ? paths.open : paths.close;
+      elements.forEach((attr) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', isOpen ? 'path' : 'line');
+        Object.keys(attr).forEach((key) => {
+          const attrName =
+            key === 'strokeWidth'
+              ? 'stroke-width'
+              : key === 'strokeLinecap'
+                ? 'stroke-linecap'
+                : key;
+          el.setAttribute(attrName, attr[key]);
+        });
+        svg.appendChild(el);
+      });
+
+      svg.classList.add('menu-icon-svg');
+      return svg;
+    }
+
+    function updateDropdownPosition() {
+      const buttonRect = ctaButton.getBoundingClientRect();
+      const dropdownWidth = dropdownMenu.offsetWidth;
+      const leftPosition = buttonRect.left + buttonRect.width / 2 - dropdownWidth / 2;
+      dropdownMenu.style.left = `${leftPosition}px`;
+      dropdownMenu.style.top = `${buttonRect.bottom + 11}px`; // Position it directly below the button
+    }
+
+    if (ctaButton) {
+      ctaButton.addEventListener('click', function () {
+        const isOpen = dropdownMenu.style.display === 'flex';
+        dropdownMenu.style.display = isOpen ? 'none' : 'flex';
+        menuIcon.innerHTML = '';
+        menuIcon.appendChild(createSVG(isOpen));
+
+        dropdownMenu.style.animation = isOpen ? 'slideUp 0.5s forwards' : 'slideDown 0.5s forwards';
+
+        if (!isOpen) {
+          dropdownMenu.style.display = 'flex';
+          menuItems.forEach((item) => (item.style.display = 'block'));
+          updateDropdownPosition();
+        }
+      });
+    }
+
+    if (dropdownMenu) {
+      dropdownMenu.addEventListener('animationend', function (event) {
+        if (event.animationName === 'slideUp') {
+          dropdownMenu.style.display = 'none';
+        }
+      });
+
+      // Listen for window resize and scroll to adjust dropdown position
+      window.addEventListener('resize', function () {
+        if (dropdownMenu.style.display === 'flex') {
+          updateDropdownPosition();
+        }
+      });
+
+      window.addEventListener('scroll', function () {
+        if (dropdownMenu.style.display === 'flex') {
+          updateDropdownPosition();
+        }
+      });
+    }
+  });
+</script>
+
+    <script src="/static/instant.js" type="module" defer></script>
+    
+    <title>Hi, Ellen - CheckOut</title>
+    <style>
+      .container {
+        max-width: 500px;
+        width: 90%;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .username-form {
+        margin: 2rem 0;
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .usernname-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.8rem;
+        font-size: 1rem;
+        background-color: var(--secondary-background);
+        color: var(--input-text-color);
+        border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
+        border-radius: 4px;
+        box-shadow: var(--shadow2);
+        transition: border-color 0.2s;
+      }
+
+      .usernname-input:focus {
+        outline: 1px solid var(--secondary-accent-colour);
+        background-color: var(--input-focus);
+      }
+
+      .info-section {
+        background: var(--content-background);
+        padding: 1.5rem;
+        border-radius: 6px;
+      }
+
+      .info-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+      }
+
+      .info-section li {
+        margin: 1rem 0;
+      }
+
+      .username-form .cta-button {
+        height: 100%;
+        white-space: nowrap;
+        align-self: flex-start;
+      }
+
+      .status-message {
+        padding: 0.8rem 1.2rem;
+        margin: 1rem auto;
+        border-radius: 4px;
+        font-weight: 550;
+        display: inline-block;
+      }
+
+      .status-message.error {
+        background-color: var(--submit-fail-background);
+        color: var(--submit-fail-colour);
+      }
+
+      .status-message.success {
+        background-color: var(--submit-success-background);
+        color: var(--submit-success-colour);
+      }
+
+      .return-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .message-container {
+        text-align: center;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+    </style>
+  </head>
+
+  <body>
+<div class="navbar-wrapper">
+  <div class="navbar">
+    <div>
+      <a id="logo-link" class="logo-link" href="/">
+        <!-- <img src="data:image/webp;base64,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
+" alt="Logo" class="logo"> -->
+        <div src="" alt="Logo" class="logo" role="img" aria-label="Logo">CheckOut</div>
+      </a>
+      
+      <!-- beta -->
+      
+    </div>
+    <div class="navbar-links">
+      <a id="autocheckin-link" href="/auto">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.932 126.866">
+  <path
+    d="M101.56 126.271c-.802-.543-1.115-1.231-3.545-7.796l-2.93-7.454c-.146-.139-3.479-1.454-7.408-2.922l-7.598-3.214c-1.165-1.398-.716-3.521.906-4.288.479-.227 3.789-1.501 7.354-2.831l6.783-2.733c.165-.172 1.448-3.387 2.85-7.145l2.962-7.461c.919-1.402 3.524-1.402 4.443 0 .227.346 1.56 3.704 2.962 7.461l2.85 7.136c.165.168 3.396 1.446 7.179 2.841l7.538 3.03c.766.572 1.201 1.833.96 2.79-.367 1.464-1.16 1.893-8.366 4.53l-7.276 2.812c-.146.136-1.464 3.487-2.93 7.447-2.43 6.566-2.743 7.253-3.545 7.796-.484.327-1.201.595-1.595.595s-1.111-.268-1.595-.595zm-55.952-16.445c-.437-.193-1.009-.592-1.271-.886s-3.479-6.985-7.147-14.868l-6.67-14.332-10.447-4.857L5.95 68.35C.465 65.848-.713 64.429.36 61.621c.581-1.521 1.144-1.886 7.28-4.709l13.878-6.448 8.984-4.196 5.375-11.493 6.462-13.951c1.332-3.013 2.014-4.053 2.955-4.505 1.355-.651 2.455-.677 3.679-.085 1.359.658.903-.219 9.305 17.876l5.642 12.151 11.217 5.255 13.069 6.046c2.847 1.216 4.937 2.428 5.49 3.182 1.208 1.647.707 4.495-.968 5.507-.45.272-2.365 1.207-4.257 2.08l-14.023 6.525-10.583 4.939-4.614 9.976-9.111 19.063c-1.206 1.33-2.917 1.705-4.531.993zm4.617-28.667c3.093-6.884 3.653-7.923 5.131-9.526 1.438-1.56 3.484-2.708 10.294-5.774 3.165-1.425 5.755-2.668 5.755-2.762s-1.994-1.104-4.432-2.243c-11.376-5.318-11.838-5.673-14.456-11.099a308.46 308.46 0 0 1-3.343-7.225c-.922-2.074-1.746-3.77-1.831-3.77s-.861 1.518-1.723 3.373c-3.102 6.674-5.125 10.623-6 11.716-1.459 1.822-3.723 3.183-10.35 6.221-3.456 1.585-6.284 2.95-6.284 3.033s2.53 1.265 5.622 2.626c10.329 4.545 10.495 4.689 14.211 12.32l3.449 7.21c.48 1.055.958 1.918 1.062 1.918s1.406-2.709 2.894-6.019zm51.153-34.396c-.696-.61-1.245-1.863-3.391-7.739-1.408-3.856-2.696-7.152-2.863-7.323s-3.518-1.512-7.447-2.979c-4.452-1.662-7.315-2.873-7.598-3.213-1.165-1.398-.716-3.521.906-4.288.479-.227 3.789-1.501 7.354-2.831s6.618-2.56 6.783-2.733 1.448-3.387 2.85-7.145 2.735-7.115 2.962-7.461c.919-1.402 3.524-1.402 4.443 0 .227.346 1.56 3.704 2.962 7.461s2.685 6.969 2.85 7.136 3.396 1.446 7.179 2.841 7.175 2.759 7.538 3.03c.766.572 1.201 1.833.96 2.79-.367 1.464-1.16 1.893-8.366 4.53-3.856 1.411-7.131 2.677-7.276 2.812s-1.464 3.487-2.93 7.447c-2.43 6.566-2.743 7.253-3.545 7.796-1.2.812-2.344.767-3.372-.132z"
+  />
+</svg>
+
+        <span class="auto-history-text">AutoCheckin</span>
+        <!-- <span class="status-bubble status-bubble-empty">✅</span> -->
+      </a>
+      <a id="history-link" href="/history">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path
+    d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"
+  />
+</svg>
+
+        <span id="history-nav-text" class="auto-history-text">History</span>
+        <!-- <span class="status-bubble status-bubble-filled">123</span> -->
+      </a>
+      <a id="navbar-cta-button" href="#" class="cta-button">
+        <div class="menu-icon" id="menu-icon"><svg
+  class="menu-icon-svg"
+  width="18"
+  height="18"
+  viewBox="0 0 18 18"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M3 14L15 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <path d="M3 9L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <path d="M3 4L15 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+</svg>
+</div>
+        
+        <span id="name-text">Hello, Ellen</span>
+        
+        
+        <!-- No tooltip needed for logged in user -->
+        
+      </a>
+    </div>
+    <div class="dropdown-menu" id="dropdown-menu">
+      <a class="menu-item menu-item-desktop" href="/auto">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.932 126.866">
+  <path
+    d="M101.56 126.271c-.802-.543-1.115-1.231-3.545-7.796l-2.93-7.454c-.146-.139-3.479-1.454-7.408-2.922l-7.598-3.214c-1.165-1.398-.716-3.521.906-4.288.479-.227 3.789-1.501 7.354-2.831l6.783-2.733c.165-.172 1.448-3.387 2.85-7.145l2.962-7.461c.919-1.402 3.524-1.402 4.443 0 .227.346 1.56 3.704 2.962 7.461l2.85 7.136c.165.168 3.396 1.446 7.179 2.841l7.538 3.03c.766.572 1.201 1.833.96 2.79-.367 1.464-1.16 1.893-8.366 4.53l-7.276 2.812c-.146.136-1.464 3.487-2.93 7.447-2.43 6.566-2.743 7.253-3.545 7.796-.484.327-1.201.595-1.595.595s-1.111-.268-1.595-.595zm-55.952-16.445c-.437-.193-1.009-.592-1.271-.886s-3.479-6.985-7.147-14.868l-6.67-14.332-10.447-4.857L5.95 68.35C.465 65.848-.713 64.429.36 61.621c.581-1.521 1.144-1.886 7.28-4.709l13.878-6.448 8.984-4.196 5.375-11.493 6.462-13.951c1.332-3.013 2.014-4.053 2.955-4.505 1.355-.651 2.455-.677 3.679-.085 1.359.658.903-.219 9.305 17.876l5.642 12.151 11.217 5.255 13.069 6.046c2.847 1.216 4.937 2.428 5.49 3.182 1.208 1.647.707 4.495-.968 5.507-.45.272-2.365 1.207-4.257 2.08l-14.023 6.525-10.583 4.939-4.614 9.976-9.111 19.063c-1.206 1.33-2.917 1.705-4.531.993zm4.617-28.667c3.093-6.884 3.653-7.923 5.131-9.526 1.438-1.56 3.484-2.708 10.294-5.774 3.165-1.425 5.755-2.668 5.755-2.762s-1.994-1.104-4.432-2.243c-11.376-5.318-11.838-5.673-14.456-11.099a308.46 308.46 0 0 1-3.343-7.225c-.922-2.074-1.746-3.77-1.831-3.77s-.861 1.518-1.723 3.373c-3.102 6.674-5.125 10.623-6 11.716-1.459 1.822-3.723 3.183-10.35 6.221-3.456 1.585-6.284 2.95-6.284 3.033s2.53 1.265 5.622 2.626c10.329 4.545 10.495 4.689 14.211 12.32l3.449 7.21c.48 1.055.958 1.918 1.062 1.918s1.406-2.709 2.894-6.019zm51.153-34.396c-.696-.61-1.245-1.863-3.391-7.739-1.408-3.856-2.696-7.152-2.863-7.323s-3.518-1.512-7.447-2.979c-4.452-1.662-7.315-2.873-7.598-3.213-1.165-1.398-.716-3.521.906-4.288.479-.227 3.789-1.501 7.354-2.831s6.618-2.56 6.783-2.733 1.448-3.387 2.85-7.145 2.735-7.115 2.962-7.461c.919-1.402 3.524-1.402 4.443 0 .227.346 1.56 3.704 2.962 7.461s2.685 6.969 2.85 7.136 3.396 1.446 7.179 2.841 7.175 2.759 7.538 3.03c.766.572 1.201 1.833.96 2.79-.367 1.464-1.16 1.893-8.366 4.53-3.856 1.411-7.131 2.677-7.276 2.812s-1.464 3.487-2.93 7.447c-2.43 6.566-2.743 7.253-3.545 7.796-1.2.812-2.344.767-3.372-.132z"
+  />
+</svg>
+ AutoCheckin
+      </a>
+      <a class="menu-item menu-item-desktop" href="/history">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path
+    d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"
+  />
+</svg>
+ History
+      </a>
+      
+      <a id="account-link" class="menu-item" href="/account"> Account </a>
+      
+      <a id="settings-link" class="menu-item" href="/settings"> Settings </a>
+      <a class="menu-item" href="/learn-faq"> Learn & FAQ </a>
+      <a class="menu-item" href="/terms-privacy"> Terms & Privacy </a>
+      <a class="menu-item" href="/support"> Support </a>
+      <a class="menu-item" href="/api/docs"> API </a>
+      
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <h1 class="text-center">Hi, Ellen</h1>
+      <p class="text-center">Make the most of your CheckOut account</p>
+
+      <!-- <div class="message-container">
+                <div id="statusMessage" style="display: none;" class="status-message"></div>
+                <a href="/" id="returnLink" class="return-link" style="display: none;">Return to Account</a>
+            </div> -->
+
+      <div class="info-section">
+        <h3 class="text-center">With your new account you can:</h3>
+        <ul>
+          <li>Join the <a href="/auto">AutoCheckin Waitlist</a>,</li>
+          <li>Build a repuation score from <a href="/">submitting codes</a>,</li>
+          <li>
+            Personalise the site, <a href="/account/change-username">change your username</a>,
+          </li>
+          <li>and more features are being added constantly..</li>
+        </ul>
+        <div class="button-container">
+          <a id="continueButton" href="/login"
+            ><button style="height: 48.6px" type="submit" class="cta-button">Continue</button></a
+          >
+          <script>
+            const currentParams = new URLSearchParams(window.location.search);
+            document.getElementById('continueButton').href = currentParams.toString()
+              ? `/login?${currentParams.toString()}`
+              : '/login';
+          </script>
+          <a href="/account/change-username"
+            ><button style="height: 48.6px" type="submit" class="cta-button cta-button-main">
+              Change Username
+            </button></a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
