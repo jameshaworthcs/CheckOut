@@ -230,15 +230,14 @@ app.get('/auto', function (req, res) {
                 : result[0].checkinReport === 'Enabled'
                   ? `<span class="yellow-text">pending</span> (this can take up to an hour to change)`
                   : `<span class="green-text">active</span>`;
-          const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-GB', {
-            weekday: 'short',
+          const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
             hour: 'numeric',
             minute: '2-digit',
             hour12: true,
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            timeZone: 'Europe/London',
+            timeZone: 'Europe/London'
           });
           var enabledMsg = `CheckOut's AutoCheckin service reports your session ${enabled} as of ${timestamp}.<br>View logs for your account below.`;
 
