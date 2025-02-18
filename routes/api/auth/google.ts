@@ -4,7 +4,7 @@ const { login } = require('./auth.ts');
 
 const { OAuth2Client } = require('google-auth-library');
 
-const CLIENT_ID = '573147530533-998o78a3tvhoo9ijemmghr9l6c154kks.apps.googleusercontent.com';
+const CLIENT_ID = process.env.GOOGLE_CLIENT;
 const client = new OAuth2Client(CLIENT_ID);
 
 app.post('/api/auth/google/verify', async (req, res) => {

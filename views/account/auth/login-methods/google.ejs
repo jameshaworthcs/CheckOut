@@ -144,7 +144,7 @@
       const buttonTheme = prefersDarkScheme.matches ? 'filled_black' : 'filled_blue';
 
       google.accounts.id.initialize({
-          client_id: '573147530533-998o78a3tvhoo9ijemmghr9l6c154kks.apps.googleusercontent.com',
+          client_id: '<%= googleClientId %>',
           callback: handleCredentialResponse
       });
 

@@ -334,6 +334,7 @@ const securityCheck = async (req, res, next) => {
             msg,
             username: req.username,
             loginMethod: 'google', // Default to Google login
+            googleClientId: process.env.GOOGLE_CLIENT
           });
         }
       }
@@ -506,6 +507,7 @@ function auth(service, req, res, next) {
             msg,
             username: req.username,
             loginMethod,
+            googleClientId: process.env.GOOGLE_CLIENT
           });
         }
       } else {

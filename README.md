@@ -151,7 +151,12 @@ Create a MySQL user specifically for the application:
    ```bash
    cp .env.example .env.local
    ```
-2. No changes are needed to the `.env.local` file. The defaults will work provided MySQL is correctly set up.
+2. No changes are needed to the `.env.local` file for basic functionality. The defaults will work provided MySQL is correctly set up.
+
+3. For email functionality (optional):
+   - Set `GOOGLE_EMAIL`: The Gmail address to send emails from
+   - Set `GOOGLE_APPKEY`: Your Gmail App Password (generated from Google Account settings)
+   Note: If these are not set, the application will skip sending emails and log messages to the console instead.
 
 ---
 

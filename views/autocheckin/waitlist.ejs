@@ -103,16 +103,27 @@
     </div>
     <div class="footer">
       <p id="errorText"></p>
-      <% let waitlistButtonText; let subtext; let actionType; let greyButton = ""; if (typeof
-      userData === 'undefined' || typeof userData.checkinReport === 'undefined') { actionType = "1";
-      waitlistButtonText = "Register or sign in to join Waitlist" subtext = `Set up already?
-      <a class="tosLink" href="?login">Sign in</a> to access your AutoCheckin.` } else if
-      (userData.checkinReport === "Waitlist") { actionType = "2"; greyButton = "grey";
-      waitlistButtonText = "You're on the Waitlist" subtext = `Thanks for joining the waitlist,
-      ${userData.username||"name"}. You'll need to activate AutoCheckin later. Expect an email if
-      you're accepted. <a id="leave-waitlist" class="tosLink" href="">Leave waitlist.</a>` } else {
-      actionType = "3"; waitlistButtonText = "Join the Waitlist" subtext = `Joining the waitlist
-      won't activate AutoCheckin until you choose. We'll notify you by email if accepted.` } %>
+      <%
+      let waitlistButtonText;
+      let subtext;
+      let actionType;
+      let greyButton = "";
+      
+      if (typeof userData === 'undefined' || typeof userData.checkinReport === 'undefined') {
+        actionType = "1";
+        waitlistButtonText = "Register or sign in to join Waitlist";
+        subtext = `Set up already? <a class="tosLink" href="?login">Sign in</a> to access your AutoCheckin.`;
+      } else if (userData.checkinReport === "Waitlist") {
+        actionType = "2";
+        greyButton = "grey";
+        waitlistButtonText = "You're on the Waitlist";
+        subtext = `Thanks for joining the waitlist, ${userData.username||"name"}. You'll need to activate AutoCheckin later. Expect an email if you're accepted. <a id="leave-waitlist" class="tosLink" href="">Leave waitlist.</a>`;
+      } else {
+        actionType = "3";
+        waitlistButtonText = "Join the Waitlist";
+        subtext = `Joining the waitlist won't activate AutoCheckin until you choose. We'll notify you by email if accepted.`;
+      }
+      %>
 
       <button id="continue-btn" class="<%- greyButton %>" data-action="<%- actionType %>">
         <%- waitlistButtonText %>

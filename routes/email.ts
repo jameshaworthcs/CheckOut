@@ -1,16 +1,20 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'james@jameshaworth.dev',
-    pass: process.env.GPASS,
-  },
-});
+let transporter = null;
+
+if (process.env.GOOGLE_APPKEY && process.env.GOOGLE_EMAIL) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GOOGLE_EMAIL,
+      pass: process.env.GOOGLE_APPKEY,
+    },
+  });
+}
 
 const sendVerificationEmail = (toEmail, code) => {
   const mailOptions = {
-    from: 'verify@jemedia.xyz',
+    from: process.env.GOOGLE_SENDER || 'verify@jemedia.xyz',
     to: toEmail,
     subject: `${code} is your CheckOut Verification Code`,
     html: `
@@ -25,16 +29,26 @@ const sendVerificationEmail = (toEmail, code) => {
         `,
   };
 
+  if (!transporter) {
+    console.log(`Email skipped for ${toEmail} with subject "${mailOptions.subject}" because GOOGLE_APPKEY/GOOGLE_EMAIL is not defined`);
+    return Promise.resolve();
+  }
+
   return transporter.sendMail(mailOptions);
 };
 
 const sendEmail = (toEmail, emailTitle, emailHtml) => {
   const mailOptions = {
-    from: 'checkout@jemedia.xyz',
+    from: process.env.GOOGLE_SENDER || 'checkout@jemedia.xyz',
     to: toEmail,
     subject: emailTitle,
     html: emailHtml,
   };
+
+  if (!transporter) {
+    console.log(`Email skipped for ${toEmail} with subject "${emailTitle}" because GOOGLE_APPKEY/GOOGLE_EMAIL is not defined`);
+    return Promise.resolve();
+  }
 
   return transporter.sendMail(mailOptions);
 };
