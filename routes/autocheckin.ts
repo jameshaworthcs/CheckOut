@@ -231,6 +231,7 @@ app.get('/auto', function (req, res) {
                   ? `<span class="yellow-text">pending</span> (this can take up to an hour to change)`
                   : `<span class="green-text">active</span>`;
           const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-GB', {
+            weekday: 'short',
             hour: 'numeric',
             minute: '2-digit',
             hour12: true,
