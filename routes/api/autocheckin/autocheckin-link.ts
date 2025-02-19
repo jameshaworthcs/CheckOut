@@ -141,7 +141,7 @@ app.get('/api/autocheckin/test', (req, res) => {
 // Get all users that are autoCheckin enabled
 app.get('/api/autocheckin/users', (req, res) => {
   db.query(
-    'SELECT email, checkintoken, checkinReport, checkinReportTime FROM users WHERE checkinstate = 1',
+    'SELECT email, checkintoken, checkinReport, checkinReportTime, sync FROM users WHERE checkinstate = 1',
     (err, result) => {
       if (err) throw err;
       res.json({ success: true, autoCheckinUsers: result });
@@ -220,6 +220,82 @@ app.post('/api/autocheckin/update', function (req, res) {
     res.status(400).json({
       success: false,
       err: 'Missing required fields: newtoken',
+    });
+  }
+});
+
+// Update sync data for a user with special merge logic
+app.post('/api/autocheckin/update-sync', async function (req, res) {
+  try {
+    const { sync, email } = req.body;
+
+    if (!sync || !email) {
+      return res.status(400).json({
+        success: false,
+        err: 'Missing required fields: sync and email',
+      });
+    }
+
+    // First, get the existing sync data
+    const [existingData] = await new Promise((resolve, reject) => {
+      db.query('SELECT sync FROM users WHERE email = ?', [email], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    let existingSync = existingData?.sync || {};
+    console.log(existingSync);
+    let newSync = { ...existingSync };
+
+    // Deep merge function that handles the special case for attendanceData
+    const deepMerge = (target, source) => {
+      for (const key in source) {
+        if (key === 'attendanceData') {
+          if (!target[key]) target[key] = {};
+          
+          // Handle attendanceData specially
+          for (const year in source[key]) {
+            if (!target[key][year]) target[key][year] = {};
+            
+            // For each week in the year, completely replace if exists
+            for (const week in source[key][year]) {
+              target[key][year][week] = source[key][year][week];
+            }
+          }
+        } else if (source[key] !== null && typeof source[key] === 'object') {
+          // For non-attendanceData objects, merge recursively
+          target[key] = target[key] || {};
+          deepMerge(target[key], source[key]);
+        } else {
+          // For primitive values, simply replace
+          target[key] = source[key];
+        }
+      }
+      return target;
+    };
+
+    // Merge the new sync data with existing data
+    newSync = deepMerge(newSync, sync);
+    console.log(newSync);
+    // Update the database with the merged sync data
+    await new Promise((resolve, reject) => {
+      db.query(
+        'UPDATE users SET sync = ? WHERE email = ?',
+        [JSON.stringify(newSync), email],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      );
+    });
+
+    res.json({ success: true, message: 'Sync data updated successfully' });
+  } catch (err) {
+    console.error('Error in update-sync endpoint:', err);
+    res.status(500).json({
+      success: false,
+      err: err instanceof Error ? err.message : 'Unknown error occurred',
     });
   }
 });
