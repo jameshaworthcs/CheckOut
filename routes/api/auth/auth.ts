@@ -5,6 +5,7 @@ const { sendEmail } = require('../../email.ts');
 const express = require('express');
 const moment = require('moment-timezone');
 const ejs = require('ejs');
+const jwt = require('jsonwebtoken');
 var app = express.Router();
 
 db.query = util.promisify(db.query); // Promisify db.query for async/await
@@ -178,9 +179,23 @@ app.post('/api/auth/apikey/login', async (req, res) => {
     }
 
     // Check if the API key exists and get the user
-    const results = await db.query('SELECT id FROM users WHERE api_token = ?', [apiKey]);
+    const results = await db.query('SELECT id, api_token FROM users WHERE api_token = ?', [apiKey]);
 
     if (results.length === 0) {
+      return res.status(401).json({
+        success: false,
+        msg: 'Invalid API key',
+      });
+    }
+
+    // Perform timing-safe comparison of API keys
+    const storedApiKey = results[0].api_token;
+    const isValidKey = crypto.timingSafeEqual(
+      Buffer.from(apiKey),
+      Buffer.from(storedApiKey)
+    );
+
+    if (!isValidKey) {
       return res.status(401).json({
         success: false,
         msg: 'Invalid API key',
@@ -200,6 +215,126 @@ app.post('/api/auth/apikey/login', async (req, res) => {
     return res.status(500).json({
       success: false,
       msg: 'Internal server error during authentication',
+    });
+  }
+});
+
+// Modify the JWT signing to use a dedicated secret
+const JWT_SECRET = process.env.JWT_SECRET; // This should be set to a high-entropy value
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable must be set');
+}
+
+// Update the app token endpoint
+app.get('/api/auth/apptoken', async (req, res) => {
+  try {
+    if (!req.loggedIn || !req.userID) {
+      return res.status(401).json({
+        success: false,
+        msg: 'User not authenticated'
+      });
+    }
+
+    const payload = {
+      userID: req.userID,
+      iat: Math.floor(Date.now() / 1000)
+    };
+
+    const options = {
+      expiresIn: '1m',
+      algorithm: 'HS256' // Explicitly specify the algorithm
+    };
+
+    jwt.sign(payload, JWT_SECRET, options, (err, token) => {
+      if (err) {
+        console.error('Error generating JWT:', err);
+        return res.status(500).json({
+          success: false,
+          msg: 'Failed to generate token'
+        });
+      }
+      
+      res.json({
+        success: true,
+        apptoken: token
+      });
+    });
+  } catch (error) {
+    console.error('App login error:', error);
+    res.status(500).json({
+      success: false,
+      msg: 'Internal server error'
+    });
+  }
+});
+
+// Verify App Token
+app.post('/api/auth/verifyapptoken', async (req, res) => {
+  try {
+    const { apptoken } = req.body;
+    
+    if (!apptoken) {
+      return res.status(400).json({
+        success: false,
+        msg: 'App token is required'
+      });
+    }
+
+    try {
+      // Verify the JWT with explicit algorithm
+      const decoded = await jwt.verify(apptoken, JWT_SECRET, {
+        algorithms: ['HS256'],
+        maxAge: '1m' // Explicit max age check
+      });
+
+      // Check token age
+      const now = Math.floor(Date.now() / 1000);
+      if (decoded.iat > now) {
+        return res.status(401).json({
+          success: false,
+          msg: 'Token issued in the future - possible replay attack'
+        });
+      }
+
+      // Get user data from database using parameterized query
+      const results = await db.query(
+        'SELECT username, api_token FROM users WHERE id = ? AND userstate != ?',
+        [decoded.userID, 'disabled']
+      );
+
+      if (results.length === 0) {
+        return res.status(401).json({
+          success: false,
+          msg: 'User not found or account disabled'
+        });
+      }
+
+      // Return success with user data
+      res.json({
+        success: true,
+        username: results[0].username,
+        api_token: results[0].api_token
+      });
+    } catch (jwtError) {
+      // Specific error handling for different JWT errors
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          msg: 'Token has expired'
+        });
+      } else if (jwtError.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+          success: false,
+          msg: 'Invalid token'
+        });
+      }
+      throw jwtError; // Re-throw unexpected errors
+    }
+  } catch (error) {
+    console.error('Verify app token error:', error);
+    res.status(500).json({
+      success: false,
+      msg: 'Internal server error'
     });
   }
 });

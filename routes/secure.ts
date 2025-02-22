@@ -304,6 +304,7 @@ const securityCheck = async (req, res, next) => {
       '/manage',
       '/robots.txt',
       '/support',
+      '/applogin'
     ];
     const adminPaths = ['/admin', '/tklog', '/analytics', '/manage'];
 
@@ -352,6 +353,8 @@ const securityCheck = async (req, res, next) => {
       '/static/',
       '/manage',
       '/robots.txt',
+      '/applogin',
+      '/login'
     ];
     if (
       req.consented == false &&
@@ -388,6 +391,7 @@ const securityCheck = async (req, res, next) => {
         '/api',
         '/settings',
         '/data',
+        '/applogin'
       ];
 
       if (!allowedPaths.some((path) => req.url.startsWith(path))) {
@@ -466,6 +470,8 @@ function auth(service, req, res, next) {
               msg = 'Sign in to use AutoCheckin.';
             } else if (req.url.startsWith('/manage')) {
               msg = 'Sign in to access admin features.';
+            } else if (req.url.startsWith('/applogin')) {
+              msg = 'Sign in to the mobile app.';
             } else {
               msg =
                 'Sign in with your .ac.uk email to save your history, personalise CheckOut and use AutoCheckin.';

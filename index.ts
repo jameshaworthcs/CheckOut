@@ -591,6 +591,12 @@ app.get('/data', (req: AppRequest, res: Response) => {
   res.render('data-control/data.ejs', { username: req.username });
 });
 
+app.get('/applogin', (req: AppRequest, res: Response) => {
+  secureRoute.auth('account', req, res, () => {
+    res.render('account/auth/applogin.ejs', { username: req.username });
+  });
+});
+
 app.get('/success/logout', (req: AppRequest, res: Response) => {
   res.status(200).render('notices/generic-msg.ejs', {
     msgTitle: 'Logged out',

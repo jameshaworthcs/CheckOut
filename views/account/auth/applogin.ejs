@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../../global/head'); %>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Mobile Login - CheckOut</title>
+    <style>
+      body {
+        font-size: 19px;
+        background: var(--page-background);
+        display: block;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .page-container {
+        padding: 24px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mainContent {
+        display: block;
+        position: relative;
+        text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
+        margin-top: 20px;
+        padding: 20px;
+        background: var(--content-background);
+        border-radius: 8px;
+        border: var(--box-accent-width) solid #3dcbff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.5s;
+      }
+
+      .headerWelcome {
+        text-align: center;
+        font-size: 1.4em;
+      }
+
+      .headerDiv {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+      }
+
+      .topIcon {
+        background-image: var(--tick-image);
+        background-repeat: no-repeat;
+        background-size: 34px;
+        float: right;
+        height: 34px;
+        width: 34px;
+      }
+
+      .error-box {
+        margin-bottom: 18px;
+        background-color: #ffcccc;
+        border: 1px solid #ff0000;
+        color: #ff0000;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 5px auto;
+        padding: 20px;
+        padding-bottom: 10px;
+        padding-top: 10px;
+        border-radius: 5px;
+      }
+
+      .other-sign-in-options {
+        text-decoration: none;
+        font-size: 15px;
+        color: #afafaf;
+        margin-bottom: 10px;
+      }
+
+      .termsText {
+        font-size: 11px;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #afafaf;
+        text-decoration: none;
+      }
+
+      .tosLink,
+      .tosLink:visited,
+      .tosLink:active {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+
+      .tosLink:hover {
+        text-decoration: underline;
+      }
+
+      .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #afafaf;
+        text-decoration: none;
+        margin-bottom: 20px;
+        font-size: 15px;
+        transition: color 0.2s ease;
+      }
+
+      .back-button:hover {
+        color: #3dcbff;
+      }
+
+      .back-button svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .spinner-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--page-background);
+        z-index: 1000;
+        padding: 24px;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid var(--content-background);
+        border-top: 5px solid #3dcbff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      button#continueButton {
+            width: 100%;
+        }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .confirmation-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 2rem;
+        background: var(--content-background);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+      }
+
+      @media (max-width: 480px) {
+        .confirmation-container {
+          padding: 2rem 1.5rem;
+        }
+      }
+
+      .connection-graphic {
+        margin-bottom: 2rem;
+      }
+
+      .connection-graphic svg {
+        width: 120px;
+        height: 80px;
+      }
+
+      .connection-graphic .animate-flow {
+        animation: flowDots 1.5s infinite;
+      }
+
+      @keyframes flowDots {
+        0% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+      }
+
+      .confirmation-title {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+        color: var(--text-color);
+        padding: 0 1rem;
+      }
+
+      .switch-account {
+        margin-top: 1rem;
+        color: #58a6ff;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .switch-account:hover {
+        color: #3dcbff;
+        text-decoration: underline;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-container">
+      <div class="confirmation-container" id="confirmationScreen">
+        <div class="connection-graphic">
+          <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Account Circle Icon -->
+            <circle cx="30" cy="40" r="20" fill="#3dcbff" opacity="0.1"/>
+            <circle cx="30" cy="40" r="12" fill="#3dcbff"/>
+            <image href="/static/fav.svg" x="18" y="28" width="24" height="24"/>
+            
+            <!-- Connection Dots -->
+            <circle cx="60" cy="40" r="3" fill="#3dcbff" class="animate-flow" style="animation-delay: 0s"/>
+            <circle cx="70" cy="40" r="3" fill="#3dcbff" class="animate-flow" style="animation-delay: 0.2s"/>
+            <circle cx="80" cy="40" r="3" fill="#3dcbff" class="animate-flow" style="animation-delay: 0.4s"/>
+            
+            <!-- Mobile App Icon -->
+            <rect x="90" y="25" width="24" height="30" rx="3" fill="#3dcbff"/>
+            <rect x="92" y="27" width="20" height="24" rx="1" fill="white"/>
+            <circle cx="102" cy="53" r="1.5" fill="white"/>
+          </svg>
+        </div>
+        <div class="confirmation-title">
+          Do you want to sign into the CheckOut mobile app as <b><%= userData.username %></b>?
+        </div>
+        <button class="cta-button cta-button-main" id="continueButton">
+          Yes, continue
+        </button>
+        <a href="#" class="switch-account" id="switchAccount">
+          Use a different account
+        </a>
+      </div>
+    </div>
+
+    <div class="spinner-container hidden" id="loadingSpinner">
+      <div class="spinner"></div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const confirmationScreen = document.getElementById('confirmationScreen');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const continueButton = document.getElementById('continueButton');
+        const switchAccount = document.getElementById('switchAccount');
+
+        async function handleAppLogin() {
+          try {
+            confirmationScreen.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            const response = await fetch('/api/auth/apptoken');
+            const data = await response.json();
+            
+            if (data.success) {
+              const params = new URLSearchParams(window.location.search);
+              const redirectUrl = params.get('appredirect');
+              
+              if (redirectUrl) {
+                const redirectParams = new URLSearchParams();
+                redirectParams.set('apptoken', data.apptoken);
+                window.location.href = `${redirectUrl}${redirectUrl.includes('?') ? '&' : '?'}${redirectParams.toString()}`;
+              } else {
+                displayNotice('No redirect URL provided. Please close this window and try again.', 'error', 'App login error', 0);
+              }
+            } else {
+              displayNotice(data.errorMessage || 'Authentication failed. Please close this window and try again.', 'error', 'App login error', 0);
+            }
+          } catch (error) {
+            displayNotice('Failed to authenticate. Please close this window and try again.', 'error', 'App login error', 0);
+          }
+        }
+
+        async function handleSwitchAccount() {
+          try {
+            const response = await fetch('/api/auth/logout', {
+              method: 'POST'
+            });
+            
+            if (response.ok) {
+              window.location.reload();
+            }
+          } catch (error) {
+            displayNotice('Failed to logout. Please try again.', 'error', 'Logout error', 0);
+          }
+        }
+
+        continueButton.addEventListener('click', handleAppLogin);
+        switchAccount.addEventListener('click', handleSwitchAccount);
+      });
+    </script>
+  </body>
+</html>
