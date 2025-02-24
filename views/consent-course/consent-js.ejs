@@ -193,7 +193,7 @@
 
           // Wait 500ms, then swap the page content with the preloaded content
           setTimeout(() => {
-            if (preloadedPage) {
+            if (preloadedPage && false) {
               document.open();
               document.write(preloadedPage);
               document.close();
