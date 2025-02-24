@@ -245,11 +245,11 @@
     .timetable-item {
         display: grid;
         grid-template-areas:
-            "reference time"
-            "subject location"
-            "status status";
-        grid-template-columns: 1fr auto;
-        gap: 8px;
+            "reference time dropdown"
+            "details details details"
+            "status status status";
+        grid-template-columns: 1fr auto auto;
+        gap: 2px;
     }
 
     .timetable-item-activity-reference {
@@ -263,21 +263,36 @@
         color: var(--subtext-color);
     }
 
-    .timetable-item-subject-line {
-        grid-area: subject;
+    .timetable-item-dropdown {
+        grid-area: dropdown;
+        cursor: pointer;
+        padding: 0 4px;
         display: flex;
         align-items: center;
-        gap: 4px;
-    }
-
-    .timetable-item-subject {
-        display: none;
-        font-weight: 500;
-    }
-
-    .timetable-item-comma {
-        display: none;
         color: var(--subtext-color);
+        transition: transform 0.3s ease;
+    }
+
+    .timetable-item-dropdown.expanded {
+        transform: rotate(180deg);
+    }
+
+    .timetable-item-details {
+        grid-area: details;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        margin: 0;
+    }
+
+    .timetable-item-details.expanded {
+        max-height: 50px;
+        opacity: 1;
+        margin: 4px 0;
     }
 
     .timetable-item-lecturer {
@@ -285,7 +300,6 @@
     }
 
     .timetable-item-location {
-        grid-area: location;
         text-align: right;
         color: var(--subtext-color);
     }

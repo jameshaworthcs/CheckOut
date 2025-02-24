@@ -73,7 +73,11 @@ function fetchDashboardData(email, req, res) {
           checkinReport: result[0].checkinReport,
           checkinReportTime: result[0].checkinReportTime,
           sync: result[0].sync,
-          autoLogData: result[0].autoLogData ? result[0].autoLogData.filter(item => item !== null) : []
+          autoLogData: result[0].autoLogData 
+            ? result[0].autoLogData
+                .filter(item => item !== null)
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            : []
         }
       };
 
