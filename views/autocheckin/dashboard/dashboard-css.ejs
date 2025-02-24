@@ -21,7 +21,7 @@
     .autocheckin-dashboard {
         padding: 2rem;
         max-width: 100%;
-        min-height: calc(100vh - 60px); /* Adjust based on navbar height */
+        min-height: calc(100vh - 88px); /* Adjust based on navbar height */
         box-sizing: border-box;
         width: 100%;
         display: flex;
@@ -131,6 +131,33 @@
         grid-area: timetable;
         display: flex;
         flex-direction: column;
+        max-height: calc(100vh - 410px); /* Account for header and status box */
+        min-height: 200px;
+    }
+
+    .bottom-left-box .box-content {
+        overflow-y: auto;
+        flex: 1;
+        padding-right: 0.5rem;
+    }
+
+    /* Custom scrollbar for timetable */
+    .bottom-left-box .box-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .bottom-left-box .box-content::-webkit-scrollbar-track {
+        background: var(--code-background);
+        border-radius: 4px;
+    }
+
+    .bottom-left-box .box-content::-webkit-scrollbar-thumb {
+        background: var(--secondary-accent-colour);
+        border-radius: 4px;
+    }
+
+    .bottom-left-box .box-content::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-colour);
     }
 
     .middle-box {
@@ -354,6 +381,11 @@
 
         .grid-item {
             min-height: min-content;
+        }
+
+        .bottom-left-box {
+            max-height: 500px; /* Cap height on mobile */
+            min-height: 200px;
         }
 
         .middle-box {

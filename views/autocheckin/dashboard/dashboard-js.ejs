@@ -480,10 +480,10 @@ const AutoCheckinDashboard = {
                 activityItem.innerHTML = `
                     <div class="timetable-item-activity-reference">${activity.activityReference}</div>
                     <div class="timetable-item-time">${activity.startTime}-${activity.finishTime}</div>
-                    <div class="timetable-item-subject-line">
+                    <!-- <div class="timetable-item-subject-line">
                         <div class="timetable-item-lecturer">${activity.lecturerName}</div>
                     </div>
-                    <div class="timetable-item-location">${activity.location}</div>
+                    <div class="timetable-item-location">${activity.location}</div> -->
                     <div class="timetable-item-status ${this.getAttendanceStatusClass(activity.attendanceState)}">
                         ${this.getAttendanceStatusText(activity.attendanceState)}
                     </div>
