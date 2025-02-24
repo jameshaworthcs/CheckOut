@@ -427,8 +427,13 @@ const AutoCheckinDashboard = {
             syncData = null;
         }
 
-        // Check if sync data exists and has attendance data for 2025 week 8
-        const attendanceData = syncData?.attendanceData?.['2025']?.['8'];
+        // Get current year and week
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentWeek = this.getWeekNumber(now);
+
+        // Check if sync data exists and has attendance data for current year and week
+        const attendanceData = syncData?.attendanceData?.[currentYear]?.[currentWeek];
 
         if (!attendanceData) {
             // Show "Data available soon" message
@@ -508,6 +513,15 @@ const AutoCheckinDashboard = {
 
             this.elements.timetableContainer.appendChild(daySection);
         });
+    },
+
+    // Helper function to get ISO week number
+    getWeekNumber(date) {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     },
 
     // Update dashboard with new data
