@@ -543,4 +543,26 @@
       this.detachEventListeners(id);
     },
   };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Check for URL parameter ?rejectRedirect=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const rejectRedirect = urlParams.get('rejectRedirect') === 'true';
+
+    if (rejectRedirect) {
+      const rejectRedirectBanner = document.getElementById('reject-redirect-banner');
+      if (rejectRedirectBanner) {
+        rejectRedirectBanner.style.display = 'block';
+      }
+
+      const closeRedirectBannerButton = document.getElementById('close-redirect-banner-button');
+      if (closeRedirectBannerButton) {
+        closeRedirectBannerButton.addEventListener('click', function () {
+          if (rejectRedirectBanner) {
+            rejectRedirectBanner.style.display = 'none';
+          }
+        });
+      }
+    }
+  });
 </script>
