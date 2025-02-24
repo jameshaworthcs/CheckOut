@@ -168,118 +168,12 @@
         }
       }
 
-      /* Promo container with colorful gradient border like btn-55 */
-      .promo-container {
-        background: linear-gradient(145deg, #947e57, #00bdff);
-        border-radius: 19px;
-        box-sizing: border-box;
-        display: block;
-        overflow: hidden;
-        position: relative;
-        padding: 1.8rem 5rem;
-        transition: transform 0.3s ease;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        height: 71px;
-      }
-
-      /* Inner promo div to hold the content */
-      .promo-inner {
-        background: #1e293b;
-        border-radius: 19px;
-        color: #fff;
-        position: absolute;
-        inset: 1.5px;
-        /* Inset to create the same border effect */
-        padding: 10px;
-        transition: background 0.3s;
-      }
-
-      /* Header styling with stacked text */
-      .promo-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 15px;
-      }
-
-      .intro-text {
-        color: #ffae00;
-        font-size: 1.5em;
-        text-align: left;
-        /* width: 100%;
-  padding-left: 10px; */
-        margin-left: -200px;
-        margin-top: 10px;
-      }
-
-      .autocheckin-text {
-        background: linear-gradient(45deg, #ff007f, #ffae00, #5dd1ff, #7c4dff);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: bold;
-        font-size: 2.1em;
-        text-align: center;
-        width: 100%;
-        /* padding-right: 10px; */
-      }
-
-      /* Content section with feature bubbles styled as buttons */
-      .promo-content {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-      }
-      .styled-list {
-        list-style-type: none; /* Remove default numbering */
-        padding-left: 0; /* Remove default padding */
-        counter-reset: list-counter; /* Reset custom counter */
-      }
-
-      .styled-list li {
-        counter-increment: list-counter; /* Increment custom counter */
-        position: relative;
-        margin-bottom: 20px; /* Add space between instructions */
-        padding-left: 40px; /* Space for the circle number */
-      }
-
-      .styled-list li::before {
-        content: counter(list-counter);
-        /* Removed counter-reset from here */
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        border-radius: 50%;
-        border: 1.7px solid #dedede70; /* Hollow circle with border */
-        color: #dbdbdb; /* Text color */
-        text-align: center;
-        font-weight: bold;
-        position: absolute;
-        left: 0;
-        top: 0;
-        background-color: transparent; /* Make the circle hollow */
-      }
-
-      .webstore-img {
-        height: 50px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%;
-        margin-bottom: 10px;
-      }
-
       /* Add [ENTER] text and adjust styles for desktop */
       @media (min-width: 601px) {
-        #continue-btn:not(.grey)::after {
+        #cta-button:not(.grey)::after {
           content: ' [ENTER]';
           font-size: 0.87rem;
           font-weight: 550;
-          color: #0a0520;
         }
 
         .footer {
@@ -297,6 +191,14 @@
         #continue-btn {
           max-width: 100%;
         }
+      }
+
+      .warning-text {
+        background-color: var(--warning-background);
+        color: var(--warning-text);
+        border: 1px solid var(--warning-border);
+        padding: 10px;
+        border-radius: 5px;
       }
     </style>
   </head>
@@ -330,11 +232,14 @@
     <div class="content">
       <p class="sub-text">
         <b>Setup is complete.</b><br /><br /><span class="subtext">It's time to relax.</span>
+        <br><br>
       </p>
-      <div class="promo-container">
-        <div class="promo-inner">
-          <button id="continue-btn">Explore AutoCheckin</button>
-        </div>
+      <div class="warning-text">
+        <p><b>Notice:</b> The dashboard and help guide are currently under development, for any question please contact <a href="/support">support</a>.</p>
+      </div> 
+      <br>
+      <div style="text-align: center;">
+        <button class="cta-button cta-button-main" id="cta-button">Explore AutoCheckin</button>
       </div>
     </div>
 
@@ -346,7 +251,7 @@
             !activeElement ||
             (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))
           ) {
-            document.getElementById('continue-btn').click();
+            document.getElementById('cta-button').click();
           }
         }
       });
@@ -409,7 +314,7 @@
         return urlObj.toString();
       }
 
-      document.getElementById('continue-btn').addEventListener('click', function () {
+      document.getElementById('cta-button').addEventListener('click', function () {
         // Function to preload the page and then swap the content or reload the page
         function preloadAndSwapPage(url) {
           let preloadedPage;
@@ -429,7 +334,7 @@
             if (preloadedPage) {
               document.open();
               document.write(preloadedPage);
-              history.pushState({}, null, '/auto');
+              history.pushState({}, null, '/auto?nocache=' + new Date().getTime());
               document.close();
             } else {
               // Fallback to a regular reload if preloading fails
@@ -443,27 +348,6 @@
         let updatedUrl = '/auto?nocache=' + new Date().getTime();
         preloadAndSwapPage(updatedUrl);
       });
-
-      function adjustFooterPosition() {
-        const content = document.querySelector('.content');
-        const footer = document.querySelector('.footer');
-        const contentHeight = content.scrollHeight;
-        const viewportHeight = window.innerHeight;
-        const headerHeight = document.querySelector('.header').offsetHeight;
-        const footerHeight = footer.offsetHeight;
-
-        if (contentHeight + headerHeight + footerHeight > viewportHeight) {
-          footer.style.position = 'sticky';
-          footer.style.bottom = '0';
-          footer.style.marginTop = 'auto';
-        } else {
-          footer.style.position = 'relative';
-          footer.style.bottom = 'auto';
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', adjustFooterPosition);
-      window.addEventListener('resize', adjustFooterPosition);
     </script>
   </body>
 </html>

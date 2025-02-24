@@ -217,42 +217,7 @@ app.get('/auto', function (req, res) {
       }
     } else {
       // User has setup AutoCheckin
-      db.query(
-        'SELECT * FROM autoCheckinLog WHERE email = ? ORDER BY timestamp DESC LIMIT 1',
-        [result[0].email],
-        (err, logResult) => {
-          if (err) throw err;
-          const enabled =
-            result[0].checkinReport === 'Fail'
-              ? `<span class="red-text">in error state</span>`
-              : result[0].checkinReport === 'Disabled'
-                ? `<span class="red-text">disabled</span>`
-                : result[0].checkinReport === 'Enabled'
-                  ? `<span class="yellow-text">pending</span> (this can take up to an hour to change)`
-                  : `<span class="green-text">active</span>`;
-          const timestamp = new Date(result[0].checkinReportTime).toLocaleString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-            timeZone: 'Europe/London'
-          });
-          var enabledMsg = `CheckOut's AutoCheckin service reports your session ${enabled} as of ${timestamp}.<br>View logs for your account below.`;
-
-          const checkinState = result[0].checkinstate === 1 ? 'enabled' : 'disabled';
-          const msg = `Signed in as ${result[0].username} (${result[0].email}) and AutoCheckin is <b>${checkinState}</b>.`;
-          res.render('account/autocheckin/auto', {
-            msg,
-            email: result[0].email,
-            enabledMsg,
-            showLog: true,
-            checkinState,
-            username: result[0].username,
-          });
-        }
-      );
+      res.render('autocheckin/dashboard/dashboard');
     }
   });
 });

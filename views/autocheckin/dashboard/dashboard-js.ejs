@@ -1,0 +1,566 @@
+<script>
+// Dashboard Module
+const AutoCheckinDashboard = {
+    // Cache keys
+    CACHE_KEY: 'checkout_cache',
+    DASHBOARD_CACHE_KEY: 'autocheckin_dashboard',
+
+    // Required fields from API response
+    requiredFields: ['checkinReportTime', 'checkinReport', 'username', 'autoLogData'],
+
+    // Element IDs
+    elements: {
+        lastActiveDate: document.getElementById('last-active-date'),
+        lastActiveTime: document.getElementById('last-active-time'),
+        statusText: document.getElementById('status-text'),
+        statusBadge: document.querySelector('.status-badge'),
+        usernameDisplay: document.getElementById('username-display'),
+        lastActive: document.querySelector('.last-active'),
+        adminMessage: document.getElementById('admin-message'),
+        adminEmail: document.getElementById('admin-email'),
+        checkinToggleButton: document.getElementById('checkin-toggle-button'),
+        activityLogContainer: document.querySelector('.right-box-content'),
+        timetableContainer: document.querySelector('.timetable-box-content')
+    },
+
+    // Status mappings
+    statusMappings: {
+        'Fail': { text: 'in error state', badge: 'ERROR', class: 'error' },
+        'Disabled': { text: 'disabled', badge: 'DISABLED', class: 'disabled' },
+        'Enabled': { text: 'pending', badge: 'PENDING', class: 'pending', suffix: ' (this can take up to an hour to change)' },
+        'Normal': { text: 'active', badge: 'ACTIVE', class: 'active' }
+    },
+
+    // Initialize the dashboard
+    init() {
+        this.checkAdminView();
+        this.loadCachedData();
+        this.fetchDashboardData();
+        this.setupEventListeners();
+    },
+
+    // Setup event listeners
+    setupEventListeners() {
+        if (this.elements.checkinToggleButton) {
+            this.elements.checkinToggleButton.addEventListener('click', () => {
+                const isEnabled = this.elements.checkinToggleButton.classList.contains('disable');
+                if (isEnabled) {
+                    this.showDisableConfirmModal();
+                }
+                // Enable functionality will be added later
+            });
+        }
+    },
+
+    // Show disable confirmation modal
+    showDisableConfirmModal() {
+        const modalContent = `
+            <h2>Disable AutoCheckin?</h2>
+            <p>Are you sure you want to disable AutoCheckin? You will need to manually check in to your activities until you enable it again. Additionally, you will need to import your checkin account again to use AutoCheckin.</p>
+            <div class="disable-confirm-buttons">
+                <div class="button-row">
+                    <a href="/support?pre=autocheckin" class="contact-support">Contact Support</a>
+                    <button class="cancel-button">Cancel</button>
+                </div>
+                <span class="confirm-disable-text">Yes, disable AutoCheckin</span>
+            </div>
+        `;
+
+        const { modal } = modalHelper.create({
+            id: 'disable-confirm-modal',
+            content: modalContent,
+            customClass: 'disable-confirm-modal',
+            showCloseButton: false
+        });
+
+        // Add event listeners to buttons
+        const cancelButton = modal.querySelector('.cancel-button');
+        const confirmText = modal.querySelector('.confirm-disable-text');
+
+        cancelButton.addEventListener('click', () => {
+            modalHelper.close('disable-confirm-modal');
+        });
+
+        confirmText.addEventListener('click', async () => {
+            // Prevent multiple clicks
+            if (confirmText.classList.contains('loading')) return;
+
+            // Update UI to loading state
+            confirmText.classList.add('loading');
+            confirmText.textContent = 'Disabling AutoCheckin...';
+
+            try {
+                const response = await fetch('/auto/st', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ state: 0 })
+                });
+
+                if (response.ok) {
+                    // Redirect to auto page with cache busting
+                    window.location.href = `/auto?cachetid=${Date.now()}`;
+                } else {
+                    const data = await response.json();
+                    displayNotice(
+                        data.msg || 'Failed to disable AutoCheckin',
+                        'error',
+                        'AutoCheckin Error'
+                    );
+                    // Reset button state
+                    confirmText.classList.remove('loading');
+                    confirmText.textContent = 'Yes, disable AutoCheckin';
+                }
+            } catch (error) {
+                displayNotice(
+                    'Network error occurred while disabling AutoCheckin',
+                    'error',
+                    'Network Error'
+                );
+                // Reset button state
+                confirmText.classList.remove('loading');
+                confirmText.textContent = 'Yes, disable AutoCheckin';
+            }
+        });
+
+        modalHelper.open('disable-confirm-modal');
+    },
+
+    // Check if viewing as admin and show message if needed
+    checkAdminView() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        
+        if (email && this.elements.adminMessage && this.elements.adminEmail) {
+            this.elements.adminEmail.textContent = email;
+            this.elements.adminMessage.style.display = 'flex';
+        }
+    },
+
+    // Load and display cached data if available
+    loadCachedData() {
+        const cachedData = this.getCachedData();
+        if (cachedData) {
+            this.updateDashboard(cachedData);
+        }
+    },
+
+    // Get cached data from localStorage
+    getCachedData() {
+        try {
+            const cache = JSON.parse(localStorage.getItem(this.CACHE_KEY) || '{}');
+            return cache[this.DASHBOARD_CACHE_KEY];
+        } catch (error) {
+            console.error('Error reading cache:', error);
+            return null;
+        }
+    },
+
+    // Update cache with new data
+    updateCache(data) {
+        try {
+            const cache = JSON.parse(localStorage.getItem(this.CACHE_KEY) || '{}');
+            cache[this.DASHBOARD_CACHE_KEY] = data;
+            localStorage.setItem(this.CACHE_KEY, JSON.stringify(cache));
+        } catch (error) {
+            console.error('Error updating cache:', error);
+        }
+    },
+
+    // Fetch fresh data from API
+    async fetchDashboardData() {
+        try {
+            const url = new URL('/api/autocheckin/dashboard/v1', window.location.origin);
+            
+            // Add email parameter if present in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            if (email) {
+                url.searchParams.append('email', email);
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.success) {
+                this.validateAndUpdateDashboard(data.autoCheckinDashboardData);
+            } else {
+                displayNotice(
+                    'Failed to fetch dashboard data: ' + (data.error || data.msg || data.message || 'Unknown error'),
+                    'error',
+                    'Dashboard data error'
+                );
+            }
+        } catch (error) {
+            displayNotice(
+                'Failed to fetch dashboard data: ' + error.message,
+                'error',
+                'Dashboard data error'
+            );
+        }
+    },
+
+    // Validate data and collect any errors
+    validateAndUpdateDashboard(data) {
+        const errors = [];
+
+        // Check if data exists and is an object
+        if (!data || typeof data !== 'object') {
+            displayNotice(
+                'No dashboard data available',
+                'error',
+                'Dashboard data error'
+            );
+            return;
+        }
+
+        // Check for required fields
+        const missingFields = this.requiredFields.filter(field => !data[field]);
+        if (missingFields.length > 0) {
+            errors.push(`Missing required fields: ${missingFields.join(', ')}`);
+        }
+
+        // Check if checkinReportTime is a valid date
+        if (data.checkinReportTime && isNaN(new Date(data.checkinReportTime).getTime())) {
+            errors.push('Invalid checkinReportTime format');
+        }
+
+        // Check if checkinReport has a valid status
+        if (data.checkinReport && !Object.keys(this.statusMappings).includes(data.checkinReport)) {
+            errors.push(`Unknown checkin report status: ${data.checkinReport}`);
+        }
+
+        // If there are any errors, display them and return
+        if (errors.length > 0) {
+            displayNotice(
+                'Dashboard data validation failed:\n' + errors.join('\n'),
+                'error',
+                'Dashboard data error'
+            );
+            return;
+        }
+
+        // If validation passes, update dashboard and cache
+        this.updateDashboard(data);
+        this.updateCache(data);
+    },
+
+    // Format date for display
+    formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    },
+
+    // Format time for display
+    formatTime(dateString) {
+        return new Date(dateString).toLocaleTimeString('en-GB', {
+            hour: 'numeric',
+            minute: 'numeric'
+        });
+    },
+
+    // Format relative time for display
+    formatRelativeTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        const minute = 60;
+        const hour = minute * 60;
+        const day = hour * 24;
+        const week = day * 7;
+        const month = day * 30;
+        const year = day * 365;
+
+        if (diffInSeconds < minute) {
+            return 'just now';
+        } else if (diffInSeconds < hour) {
+            const minutes = Math.floor(diffInSeconds / minute);
+            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < day) {
+            const hours = Math.floor(diffInSeconds / hour);
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < week) {
+            const days = Math.floor(diffInSeconds / day);
+            return `${days} day${days > 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < month) {
+            const weeks = Math.floor(diffInSeconds / week);
+            return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < year) {
+            const months = Math.floor(diffInSeconds / month);
+            return `${months} month${months > 1 ? 's' : ''} ago`;
+        } else {
+            const years = Math.floor(diffInSeconds / year);
+            return `${years} year${years > 1 ? 's' : ''} ago`;
+        }
+    },
+
+    // Format time for activity log
+    formatActivityTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        // If it's today, show relative time
+        if (diffInSeconds < 24 * 60 * 60 && 
+            date.getDate() === now.getDate() &&
+            date.getMonth() === now.getMonth() &&
+            date.getFullYear() === now.getFullYear()) {
+            return this.formatRelativeTime(timestamp);
+        }
+
+        // Otherwise show formatted date
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+    },
+
+    // Get state class for activity log item
+    getStateClass(state) {
+        state = state.toLowerCase();
+        if (state === 'checkin') {
+            return 'state-checkin';
+        } else if (state === 'enabled' || state === 'normal') {
+            return '';
+        } else if (state === 'fail') {
+            return 'state-fail';
+        }
+        return 'state-other';
+    },
+
+    // Get status information based on checkin report
+    getStatusInfo(checkinReport) {
+        const status = this.statusMappings[checkinReport] || this.statusMappings['Normal'];
+        return {
+            text: `<span class="${status.class}-text">${status.text}</span>${status.suffix || ''}`,
+            badge: status.badge,
+            class: status.class
+        };
+    },
+
+    // Update activity log
+    updateActivityLog(logData) {
+        if (!this.elements.activityLogContainer || !Array.isArray(logData)) return;
+
+        // Clear skeleton loading state
+        this.elements.activityLogContainer.innerHTML = '';
+
+        // Create activity log container
+        const logContainer = document.createElement('div');
+        logContainer.className = 'activity-log-container';
+
+        // Add log items
+        logData.forEach(log => {
+            const logItem = document.createElement('div');
+            logItem.className = `activity-log-item ${this.getStateClass(log.state)}`;
+
+            const message = document.createElement('div');
+            message.className = 'activity-log-message';
+            message.textContent = log.message;
+
+            const time = document.createElement('div');
+            time.className = 'activity-log-time';
+            time.textContent = this.formatActivityTime(log.timestamp);
+
+            logItem.appendChild(message);
+            logItem.appendChild(time);
+            logContainer.appendChild(logItem);
+        });
+
+        this.elements.activityLogContainer.appendChild(logContainer);
+    },
+
+    // Format date for timetable display
+    formatTimetableDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long'
+        });
+    },
+
+    // Get status class based on attendance state
+    getAttendanceStatusClass(state) {
+        state = state.toLowerCase();
+        if (state === 'present') {
+            return 'status-present';
+        } else if (state === 'absent') {
+            return 'status-absent';
+        }
+        return 'status-unknown';
+    },
+
+    // Get status emoji and text based on attendance state
+    getAttendanceStatusText(state) {
+        state = state.toLowerCase();
+        if (state === 'present') {
+            return '✅ present';
+        } else if (state === 'absent') {
+            return '❌ absent';
+        }
+        return '❔ unknown';
+    },
+
+    // Update timetable with attendance data
+    updateTimetable(data) {
+        if (!this.elements.timetableContainer) return;
+
+        // Clear existing content
+        this.elements.timetableContainer.innerHTML = '';
+
+        // Handle sync data that could be either a string or an object
+        let syncData;
+        try {
+            syncData = typeof data.sync === 'string' ? JSON.parse(data.sync) : data.sync;
+        } catch (error) {
+            console.error('Error parsing sync data:', error);
+            syncData = null;
+        }
+
+        // Check if sync data exists and has attendance data for 2025 week 8
+        const attendanceData = syncData?.attendanceData?.['2025']?.['8'];
+
+        if (!attendanceData) {
+            // Show "Data available soon" message
+            this.elements.timetableContainer.innerHTML = `
+                <div class="coming-soon-container">
+                    <div class="coming-soon-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="2rem" height="2rem">
+                            <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>
+                        </svg>
+                    </div>
+                    <div>Data available soon</div>
+                </div>
+            `;
+            return;
+        }
+
+        // Group activities by date
+        const groupedActivities = {};
+        attendanceData.forEach(activity => {
+            if (!groupedActivities[activity.date]) {
+                groupedActivities[activity.date] = [];
+            }
+            groupedActivities[activity.date].push(activity);
+        });
+
+        // Sort dates
+        const sortedDates = Object.keys(groupedActivities).sort();
+
+        // Create timetable sections for each date
+        sortedDates.forEach(date => {
+            const activities = groupedActivities[date];
+            const daySection = document.createElement('div');
+            daySection.className = 'timetable-day-section';
+
+            // Add day divider
+            daySection.innerHTML = `
+                <div class="timetable-day-divider">
+                    <div class="timetable-day-name">${this.formatTimetableDate(date)}</div>
+                </div>
+            `;
+
+            // Sort activities by start time
+            activities.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            // Add activities
+            activities.forEach(activity => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'box-content-item timetable-item';
+                activityItem.innerHTML = `
+                    <div class="timetable-item-activity-reference">${activity.activityReference}</div>
+                    <div class="timetable-item-time">${activity.startTime}-${activity.finishTime}</div>
+                    <div class="timetable-item-subject-line">
+                        <div class="timetable-item-lecturer">${activity.lecturerName}</div>
+                    </div>
+                    <div class="timetable-item-location">${activity.location}</div>
+                    <div class="timetable-item-status ${this.getAttendanceStatusClass(activity.attendanceState)}">
+                        ${this.getAttendanceStatusText(activity.attendanceState)}
+                    </div>
+                `;
+                daySection.appendChild(activityItem);
+            });
+
+            this.elements.timetableContainer.appendChild(daySection);
+        });
+    },
+
+    // Update dashboard with new data
+    updateDashboard(data) {
+        if (!data) return;
+
+        const { checkinReportTime, checkinReport, username, checkinstate, autoLogData } = data;
+        const statusInfo = this.getStatusInfo(checkinReport);
+
+        try {
+            // Update username display
+            if (this.elements.usernameDisplay && username) {
+                this.elements.usernameDisplay.textContent = username;
+            }
+
+            // Update last active time
+            if (this.elements.lastActive && checkinReportTime) {
+                this.elements.lastActive.textContent = this.formatRelativeTime(checkinReportTime);
+            }
+
+            // Update status elements
+            if (this.elements.lastActiveDate) {
+                this.elements.lastActiveDate.textContent = this.formatDate(checkinReportTime);
+            }
+            if (this.elements.lastActiveTime) {
+                this.elements.lastActiveTime.textContent = this.formatTime(checkinReportTime);
+            }
+            if (this.elements.statusText) {
+                this.elements.statusText.innerHTML = statusInfo.text;
+            }
+            if (this.elements.statusBadge) {
+                this.elements.statusBadge.textContent = statusInfo.badge;
+                this.elements.statusBadge.className = `status-badge ${statusInfo.class}`;
+            }
+
+            // Update checkin toggle button
+            if (this.elements.checkinToggleButton) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const email = urlParams.get('email');
+
+                if (email) {
+                    this.elements.checkinToggleButton.textContent = 'Unable to Enable/Disable from here';
+                    this.elements.checkinToggleButton.className = 'disabled';
+                } else {
+                    const isEnabled = checkinstate === 1;
+                    this.elements.checkinToggleButton.textContent = isEnabled ? 'Disable AutoCheckin' : 'Enable AutoCheckin';
+                    this.elements.checkinToggleButton.className = isEnabled ? 'disable' : 'enable';
+                }
+            }
+
+            // Update activity log
+            this.updateActivityLog(autoLogData);
+
+            // Update timetable
+            this.updateTimetable(data);
+        } catch (error) {
+            displayNotice(
+                'Failed to update dashboard display: ' + error.message,
+                'error',
+                'Dashboard update error',
+                0
+            );
+        }
+    }
+};
+
+// Initialize dashboard when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    AutoCheckinDashboard.init();
+});
+</script>

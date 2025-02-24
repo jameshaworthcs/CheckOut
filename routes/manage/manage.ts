@@ -69,6 +69,13 @@ app.get('/manage/autocheckin/logs', function (req, res) {
   });
 });
 
+// Manage autocheckin dashboard
+app.get('/manage/autocheckin/dashboard', function (req, res) {
+  res.render('autocheckin/dashboard/dashboard.ejs', {
+    email: req.query.email,
+  });
+});
+
 // Manage globalapp
 app.get('/manage/globalapp', function (req, res) {
   res.render('manage/globalapp/globalapp.ejs', { username: req.username, email: req.useremail });

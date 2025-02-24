@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../../global/head'); %>
+    <title>AutoCheckin - CheckOut</title>
+    <%- include('./dashboard-css'); %>
+  </head>
+
+  <body>
+    <%- include('../../global/navbar'); %>
+    <div class="autocheckin-dashboard">
+      <div id="admin-message" class="admin-message-box" style="display: none;">
+        <span>Admin viewing <span id="admin-email"></span>'s dashboard.</span>
+        <a onclick="window.close()">Close tab</a>
+      </div>
+      <div class="dashboard-header">
+        <div class="header-left">
+          <h1>AutoCheckin dashboard</h1>
+          <p><span id="username-display">Loading...</span>, welcome to the new AutoCheckin dashboard.</p>
+        </div>
+        <div class="header-right">
+          <div class="status-badge">LOADING...</div><div class="last-active">Loading...</div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="grid-item top-left-box">
+            <div class="box-header top-left-box-header"><h2>Status</h2></div>
+            <div id="top-left-box-content" class="box-content top-left-box-content">
+                Last reported your session <span id="status-text" class="status-active">loading...</span> on <span id="last-active-date">January 1, 1970</span> at <span id="last-active-time">12:00 AM</span>.
+            </div>
+        </div>
+        <div class="grid-item bottom-left-box">
+            <div class="box-header bottom-left-box-header">
+                <h2>Timetable</h2>
+                <p>View your timetable for the week.</p>
+            </div>
+            <div class="box-content timetable-box-content">
+                <div class="activity-skeleton-container">
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-item middle-box">
+            <div class="box-header middle-box-header">
+                <h2>Attendance statistics</h2>
+                <p>Attendance statistics are updated daily.</p>
+            </div>
+            <div class="box-content middle-box-content">
+                <div class="coming-soon-container">
+                    <div class="coming-soon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="2rem" height="2rem"><path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/></svg></div>
+                    <div>Coming soon</div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-item manage-box">
+            <div class="box-header manage-box-header">
+                <h2>Manage</h2>
+                <p>Manage your AutoCheckin settings.</p>
+            </div>
+            <div class="box-content manage-box-content">
+                <div id="manage-button-container">
+                    <button id="checkin-toggle-button" class="loading">Loading...</button>
+                </div>
+            </div>
+        </div>
+        <div class="grid-item right-box">
+            <div class="box-header right-box-header">
+                <h2>Activity</h2>
+                <p>View your logs.</p>
+            </div>
+            <div class="box-content right-box-content">
+                <div class="activity-skeleton-container">
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                    <div class="activity-skeleton-item">
+                        <div class="skeleton activity-skeleton-title"></div>
+                        <div class="skeleton activity-skeleton-details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <%- include('./dashboard-js'); %>
+  </body>
+</html>

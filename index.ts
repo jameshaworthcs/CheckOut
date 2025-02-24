@@ -16,12 +16,39 @@ import session from 'express-session';
 import mysqlSession from 'express-mysql-session';
 import { minify } from 'html-minifier-terser';
 import moment from 'moment';
+import chokidar from 'chokidar';
 
 declare const __dirname: string;
 declare const process: any;
 
 // Configure environment variables
 dotenv.config({ path: '.env.local' });
+
+// Setup template watching in development
+if (process.env.NODE_ENV === 'development') {
+  const viewsPath = path.join(__dirname, 'views');
+  const watcher = chokidar.watch(viewsPath, {
+    ignored: /(^|[\/\\])\../, // ignore dotfiles
+    persistent: true
+  });
+
+  watcher.on('change', (filePath) => {
+    console.log(`Template changed: ${filePath}`);
+    // Clear the module cache for the changed file
+    const relativePath = path.relative(__dirname, filePath);
+    if (require.cache[require.resolve(`./${relativePath}`)]) {
+      delete require.cache[require.resolve(`./${relativePath}`)];
+    }
+    // Clear the EJS module cache
+    Object.keys(require.cache).forEach((id) => {
+      if (id.endsWith('.ejs')) {
+        delete require.cache[id];
+      }
+    });
+  });
+
+  console.log('Template watching enabled in development mode');
+}
 
 // Type definitions and interfaces
 
@@ -158,7 +185,7 @@ const { auth } = require('./routes/secure');
 const app: express.Application = express();
 const port: number = process.env.NODE_PORT ? parseInt(process.env.NODE_PORT, 10) : 4000;
 app.set('trust proxy', 1);
-app.set('view cache', true);
+app.set('view cache', process.env.NODE_ENV !== 'development');
 
 // Enable compression for all responses
 app.use(compression({ level: 6 }));
@@ -258,6 +285,7 @@ if (process.env.CHK_SRV === 'BETA') {
 // View engine and middleware setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('view cache', process.env.NODE_ENV !== 'development');
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
