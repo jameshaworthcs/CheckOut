@@ -253,11 +253,11 @@ app.post('/api/autocheckin/update-sync', async function (req, res) {
       for (const key in source) {
         if (key === 'attendanceData') {
           if (!target[key]) target[key] = {};
-          
+
           // Handle attendanceData specially
           for (const year in source[key]) {
             if (!target[key][year]) target[key][year] = {};
-            
+
             // For each week in the year, completely replace if exists
             for (const week in source[key][year]) {
               target[key][year][week] = source[key][year][week];
@@ -315,6 +315,39 @@ app.get('/api/autocheckin/test-server', async (req, res) => {
       reportedConnection: false,
       error: response.error,
       requestDetails: response.requestDetails,
+    });
+  }
+});
+
+// Proxy endpoint
+app.get('/api/autocheckin/proxy/:endpoint(*)', async (req, res) => {
+  const startTime = Date.now();
+  const endpoint = req.params.endpoint;
+
+  try {
+    // Make request to autocheckin server with full details
+    const response = await makeAutoCheckinRequest.get(endpoint, true);
+    const timeTaken = Date.now() - startTime;
+
+    res.json({
+      success: response.success,
+      data: response.data,
+      proxyDetails: {
+        timeTaken,
+        fullUrl: `${process.env.CHK_AUTO_API}/${endpoint}`,
+        requestDetails: response.requestDetails
+      }
+    });
+
+  } catch (error) {
+    const timeTaken = Date.now() - startTime;
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      proxyDetails: {
+        timeTaken,
+        fullUrl: `${process.env.CHK_AUTO_API}/${endpoint}`
+      }
     });
   }
 });
