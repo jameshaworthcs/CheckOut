@@ -508,6 +508,12 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
   next();
 });
 
+// CORS middleware
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
 // Caching headers middleware
 app.use((req: Request, res: Response, next: NextFunction): void => {
   if (req.url.startsWith('/static')) {
