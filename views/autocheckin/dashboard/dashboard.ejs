@@ -16,7 +16,7 @@
       <div class="dashboard-header">
         <div class="header-left">
           <h1>AutoCheckin dashboard</h1>
-          <p><span id="username-display">Loading...</span>, welcome to the new AutoCheckin dashboard.</p>
+          <p>Welcome to the new AutoCheckin dashboard, <span id="username-display">Loading...</span>. <br>Have a question or need advice? <a href="/support?pre=autocheckin">Feel free to reach out to us</a>.</p>
         </div>
         <div class="header-right">
           <div class="status-badge">LOADING...</div><div class="last-active">Loading...</div>
@@ -26,7 +26,7 @@
         <div class="grid-item top-left-box">
             <div class="box-header top-left-box-header"><h2>Status</h2></div>
             <div id="top-left-box-content" class="box-content top-left-box-content">
-                Last reported your session <span id="status-text" class="status-active">loading...</span> on <span id="last-active-date">January 1, 1970</span> at <span id="last-active-time">12:00 AM</span>.
+                AutoCheckin automatically refreshes your session to keep you logged in. Your session was last <span id="status-text" class="status-active">loading...</span> on <span id="last-active-date">January 1, 1970</span> at <span id="last-active-time">12:00 AM</span>.
             </div>
         </div>
         <div class="grid-item bottom-left-box">
@@ -52,11 +52,12 @@
         <div class="grid-item manage-box">
             <div class="box-header manage-box-header">
                 <h2>Manage</h2>
-                <p>Manage your AutoCheckin settings.</p>
+                <p>Manage your AutoCheckin settings and get help.</p>
             </div>
             <div class="box-content manage-box-content">
                 <div id="manage-button-container">
                     <button id="checkin-toggle-button" class="loading">Loading...</button>
+                    <button id="help-button" class="help-button">Help</button>
                 </div>
             </div>
         </div>

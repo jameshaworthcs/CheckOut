@@ -19,16 +19,17 @@ const AutoCheckinDashboard = {
         adminMessage: document.getElementById('admin-message'),
         adminEmail: document.getElementById('admin-email'),
         checkinToggleButton: document.getElementById('checkin-toggle-button'),
+        helpButton: document.getElementById('help-button'),
         activityLogContainer: document.querySelector('.right-box-content'),
         timetableContainer: document.querySelector('.timetable-box-content')
     },
 
     // Status mappings
     statusMappings: {
-        'Fail': { text: 'in error state', badge: 'ERROR', class: 'error' },
+        'Fail': { text: 'failed to refresh (see logs)', badge: 'ERROR', class: 'error' },
         'Disabled': { text: 'disabled', badge: 'DISABLED', class: 'disabled' },
         'Enabled': { text: 'pending', badge: 'PENDING', class: 'pending', suffix: ' (this can take up to an hour to change)' },
-        'Normal': { text: 'active', badge: 'ACTIVE', class: 'active' }
+        'Normal': { text: 'successfully refreshed', badge: 'ACTIVE', class: 'active' }
     },
 
     // Initialize the dashboard
@@ -48,6 +49,11 @@ const AutoCheckinDashboard = {
                     this.showDisableConfirmModal();
                 }
                 // Enable functionality will be added later
+            });
+        }
+        if (this.elements.helpButton) {
+            this.elements.helpButton.addEventListener('click', () => {
+                this.showHelpModal();
             });
         }
     },
@@ -127,6 +133,31 @@ const AutoCheckinDashboard = {
         modalHelper.open('disable-confirm-modal');
     },
 
+    // Show help modal
+    showHelpModal() {
+        const modalContent = `
+            <h2>Help</h2>
+            <p>Have a question or need advice? <a href="/support?pre=autocheckin">Feel free to reach out to us</a>.</p>
+        `;
+
+        const { modal } = modalHelper.create({
+            id: 'help-modal',
+            content: modalContent,
+            customClass: 'help-modal',
+            showCloseButton: true
+        });
+
+        // Add click handler for close button
+        const closeButton = modal.querySelector('.close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                modalHelper.close('help-modal');
+            });
+        }
+
+        modalHelper.open('help-modal');
+    },
+
     // Check if viewing as admin and show message if needed
     checkAdminView() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -140,6 +171,9 @@ const AutoCheckinDashboard = {
 
     // Load and display cached data if available
     loadCachedData() {
+        // Skip loading cache if viewing as admin
+        if (this.isAdminView()) return;
+
         const cachedData = this.getCachedData();
         if (cachedData) {
             this.updateDashboard(cachedData);
@@ -148,6 +182,9 @@ const AutoCheckinDashboard = {
 
     // Get cached data from localStorage
     getCachedData() {
+        // Skip getting cache if viewing as admin
+        if (this.isAdminView()) return null;
+
         try {
             const cache = JSON.parse(localStorage.getItem(this.CACHE_KEY) || '{}');
             return cache[this.DASHBOARD_CACHE_KEY];
@@ -159,6 +196,9 @@ const AutoCheckinDashboard = {
 
     // Update cache with new data
     updateCache(data) {
+        // Skip updating cache if viewing as admin
+        if (this.isAdminView()) return;
+
         try {
             const cache = JSON.parse(localStorage.getItem(this.CACHE_KEY) || '{}');
             cache[this.DASHBOARD_CACHE_KEY] = data;
@@ -166,6 +206,12 @@ const AutoCheckinDashboard = {
         } catch (error) {
             console.error('Error updating cache:', error);
         }
+    },
+
+    // Helper method to check if viewing as admin
+    isAdminView() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return !!urlParams.get('email');
     },
 
     // Fetch fresh data from API
