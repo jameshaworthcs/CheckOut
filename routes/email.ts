@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 let transporter = null;
 
@@ -37,12 +39,27 @@ const sendVerificationEmail = (toEmail, code) => {
   return transporter.sendMail(mailOptions);
 };
 
-const sendEmail = (toEmail, emailTitle, emailHtml) => {
+const sendEmail = (toEmail, emailTitle, emailHtml, imageAttachments = []) => {
+  // Convert image paths to attachments with CIDs
+  const attachments = imageAttachments.map((imagePath) => {
+    const filename = path.basename(imagePath);
+    const cid = filename; // Simplified CID without 'image-' prefix for better Gmail compatibility
+    
+    return {
+      filename,
+      path: path.join(process.cwd(), 'public', 'static', 'images', 'email', imagePath),
+      cid: cid,
+      contentDisposition: 'inline', // Explicitly set inline disposition
+      contentType: `image/${path.extname(imagePath).substring(1)}`, // Explicitly set content type based on extension
+    };
+  });
+
   const mailOptions = {
     from: process.env.GOOGLE_SENDER || 'checkout@jemedia.xyz',
     to: toEmail,
     subject: emailTitle,
     html: emailHtml,
+    attachments: attachments,
   };
 
   if (!transporter) {

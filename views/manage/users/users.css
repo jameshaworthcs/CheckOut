@@ -197,120 +197,23 @@ tr:last-child td {
     background: var(--action-highlight-colour-main);
 }
 
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-}
-
-.modal.show {
-    opacity: 1;
-}
-
-.modal-content {
-    background: var(--content-background);
-    margin: 2rem auto;
-    padding: 2rem;
-    border: var(--box-accent-width) solid var(--accent-colour);
-    border-radius: 10px;
-    width: 90%;
-    max-width: 600px;
-    color: var(--text-colour);
-    box-shadow: var(--shadow2);
-    position: relative;
-    transform: translateY(-20px);
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.modal.show .modal-content {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.modal h2 {
-    color: var(--header-colour);
-    margin: 0 0 1.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    border-bottom: var(--box-accent-width) solid var(--accent-colour);
-    padding-bottom: 1rem;
-}
-
-.modal p {
-    margin: 1rem 0;
-    font-size: 1rem;
-    line-height: 1.5;
-    padding: 0.75rem;
-    background: var(--secondary-background);
-    border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
-    border-radius: 6px;
-}
-
-.modal button {
-    padding: 0.75rem 1.5rem;
-    background: var(--cta-background-main);
-    color: var(--cta-button-colour-main);
-    border: var(--cta-border);
-    border-radius: 7px;
-    font-weight: 550;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.modal button:hover {
-    background: var(--action-highlight-colour-main);
-}
-
-.close {
-    position: absolute;
-    right: 1.5rem;
-    top: 1.5rem;
-    color: var(--subtext-colour);
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 0.25rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    opacity: 0.7;
-    z-index: 1;
-}
-
-.close:hover {
-    color: var(--submit-fail-colour);
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-#editForm {
+/* Form Styles */
+.edit-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
 }
 
-#editForm label {
+.edit-form label {
     font-weight: 500;
     color: var(--text-colour);
     margin-bottom: 0.25rem;
     display: block;
 }
 
-#editForm input,
-#editForm textarea,
-#editForm select {
+.edit-form input,
+.edit-form textarea,
+.edit-form select {
     padding: 0.75rem 1rem;
     border: var(--secondary-box-accent-width) solid var(--secondary-accent-colour);
     border-radius: 6px;
@@ -321,26 +224,26 @@ tr:last-child td {
     font-size: 0.95rem;
 }
 
-#editForm input:hover,
-#editForm textarea:hover,
-#editForm select:hover {
+.edit-form input:hover,
+.edit-form textarea:hover,
+.edit-form select:hover {
     border-color: var(--action-colour);
 }
 
-#editForm input:focus,
-#editForm textarea:focus,
-#editForm select:focus {
+.edit-form input:focus,
+.edit-form textarea:focus,
+.edit-form select:focus {
     outline: none;
     border-color: var(--action-colour);
     background: var(--input-focus);
 }
 
-#editForm textarea {
+.edit-form textarea {
     min-height: 100px;
     resize: vertical;
 }
 
-#editForm select {
+.edit-form select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
@@ -349,7 +252,7 @@ tr:last-child td {
     padding-right: 2.5rem;
 }
 
-#editForm button {
+.edit-form button {
     padding: 0.75rem;
     background: var(--cta-background-main);
     color: var(--cta-button-colour-main);
@@ -361,7 +264,7 @@ tr:last-child td {
     margin-top: 0.5rem;
 }
 
-#editForm button:hover {
+.edit-form button:hover {
     background: var(--action-highlight-colour-main);
 }
 
@@ -377,12 +280,6 @@ tr:last-child td {
     .filters {
         padding: 1rem;
         grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        margin: 1rem;
-        padding: 1.5rem;
-        width: calc(100% - 2rem);
     }
     
     .actions {

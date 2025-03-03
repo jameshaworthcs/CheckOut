@@ -133,51 +133,90 @@ document.addEventListener('DOMContentLoaded', function () {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        alert('Copied to clipboard');
+        displayNotice('Copied to clipboard', 'success');
       })
       .catch((err) => {
         console.error('Error copying to clipboard:', err);
+        displayNotice('Failed to copy to clipboard', 'error');
       });
   };
 
   window.viewDetails = function (id, type, token) {
-    modalContent.innerHTML = `
-            <h2>User ID: ${id}</h2>
-            <p>${type === 'api_token' ? 'API Token' : 'Check-in Token'}: ${token}</p>
-            <button onclick="copyToClipboard('${token}')">Copy ${type === 'api_token' ? 'API Token' : 'Check-in Token'}</button>
-        `;
-    showModal(viewModal);
+    const modalId = 'viewTokenModal';
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <h2>User ID: ${id}</h2>
+      <p>${type === 'api_token' ? 'API Token' : 'Check-in Token'}: ${token}</p>
+      <button onclick="copyToClipboard('${token}')">Copy ${type === 'api_token' ? 'API Token' : 'Check-in Token'}</button>
+    `;
+
+    modalHelper.create({
+      id: modalId,
+      content: content,
+      source: 'users',
+      customClass: 'token-modal'
+    });
+
+    modalHelper.open(modalId);
   };
 
   window.editUser = function (id, username, userstate, checkinstate, checkintoken, note) {
-    document.getElementById('editUserId').value = id;
-    document.getElementById('editUsername').value = username.replace(/\\n/g, '\n');
-    document.getElementById('editUserState').value = userstate;
-    document.getElementById('editCheckinState').value = checkinstate;
-    document.getElementById('editCheckinToken').value = checkintoken;
-    document.getElementById('editNote').value = note.replace(/\\n/g, '\n');
-    showModal(editModal);
-  };
+    const modalId = 'editUserModal';
+    const form = document.createElement('form');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <h2>Edit User</h2>
+      <input type="hidden" id="editUserId" value="${id}" />
+      <label for="editUsername">Username:</label>
+      <input type="text" id="editUsername" value="${username.replace(/\\n/g, '\n')}" />
+      <label for="editUserState">User State:</label>
+      <input type="text" id="editUserState" value="${userstate}" />
+      <label for="editCheckinState">Check-in State:</label>
+      <select id="editCheckinState">
+        <option value="0" ${checkinstate === '0' ? 'selected' : ''}>Off</option>
+        <option value="1" ${checkinstate === '1' ? 'selected' : ''}>On</option>
+      </select>
+      <label for="editCheckinToken">Check-in Token:</label>
+      <input type="text" id="editCheckinToken" value="${checkintoken}" />
+      <label for="editNote">Note:</label>
+      <textarea id="editNote" rows="4">${note.replace(/\\n/g, '\n')}</textarea>
+      <button type="submit">Save Changes</button>
+    `;
 
-  editForm.onsubmit = async function (event) {
-    event.preventDefault();
-    const id = document.getElementById('editUserId').value;
-    const username = document.getElementById('editUsername').value;
-    const userstate = document.getElementById('editUserState').value;
-    const checkinstate = document.getElementById('editCheckinState').value;
-    const checkintoken = document.getElementById('editCheckinToken').value;
-    const note = document.getElementById('editNote').value;
-    try {
-      await fetch(`/manage/api/users/update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, username, userstate, checkinstate, checkintoken, note }),
-      });
-      fetchUsers();
-      hideModal(editModal);
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
+    form.onsubmit = async function (event) {
+      event.preventDefault();
+      const formData = {
+        id: document.getElementById('editUserId').value,
+        username: document.getElementById('editUsername').value,
+        userstate: document.getElementById('editUserState').value,
+        checkinstate: document.getElementById('editCheckinState').value,
+        checkintoken: document.getElementById('editCheckinToken').value,
+        note: document.getElementById('editNote').value
+      };
+
+      try {
+        await fetch(`/manage/api/users/update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        fetchUsers();
+        modalHelper.close(modalId);
+        displayNotice('User updated successfully', 'success');
+      } catch (error) {
+        console.error('Error updating user:', error);
+        displayNotice('Failed to update user', 'error');
+      }
+    };
+
+    modalHelper.create({
+      id: modalId,
+      content: form,
+      source: 'users',
+      customClass: 'edit-modal'
+    });
+
+    modalHelper.open(modalId);
   };
 
   window.deleteUser = async function (id) {
@@ -185,8 +224,10 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         await fetch(`/manage/api/users/delete/${id}`, { method: 'DELETE' });
         fetchUsers();
+        displayNotice('User deleted successfully', 'success');
       } catch (error) {
         console.error('Error deleting user:', error);
+        displayNotice('Failed to delete user', 'error');
       }
     }
   };
@@ -195,9 +236,10 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(`/manage/api/users/generate-onetime/${id}`, { method: 'GET' });
       const data = await response.json();
-      alert(`Generated OneTime for User ID: ${data.id}`);
+      displayNotice(`Generated OneTime for User ID: ${data.id}`, 'success');
     } catch (error) {
       console.error('Error generating one-time token:', error);
+      displayNotice('Failed to generate one-time token', 'error');
     }
   };
 
@@ -205,10 +247,11 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(`/manage/api/users/refresh-api-token/${id}`, { method: 'POST' });
       const data = await response.json();
-      alert(`API Token refreshed for User ID: ${data.id}`);
+      displayNotice(`API Token refreshed for User ID: ${data.id}`, 'success');
       fetchUsers();
     } catch (error) {
       console.error('Error refreshing API token:', error);
+      displayNotice('Failed to refresh API token', 'error');
     }
   };
 
@@ -216,9 +259,10 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(`/manage/api/users/session-refresh/${id}`, { method: 'GET' });
       const data = await response.json();
-      alert(`Session refreshed for User ID: ${data.id}`);
+      displayNotice(`Session refreshed for User ID: ${data.id}`, 'success');
     } catch (error) {
       console.error('Error refreshing session:', error);
+      displayNotice('Failed to refresh session', 'error');
     }
   };
 

@@ -80,40 +80,6 @@
         transform: translateY(-2px);
       }
 
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-      }
-
-      .modal-content {
-        background-color: var(--content-background);
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid var(--secondary-accent-colour);
-        border-radius: 8px;
-        width: 80%;
-        max-width: 500px;
-      }
-
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .close:hover {
-        color: var(--bs-body-color);
-      }
-
       .form-group {
         margin-bottom: 1rem;
       }
@@ -228,73 +194,7 @@
       </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEditModal()">&times;</span>
-        <form id="editForm">
-          <input type="hidden" id="editPermId" />
-          <div class="form-group">
-            <label for="editUserstate">Permission Level:</label>
-            <input type="text" id="editUserstate" required />
-          </div>
-          <div class="form-group">
-            <label for="editRoutes">Available Routes:</label>
-            <div class="routes-input-container" id="editRoutesContainer">
-              <input
-                type="text"
-                class="routes-input"
-                id="editRoutesInput"
-                placeholder="Type route and press Enter"
-              />
-            </div>
-            <input type="hidden" id="editRoutes" />
-            <small>Press Enter or comma to add a route</small>
-          </div>
-          <div class="form-group">
-            <label for="editRatelimit">Rate Limit:</label>
-            <input type="number" id="editRatelimit" required min="0" />
-          </div>
-          <button type="submit" class="action-btn">Save Changes</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add Modal -->
-    <div id="addModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeAddModal()">&times;</span>
-        <form id="addForm">
-          <div class="form-group">
-            <label for="addUserstate">Permission Level:</label>
-            <input type="text" id="addUserstate" required />
-          </div>
-          <div class="form-group">
-            <label for="addRoutes">Available Routes:</label>
-            <div class="routes-input-container" id="addRoutesContainer">
-              <input
-                type="text"
-                class="routes-input"
-                id="addRoutesInput"
-                placeholder="Type route and press Enter"
-              />
-            </div>
-            <input type="hidden" id="addRoutes" />
-            <small>Press Enter or comma to add a route</small>
-          </div>
-          <div class="form-group">
-            <label for="addRatelimit">Rate Limit:</label>
-            <input type="number" id="addRatelimit" required min="0" />
-          </div>
-          <button type="submit" class="action-btn">Add Permission</button>
-        </form>
-      </div>
-    </div>
-
     <script>
-      const editModal = document.getElementById('editModal');
-      const addModal = document.getElementById('addModal');
-
       async function loadPermissions() {
         try {
           const response = await fetch('/manage/api/permissions/list');
@@ -334,15 +234,83 @@
       }
 
       function showAddModal() {
-        addModal.style.display = 'block';
-      }
+        const form = document.createElement('form');
+        form.className = 'edit-form';
+        form.innerHTML = `
+          <h2>Add New Permission</h2>
+          <div class="form-group">
+            <label for="addUserstate">Permission Level:</label>
+            <input type="text" id="addUserstate" required />
+          </div>
+          <div class="form-group">
+            <label for="addRoutes">Available Routes:</label>
+            <div class="routes-input-container" id="addRoutesContainer">
+              <input
+                type="text"
+                class="routes-input"
+                id="addRoutesInput"
+                placeholder="Type route and press Enter"
+              />
+            </div>
+            <input type="hidden" id="addRoutes" />
+            <small>Press Enter or comma to add a route</small>
+          </div>
+          <div class="form-group">
+            <label for="addRatelimit">Rate Limit:</label>
+            <input type="number" id="addRatelimit" required min="0" />
+          </div>
+          <button type="submit" class="action-btn">Add Permission</button>
+        `;
 
-      function closeAddModal() {
-        addModal.style.display = 'none';
-      }
+        form.onsubmit = async function (event) {
+          event.preventDefault();
+          const userstate = document.getElementById('addUserstate').value;
+          let routes;
+          try {
+            routes = JSON.parse(document.getElementById('addRoutes').value || '[]');
+            if (!Array.isArray(routes)) {
+              displayNotice('Routes must be a valid array', 'error');
+              return;
+            }
+          } catch (e) {
+            displayNotice('Invalid route format', 'error');
+            return;
+          }
+          const ratelimit = document.getElementById('addRatelimit').value;
 
-      function closeEditModal() {
-        editModal.style.display = 'none';
+          try {
+            const response = await fetch('/manage/api/permissions/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userstate, routes, ratelimit }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              throw new Error(data.msg || 'Failed to add permission');
+            }
+            displayNotice('Permission added successfully', 'success');
+            loadPermissions();
+            modalHelper.close('addPermissionModal');
+          } catch (error) {
+            console.error('Error adding permission:', error);
+            displayNotice(error.message, 'error', 'Add Error');
+          }
+        };
+
+        modalHelper.create({
+          id: 'addPermissionModal',
+          content: form,
+          source: 'permissions',
+          customClass: 'permission-modal'
+        });
+
+        modalHelper.open('addPermissionModal');
+
+        // Initialize routes input
+        const container = document.getElementById('addRoutesContainer');
+        const hiddenInput = document.getElementById('addRoutes');
+        const input = container.querySelector('.routes-input');
+        setupRoutesInput(container, hiddenInput, input);
       }
 
       function createRouteTag(route, container, hiddenInput) {
@@ -389,20 +357,91 @@
       }
 
       function editPermission(permid, userstate, routes, ratelimit) {
-        document.getElementById('editPermId').value = permid;
-        document.getElementById('editUserstate').value = userstate;
+        const form = document.createElement('form');
+        form.className = 'edit-form';
+        form.innerHTML = `
+          <h2>Edit Permission</h2>
+          <input type="hidden" id="editPermId" value="${permid}" />
+          <div class="form-group">
+            <label for="editUserstate">Permission Level:</label>
+            <input type="text" id="editUserstate" value="${userstate}" required />
+          </div>
+          <div class="form-group">
+            <label for="editRoutes">Available Routes:</label>
+            <div class="routes-input-container" id="editRoutesContainer">
+              <input
+                type="text"
+                class="routes-input"
+                id="editRoutesInput"
+                placeholder="Type route and press Enter"
+              />
+            </div>
+            <input type="hidden" id="editRoutes" />
+            <small>Press Enter or comma to add a route</small>
+          </div>
+          <div class="form-group">
+            <label for="editRatelimit">Rate Limit:</label>
+            <input type="number" id="editRatelimit" value="${ratelimit}" required min="0" />
+          </div>
+          <button type="submit" class="action-btn">Save Changes</button>
+        `;
 
+        form.onsubmit = async function (event) {
+          event.preventDefault();
+          const formData = {
+            permid: document.getElementById('editPermId').value,
+            userstate: document.getElementById('editUserstate').value,
+            ratelimit: document.getElementById('editRatelimit').value
+          };
+
+          try {
+            formData.routes = JSON.parse(document.getElementById('editRoutes').value);
+            if (!Array.isArray(formData.routes)) {
+              displayNotice('Routes must be a valid array', 'error');
+              return;
+            }
+          } catch (e) {
+            displayNotice('Invalid route format', 'error');
+            return;
+          }
+
+          try {
+            const response = await fetch('/manage/api/permissions/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(formData),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              throw new Error(data.msg || 'Failed to update permission');
+            }
+            displayNotice('Permission updated successfully', 'success');
+            loadPermissions();
+            modalHelper.close('editPermissionModal');
+          } catch (error) {
+            console.error('Error updating permission:', error);
+            displayNotice(error.message, 'error', 'Update Error');
+          }
+        };
+
+        modalHelper.create({
+          id: 'editPermissionModal',
+          content: form,
+          source: 'permissions',
+          customClass: 'permission-modal'
+        });
+
+        modalHelper.open('editPermissionModal');
+
+        // Initialize routes input
         const container = document.getElementById('editRoutesContainer');
         const hiddenInput = document.getElementById('editRoutes');
         const input = container.querySelector('.routes-input');
+        setupRoutesInput(container, hiddenInput, input);
 
-        // Clear existing tags
-        container.querySelectorAll('.route-tag').forEach((tag) => tag.remove());
-
-        // Add new tags
+        // Add existing routes
         let routesArray;
         try {
-          // Handle both string JSON and direct array
           routesArray = typeof routes === 'string' ? JSON.parse(routes) : routes;
           if (Array.isArray(routesArray)) {
             routesArray.forEach((route) => {
@@ -412,9 +451,6 @@
         } catch (e) {
           console.error('Error parsing routes:', e);
         }
-
-        document.getElementById('editRatelimit').value = ratelimit;
-        editModal.style.display = 'block';
       }
 
       async function deletePermission(permid) {
@@ -436,104 +472,8 @@
         }
       }
 
-      document.getElementById('editForm').onsubmit = async function (event) {
-        event.preventDefault();
-        const permid = document.getElementById('editPermId').value;
-        const userstate = document.getElementById('editUserstate').value;
-        let routes;
-        try {
-          routes = JSON.parse(document.getElementById('editRoutes').value);
-          if (!Array.isArray(routes)) {
-            displayNotice('Routes must be a valid array', 'error');
-            return;
-          }
-        } catch (e) {
-          displayNotice('Invalid route format', 'error');
-          return;
-        }
-        const ratelimit = document.getElementById('editRatelimit').value;
-
-        try {
-          const response = await fetch('/manage/api/permissions/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ permid, userstate, routes, ratelimit }),
-          });
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.msg || 'Failed to update permission');
-          }
-          displayNotice('Permission updated successfully', 'success');
-          loadPermissions();
-          closeEditModal();
-        } catch (error) {
-          console.error('Error updating permission:', error);
-          displayNotice(error.message, 'error', 'Update Error');
-        }
-      };
-
-      document.getElementById('addForm').onsubmit = async function (event) {
-        event.preventDefault();
-        const userstate = document.getElementById('addUserstate').value;
-        let routes;
-        try {
-          routes = JSON.parse(document.getElementById('addRoutes').value || '[]');
-          if (!Array.isArray(routes)) {
-            displayNotice('Routes must be a valid array', 'error');
-            return;
-          }
-        } catch (e) {
-          displayNotice('Invalid route format', 'error');
-          return;
-        }
-        const ratelimit = document.getElementById('addRatelimit').value;
-
-        try {
-          const response = await fetch('/manage/api/permissions/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userstate, routes, ratelimit }),
-          });
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.msg || 'Failed to add permission');
-          }
-          displayNotice('Permission added successfully', 'success');
-          loadPermissions();
-          closeAddModal();
-        } catch (error) {
-          console.error('Error adding permission:', error);
-          displayNotice(error.message, 'error', 'Add Error');
-        }
-      };
-
-      // Close modals when clicking outside
-      window.onclick = function (event) {
-        if (event.target === editModal) {
-          closeEditModal();
-        }
-        if (event.target === addModal) {
-          closeAddModal();
-        }
-      };
-
       // Load permissions when the page loads
       document.addEventListener('DOMContentLoaded', loadPermissions);
-
-      // Initialize routes input when the document loads
-      document.addEventListener('DOMContentLoaded', () => {
-        const editContainer = document.getElementById('editRoutesContainer');
-        const editHiddenInput = document.getElementById('editRoutes');
-        const editInput = editContainer.querySelector('.routes-input');
-
-        const addContainer = document.getElementById('addRoutesContainer');
-        const addHiddenInput = document.getElementById('addRoutes');
-        const addInput = addContainer.querySelector('.routes-input');
-
-        setupRoutesInput(editContainer, editHiddenInput, editInput);
-        setupRoutesInput(addContainer, addHiddenInput, addInput);
-        loadPermissions();
-      });
     </script>
   </body>
 </html>
