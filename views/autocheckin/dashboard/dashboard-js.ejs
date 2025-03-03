@@ -477,26 +477,209 @@ const AutoCheckinDashboard = {
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentWeek = this.getWeekNumber(now);
-
-        // Check if sync data exists and has attendance data for current year and week
-        const attendanceData = syncData?.attendanceData?.[currentYear]?.[currentWeek];
-
-        if (!attendanceData) {
-            // Show "Data available soon" message
-            this.elements.timetableContainer.innerHTML = `
-                <div class="coming-soon-container">
-                    <div class="coming-soon-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="2rem" height="2rem">
-                            <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>
-                        </svg>
-                    </div>
-                    <div>Data available soon.</div>
-                    <div style="font-size: 0.8rem;">It usually takes up to 24 hours for attendance data to be available.</div><br>
-                </div>
-            `;
+        
+        // If no sync data, show "Data available soon" message
+        if (!syncData?.attendanceData) {
+            this.showTimetableDataAvailableSoon();
             return;
         }
-
+        
+        // Collect all available weeks from the API response
+        const availableWeeks = [];
+        
+        // Loop through years and weeks to find all available weeks
+        Object.keys(syncData.attendanceData).forEach(year => {
+            Object.keys(syncData.attendanceData[year]).forEach(week => {
+                if (syncData.attendanceData[year][week] && syncData.attendanceData[year][week].length > 0) {
+                    // Calculate the date for the start of this week
+                    const weekStartDate = this.getDateOfISOWeek(parseInt(week), parseInt(year));
+                    
+                    availableWeeks.push({
+                        year: parseInt(year),
+                        week: parseInt(week),
+                        weekStartDate,
+                        formattedDate: this.formatWeekStartDate(weekStartDate)
+                    });
+                }
+            });
+        });
+        
+        // Sort weeks chronologically (oldest to newest)
+        availableWeeks.sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year;
+            return a.week - b.week;
+        });
+        
+        // If no available weeks, show "Data available soon" message
+        if (availableWeeks.length === 0) {
+            this.showTimetableDataAvailableSoon();
+            return;
+        }
+        
+        // Find the index of the current week in the available weeks
+        let currentWeekIndex = availableWeeks.findIndex(w => 
+            w.year === currentYear && w.week === currentWeek
+        );
+        
+        // If current week not found, default to the most recent week
+        if (currentWeekIndex === -1) {
+            currentWeekIndex = availableWeeks.length - 1;
+        }
+        
+        // Create pagination container if we have multiple weeks
+        if (availableWeeks.length > 1) {
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'timetable-pagination';
+            
+            // Create pagination navigation container
+            const paginationNav = document.createElement('div');
+            paginationNav.className = 'pagination-nav';
+            
+            // Add previous week button
+            const prevButton = document.createElement('button');
+            prevButton.className = 'pagination-button prev-button';
+            prevButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="1rem" height="1rem"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg>';
+            prevButton.disabled = currentWeekIndex === 0;
+            prevButton.title = "Previous week";
+            
+            // Add week display (shows the date range)
+            const weekDisplay = document.createElement('div');
+            weekDisplay.className = 'week-display';
+            weekDisplay.textContent = this.formatWeekRange(availableWeeks[currentWeekIndex].weekStartDate);
+            
+            // Add next week button
+            const nextButton = document.createElement('button');
+            nextButton.className = 'pagination-button next-button';
+            nextButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="1rem" height="1rem"><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>';
+            nextButton.disabled = currentWeekIndex === availableWeeks.length - 1;
+            nextButton.title = "Next week";
+            
+            // Add event listeners for navigation buttons
+            prevButton.addEventListener('click', () => {
+                if (currentWeekIndex > 0) {
+                    currentWeekIndex--;
+                    const weekData = availableWeeks[currentWeekIndex];
+                    this.displayWeekTimetable(syncData, weekData.year, weekData.week);
+                    weekDisplay.textContent = this.formatWeekRange(weekData.weekStartDate);
+                    
+                    // Update button states
+                    prevButton.disabled = currentWeekIndex === 0;
+                    nextButton.disabled = false;
+                }
+            });
+            
+            nextButton.addEventListener('click', () => {
+                if (currentWeekIndex < availableWeeks.length - 1) {
+                    currentWeekIndex++;
+                    const weekData = availableWeeks[currentWeekIndex];
+                    this.displayWeekTimetable(syncData, weekData.year, weekData.week);
+                    weekDisplay.textContent = this.formatWeekRange(weekData.weekStartDate);
+                    
+                    // Update button states
+                    nextButton.disabled = currentWeekIndex === availableWeeks.length - 1;
+                    prevButton.disabled = false;
+                }
+            });
+            
+            // Assemble pagination navigation
+            paginationNav.appendChild(prevButton);
+            paginationNav.appendChild(weekDisplay);
+            paginationNav.appendChild(nextButton);
+            
+            // Assemble pagination container
+            paginationContainer.appendChild(paginationNav);
+            
+            this.elements.timetableContainer.appendChild(paginationContainer);
+        }
+        
+        // Display the timetable for the current week
+        this.displayWeekTimetable(syncData, availableWeeks[currentWeekIndex].year, availableWeeks[currentWeekIndex].week);
+    },
+    
+    // Helper function to show "Data available soon" message
+    showTimetableDataAvailableSoon() {
+        this.elements.timetableContainer.innerHTML = `
+            <div class="coming-soon-container">
+                <div class="coming-soon-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="2rem" height="2rem">
+                        <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>
+                    </svg>
+                </div>
+                <div>Data available soon.</div>
+                <div style="font-size: 0.8rem;">It usually takes up to 24 hours for attendance data to be available.</div><br>
+            </div>
+        `;
+    },
+    
+    // Helper function to format week start date
+    formatWeekStartDate(date) {
+        return date.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    },
+    
+    // Helper function to format week range (e.g., "1-7 March")
+    formatWeekRange(startDate) {
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6); // End of week (6 days after start)
+        
+        const startDay = startDate.getDate();
+        const endDay = endDate.getDate();
+        
+        // Get month names - use short month format for better space efficiency
+        const month = endDate.toLocaleDateString('en-GB', { month: 'short' });
+        const year = endDate.getFullYear();
+        
+        // If start and end dates are in the same month
+        if (startDate.getMonth() === endDate.getMonth()) {
+            return `${startDay}-${endDay} ${month} ${year}`;
+        } else {
+            // If they span different months
+            const startMonth = startDate.toLocaleDateString('en-GB', { month: 'short' });
+            return `${startDay} ${startMonth} - ${endDay} ${month} ${year}`;
+        }
+    },
+    
+    // Helper function to get the date of the Monday in a given ISO week
+    getDateOfISOWeek(week, year) {
+        const simple = new Date(year, 0, 1 + (week - 1) * 7);
+        const dayOfWeek = simple.getDay();
+        const ISOweekStart = simple;
+        if (dayOfWeek <= 4) {
+            ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+        } else {
+            ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+        }
+        return ISOweekStart;
+    },
+    
+    // Display timetable for a specific week
+    displayWeekTimetable(syncData, year, week) {
+        // Get attendance data for the specified year and week
+        const attendanceData = syncData?.attendanceData?.[year]?.[week];
+        
+        // Clear existing timetable content (except pagination)
+        const paginationElement = this.elements.timetableContainer.querySelector('.timetable-pagination');
+        if (paginationElement) {
+            this.elements.timetableContainer.innerHTML = '';
+            this.elements.timetableContainer.appendChild(paginationElement);
+        } else {
+            // If no pagination element exists, just clear everything
+            this.elements.timetableContainer.innerHTML = '';
+        }
+        
+        if (!attendanceData || attendanceData.length === 0) {
+            const noDataMessage = document.createElement('div');
+            noDataMessage.className = 'coming-soon-container';
+            noDataMessage.innerHTML = `
+                <div>No timetable data available for this week.</div>
+            `;
+            this.elements.timetableContainer.appendChild(noDataMessage);
+            return;
+        }
+        
         // Group activities by date
         const groupedActivities = {};
         attendanceData.forEach(activity => {
