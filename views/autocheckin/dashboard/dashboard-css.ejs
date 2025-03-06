@@ -21,11 +21,12 @@
     .autocheckin-dashboard {
         padding: 2rem;
         max-width: 100%;
-        min-height: calc(100vh - 88px); /* Adjust based on navbar height */
+        height: calc(100vh - 88px); /* Fixed height accounting for navbar */
         box-sizing: border-box;
         width: 100%;
         display: flex;
         flex-direction: column;
+        overflow: hidden; /* Prevent scrolling at container level */
     }
 
     h2 {
@@ -91,15 +92,16 @@
         display: grid;
         gap: 1.5rem;
         grid-template-columns: minmax(0, 30%) minmax(0, 45%) minmax(0, 25%);
-        grid-template-rows: auto 1fr;
+        grid-template-rows: 1fr;
         grid-template-areas: 
-            "status stats activity"
+            "timetable stats activity"
             "timetable stats activity"
             "timetable manage activity";
         width: 100%;
         box-sizing: border-box;
         align-items: start;
-        height: 100%;
+        height: calc(100% - 120px); /* Account for header height and margins */
+        min-height: 0; /* Allow grid to shrink */
     }
 
     .grid-item {
@@ -122,17 +124,12 @@
         min-height: 0;
     }
 
-    .top-left-box {
-        grid-area: status;
-        height: fit-content;
-    }
-
     .bottom-left-box {
         grid-area: timetable;
         display: flex;
         flex-direction: column;
-        max-height: calc(100vh - 410px); /* Account for header and status box */
-        min-height: 200px;
+        height: 100%; /* Take full height of grid cell */
+        min-height: 0; /* Allow box to shrink */
     }
 
     .bottom-left-box .box-content {
@@ -385,21 +382,26 @@
             grid-template-columns: 1fr;
             grid-template-rows: auto;
             grid-template-areas: 
-                "status"
                 "timetable"
                 "stats"
                 "manage"
                 "activity";
             gap: 1rem;
+            height: auto; /* Allow full height on mobile */
+            overflow-y: auto; /* Enable scrolling on mobile */
         }
 
         .grid-item {
             min-height: min-content;
         }
 
+        .autocheckin-dashboard {
+            height: auto; /* Allow full height on mobile */
+            overflow: auto; /* Enable scrolling on mobile */
+        }
+
         .bottom-left-box {
-            max-height: 500px; /* Cap height on mobile */
-            min-height: 200px;
+            height: 500px; /* Fixed height on mobile */
         }
 
         .middle-box {
@@ -742,5 +744,56 @@
     .timetable-item-location {
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    /* Add new tooltip styles */
+    .status-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .status-tooltip {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background: var(--content-background);
+        border: var(--box-accent-width) solid var(--accent-colour);
+        border-radius: 8px;
+        padding: 12px;
+        width: 300px;
+        box-shadow: var(--shadow);
+        z-index: 1000;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .status-container:hover .status-tooltip {
+        display: block;
+    }
+
+    /* Add tooltip arrow */
+    .status-tooltip::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: 20px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid var(--accent-colour);
+    }
+
+    @media (max-width: 768px) {
+        .status-tooltip {
+            width: 250px;
+            right: -10px;
+        }
+
+        .bottom-left-box {
+            height: 500px;
+        }
     }
 </style>
