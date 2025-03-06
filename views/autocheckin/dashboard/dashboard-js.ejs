@@ -29,7 +29,8 @@ const AutoCheckinDashboard = {
         'Fail': { text: 'failed to refresh (see logs)', badge: 'ERROR', class: 'error' },
         'Disabled': { text: 'disabled', badge: 'DISABLED', class: 'disabled' },
         'Enabled': { text: 'pending', badge: 'PENDING', class: 'pending', suffix: ' (this can take up to an hour to change)' },
-        'Normal': { text: 'successfully refreshed', badge: 'ACTIVE', class: 'active' }
+        'Normal': { text: 'successfully refreshed', badge: 'ACTIVE', class: 'active' },
+        'Checkin': { text: 'successfully refreshed', badge: 'ACTIVE', class: 'active' }
     },
 
     // Initialize the dashboard
@@ -272,9 +273,9 @@ const AutoCheckinDashboard = {
             errors.push('Invalid checkinReportTime format');
         }
 
-        // Check if checkinReport has a valid status
-        if (data.checkinReport && !Object.keys(this.statusMappings).includes(data.checkinReport)) {
-            errors.push(`Unknown checkin report status: ${data.checkinReport}`);
+        // We'll handle unknown statuses gracefully now, so no need to validate strictly
+        if (data.checkinReport && typeof data.checkinReport !== 'string') {
+            errors.push(`Invalid checkin report status format: ${data.checkinReport}`);
         }
 
         // If there are any errors, display them and return
@@ -385,7 +386,8 @@ const AutoCheckinDashboard = {
 
     // Get status information based on checkin report
     getStatusInfo(checkinReport) {
-        const status = this.statusMappings[checkinReport] || this.statusMappings['Normal'];
+        // If the status is unknown, treat it as a Fail
+        const status = this.statusMappings[checkinReport] || this.statusMappings['Fail'];
         return {
             text: `<span class="${status.class}-text">${status.text}</span>${status.suffix || ''}`,
             badge: status.badge,
