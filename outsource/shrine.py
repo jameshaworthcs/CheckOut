@@ -4,7 +4,7 @@ import string
 from datetime import datetime
 
 headers = {
-    'User-Agent': 'JEM/CheckOut (v2.1; +https://api.jemedia.xyz/help; abuse@jemedia.xyz)',
+    'User-Agent': 'JEM/CheckOut (v3; +https://checkout.ac/support; abuse@jemedia.xyz)',
 }
 
 
@@ -23,7 +23,7 @@ def send_post_request(url, data):
     headers2 = {
         'accept': 'application/json',
         'Content-Type': 'application/json',
-        'User-Agent': 'JEM/CheckOut (v2.1; +https://api.jemedia.xyz/help; abuse@jemedia.xyz)',
+        'User-Agent': 'JEM/CheckOut (v3; +https://checkout.ac/support; abuse@jemedia.xyz)',
         'x-checkout-key': 'outdated'
     }
     try:
@@ -68,7 +68,7 @@ def compare_sessions(session_data, activity_data):
     return session_matches
 
 def main():
-    session_url = "https://api.jemedia.xyz/checkin-ios/api/app/active/yrk/cs/1"
+    session_url = "https://checkout.ac/api/app/active/yrk/cs/2"
     activity_url = f"https://checkout.theshrine.net/api/activity/by-day/{get_current_date()}"
     
     session_data = fetch_api_data(session_url)
@@ -96,7 +96,7 @@ def main():
                 "chc": str(code_info['checkinCode']),  # Convert checkinCode to string
                 "tk": "shrine" + ''.join(random.choices(string.ascii_lowercase + string.digits, k=16))  # Generate a random token
             }
-            response = send_post_request('https://api.jemedia.xyz/checkin-ios/api/app/submit', data)
+            response = send_post_request('https://checkout.ac/api/app/submit', data)
             if response:
                 print("Response from POST request:")
                 print(response.text)  # Output response from each post request
