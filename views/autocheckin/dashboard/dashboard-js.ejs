@@ -1,4 +1,8 @@
-<script>
+// Dashboard data injected from server
+const injectedDashboardData = <%- typeof dashboardData !== 'undefined' ? dashboardData : 'null' %>;
+
+<%# Only include script tags if not in JS route %>
+<%- typeof isJsRoute === 'undefined' || !isJsRoute ? '<script>' : '' %>
 // Dashboard Module
 const AutoCheckinDashboard = {
     // Cache keys
@@ -35,9 +39,14 @@ const AutoCheckinDashboard = {
 
     // Initialize the dashboard
     init() {
-        this.checkAdminView();
-        this.loadCachedData();
-        this.fetchDashboardData();
+        // If we have injected data, use it directly
+        if (injectedDashboardData) {
+            this.updateDashboard(injectedDashboardData);
+        } else {
+            this.checkAdminView();
+            this.loadCachedData();
+            this.fetchDashboardData();
+        }
         this.setupEventListeners();
     },
 
@@ -824,4 +833,4 @@ const AutoCheckinDashboard = {
 document.addEventListener('DOMContentLoaded', () => {
     AutoCheckinDashboard.init();
 });
-</script>
+<%- typeof isJsRoute === 'undefined' || !isJsRoute ? '</script>' : '' %>
