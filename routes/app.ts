@@ -8,8 +8,8 @@ const { spawn } = require('child_process');
 var tibl = require('./tibl.ts');
 var secureRoute = require('./secure.ts');
 var courseFinder = require('./api/course/course-find.ts');
-//const calculateScores = require('./algorithm.js');
-const { Worker } = require('worker_threads');
+const handleCourseRequest = require('./courseHandler.ts');
+const { makeAutoCheckinRequest } = require('./api/autocheckin/autocheckin-link.ts');
 
 const blockedTerms = ['<', '>'];
 
@@ -102,7 +102,16 @@ function submitcode(req, res, callback) {
     var codeState = '1';
     var codeDesc = '';
     var visState = '1';
-    var source = 'SubmitAPI';
+    let triggerAutoCheckin = false;
+    if (req.useremail == 'aci@checkout.ac.uk') {
+      var source = 'ACI/SubmitAPI';
+      triggerAutoCheckin = true;
+    } else if (req.useremail == 'shrine@checkout.ac.uk') {
+      var source = 'Shrine/SubmitAPI';
+      triggerAutoCheckin = true;
+    } else {
+      var source = 'SubmitAPI';
+    }
     //console.log("module code", moduleCode)
     // if (!validModuleCodes.includes(moduleCode)) {
     //   moduleCode = 'dontwork';
@@ -244,6 +253,11 @@ function submitcode(req, res, callback) {
               return;
             } else {
               //console.log(blockRepeat)
+              if (triggerAutoCheckin) {
+                makeAutoCheckinRequest.get('try-codes').catch((err) => {
+                  console.log('[AUTO] Failed to notify AutoCheckin server to try codes:', err);
+                });
+              }
               callback(blockRepeat, userMsg);
               return;
             }
@@ -388,268 +402,6 @@ function getCodes(inst, crs, yr, md, grp, callback) {
     callback(err, null);
   }
 }
-
-const workerpool = require('workerpool');
-
-// Worker pool for getCodesAlg
-const pool = workerpool.pool(__dirname + '/scoresWorker.ts');
-
-const cache = {};
-
-function getCacheKey(inst, crs, yr, md, grp) {
-  return `${inst}-${crs}-${yr}-${md}-${grp}`;
-}
-
-function getCodesAlg(inst, crs, yr, md, grp, callback) {
-  const cacheKey = getCacheKey(inst, crs, yr, md, grp);
-  const now = Date.now();
-  //console.log(cache)
-
-  if (cache[cacheKey] && now - cache[cacheKey].timestamp < 100) {
-    // Return cached result if it's still valid (within .1 seconds)
-    callback(null, cache[cacheKey].data);
-    return;
-  }
-
-  try {
-    const sqlQuery = 'SELECT * FROM codes;';
-    db.query(sqlQuery, async function (err, result) {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      try {
-        const scoredCodes = await pool.exec('calculate', [inst, crs, yr, md, grp, result]);
-        // Cache the result
-        cache[cacheKey] = {
-          data: scoredCodes,
-          timestamp: now,
-        };
-        callback(null, scoredCodes);
-      } catch (workerErr) {
-        callback(workerErr, null);
-      }
-    });
-  } catch (err) {
-    callback(err, null);
-  }
-}
-
-// Gracefully shutdown the worker pool when the process exits
-process.on('exit', () => {
-  pool.terminate();
-});
-
-function fetchEverythingData(callback) {
-  const query = `
-    SELECT DISTINCT
-      i.institution_id,
-      i.name AS institution_name
-    FROM 
-      Institutions i
-  `;
-
-  db.query(query, (err, institutions) => {
-    if (err) {
-      console.error('Error fetching institutions: ' + err.stack);
-      callback(err, null);
-      return;
-    }
-
-    // Initialize formatted data
-    const formattedData = {};
-
-    // Function to fetch years, courses, and modules for each institution
-    function fetchInstitutionData(institutionIndex) {
-      if (institutionIndex >= institutions.length) {
-        // All institutions processed, return formatted data
-        callback(null, formattedData);
-        return;
-      }
-
-      const institution = institutions[institutionIndex];
-      const institutionId = institution.institution_id;
-
-      // Fetch years for the current institution
-      const yearsQuery = `
-          SELECT year_number
-          FROM Years
-          WHERE institution_id = ?
-      `;
-
-      db.query(yearsQuery, [institutionId], (err, years) => {
-        if (err) {
-          console.error('Error fetching years for institution ' + institutionId + ': ' + err.stack);
-          callback(err, null);
-          return;
-        }
-
-        // Initialize years for the current institution
-        const institutionYears = {};
-
-        // Function to fetch courses and modules for each year
-        function fetchYearData(yearIndex) {
-          if (yearIndex >= years.length) {
-            // All years processed, assign years data to institution and proceed to next institution
-            formattedData[institutionId] = {
-              name: institution.institution_name,
-              years: institutionYears,
-            };
-            fetchInstitutionData(institutionIndex + 1);
-            return;
-          }
-
-          const year = years[yearIndex];
-          const yearNumber = year.year_number;
-
-          // Fetch courses for the current year
-          const coursesQuery = `
-              SELECT C.course_id, C.course_name, C.course_code
-              FROM Courses C
-              INNER JOIN Years Y ON C.year_id = Y.year_id
-              WHERE C.institution_id = ? AND Y.year_number = ?
-          `;
-
-          db.query(coursesQuery, [institutionId, yearNumber], (err, courses) => {
-            if (err) {
-              console.error(
-                'Error fetching courses for year ' +
-                  yearNumber +
-                  ' in institution ' +
-                  institutionId +
-                  ': ' +
-                  err.stack
-              );
-              callback(err, null);
-              return;
-            }
-
-            // Initialize courses for the current year
-            const yearCourses = {};
-
-            // Function to fetch modules for each course
-            function fetchCourseData(courseIndex) {
-              if (courseIndex >= courses.length) {
-                // All courses processed, assign courses data to year and proceed to next year
-                institutionYears[yearNumber] = { courses: yearCourses };
-                fetchYearData(yearIndex + 1);
-                return;
-              }
-
-              const course = courses[courseIndex];
-              const courseId = course.course_id;
-              const courseName = course.course_name;
-              const courseCode = course.course_code;
-
-              // Fetch modules for the current course
-              const modulesQuery = `
-                  SELECT module_code, module_name
-                  FROM Modules
-                  WHERE institution_id = ? AND course_id = ?
-              `;
-
-              db.query(modulesQuery, [institutionId, courseId], (err, modules) => {
-                if (err) {
-                  console.error(
-                    'Error fetching modules for course ' +
-                      courseId +
-                      ' in year ' +
-                      yearNumber +
-                      ' in institution ' +
-                      institutionId +
-                      ': ' +
-                      err.stack
-                  );
-                  callback(err, null);
-                  return;
-                }
-
-                // Format modules for the current course
-                const courseModules = {};
-                modules.forEach((module) => {
-                  courseModules[module.module_code] = module.module_name;
-                });
-
-                // Assign modules data to course and proceed to next course
-                yearCourses[courseCode] = { courseName: courseName, modules: courseModules };
-                fetchCourseData(courseIndex + 1);
-              });
-            }
-
-            // Start fetching data for the current year
-            fetchCourseData(0);
-          });
-        }
-
-        // Start fetching data for the current institution
-        fetchYearData(0);
-      });
-    }
-
-    // Start fetching data for the first institution
-    fetchInstitutionData(0);
-  });
-}
-
-// Used by submit form generator and view class
-function getCourseInfo(inst, crs, yr, callback) {
-  // Ensure all parameters are strings and concatenate them with '-' separator
-  var code = (inst.toString() + '-' + crs.toString() + '-' + yr.toString()).toUpperCase();
-  //console.log("Course info request", code);
-
-  const query = `
-  SELECT m.module_code, m.module_name
-  FROM Modules m
-  INNER JOIN Courses c ON m.course_id = c.course_id
-  INNER JOIN Years y ON m.year_id = y.year_id
-  WHERE m.institution_id = ? AND y.year_number = ? AND c.course_code = ?
-`;
-
-  // Execute the query with parameters
-  db.query(query, [inst, yr, crs], (err, results) => {
-    if (err) {
-      console.error('Error fetching course information:', err);
-      callback(err, null, code);
-      return;
-    }
-
-    // Process query results
-    const modules = results.map((row) => ({
-      module_code: row.module_code,
-      module_name: row.module_name,
-    }));
-
-    // Return module information
-    callback(null, modules, code);
-  });
-}
-
-// Old backup function
-// function getModuleList(inst, crs, yr, callback) {
-//   // Ensure all parameters are strings and concatenate them with '-' separator
-//   var modulesObject = {}
-//   var key = 'modules'
-//   modulesObject[key] = []
-//   var sampleModule1 = {
-//     moduleCode: 'y1-soft-2',
-//     moduleName: 'Software'
-//   }
-//   var sampleModule2 = {
-//     moduleCode: 'y1-theory-2',
-//     moduleName: 'Theory'
-//   }
-//   var sampleModule3 = {
-//     moduleCode: 'y1-sd',
-//     moduleName: 'Systems and Devices'
-//   }
-//   if ((inst == 'yrk')&&(crs == 'cs')&&(yr == '1')) {
-//     // Temporary non-database vales for YRK-CS-1
-//     modulesObject[key].push(sampleModule1, sampleModule2, sampleModule3)
-//   }
-//   var code = (inst.toString() + '-' + crs.toString() + '-' + yr.toString()).toUpperCase();
-//   console.log("Module list request", code)
-//   callback(null, modulesObject);
-// }
 
 // GlobalApp state
 // Fetches general information about the whole CheckOut app and is always available
@@ -927,113 +679,6 @@ app.get('/api/app/active/:inst/:crs/:yr', function (req, res) {
   handleCourseRequest(inst, crs, yr, username, initCourse, res, req, false, false);
 });
 
-async function handleCourseRequest(
-  inst,
-  crs,
-  yr,
-  username,
-  initCourse,
-  res,
-  req,
-  returnAsJson = false,
-  cachedUser = false
-) {
-  const userInfo = { username };
-  const apiVersion = 'home-v2 (v.1.1.2)';
-  const courseInfo = await courseFinder.courseDetails(inst, crs, yr);
-
-  // Check user has course saved
-  if (!initCourse) {
-    const response = {
-      success: false,
-      userInfo,
-      sessionCount: 0,
-      tibl: false,
-      msg: 'Course information not set. Please re-onboard <a class="error-link" href="/api/app/onboarding">here</a>.',
-      api: apiVersion,
-    };
-    return returnAsJson ? response : res.status(403).json(response);
-  }
-
-  // Check course exists
-  if (!courseInfo['success']) {
-    const response = {
-      success: false,
-      userInfo,
-      sessionCount: 0,
-      tibl: false,
-      msg: `${courseInfo['reason']} Please re-onboard <a class="error-link" href="/api/app/onboarding">here</a>.`,
-      api: apiVersion,
-    };
-    return returnAsJson ? response : res.status(403).json(response);
-  }
-
-  // Timetabled courses
-  if (courseInfo['tibl']) {
-    try {
-      const codesObject = await new Promise((resolve, reject) => {
-        getCodesAlg(inst, crs, yr, '%', '%', (err, codesObject) => {
-          if (err) reject(err);
-          else resolve(codesObject);
-        });
-      });
-
-      // true to cache user data
-      const responseJson = await tibl.apiGenCodes(codesObject, inst, crs, yr, req, cachedUser);
-      if (returnAsJson) {
-        return JSON.parse(responseJson);
-      } else {
-        res.header('Content-Type', 'application/json');
-        return res.send(responseJson);
-      }
-    } catch (err) {
-      console.error('Error in getCodes or apiGenCodes', err);
-      if (returnAsJson || true) {
-        return {
-          success: false,
-          userInfo,
-          sessionCount: 0,
-          tibl: false,
-          msg: 'Error processing codes request',
-          api: apiVersion,
-        };
-      } else {
-        return res.status(500).send('Error processing codes request');
-      }
-    }
-  } else {
-    // Non-timetabled courses
-    return new Promise((resolve, reject) => {
-      getCourseInfo(inst, crs, yr, function (err, resultModules, code) {
-        if (err) {
-          if (returnAsJson) {
-            reject(err);
-          } else {
-            res.status(500).send('Error');
-            console.log('Error in legacy status');
-          }
-          return;
-        }
-        const response = {
-          success: true,
-          userInfo,
-          sessionCount: 0,
-          tibl: false,
-          msg: 'Non-timetabled course.',
-          api: apiVersion,
-          courseInfo,
-          legacy_modules: resultModules,
-        };
-        if (returnAsJson) {
-          resolve(response);
-        } else {
-          res.json(response);
-        }
-      });
-    });
-  }
-}
-
 // Get next class
 app.get('/api/app/nextclass', function (req, res) {
   const { inst, crs, yr } = req;
@@ -1050,163 +695,6 @@ app.get('/api/app/nextclass', function (req, res) {
     res.json(futureActivities);
   });
 });
-
-// // Codes view
-// // Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
-// app.get('/api/app/classframe/:inst/:crs/:yr/:md', function (req, res) {
-//   var inst = req.params.inst;
-//   var crs = req.params.crs;
-//   var yr = req.params.yr;
-//   var md = req.params.md;
-//   if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
-//     getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getCodes", err);
-//         return;
-//       } else {
-//         tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
-//           })
-//       }
-//     });
-//   } else {
-//     getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getCodes", err);
-//         return;
-//       } else {
-//         getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-//           if (err) {
-//             res.status(500);
-//             res.send("Error")
-//             console.log("Error in getModuleList", err);
-//             return;
-//           }
-
-//           let moduleName = null;
-
-//           for (const module of modulesObject) {
-//               if (module.module_code === md) {
-//                   moduleName = module.module_name;
-//                   break;
-//               }
-//           }
-//           code = code+"-"+md.toUpperCase()
-//           getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
-//             res.render('classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours <a target=\"_parent\" class=\"sub-table-link\" href=\"/\">here</a>."});
-//           });
-//         });
-
-//       }
-//     });
-//   }
-// });
-
-// // Codes view for iOS
-// // Gets the days codes in pretty html frame output for a given, institution (inst), course (crs), year (yr) and module code (md)
-// app.get('/api/app/classframe/ios/:inst/:crs/:yr/:md', function (req, res) {
-//   var inst = req.params.inst;
-//   var crs = req.params.crs;
-//   var yr = req.params.yr;
-//   var md = req.params.md;
-//   if ((inst == "yrk"&&crs=="cs"&&yr=="1")) {
-//     getCodesAlg(inst, crs, yr, "%", "%", function (err, codesObject) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getCodes", err);
-//         return;
-//       } else {
-//         tibl.webGenCodes(true, codesObject, inst, crs, yr, req, res, () => {
-//           })
-//       }
-//     });
-//   } else {
-//     getCodesAlg(inst, crs, yr, md, "%", function (err, codesObject) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getCodes", err);
-//         return;
-//       } else {
-//         getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-//           if (err) {
-//             res.status(500);
-//             res.send("Error")
-//             console.log("Error in getModuleList", err);
-//             return;
-//           }
-//           let moduleName = null;
-
-//           for (const module of modulesObject) {
-//               if (module.module_code === md) {
-//                   moduleName = module.module_name;
-//                   break;
-//               }
-//           }
-//           code = code+"-"+md.toUpperCase()
-//           getSessions(inst, crs, yr, md, req, res, function(timetableBullets) {
-//             res.render('ios-classv2.ejs', { moduleName, classData: codesObject, code, timetableBullets, submitIntent: "Add yours in the submission view." });
-//           });
-//         });
-//       }
-//     });
-//   }
-// });
-
-// // Web codes view
-// // Gets the days codes in full html page output for a given, institution (inst), course (crs), year (yr) and module code (md)
-// app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
-//   var inst = req.params.inst;
-//   var crs = req.params.crs;
-//   var yr = req.params.yr;
-//   var md = req.params.md;
-//     getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getModuleList", err);
-//         return;
-//       }
-//       let moduleName = null;
-
-//       for (const module of modulesObject) {
-//           if (module.module_code === md) {
-//               moduleName = module.module_name;
-//               break;
-//           }
-//       }
-//       res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
-//     });
-// });
-
-// // Get the active classes (inactive)
-// app.get('/api/app/class/:inst/:crs/:yr/:md', function (req, res) {
-//   var inst = req.params.inst;
-//   var crs = req.params.crs;
-//   var yr = req.params.yr;
-//   var md = req.params.md;
-//     getCourseInfo(inst, crs, yr, function (err, modulesObject, code) {
-//       if (err) {
-//         res.status(500);
-//         res.send("Error")
-//         console.log("Error in getModuleList", err);
-//         return;
-//       }
-//       let moduleName = null;
-
-//       for (const module of modulesObject) {
-//           if (module.module_code === md) {
-//               moduleName = module.module_name;
-//               break;
-//           }
-//       }
-//       res.render('classv3.ejs', { moduleName, md, inst, crs, yr, rootDomain: req.rootDomain, code});
-//     });
-// });
 
 // Generate submission form (Legacy)
 // Creates the code submission form for a given, institution (inst), course (crs) and year (yr)
@@ -1917,6 +1405,4 @@ app.get('*', function (req, res) {
   res.json({ success: false, msg: 'Not a valid endpoint. (app-api)' });
 });
 
-// Export the handleCourseRequest function separately
 module.exports = app;
-module.exports.handleCourseRequest = handleCourseRequest;

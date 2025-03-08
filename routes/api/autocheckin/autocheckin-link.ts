@@ -4,8 +4,7 @@ const axios = require('axios');
 require('dotenv').config();
 var app = express.Router();
 var db = require('../../../databases/database.ts');
-const appRouter = require('../../app.ts');
-const handleCourseRequest = appRouter.handleCourseRequest;
+const handleCourseRequest = require('../../courseHandler.ts');
 
 // Wrapper functions for making requests to the autocheckin server
 const makeAutoCheckinRequest = {
@@ -153,7 +152,7 @@ app.get('/api/autocheckin/users', (req, res) => {
 app.get('/api/autocheckin/codes/:inst/:crs/:yr', function (req, res) {
   const { inst, crs, yr } = req.params;
   const { username } = req;
-  const initCourse = true; // Assumed to be true as per the requirement
+  const initCourse = true;
 
   handleCourseRequest(inst, crs, yr, username, initCourse, res, req, false, false);
 });
