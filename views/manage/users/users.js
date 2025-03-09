@@ -142,7 +142,16 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   window.viewDetails = function (id, type, token) {
-    const modalId = 'viewTokenModal';
+    const modalId = `viewTokenModal-${id}-${type}`;  // Make the ID unique for each token view
+    
+    // Close any existing modals with the same source
+    Array.from(modalHelper.activeModals).forEach((existingModalId) => {
+      const modal = document.getElementById(existingModalId);
+      if (modal && modal.dataset.source === 'users') {
+        modalHelper.close(existingModalId);
+      }
+    });
+    
     const content = document.createElement('div');
     content.innerHTML = `
       <h2>User ID: ${id}</h2>
@@ -161,7 +170,16 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   window.editUser = function (id, username, userstate, checkinstate, checkintoken, note) {
-    const modalId = 'editUserModal';
+    const modalId = `editUserModal-${id}`;  // Make the ID unique for each user edit
+    
+    // Close any existing modals with the same source
+    Array.from(modalHelper.activeModals).forEach((existingModalId) => {
+      const modal = document.getElementById(existingModalId);
+      if (modal && modal.dataset.source === 'users') {
+        modalHelper.close(existingModalId);
+      }
+    });
+    
     const form = document.createElement('form');
     form.className = 'edit-form';
     form.innerHTML = `
