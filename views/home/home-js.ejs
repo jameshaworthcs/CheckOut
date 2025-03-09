@@ -148,12 +148,12 @@
   setupCached();
 
   let lastSetupCall = Date.now();
-  let refreshInterval = 1000; // 5 seconds
+  let refreshInterval = 2500; // 2.5 seconds
   let refreshTimer;
   let refreshEnabled = true;
   let blockAllRefresh = false;
   let lastUserInteraction = 0;
-  let interactionDelay = 5000; // 5 seconds
+  let interactionDelay = 30000; // 30 seconds
 
   /**
    * Resets the refresh timer to schedule the next refresh check.
@@ -186,14 +186,16 @@
       if (blockAllRefresh || 
           (dropdownMenu && dropdownMenu.style.display === 'flex') ||
           anyModalVisible) {
-          console.log('Refresh blocked', anyModalVisible);
           return;
       } else if (!refreshEnabled) {
           showRefreshLoader();
           setup(false);
-      } else if ((now - lastUserInteraction > interactionDelay)) {
+      } else if ((now - lastSetupCall >= refreshInterval)) {
+          // Check if enough time has passed since the last setup call
+          // If user recently interacted, only refresh data that doesn't affect the form
+          const shouldRefreshForm = (now - lastUserInteraction > interactionDelay);
           showRefreshLoader();
-          setup();
+          setup(shouldRefreshForm);
       } else {
           resetRefreshTimer();
       }
