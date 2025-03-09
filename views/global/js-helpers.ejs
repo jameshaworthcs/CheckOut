@@ -67,6 +67,15 @@
       dropdownMenu.style.top = `${buttonRect.bottom + 11}px`; // Position it directly below the button
     }
 
+    // Function to close the dropdown menu
+    function closeDropdownMenu() {
+      if (dropdownMenu && dropdownMenu.style.display === 'flex') {
+        dropdownMenu.style.animation = 'slideUp 0.3s forwards';
+        menuIcon.innerHTML = '';
+        menuIcon.appendChild(createSVG(true));
+      }
+    }
+
     if (ctaButton) {
       ctaButton.addEventListener('click', function () {
         const isOpen = dropdownMenu.style.display === 'flex';
@@ -101,6 +110,16 @@
       window.addEventListener('scroll', function () {
         if (dropdownMenu.style.display === 'flex') {
           updateDropdownPosition();
+        }
+      });
+
+      // Add click event listener to document to close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        // Check if dropdown is open and click is outside dropdown and CTA button
+        if (dropdownMenu.style.display === 'flex' && 
+            !dropdownMenu.contains(event.target) && 
+            !ctaButton.contains(event.target)) {
+          closeDropdownMenu();
         }
       });
     }
