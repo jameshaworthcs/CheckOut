@@ -148,7 +148,7 @@
   setupCached();
 
   let lastSetupCall = Date.now();
-  let refreshInterval = 5000; // 5 seconds
+  let refreshInterval = 1000; // 5 seconds
   let refreshTimer;
   let refreshEnabled = true;
   let blockAllRefresh = false;
@@ -170,8 +170,23 @@
       const now = Date.now();
       const dropdownMenu = document.getElementById('dropdown-menu');
       
-      // Don't refresh if dropdown menu is open or if refresh is blocked
-      if (blockAllRefresh || (dropdownMenu && dropdownMenu.style.display === 'flex')) {
+      // Check if any modals are actually visible
+      let anyModalVisible = false;
+      if (typeof modalHelper !== 'undefined' && modalHelper.activeModals.size > 0) {
+          // Check each modal to see if it's actually visible
+          modalHelper.activeModals.forEach(modalId => {
+              const modal = document.getElementById(modalId);
+              if (modal && (modal.style.display === 'block' || getComputedStyle(modal).display === 'block')) {
+                  anyModalVisible = true;
+              }
+          });
+      }
+      
+      // Don't refresh if dropdown menu is open, if any modals are visible, or if refresh is blocked
+      if (blockAllRefresh || 
+          (dropdownMenu && dropdownMenu.style.display === 'flex') ||
+          anyModalVisible) {
+          console.log('Refresh blocked', anyModalVisible);
           return;
       } else if (!refreshEnabled) {
           showRefreshLoader();
@@ -1787,7 +1802,7 @@
    * @param {string} activityID - The ID of the activity to display.
    */
   function openActivityModal(activityID) {
-      cancelRefresh(true);
+      //cancelRefresh(true); (Now outdated because of modalHelper)
 
       // Ensure overlay exists
       let modalOverlay = document.getElementById('activityModalOverlay');
