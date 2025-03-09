@@ -505,19 +505,55 @@ const AutoCheckinDashboard = {
         // Loop through years and weeks to find all available weeks
         Object.keys(syncData.attendanceData).forEach(year => {
             Object.keys(syncData.attendanceData[year]).forEach(week => {
-                if (syncData.attendanceData[year][week] && syncData.attendanceData[year][week].length > 0) {
-                    // Calculate the date for the start of this week
-                    const weekStartDate = this.getDateOfISOWeek(parseInt(week), parseInt(year));
+                // Include all weeks, even if they don't have data yet
+                // Calculate the date for the start of this week
+                const weekStartDate = this.getDateOfISOWeek(parseInt(week), parseInt(year));
+                
+                availableWeeks.push({
+                    year: parseInt(year),
+                    week: parseInt(week),
+                    weekStartDate,
+                    formattedDate: this.formatWeekStartDate(weekStartDate),
+                    hasData: syncData.attendanceData[year][week] && syncData.attendanceData[year][week].length > 0
+                });
+            });
+        });
+        
+        // Add future weeks if they're in the week number mapping but not in the data
+        // This ensures we can navigate to future weeks even if they don't have data yet
+        const lastAvailableWeek = availableWeeks.length > 0 ? 
+            availableWeeks[availableWeeks.length - 1] : null;
+            
+        if (lastAvailableWeek) {
+            // Find future weeks from the week number mapping
+            this.weekNumberMapping.forEach(mappingWeek => {
+                const weekStartDate = new Date(mappingWeek.weekCommencing);
+                
+                // Skip if the week is before or equal to the last available week
+                if (lastAvailableWeek && weekStartDate <= lastAvailableWeek.weekStartDate) {
+                    return;
+                }
+                
+                // Skip if the week is already in availableWeeks
+                const weekExists = availableWeeks.some(w => 
+                    w.weekStartDate.getTime() === weekStartDate.getTime()
+                );
+                
+                if (!weekExists) {
+                    // Get the ISO week number and year
+                    const year = weekStartDate.getFullYear();
+                    const week = this.getISOWeekNumber(weekStartDate);
                     
                     availableWeeks.push({
-                        year: parseInt(year),
-                        week: parseInt(week),
+                        year,
+                        week,
                         weekStartDate,
-                        formattedDate: this.formatWeekStartDate(weekStartDate)
+                        formattedDate: this.formatWeekStartDate(weekStartDate),
+                        hasData: false
                     });
                 }
             });
-        });
+        }
         
         // Sort weeks chronologically (oldest to newest)
         availableWeeks.sort((a, b) => {
@@ -536,9 +572,40 @@ const AutoCheckinDashboard = {
             w.year === currentYear && w.week === currentWeek
         );
         
-        // If current week not found, default to the most recent week
+        // If current week not found, find the closest week
         if (currentWeekIndex === -1) {
-            currentWeekIndex = availableWeeks.length - 1;
+            // Calculate the difference between now and each week's start date
+            const nowTime = now.getTime();
+            let closestDiff = Infinity;
+            let closestIndex = 0;
+            
+            // First try to find the most recent past week
+            availableWeeks.forEach((week, index) => {
+                const weekTime = week.weekStartDate.getTime();
+                const diff = nowTime - weekTime; // Positive for past weeks, negative for future weeks
+                
+                // Only consider past weeks (positive diff) that are closer than our current closest
+                if (diff >= 0 && diff < closestDiff) {
+                    closestDiff = diff;
+                    closestIndex = index;
+                }
+            });
+            
+            // If no past weeks found (closestDiff is still Infinity), then look for future weeks
+            if (closestDiff === Infinity) {
+                closestDiff = Infinity;
+                availableWeeks.forEach((week, index) => {
+                    const weekTime = week.weekStartDate.getTime();
+                    const diff = weekTime - nowTime; // Use future - now so we get positive numbers
+                    
+                    if (diff < closestDiff) {
+                        closestDiff = diff;
+                        closestIndex = index;
+                    }
+                });
+            }
+            
+            currentWeekIndex = closestIndex;
         }
         
         // Create pagination container if we have multiple weeks
@@ -705,12 +772,31 @@ const AutoCheckinDashboard = {
             this.elements.timetableContainer.innerHTML = '';
         }
         
+        // Check if this is a future week
+        const weekStartDate = this.getDateOfISOWeek(parseInt(week), parseInt(year));
+        const now = new Date();
+        const isFutureWeek = weekStartDate > now;
+        
         if (!attendanceData || attendanceData.length === 0) {
             const noDataMessage = document.createElement('div');
             noDataMessage.className = 'coming-soon-container';
-            noDataMessage.innerHTML = `
-                <div>No timetable data available for this week.</div>
-            `;
+            
+            if (isFutureWeek) {
+                noDataMessage.innerHTML = `
+                    <div class="coming-soon-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="2rem" height="2rem">
+                            <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>
+                        </svg>
+                    </div>
+                    <div>Future week - timetable not yet available.</div>
+                    <div style="font-size: 0.8rem;">Timetable data will be shown when available.</div><br>
+                `;
+            } else {
+                noDataMessage.innerHTML = `
+                    <div>No timetable data available for this week.</div>
+                `;
+            }
+            
             this.elements.timetableContainer.appendChild(noDataMessage);
             return;
         }
@@ -778,6 +864,18 @@ const AutoCheckinDashboard = {
 
             this.elements.timetableContainer.appendChild(daySection);
         });
+    },
+
+    // Helper function to get ISO week number from date
+    getISOWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        // Thursday in current week decides the year
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        // January 4 is always in week 1
+        const week1 = new Date(d.getFullYear(), 0, 4);
+        // Adjust to Thursday in week 1 and count number of weeks from date to week 1
+        return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     },
 
     // Update dashboard with new data
