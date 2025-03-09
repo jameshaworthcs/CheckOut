@@ -6,6 +6,11 @@
   ///////////////////
 
   document.addEventListener('DOMContentLoaded', function () {
+    // Security warning message
+    console.log('%c⚠️ Security Warning! ⚠️', 'color: red; font-size: 48px; font-weight: bold; text-shadow: 2px 2px #000;');
+    console.log('%cSTOP! Do not paste or run any code here unless you know exactly what it does.', 'color: red; font-size: 24px; font-weight: bold;');
+    console.log('%cMalicious code could compromise your CheckOut account or steal your data.', 'color: red; font-size: 18px;');
+
     const menuIcon = document.getElementById('menu-icon');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const menuItems = document.querySelectorAll('.menu-item');
