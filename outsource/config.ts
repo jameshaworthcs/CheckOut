@@ -15,9 +15,9 @@ export interface CourseInfo {
  * Default course information used for API calls and code submissions
  */
 export const defaultCourseInfo: CourseInfo = {
-  institution: 'test',
-  course: 'test_course',
-  year: '0'
+  institution: 'yrk',
+  course: 'cs',
+  year: '2'
 };
 
 /**

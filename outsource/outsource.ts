@@ -125,7 +125,8 @@ const outsource = async () => {
   // console.log(`Active sessions: ${sessionCount}`);
   
   // Only proceed if there are sessions or we're forcing execution
-  if (sessionCount > 0 || process.env.NODE_ENV === 'development') {
+  const forceExecution = false;
+  if (sessionCount > 0 || (process.env.NODE_ENV === 'development' && forceExecution)) {
     // Process Shrine if enabled
     if (shrineConfig.enabled) {
       // console.log("Starting Shrine synchronization...");
