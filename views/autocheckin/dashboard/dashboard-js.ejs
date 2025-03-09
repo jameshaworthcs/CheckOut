@@ -10,6 +10,9 @@ const AutoCheckinDashboard = {
     CACHE_KEY: 'checkout_cache',
     DASHBOARD_CACHE_KEY: 'autocheckin_dashboard',
 
+    // Week number mapping
+    weekNumberMapping: [{"weekCommencing":"2024-09-16","weekEnding":"2024-09-22","weekNumber":"F"},{"weekCommencing":"2024-09-23","weekEnding":"2024-09-29","weekNumber":"1"},{"weekCommencing":"2024-09-30","weekEnding":"2024-10-06","weekNumber":"2"},{"weekCommencing":"2024-10-07","weekEnding":"2024-10-13","weekNumber":"3"},{"weekCommencing":"2024-10-14","weekEnding":"2024-10-20","weekNumber":"4"},{"weekCommencing":"2024-10-21","weekEnding":"2024-10-27","weekNumber":"5"},{"weekCommencing":"2024-10-28","weekEnding":"2024-11-03","weekNumber":"C"},{"weekCommencing":"2024-11-04","weekEnding":"2024-11-10","weekNumber":"6"},{"weekCommencing":"2024-11-11","weekEnding":"2024-11-17","weekNumber":"7"},{"weekCommencing":"2024-11-18","weekEnding":"2024-11-24","weekNumber":"8"},{"weekCommencing":"2024-11-25","weekEnding":"2024-12-01","weekNumber":"9"},{"weekCommencing":"2024-12-02","weekEnding":"2024-12-08","weekNumber":"10"},{"weekCommencing":"2024-12-09","weekEnding":"2024-12-15","weekNumber":"11"},{"weekCommencing":"2024-12-16","weekEnding":"2024-12-22","weekNumber":"V"},{"weekCommencing":"2024-12-23","weekEnding":"2024-12-29","weekNumber":"V"},{"weekCommencing":"2024-12-30","weekEnding":"2025-01-05","weekNumber":"V"},{"weekCommencing":"2025-01-06","weekEnding":"2025-01-12","weekNumber":"RV"},{"weekCommencing":"2025-01-13","weekEnding":"2025-01-19","weekNumber":"RA"},{"weekCommencing":"2025-01-20","weekEnding":"2025-01-26","weekNumber":"RA"},{"weekCommencing":"2025-01-27","weekEnding":"2025-02-02","weekNumber":"RA"},{"weekCommencing":"2025-02-03","weekEnding":"2025-02-09","weekNumber":"Rf"},{"weekCommencing":"2025-02-10","weekEnding":"2025-02-16","weekNumber":"1"},{"weekCommencing":"2025-02-17","weekEnding":"2025-02-23","weekNumber":"2"},{"weekCommencing":"2025-02-24","weekEnding":"2025-03-02","weekNumber":"3"},{"weekCommencing":"2025-03-03","weekEnding":"2025-03-09","weekNumber":"4"},{"weekCommencing":"2025-03-10","weekEnding":"2025-03-16","weekNumber":"5"},{"weekCommencing":"2025-03-17","weekEnding":"2025-03-23","weekNumber":"6"},{"weekCommencing":"2025-03-24","weekEnding":"2025-03-30","weekNumber":"7"},{"weekCommencing":"2025-03-31","weekEnding":"2025-04-06","weekNumber":"8"},{"weekCommencing":"2025-04-07","weekEnding":"2025-04-13","weekNumber":"V"},{"weekCommencing":"2025-04-14","weekEnding":"2025-04-20","weekNumber":"V"},{"weekCommencing":"2025-04-21","weekEnding":"2025-04-27","weekNumber":"9"},{"weekCommencing":"2025-04-28","weekEnding":"2025-05-04","weekNumber":"10"},{"weekCommencing":"2025-05-05","weekEnding":"2025-05-11","weekNumber":"11"},{"weekCommencing":"2025-05-12","weekEnding":"2025-05-18","weekNumber":"RV"},{"weekCommencing":"2025-05-19","weekEnding":"2025-05-25","weekNumber":"RA"},{"weekCommencing":"2025-05-26","weekEnding":"2025-06-01","weekNumber":"RA"},{"weekCommencing":"2025-06-02","weekEnding":"2025-06-08","weekNumber":"RA"}]
+
     // Required fields from API response
     requiredFields: ['checkinReportTime', 'checkinReport', 'username', 'autoLogData'],
 
@@ -557,7 +560,7 @@ const AutoCheckinDashboard = {
             // Add week display (shows the date range)
             const weekDisplay = document.createElement('div');
             weekDisplay.className = 'week-display';
-            weekDisplay.textContent = this.formatWeekRange(availableWeeks[currentWeekIndex].weekStartDate);
+            weekDisplay.innerHTML = this.formatWeekRange(availableWeeks[currentWeekIndex].weekStartDate);
             
             // Add next week button
             const nextButton = document.createElement('button');
@@ -572,7 +575,7 @@ const AutoCheckinDashboard = {
                     currentWeekIndex--;
                     const weekData = availableWeeks[currentWeekIndex];
                     this.displayWeekTimetable(syncData, weekData.year, weekData.week);
-                    weekDisplay.textContent = this.formatWeekRange(weekData.weekStartDate);
+                    weekDisplay.innerHTML = this.formatWeekRange(weekData.weekStartDate);
                     
                     // Update button states
                     prevButton.disabled = currentWeekIndex === 0;
@@ -585,7 +588,7 @@ const AutoCheckinDashboard = {
                     currentWeekIndex++;
                     const weekData = availableWeeks[currentWeekIndex];
                     this.displayWeekTimetable(syncData, weekData.year, weekData.week);
-                    weekDisplay.textContent = this.formatWeekRange(weekData.weekStartDate);
+                    weekDisplay.innerHTML = this.formatWeekRange(weekData.weekStartDate);
                     
                     // Update button states
                     nextButton.disabled = currentWeekIndex === availableWeeks.length - 1;
@@ -643,15 +646,34 @@ const AutoCheckinDashboard = {
         // Get month names - use short month format for better space efficiency
         const month = endDate.toLocaleDateString('en-GB', { month: 'short' });
         const year = endDate.getFullYear();
+
+        // Get week number from mapping
+        const weekNumber = this.getWeekNumber(startDate);
         
-        // If start and end dates are in the same month
+        // Format the date range
+        let dateRange;
         if (startDate.getMonth() === endDate.getMonth()) {
-            return `${startDay}-${endDay} ${month} ${year}`;
+            dateRange = `${startDay}-${endDay} ${month} ${year}`;
         } else {
             // If they span different months
             const startMonth = startDate.toLocaleDateString('en-GB', { month: 'short' });
-            return `${startDay} ${startMonth} - ${endDay} ${month} ${year}`;
+            dateRange = `${startDay} ${startMonth} - ${endDay} ${month} ${year}`;
         }
+        
+        // Return with week number if available, otherwise just the date range
+        if (weekNumber) {
+            return `<strong>Week ${weekNumber}</strong><br><span style="font-weight: normal; color: #666; font-size: 14px;">${dateRange}</span>`;
+        } else {
+            return dateRange;
+        }
+    },
+
+    // Helper function to get the week number from the week commencing date
+    getWeekNumber(startDate) {
+        const formattedDate = startDate.toISOString().split('T')[0];
+        const validWeek = this.weekNumberMapping.find(week => week.weekCommencing === formattedDate)
+
+        return validWeek ? validWeek.weekNumber : null;
     },
     
     // Helper function to get the date of the Monday in a given ISO week
