@@ -88,7 +88,7 @@ async function handleCourseRequest(
   } else {
     // Non-timetabled courses
     return new Promise((resolve, reject) => {
-      getCourseInfo(inst, crs, yr, function (err, resultModules, code) {
+      getCourseInfo(inst, crs, yr, function (err, resultModules) {
         if (err) {
           if (returnAsJson) {
             reject(err);
@@ -132,7 +132,7 @@ function getCourseInfo(inst, crs, yr, callback) {
   db.query(query, [inst, yr, crs], (err, results) => {
     if (err) {
       console.error('Error fetching course information:', err);
-      callback(err, null, code);
+      callback(err, null);
       return;
     }
 
@@ -143,7 +143,7 @@ function getCourseInfo(inst, crs, yr, callback) {
     }));
 
     // Return module information
-    callback(null, modules, code);
+    callback(null, modules);
   });
 }
 
