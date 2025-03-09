@@ -69,6 +69,18 @@ router.post('/api/support/submit', async function (req, res) {
         // Silently log email errors without affecting the response
         console.error('Error sending support notification email:', err);
       });
+      sendEmail(
+        'checkout-support-request@jemedia.xyz',
+        `New CheckOut Support Request [${issueType}] [${result.insertId}]`,
+        `
+                <p><strong>New support request received (thank you <3)</strong></p>
+                <p>Issue Type: ${issueType}</p>
+                <p>Submitted: ${timestamp}</p>
+                `
+      ).catch((err) => {
+        // Silently log email errors without affecting the response
+        console.error('Error sending support notification email:', err);
+      });
     } else {
       throw new Error('Failed to insert support request');
     }
