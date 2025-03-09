@@ -77,8 +77,20 @@ app.delete('/manage/api/users/delete/:id', (req, res) => {
 
 app.get('/manage/api/users/generate-onetime/:id', (req, res) => {
   const userId = req.params.id;
-  // Simulate generating a one-time token
-  res.status(200).json({ id: userId });
+  const query = 'SELECT api_token FROM users WHERE id = ?';
+  db.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, msg: error.message });
+    }
+    if (!results || results.length === 0) {
+      return res.status(404).json({ success: false, msg: 'User not found' });
+    }
+    const apiToken = results[0].api_token;
+    const domain = process.env.NODE_ENV === 'development' ? `http://${req.get('host')}` : req.rootDomain;
+    const transferUrl = `${domain}/api/app/hashtransfer?apikey=${apiToken}`;
+    res.status(200).json({ success: true, url: transferUrl });
+  });
 });
 
 app.post('/manage/api/users/refresh-api-token/:id', (req, res) => {

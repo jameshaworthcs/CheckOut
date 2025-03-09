@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button class="view-token" onclick="viewDetails(${user.id}, 'api_token', '${escapeForHTML(user.api_token)}')">View API Token</button>
                     <button class="view-token" onclick="viewDetails(${user.id}, 'checkintoken', '${escapeForHTML(user.checkintoken)}')">View Check-in Token</button>
                     <button class="delete" onclick="deleteUser(${user.id})">Delete</button>
-                    <button class="generate-onetime" onclick="generateOneTime(${user.id})">Generate OneTime</button>
+                    <button class="generate-onetime" onclick="generateOneTime(${user.id})">Generate Login Link</button>
                     <button class="refresh-api" onclick="refreshApiToken(${user.id})">Refresh API Token</button>
                     <button class="session-refresh" onclick="sessionRefresh(${user.id})">Session Refresh</button>
                     <button class="edit" onclick="editUser(${user.id}, '${escapeForHTML(user.username)}', '${escapeForHTML(user.userstate)}', '${escapeForHTML(user.checkinstate)}', '${escapeForHTML(user.checkintoken)}', '${escapeForHTML(user.note)}')">Edit</button>
@@ -236,10 +236,20 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(`/manage/api/users/generate-onetime/${id}`, { method: 'GET' });
       const data = await response.json();
-      displayNotice(`Generated OneTime for User ID: ${data.id}`, 'success');
+      
+      if (!data.success) {
+        throw new Error(data.msg || 'Failed to generate URL');
+      }
+
+      if (data.url) {
+        await navigator.clipboard.writeText(data.url);
+        displayNotice('Transfer URL copied to clipboard. Please paste into an incognito browser to use.', 'success');
+      } else {
+        displayNotice('No URL was generated', 'error');
+      }
     } catch (error) {
-      console.error('Error generating one-time token:', error);
-      displayNotice('Failed to generate one-time token', 'error');
+      console.error('Error generating transfer URL:', error);
+      displayNotice(error.message || 'Failed to generate transfer URL', 'error');
     }
   };
 
