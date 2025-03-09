@@ -49,13 +49,46 @@
 
   /**
    * Sets up the page by fetching API data and updating the UI.
-   *
+   * 
    * @param {boolean} [refreshSubmit=true] - If true, refreshes the submit form as well.
    */
   function setup(refreshSubmit = true) {
       lastSetupCall = Date.now();
-      resetRefreshTimer();
+      
       getV2().then(data => {
+          // Check if we have a previous response and if this is not a full refresh
+          if (previousApiResponse && !refreshSubmit) {
+              // Check if a new code is available by comparing the current and previous responses
+              const hasNewCode = checkForNewCodes(previousApiResponse, data);
+              
+              // If a new code is available and user hasn't recently submitted a code, display a message
+              if (hasNewCode && !userSubmittedCode) {
+                  // Check if the message box already exists
+                  const existingMessageBox = document.querySelector('.classes-message-box');
+                  if (!existingMessageBox) {
+                      displayInBoxMessage(
+                          'classes-box', 
+                          'Normal', 
+                          'A new code is available!', 
+                          'Show', 
+                          'javascript:void(0);'
+                      );
+                      
+                      // Add click event to the message link to call setup with refreshSubmit=true
+                      const messageLink = document.getElementById('classes-box-message-link-href');
+                      if (messageLink) {
+                          messageLink.addEventListener('click', function(e) {
+                              e.preventDefault();
+                              setup(true);
+                          });
+                      }
+                  }
+              }
+          }
+          
+          // Store the current response for future comparison
+          previousApiResponse = data;
+          
           const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
           const username = userInfo.username;
           const autoInfo = userInfo.autoInfo || 'skip';
@@ -85,6 +118,8 @@
           if (tibl) {
               fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
           }
+          
+          resetRefreshTimer();
       }).catch(error => {
           console.error(error);
           if (error.response && error.response.msg) {
@@ -100,7 +135,46 @@
               }
               showErrorBox("Something went wrong. Retrying...", 'classes-content');
           }
+          
+          resetRefreshTimer();
       });
+  }
+
+  /**
+   * Checks if there are any new codes in the current API response compared to the previous one.
+   * 
+   * @param {Object} prevResponse - The previous API response
+   * @param {Object} currResponse - The current API response
+   * @returns {boolean} - True if new codes are found, false otherwise
+   */
+  function checkForNewCodes(prevResponse, currResponse) {
+      // If either response is invalid or doesn't have sessions, return false
+      if (!prevResponse || !prevResponse.sessions || !currResponse || !currResponse.sessions) {
+          return false;
+      }
+      
+      // Get all checkin codes from previous response
+      const prevCodes = new Set();
+      prevResponse.sessions.forEach(session => {
+          if (session.codes) {
+              session.codes.forEach(code => {
+                  prevCodes.add(code.checkinCode);
+              });
+          }
+      });
+      
+      // Check if current response has any codes not in the previous response
+      for (const session of currResponse.sessions) {
+          if (session.codes) {
+              for (const code of session.codes) {
+                  if (!prevCodes.has(code.checkinCode)) {
+                      return true; // Found a new code
+                  }
+              }
+          }
+      }
+      
+      return false; // No new codes found
   }
 
   /**
@@ -153,7 +227,11 @@
   let refreshEnabled = true;
   let blockAllRefresh = false;
   let lastUserInteraction = 0;
-  let interactionDelay = 30000; // 30 seconds
+  let interactionDelay = 60000; // 60 seconds
+  let previousApiResponse = null; // Store the previous API response for comparison
+  let userSubmittedCode = false; // Track if user has submitted a code recently
+  let codeSubmissionTimeout = 60000; // 60 seconds timeout for code submission tracking
+  let codeSubmissionTimer = null; // Timer for resetting the userSubmittedCode flag
 
   /**
    * Resets the refresh timer to schedule the next refresh check.
@@ -226,11 +304,56 @@
    * Displays the refresh loader briefly during page refresh.
    */
   function showRefreshLoader() {
-      const loader = document.getElementById('code-refresh-loader');
-      loader.style.display = 'inline-block';
-      setTimeout(() => {
-          loader.style.display = 'none';
-      }, 1000);
+      const loader = document.getElementById('refresh-loader');
+      if (loader) {
+          loader.style.display = 'block';
+          setTimeout(() => {
+              loader.style.display = 'none';
+          }, 500);
+      }
+  }
+
+  /**
+   * Displays a message box inside a specified container element.
+   * 
+   * @param {string} boxID - The ID of the container element where the message box will be inserted
+   * @param {string} messageType - The type of message (currently only 'Normal' is supported)
+   * @param {string} messageText - The text content of the message
+   * @param {string} messageLinkText - The text for the link/button
+   * @param {string} messageLinkHref - The URL for the link/button
+   */
+  function displayInBoxMessage(boxID, messageType, messageText, messageLinkText, messageLinkHref) {
+      const container = document.getElementById(boxID);
+      if (!container) return;
+      
+      // Create the message box elements
+      const messageBox = document.createElement('div');
+      messageBox.className = 'classes-message-box';
+      
+      const messageTextDiv = document.createElement('div');
+      messageTextDiv.id = 'classes-box-message-text';
+      messageTextDiv.textContent = messageText;
+      
+      const messageLink = document.createElement('a');
+      messageLink.id = 'classes-box-message-link-href';
+      messageLink.href = messageLinkHref;
+      
+      const messageLinkTextDiv = document.createElement('div');
+      messageLinkTextDiv.id = 'classes-box-message-link-text';
+      messageLinkTextDiv.className = 'cta-button cta-button-main';
+      messageLinkTextDiv.textContent = messageLinkText;
+      
+      // Assemble the message box
+      messageLink.appendChild(messageLinkTextDiv);
+      messageBox.appendChild(messageTextDiv);
+      messageBox.appendChild(messageLink);
+      
+      // Insert at the beginning of the container
+      if (container.firstChild) {
+          container.insertBefore(messageBox, container.firstChild);
+      } else {
+          container.appendChild(messageBox);
+      }
   }
 
   /**
@@ -2084,6 +2207,8 @@
                   if (codeInput) {
                       greenLightInput(codeInput.id);
                   }
+                  // Mark that a code has been submitted to prevent showing new code message
+                  markCodeSubmitted();
                   setup(false);
               } else {
                   endSpinner(submitButton.id);
@@ -2533,5 +2658,23 @@
       if (event.key === 'Escape') {
           closeMetadataModal();
       }
+  }
+
+  /**
+   * Marks that a user has submitted a code and sets a timer to reset this flag.
+   * This prevents showing the new code message box right after submission.
+   */
+  function markCodeSubmitted() {
+      userSubmittedCode = true;
+      
+      // Clear any existing timer
+      if (codeSubmissionTimer) {
+          clearTimeout(codeSubmissionTimer);
+      }
+      
+      // Set a timer to reset the flag after the timeout period
+      codeSubmissionTimer = setTimeout(() => {
+          userSubmittedCode = false;
+      }, codeSubmissionTimeout);
   }
 </script>
