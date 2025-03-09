@@ -322,10 +322,16 @@ app.get('/api/autocheckin/test-server', async (req, res) => {
 app.get('/api/autocheckin/proxy/:endpoint(*)', async (req, res) => {
   const startTime = Date.now();
   const endpoint = req.params.endpoint;
+  
+  // Add query parameters to the endpoint if they exist
+  const queryString = Object.keys(req.query).length > 0 
+    ? '?' + new URLSearchParams(req.query as Record<string, string>).toString() 
+    : '';
+  const fullEndpoint = `${endpoint}${queryString}`;
 
   try {
     // Make request to autocheckin server with full details
-    const response = await makeAutoCheckinRequest.get(endpoint, true);
+    const response = await makeAutoCheckinRequest.get(fullEndpoint, true);
     const timeTaken = Date.now() - startTime;
 
     res.json({
@@ -333,7 +339,7 @@ app.get('/api/autocheckin/proxy/:endpoint(*)', async (req, res) => {
       data: response.data,
       proxyDetails: {
         timeTaken,
-        fullUrl: `${process.env.CHK_AUTO_API}/${endpoint}`,
+        fullUrl: `${process.env.CHK_AUTO_API}/${fullEndpoint}`,
         requestDetails: response.requestDetails
       }
     });
@@ -345,7 +351,7 @@ app.get('/api/autocheckin/proxy/:endpoint(*)', async (req, res) => {
       error: error instanceof Error ? error.message : 'Unknown error occurred',
       proxyDetails: {
         timeTaken,
-        fullUrl: `${process.env.CHK_AUTO_API}/${endpoint}`
+        fullUrl: `${process.env.CHK_AUTO_API}/${fullEndpoint}`
       }
     });
   }
