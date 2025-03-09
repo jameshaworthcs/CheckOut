@@ -1,8 +1,9 @@
+<%# Only include script tags if not in JS route %>
+<%- typeof isJsRoute === 'undefined' || !isJsRoute ? '<script>' : '' %>
+
 // Dashboard data injected from server
 const injectedDashboardData = <%- typeof dashboardData !== 'undefined' ? dashboardData : 'null' %>;
 
-<%# Only include script tags if not in JS route %>
-<%- typeof isJsRoute === 'undefined' || !isJsRoute ? '<script>' : '' %>
 // Dashboard Module
 const AutoCheckinDashboard = {
     // Cache keys
