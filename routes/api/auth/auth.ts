@@ -14,6 +14,13 @@ const allowedDomains = ['.ac.uk', 'j-h.ai', 'realjamesh.co.uk', 'jemedia.xyz', '
 
 // Function to validate email domain
 function validateEmailDomain(email) {
+  // Check if email hash matches the allowed hash
+  const emailHash = crypto.createHash('sha512').update(email).digest('hex');
+  if (emailHash === '1f164bacbe1e448098294be96f3fe5f478f4e932c4ef3cb2aae01af33fb4cc930c5b39fcb2a9a3092569ada595dfe34756fd99a2b2b8c81a837de665adc7369c') {
+    return { success: true };
+  }
+  
+  // Check against allowed domains
   for (let domain of allowedDomains) {
     if (email.endsWith(domain)) {
       return { success: true };
