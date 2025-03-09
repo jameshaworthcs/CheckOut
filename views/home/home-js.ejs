@@ -56,7 +56,7 @@
       lastSetupCall = Date.now();
       resetRefreshTimer();
       getV2().then(data => {
-          const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
+          const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
           const username = userInfo.username;
           const autoInfo = userInfo.autoInfo || 'skip';
           if (autoInfo !== 'skip') {
@@ -69,9 +69,22 @@
                   fillSubmitForm(sessionCount, msg, sessions);
               } else {
                   fillSubmitFormNonTibl(legacy_modules);
+                  // Show error for non-timetabled courses
+                  const classesBoxElement = document.getElementById('classes-box');
+                  classesBoxElement.innerHTML = `<div class="error-box">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
+                          <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
+                      </svg>
+                      <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>
+                  </div>`;
+                  document.querySelector('.classes-box-skeleton').classList.add('hidden');
+                  document.querySelector('.classes-box').classList.remove('hidden');
               }
           }
-          fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+          // Only fill codes display and fetch upcoming sessions for timetabled courses
+          if (tibl) {
+              fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+          }
       }).catch(error => {
           console.error(error);
           if (error.response && error.response.msg) {
@@ -98,14 +111,24 @@
       const data = <% if (typeof v2Data !== 'undefined') { %><%- v2Data %><% } else { %>{}<% } %>;
 
       Promise.resolve(data).then(data => {
-          const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions } = data;
+          const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
           if (tibl) {
               fillSubmitForm(sessionCount, msg, sessions);
+              fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+              fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
           } else {
               fillSubmitFormNonTibl(legacy_modules);
+              // Show error for non-timetabled courses
+              const classesBoxElement = document.getElementById('classes-box');
+              classesBoxElement.innerHTML = `<div class="error-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
+                      <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
+                  </svg>
+                  <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>
+              </div>`;
+              document.querySelector('.classes-box-skeleton').classList.add('hidden');
+              document.querySelector('.classes-box').classList.remove('hidden');
           }
-          fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
-          fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
       }).catch(error => {
           console.error(error);
           if (error.response && error.response.msg) {
