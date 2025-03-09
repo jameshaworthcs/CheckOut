@@ -2,13 +2,9 @@ const courseFinder = require('./api/course/course-find.ts');
 const tibl = require('./tibl.ts');
 const db = require('../databases/database.ts');
 const workerpool = require('workerpool');
-const NodeCache = require('node-cache');
 
 // Worker pool for getCodesAlg
 const pool = workerpool.pool(__dirname + '/scoresWorker.ts');
-
-// Cache setup with 30 second TTL, keeping expired entries
-const cache = new NodeCache({ stdTTL: 30, deleteOnExpire: false });
 
 // Gracefully shutdown the worker pool when the process exits
 process.on('exit', () => {
@@ -153,16 +149,6 @@ function getCourseInfo(inst, crs, yr, callback) {
 
 // Helper function used by handleCourseRequest
 function getCodesAlg(inst, crs, yr, md, grp, callback) {
-  const cacheKey = `${inst}-${crs}-${yr}-${md}-${grp}`;
-  const now = Date.now();
-
-  // Try to get from cache first
-  const cachedResult = cache.get(cacheKey);
-  if (cachedResult) {
-    callback(null, cachedResult);
-    return;
-  }
-
   try {
     const sqlQuery = 'SELECT * FROM codes;';
     db.query(sqlQuery, async function (err, result) {
@@ -172,8 +158,6 @@ function getCodesAlg(inst, crs, yr, md, grp, callback) {
       }
       try {
         const scoredCodes = await pool.exec('calculate', [inst, crs, yr, md, grp, result]);
-        // Cache the result
-        cache.set(cacheKey, scoredCodes);
         callback(null, scoredCodes);
       } catch (workerErr) {
         callback(workerErr, null);
@@ -184,4 +168,4 @@ function getCodesAlg(inst, crs, yr, md, grp, callback) {
   }
 }
 
-module.exports = handleCourseRequest; 
+module.exports = handleCourseRequest;

@@ -403,6 +403,157 @@ function getCodes(inst, crs, yr, md, grp, callback) {
   }
 }
 
+function fetchEverythingData(callback) {
+  const query = `
+    SELECT DISTINCT
+      i.institution_id,
+      i.name AS institution_name
+    FROM 
+      Institutions i
+  `;
+
+  db.query(query, (err, institutions) => {
+    if (err) {
+      console.error('Error fetching institutions: ' + err.stack);
+      callback(err, null);
+      return;
+    }
+
+    // Initialize formatted data
+    const formattedData = {};
+
+    // Function to fetch years, courses, and modules for each institution
+    function fetchInstitutionData(institutionIndex) {
+      if (institutionIndex >= institutions.length) {
+        // All institutions processed, return formatted data
+        callback(null, formattedData);
+        return;
+      }
+
+      const institution = institutions[institutionIndex];
+      const institutionId = institution.institution_id;
+
+      // Fetch years for the current institution
+      const yearsQuery = `
+          SELECT year_number
+          FROM Years
+          WHERE institution_id = ?
+      `;
+
+      db.query(yearsQuery, [institutionId], (err, years) => {
+        if (err) {
+          console.error('Error fetching years for institution ' + institutionId + ': ' + err.stack);
+          callback(err, null);
+          return;
+        }
+
+        // Initialize years for the current institution
+        const institutionYears = {};
+
+        // Function to fetch courses and modules for each year
+        function fetchYearData(yearIndex) {
+          if (yearIndex >= years.length) {
+            // All years processed, assign years data to institution and proceed to next institution
+            formattedData[institutionId] = {
+              name: institution.institution_name,
+              years: institutionYears,
+            };
+            fetchInstitutionData(institutionIndex + 1);
+            return;
+          }
+
+          const year = years[yearIndex];
+          const yearNumber = year.year_number;
+
+          // Fetch courses for the current year
+          const coursesQuery = `
+              SELECT C.course_id, C.course_name, C.course_code
+              FROM Courses C
+              INNER JOIN Years Y ON C.year_id = Y.year_id
+              WHERE C.institution_id = ? AND Y.year_number = ?
+          `;
+
+          db.query(coursesQuery, [institutionId, yearNumber], (err, courses) => {
+            if (err) {
+              console.error(
+                'Error fetching courses for year ' +
+                  yearNumber +
+                  ' in institution ' +
+                  institutionId +
+                  ': ' +
+                  err.stack
+              );
+              callback(err, null);
+              return;
+            }
+
+            // Initialize courses for the current year
+            const yearCourses = {};
+
+            // Function to fetch modules for each course
+            function fetchCourseData(courseIndex) {
+              if (courseIndex >= courses.length) {
+                // All courses processed, assign courses data to year and proceed to next year
+                institutionYears[yearNumber] = { courses: yearCourses };
+                fetchYearData(yearIndex + 1);
+                return;
+              }
+
+              const course = courses[courseIndex];
+              const courseId = course.course_id;
+              const courseName = course.course_name;
+              const courseCode = course.course_code;
+
+              // Fetch modules for the current course
+              const modulesQuery = `
+                  SELECT module_code, module_name
+                  FROM Modules
+                  WHERE institution_id = ? AND course_id = ?
+              `;
+
+              db.query(modulesQuery, [institutionId, courseId], (err, modules) => {
+                if (err) {
+                  console.error(
+                    'Error fetching modules for course ' +
+                      courseId +
+                      ' in year ' +
+                      yearNumber +
+                      ' in institution ' +
+                      institutionId +
+                      ': ' +
+                      err.stack
+                  );
+                  callback(err, null);
+                  return;
+                }
+
+                // Format modules for the current course
+                const courseModules = {};
+                modules.forEach((module) => {
+                  courseModules[module.module_code] = module.module_name;
+                });
+
+                // Assign modules data to course and proceed to next course
+                yearCourses[courseCode] = { courseName: courseName, modules: courseModules };
+                fetchCourseData(courseIndex + 1);
+              });
+            }
+
+            // Start fetching data for the current year
+            fetchCourseData(0);
+          });
+        }
+
+        // Start fetching data for the current institution
+        fetchYearData(0);
+      });
+    }
+
+    // Start fetching data for the first institution
+    fetchInstitutionData(0);
+  });
+}
+
 // GlobalApp state
 // Fetches general information about the whole CheckOut app and is always available
 app.get('/api/app/state', function (req, res) {
