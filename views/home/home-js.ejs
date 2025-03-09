@@ -168,7 +168,10 @@
    */
   function checkIfShouldRefresh() {
       const now = Date.now();
-      if (blockAllRefresh) {
+      const dropdownMenu = document.getElementById('dropdown-menu');
+      
+      // Don't refresh if dropdown menu is open or if refresh is blocked
+      if (blockAllRefresh || (dropdownMenu && dropdownMenu.style.display === 'flex')) {
           return;
       } else if (!refreshEnabled) {
           showRefreshLoader();
