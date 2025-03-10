@@ -94,6 +94,55 @@ app.get('/manage/api/autocheckin/logs', async (req, res) => {
   }
 });
 
+// Delete a specific log entry
+app.delete('/manage/api/autocheckin/logs/:id', async (req, res) => {
+  const logId = req.params.id;
+
+  if (!logId) {
+    return res.status(400).json({ error: 'Log ID is required' });
+  }
+
+  try {
+    const sql = 'DELETE FROM autoCheckinLog WHERE logID = ?';
+    const [result] = await db2.query(sql, [logId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Log entry not found' });
+    }
+
+    res.json({ success: true, message: 'Log entry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting log entry:', error);
+    res.status(500).json({ error: 'Failed to delete log entry' });
+  }
+});
+
+// Update a specific log entry
+app.put('/manage/api/autocheckin/logs/:id', async (req, res) => {
+  const logId = req.params.id;
+  const { message, timestamp } = req.body;
+
+  if (!logId || !message || !timestamp) {
+    return res.status(400).json({ error: 'Log ID, message, and timestamp are required' });
+  }
+
+  try {
+    // Convert ISO string to MySQL datetime format
+    const mysqlTimestamp = new Date(timestamp).toISOString().slice(0, 19).replace('T', ' ');
+    const sql = 'UPDATE autoCheckinLog SET message = ?, timestamp = ? WHERE logID = ?';
+    const [result] = await db2.query(sql, [message, mysqlTimestamp, logId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Log entry not found' });
+    }
+
+    res.json({ success: true, message: 'Log entry updated successfully' });
+  } catch (error) {
+    console.error('Error updating log entry:', error);
+    res.status(500).json({ error: 'Failed to update log entry' });
+  }
+});
+
 app.get('*', function (req, res) {
   res.status(404);
   res.json({ success: false, msg: 'Not a valid endpoint. (autocheckin-manage-api)' });
