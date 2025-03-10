@@ -14,8 +14,7 @@ const makeAutoCheckinRequest = {
     try {
       const response = await axios.get(fullUrl, {
         family: 6,
-        timeout: 10000, // 10 seconds
-        // You might also want to add retry logic
+        timeout: 30000, // 30 seconds
         retry: 3,
         retryDelay: 1000,
         headers: {
@@ -181,7 +180,8 @@ app.post('/api/autocheckin/log', async function (req, res) {
     });
 
     // Only log to autoCheckinLog if state is not Normal
-    if (state !== 'Normal') {
+    // Temp: Log all events
+    if (state !== 'Normal' || true) {
       await new Promise((resolve, reject) => {
         const query = `INSERT INTO autoCheckinLog (email, state, message, timestamp) VALUES (?, ?, ?, ?)`;
         db.query(query, [email, state, message, mysqlTimestamp], (err, result) => {
