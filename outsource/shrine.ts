@@ -126,12 +126,19 @@ function compareSessions(sessionData: SessionData, activityData: Activity[]): Se
         
         for (const session of sessions) {
             for (const activity of activityData) {
+                // Parse activity start time to remove timezone offset
                 const activityStartTime = new Date(activity.startDateTime);
+                const activityHour = activityStartTime.getUTCHours();
+                const activityMinute = activityStartTime.getUTCMinutes();
                 
-                // Parse session start time (format: "Day Month DD YYYY HH:MM")
-                const sessionDateTime = new Date(`${session.startDate} ${session.startTime}`);
+                // Parse session time (format: HH:MM)
+                const [sessionHour, sessionMinute] = session.startTime.split(':').map(Number);
                 
-                if (session.description === activity.reference && sessionDateTime.getTime() === activityStartTime.getTime()) {
+                // Compare times and descriptions
+                if (session.description === activity.reference && 
+                    sessionHour === activityHour && 
+                    sessionMinute === activityMinute) {
+                    
                     if (!sessionMatches[session.description]) {
                         sessionMatches[session.description] = {
                             session_id: session.rejectID,
@@ -140,10 +147,14 @@ function compareSessions(sessionData: SessionData, activityData: Activity[]): Se
                         };
                     }
                     
+                    // Ensure codes arrays exist
+                    const sessionCodes = session.codes || [];
+                    const activityCodes = activity.checkinCodes || [];
+                    
                     // Check for missing codes from reject to shrine
-                    for (const sessionCode of session.codes) {
+                    for (const sessionCode of sessionCodes) {
                         let found = false;
-                        for (const activityCode of activity.checkinCodes) {
+                        for (const activityCode of activityCodes) {
                             if (String(sessionCode.checkinCode) === activityCode.code) {
                                 found = true;
                                 break;
@@ -158,18 +169,22 @@ function compareSessions(sessionData: SessionData, activityData: Activity[]): Se
                     }
                     
                     // Check for missing codes from shrine to reject
-                    for (const activityCode of activity.checkinCodes) {
+                    for (const activityCode of activityCodes) {
                         let found = false;
-                        for (const sessionCode of session.codes) {
+                        const sessionCodesArray = Array.isArray(sessionCodes) ? sessionCodes : [];
+                        
+                        for (const sessionCode of sessionCodesArray) {
                             if (String(sessionCode.checkinCode) === activityCode.code) {
                                 found = true;
                                 break;
                             }
                         }
+                        
                         if (!found) {
+                            console.log(`Found missing code ${activityCode.code} from Shrine to add to Reject`);
                             sessionMatches[session.description].codes_to_send_to_reject.push({
                                 rejectID: session.rejectID,
-                                moduleCode: session.moduleCode,
+                                moduleCode: session.moduleCode || session.tiblModuleCode, // Use tiblModuleCode as fallback
                                 checkinCode: activityCode.code
                             });
                         }
@@ -226,8 +241,20 @@ async function main(
     // Log data summary
     // console.log(`Session data: ${validSessionData.sessions?.length || 0} sessions`);
     // console.log(`Activity data: ${validActivityData.length} activities`);
+    // console.log("Shrine codes:", validActivityData[0].checkinCodes);
     
     // Process the data even if one of them is empty - this allows one-way sync
+    // console.log("Comparing sessions and activities...");
+    // Deep clone and expand the data for proper logging
+    // console.log("Session data expanded:", JSON.stringify(validSessionData, null, 2));
+    // console.log("Activity data expanded:", JSON.stringify(validActivityData, null, 2));
+    
+    // Ensure codes array is initialized if empty
+    validSessionData.sessions = validSessionData.sessions.map(session => ({
+        ...session,
+        codes: session.codes || []
+    }));
+    
     const sessionMatches = compareSessions(validSessionData, validActivityData);
     const codesToSendToShrine: CodeToSendToShrine[] = [];
     const codesToSendToReject: CodeToSendToReject[] = [];
@@ -238,6 +265,7 @@ async function main(
         codesToSendToReject.push(...sessionMatch.codes_to_send_to_reject);
     }
     
+    // console.log("Session matches:", JSON.stringify(sessionMatches, null, 2));
     // console.log("Codes to send to reject:");
     // console.log(codesToSendToReject);
     // console.log("Codes to send to shrine:");

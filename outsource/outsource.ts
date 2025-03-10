@@ -122,7 +122,7 @@ const outsource = async () => {
   
   // Log session data summary
   const sessionCount = sessionData.sessions?.length || 0;
-  // console.log(`Active sessions: ${sessionCount}`);
+  console.log(`Active sessions: ${sessionCount}`);
   
   // Only proceed if there are sessions or we're forcing execution
   const forceExecution = false;
@@ -196,8 +196,8 @@ export async function refreshAciApiKey(): Promise<void> {
   // console.log("ACI API key refreshed:", aciConfig.apiKey ? "Key found" : "No key found");
 }
 
-// Start the interval for 15 seconds
-setInterval(outsource, 15000);
+// Start the interval for 5 seconds
+setInterval(outsource, 5000);
 
 // Export the outsource function and configurations
 export { outsource, shrineConfig, aciConfig, checkoutConfig };
