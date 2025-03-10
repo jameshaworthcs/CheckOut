@@ -14,8 +14,7 @@ const makeAutoCheckinRequest = {
     try {
       const response = await axios.get(fullUrl, {
         family: 6,
-        timeout: 10000, // 10 seconds
-        // You might also want to add retry logic
+        timeout: 30000, // 30 seconds
         retry: 3,
         retryDelay: 1000,
         headers: {
