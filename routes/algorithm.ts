@@ -134,7 +134,7 @@ function calculateScores(inst, crs, yr, md, grp, codes, grouped, codeDayFlip) {
             (value) => value && typeof value === 'object' && value.autocheckin === true
           ))
       ) {
-        console.log('Autocheckin found');
+        //console.log('Autocheckin found');
         groupedCodes[key].verifiedInfo = code.verifiedInfo;
       }
     });
