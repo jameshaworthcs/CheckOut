@@ -112,6 +112,7 @@ function submitcode(req, res, callback) {
     } else {
       var source = 'SubmitAPI';
     }
+    var verifiedInfo = JSON.stringify({});
     //console.log("module code", moduleCode)
     // if (!validModuleCodes.includes(moduleCode)) {
     //   moduleCode = 'dontwork';
@@ -216,7 +217,7 @@ function submitcode(req, res, callback) {
         console.log('Allowed submission from', moduleCode, groupCode, checkinCode, ip, tk);
       }
 
-      var sql = `INSERT INTO codes (inst, crs, yr, md, codeDay, groupCode, checkinCode, timestamp, ip, useragent, tk, deviceID, username, codeState, codeDesc, codeReps, visState, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`; // prepare SQL statement
+      var sql = `INSERT INTO codes (inst, crs, yr, md, codeDay, groupCode, checkinCode, timestamp, ip, useragent, tk, deviceID, username, codeState, codeDesc, codeReps, visState, source, verifiedInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`; // prepare SQL statement
       if (
         useragent != 'Mozilla/5.0 (compatible; ProjectShield-UrlCheck; +http://g.co/projectshield)'
       ) {
@@ -242,6 +243,7 @@ function submitcode(req, res, callback) {
             '0',
             visState,
             source,
+            verifiedInfo
           ],
           function (err, result) {
             // execute SQL query
