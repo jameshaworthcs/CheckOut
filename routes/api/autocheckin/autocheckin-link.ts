@@ -191,6 +191,30 @@ app.post('/api/autocheckin/log', async function (req, res) {
       });
     }
 
+    // For successful checkin, update the codes table to add autocheckin flag to verifiedInfo
+    if (state === 'Checkin') {
+      // Extract 6 digit code from message
+      const code = message.match(/(\d{6})/)?.[0];
+      if (code) {
+        // Get current date in YYYY-MM-DD format for comparison
+        const currentDay = moment().tz('Europe/London').format('YYYY-MM-DD');
+        
+        // Update codes table with code and add autocheckin flag to verifiedInfo
+        await new Promise((resolve, reject) => {
+          const query = `UPDATE codes SET 
+            verifiedInfo = JSON_SET(
+              COALESCE(verifiedInfo, '{}'),
+              '$.autocheckin', true
+            )
+            WHERE checkinCode = ? AND codeDay = ?`;
+          db.query(query, [code, currentDay], (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          });
+        });
+      }
+    }
+
     res.json({ success: true, message: 'Log entry created successfully' });
   } catch (err) {
     console.error('Error in log endpoint:', err);

@@ -1567,9 +1567,9 @@
 
           if (verifiedInfo.hasOwnProperty('autocheckin')) {
               verificationData.push({
-                  label: 'Auto Check-in:',
+                  label: 'AutoCheckin:',
                   value: verifiedInfo.autocheckin ? 'Enabled' : 'Disabled',
-                  explanation: verifiedInfo.autocheckin ? 'Code is genuine.' : 'AutoCheckin failed to recognise this code.'
+                  explanation: verifiedInfo.autocheckin ? 'Code recognised by <a href="/auto">AutoCheckin</a>!' : 'AutoCheckin failed to recognise this code.'
               });
           }
 
@@ -1599,7 +1599,7 @@
 
                   const explanationText = document.createElement('p');
                   explanationText.className = 'verification-explanation';
-                  explanationText.textContent = data.explanation;
+                  explanationText.innerHTML = data.explanation;
 
                   modalTable.appendChild(divLabel);
                   modalTable.appendChild(divValue);

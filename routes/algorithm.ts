@@ -129,9 +129,10 @@ function calculateScores(inst, crs, yr, md, grp, codes, grouped, codeDayFlip) {
       if (
         !groupedCodes[key].verifiedInfo &&
         code.verifiedInfo &&
-        Object.values(code.verifiedInfo).some(
-          (value) => value && typeof value === 'object' && value.autocheckin === true
-        )
+        (code.verifiedInfo.autocheckin === true ||
+          Object.values(code.verifiedInfo).some(
+            (value) => value && typeof value === 'object' && value.autocheckin === true
+          ))
       ) {
         console.log('Autocheckin found');
         groupedCodes[key].verifiedInfo = code.verifiedInfo;
