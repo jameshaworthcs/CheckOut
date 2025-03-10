@@ -96,7 +96,10 @@ function parseAciDate(dateStr: string): Date | null {
         
         const day = parseInt(parts[1]);
         const month = parts[2];
-        const year = new Date().getFullYear(); // Assume current year
+        const currentDate = new Date();
+        // Use next year if the month is earlier than current month
+        let year = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
         
         // Convert month name to month number
         const months: {[key: string]: number} = {
@@ -105,8 +108,14 @@ function parseAciDate(dateStr: string): Date | null {
         };
         
         if (!(month in months)) return null;
+        const monthNum = months[month];
         
-        return new Date(year, months[month], day);
+        // If the month is earlier in the year than current month, use next year
+        if (monthNum < currentMonth) {
+            year++;
+        }
+        
+        return new Date(year, monthNum, day);
     } catch (error) {
         console.error("Error parsing ACI date:", error);
         return null;
@@ -141,21 +150,17 @@ function compareSessions(sessionData: SessionData, aciData: AciResponse): Sessio
                 
                 if (!aciDate || !aciStartTime) continue;
                 
-                // Format ACI date to match session date format
-                const formattedAciDate = aciDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                });
+                // Parse session date
+                const sessionDate = new Date(session.startDate);
                 
-                // Parse session start time (format: "Day Month DD YYYY HH:MM")
-                const sessionDateTime = new Date(`${session.startDate} ${session.startTime}`);
+                // Compare dates by converting both to ISO strings and comparing the date parts
+                const aciDateString = aciDate.toISOString().split('T')[0];
+                const sessionDateString = sessionDate.toISOString().split('T')[0];
                 
                 // Compare session description with ACI activity name and times
                 if (session.description === activity.activity && 
                     session.startTime.startsWith(aciStartTime) && 
-                    session.startDate === formattedAciDate) {
+                    sessionDateString === aciDateString) {
                     
                     if (!sessionMatches[session.description]) {
                         sessionMatches[session.description] = {
@@ -230,8 +235,10 @@ async function main(
     const validAciData = aciData && aciData.activities ? aciData : { activities: [] };
     
     // Log data summary
-    // console.log(`Session data: ${validSessionData.sessions?.length || 0} sessions`);
-    // console.log(`ACI data: ${validAciData.activities?.length || 0} activities`);
+    //console.log(`Session data: ${validSessionData.sessions?.length || 0} sessions`);
+    //console.log(`ACI data: ${validAciData.activities?.length || 0} activities`);
+    //console.log(JSON.stringify(validSessionData, null, 2));
+    //console.log(JSON.stringify(validAciData, null, 2));
     
     // Process the data even if one of them is empty - this allows one-way sync
     const sessionMatches = compareSessions(validSessionData, validAciData);
@@ -242,8 +249,8 @@ async function main(
         codesToSendToCheckout.push(...sessionMatch.codes_to_send_to_checkout);
     }
     
-    // console.log("Codes to send to Checkout:");
-    // console.log(codesToSendToCheckout);
+    //console.log("Codes to send to Checkout:");
+    //console.log(codesToSendToCheckout);
     
     // Send codes to Checkout if enabled
     if (sendToCheckout && codesToSendToCheckout.length > 0) {
