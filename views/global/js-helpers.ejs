@@ -16,6 +16,118 @@
     const menuItems = document.querySelectorAll('.menu-item');
     const ctaButton = document.getElementById('navbar-cta-button');
 
+    ///////////////////
+    // Logo Animation //
+    ///////////////////
+    
+    // Logo animation
+    const siteLogo = document.getElementById('site-navbar-logo');
+    if (siteLogo) {
+      // Initial subtle pulse animation
+      const pulseAnimation = () => {
+        siteLogo.animate([
+          { transform: 'scale(1)', filter: 'brightness(1)' },
+          { transform: 'scale(1.05)', filter: 'brightness(1.1)' },
+          { transform: 'scale(1)', filter: 'brightness(1)' }
+        ], {
+          duration: 2000,
+          easing: 'ease-in-out'
+        });
+      };
+      
+      // Run pulse once on page load with a slight delay
+      setTimeout(pulseAnimation, 1000);
+      
+      // Interactive hover effect
+      siteLogo.addEventListener('mouseenter', () => {
+        siteLogo.animate([
+          { transform: 'rotate(0deg) scale(1)' },
+          { transform: 'rotate(5deg) scale(1.1)' },
+          { transform: 'rotate(0deg) scale(1.1)' }
+        ], {
+          duration: 500,
+          easing: 'ease-out',
+          fill: 'forwards'
+        });
+      });
+      
+      siteLogo.addEventListener('mouseleave', () => {
+        siteLogo.animate([
+          { transform: 'rotate(0deg) scale(1.1)' },
+          { transform: 'rotate(0deg) scale(1)' }
+        ], {
+          duration: 300,
+          easing: 'ease-in',
+          fill: 'forwards'
+        });
+      });
+      
+      // Add click effect
+      siteLogo.addEventListener('click', () => {
+        siteLogo.animate([
+          { transform: 'scale(1.1)' },
+          { transform: 'scale(0.9)' },
+          { transform: 'scale(1)' }
+        ], {
+          duration: 300,
+          easing: 'ease-in-out'
+        });
+      });
+      
+      // Random subtle animations every 30 seconds to catch attention
+      const randomAnimations = [
+        // Gentle wave
+        () => {
+          siteLogo.animate([
+            { transform: 'translateY(0px)' },
+            { transform: 'translateY(-3px)' },
+            { transform: 'translateY(0px)' }
+          ], {
+            duration: 1000,
+            easing: 'ease-in-out'
+          });
+        },
+        // Subtle glow
+        () => {
+          siteLogo.animate([
+            { filter: 'drop-shadow(0 0 0 transparent)' },
+            { filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))' },
+            { filter: 'drop-shadow(0 0 0 transparent)' }
+          ], {
+            duration: 1500,
+            easing: 'ease-in-out'
+          });
+        },
+        // Gentle rotation
+        () => {
+          siteLogo.animate([
+            { transform: 'rotate(0deg)' },
+            { transform: 'rotate(3deg)' },
+            { transform: 'rotate(0deg)' }
+          ], {
+            duration: 800,
+            easing: 'ease-in-out'
+          });
+        }
+      ];
+      
+      // Play a random animation occasionally
+      setInterval(() => {
+        // Only animate if user hasn't interacted with the page in the last 5 seconds
+        if (Date.now() - lastInteraction > 5000) {
+          const randomAnimation = randomAnimations[Math.floor(Math.random() * randomAnimations.length)];
+          randomAnimation();
+        }
+      }, 30000);
+      
+      // Track last user interaction
+      let lastInteraction = 0;
+      const updateInteraction = () => { lastInteraction = Date.now(); };
+      ['mousemove', 'click', 'keydown', 'scroll'].forEach(event => {
+        document.addEventListener(event, updateInteraction);
+      });
+    }
+
     function createSVG(isOpen) {
       const svgProps = {
         width: '18px',
