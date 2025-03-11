@@ -252,7 +252,7 @@
               <option value="change-email">Change email</option>
               <option value="report-code">Report code</option>
               <option value="autocheckin">AutoCheckin</option>
-              <option value="feature">Feature request</option>
+              <option value="feature">Feature request and feedback</option>
               <option value="other" selected>Other</option>
             </select>
           </div>
@@ -416,6 +416,12 @@
           if (!messageInput.value) {
             messageInput.value =
               'Please explain why this code should be removed below this line:\n';
+          }
+        }
+
+        if (issueTypeSelect.value === 'feature') {
+          if (!messageInput.value) {
+            messageInput.value = 'How can we improve Checkout?\n\n--include your suggestions below this line--\n\n';
           }
         }
 
