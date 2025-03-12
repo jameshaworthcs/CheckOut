@@ -341,36 +341,44 @@
             chc: chcInput.disabled ? null : chcInput.value,
             newEmail: newEmailInput ? newEmailInput.value : null,
           };
-          localStorage.setItem('supportFormData', JSON.stringify(formData));
+          
+          // Get existing checkout_cache or create a new one
+          let checkoutCache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+          
+          // Update the supportFormData key within the checkout_cache
+          checkoutCache.supportFormData = formData;
+          
+          // Save the updated checkout_cache back to localStorage
+          localStorage.setItem('checkout_cache', JSON.stringify(checkoutCache));
         }
 
         // Function to load form data from localStorage
         function loadFromLocalStorage() {
-          const savedData = localStorage.getItem('supportFormData');
+          const checkoutCache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+          const savedData = checkoutCache.supportFormData;
+          
           if (savedData) {
-            const formData = JSON.parse(savedData);
-
             // Only restore if no pre value or pre value matches saved issue type
-            if (!preValue || preValue === formData.issueType) {
-              issueTypeSelect.value = formData.issueType;
+            if (!preValue || preValue === savedData.issueType) {
+              issueTypeSelect.value = savedData.issueType;
             }
 
             // Only restore message if no msg parameter exists
-            if (formData.message && !msgParam) {
-              messageInput.value = formData.message;
+            if (savedData.message && !msgParam) {
+              messageInput.value = savedData.message;
             }
 
             // Restore email only if not disabled
-            if (!emailInput.disabled && formData.email) {
-              emailInput.value = formData.email;
+            if (!emailInput.disabled && savedData.email) {
+              emailInput.value = savedData.email;
             }
 
             // Restore code fields if not provided in URL params
-            if (!codeId && formData.codeId && !codeIdInput.disabled) {
-              codeIdInput.value = formData.codeId;
+            if (!codeId && savedData.codeId && !codeIdInput.disabled) {
+              codeIdInput.value = savedData.codeId;
             }
-            if (!chc && formData.chc && !chcInput.disabled) {
-              chcInput.value = formData.chc;
+            if (!chc && savedData.chc && !chcInput.disabled) {
+              chcInput.value = savedData.chc;
             }
 
             // Show/hide code fields if needed
@@ -380,8 +388,8 @@
             }
 
             // Restore newEmail if it exists
-            if (formData.newEmail && document.getElementById('newEmail')) {
-              document.getElementById('newEmail').value = formData.newEmail;
+            if (savedData.newEmail && document.getElementById('newEmail')) {
+              document.getElementById('newEmail').value = savedData.newEmail;
             }
           }
         }
@@ -552,8 +560,10 @@
               submitButton.disabled = false;
 
               if (data.success) {
-                // Clear localStorage
-                localStorage.removeItem('supportFormData');
+                // Clear supportFormData from checkout_cache
+                let checkoutCache = JSON.parse(localStorage.getItem('checkout_cache') || '{}');
+                delete checkoutCache.supportFormData;
+                localStorage.setItem('checkout_cache', JSON.stringify(checkoutCache));
 
                 // Show success message
                 //document.getElementById('referenceId').textContent = data.requestId;
