@@ -341,7 +341,7 @@
                           : checker.checkinstate === 0
                             ? 'enable-btn'
                             : 'disable-btn'
-                    }">
+                    }" data-user-id="${checker.id}">
                         ${
                           checker.autoAccess === true && checker.checkinReport === 'Waitlist'
                             ? 'Resend invitation'
@@ -363,6 +363,60 @@
         `;
           tbody.appendChild(row);
         });
+
+        // Add event listeners to buttons
+        document.querySelectorAll('.grant-btn').forEach(button => {
+          button.addEventListener('click', async function() {
+            const userId = this.getAttribute('data-user-id');
+            await grantAutoCheckinAccess(userId);
+          });
+        });
+      }
+
+      async function grantAutoCheckinAccess(userId) {
+        try {
+          const button = document.querySelector(`.grant-btn[data-user-id="${userId}"]`);
+          button.disabled = true;
+          button.textContent = 'Processing...';
+
+          const response = await fetch('/manage/api/autocheckin/grant-auto', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId }),
+          });
+
+          const result = await response.json();
+          
+          if (response.ok) {
+            // Format the response for display
+            let detailsHtml = '';
+            for (const [key, value] of Object.entries(result)) {
+              if (key !== 'success') {
+                detailsHtml += `<div><strong>${key}:</strong> ${value}</div>`;
+              }
+            }
+            
+            // Use the global displayNotice function from js-helpers.ejs
+            displayNotice(detailsHtml, result.success ? 'success' : 'error', result.message);
+            
+            // Refresh the data to show updated status
+            await loadAutoCheckers();
+          } else {
+            displayNotice(result.error || 'Unknown error occurred', 'error', 'Failed to grant access');
+            button.disabled = false;
+            button.textContent = 'Grant access';
+          }
+        } catch (error) {
+          console.error('Error granting access:', error);
+          displayNotice('Failed to grant AutoCheckin access. Please try again.', 'error', 'Error');
+          const button = document.querySelector(`.grant-btn[data-user-id="${userId}"]`);
+          if (button) {
+            button.disabled = false;
+            button.textContent = 'Grant access';
+          }
+        }
       }
 
       function updatePagination(totalPages) {

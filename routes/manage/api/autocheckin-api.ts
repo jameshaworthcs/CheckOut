@@ -28,6 +28,54 @@ const sendTicketEmail = async (email, username) => {
   }
 };
 
+// POST endpoint to grant AutoCheckin access to a user
+app.post('/manage/api/autocheckin/grant-auto', async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // First, check if the user exists and get their current information
+    const [userRows] = await db2.query('SELECT id, email, username, userstate FROM users WHERE id = ?', [userId]);
+    
+    if (userRows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userRows[0];
+    
+    // Check if user already has autocheckin access
+    if (user.userstate && user.userstate.includes('autocheckin')) {
+      return res.json({ 
+        success: true, 
+        message: 'User already has AutoCheckin access',
+        userStateUpdated: false,
+        emailSent: false
+      });
+    }
+
+    // Update userstate to add autocheckin access
+    const newUserState = user.userstate ? `${user.userstate}, autocheckin` : 'normal, autocheckin';
+    await db2.query('UPDATE users SET userstate = ? WHERE id = ?', [newUserState, userId]);
+    
+    // Send ticket email
+    await sendTicketEmail(user.email, user.username);
+    
+    res.json({ 
+      success: true, 
+      message: 'AutoCheckin access granted and ticket email sent successfully',
+      userStateUpdated: true,
+      userState: newUserState,
+      emailSent: true
+    });
+  } catch (error) {
+    console.error('Error granting AutoCheckin access:', error);
+    res.status(500).json({ error: 'Failed to grant AutoCheckin access' });
+  }
+});
+
 // POST endpoint to send ticket email
 app.post('/manage/api/autocheckin/send-ticket', async (req, res) => {
   const { email, username } = req.body;
