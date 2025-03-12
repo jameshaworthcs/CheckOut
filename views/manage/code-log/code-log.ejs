@@ -474,10 +474,10 @@
                       row[header] != 'anon@checkout.ac.uk' &&
                       row[header] != 'guest@checkout.ac.uk'
                     ) {
-                      td.css('text-decoration', 'underline'); // Set red background for codeState "0"
+                      td.css('text-decoration', 'underline');
                     }
-                    if (row[header] === 'shrine@checkout.ac.uk') {
-                      td.css('font-weight', 'bold'); // Set green background for codeState "1"
+                    if (row[header] === 'shrine@checkout.ac.uk' ||row[header] === 'aci@checkout.ac.uk') {
+                      td.css('font-weight', 'bold'); // Set bold font for shrine and aci outsource accounts
                     }
                   }
                   // Append table cell to the table row
