@@ -51,10 +51,10 @@ app.get('/manage/api/users/find', async (req, res) => {
 });
 
 app.post('/manage/api/users/update', (req, res) => {
-  const { id, username, userstate, checkinstate, checkintoken, note } = req.body;
+  const { id, username, userstate, checkinstate, checkintoken, note, fullName } = req.body;
   const query =
-    'UPDATE users SET username = ?, userstate = ?, checkinstate = ?, checkintoken = ?, note = ? WHERE id = ?';
-  db.query(query, [username, userstate, checkinstate, checkintoken, note, id], (error, results) => {
+    'UPDATE users SET username = ?, userstate = ?, checkinstate = ?, checkintoken = ?, note = ?, fullName = ? WHERE id = ?';
+  db.query(query, [username, userstate, checkinstate, checkintoken, note, fullName, id], (error, results) => {
     if (error) {
       console.error(error);
       return res.status(500).json({ success: false, msg: error.message });

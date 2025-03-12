@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button class="generate-onetime" onclick="generateOneTime(${user.id})">Generate Login Link</button>
                     <button class="refresh-api" onclick="refreshApiToken(${user.id})">Refresh API Token</button>
                     <button class="session-refresh" onclick="sessionRefresh(${user.id})">Session Refresh</button>
-                    <button class="edit" onclick="editUser(${user.id}, '${escapeForHTML(user.username)}', '${escapeForHTML(user.userstate)}', '${escapeForHTML(user.checkinstate)}', '${escapeForHTML(user.checkintoken)}', '${escapeForHTML(user.note)}')">Edit</button>
+                    <button class="edit" onclick="editUser(${user.id}, '${escapeForHTML(user.username)}', '${escapeForHTML(user.userstate)}', '${escapeForHTML(user.checkinstate)}', '${escapeForHTML(user.checkintoken)}', '${escapeForHTML(user.note)}', '${escapeForHTML(user.fullName)}')">Edit</button>
                 </td>
             `;
       row2.classList.add('row-spanned');
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modalHelper.open(modalId);
   };
 
-  window.editUser = function (id, username, userstate, checkinstate, checkintoken, note) {
+  window.editUser = function (id, username, userstate, checkinstate, checkintoken, note, fullName) {
     const modalId = `editUserModal-${id}`;  // Make the ID unique for each user edit
     
     // Close any existing modals with the same source
@@ -187,6 +187,8 @@ document.addEventListener('DOMContentLoaded', function () {
       <input type="hidden" id="editUserId" value="${id}" />
       <label for="editUsername">Username:</label>
       <input type="text" id="editUsername" value="${username.replace(/\\n/g, '\n')}" />
+      <label for="editFullName">Full Name:</label>
+      <input type="text" id="editFullName" value="${fullName ? fullName.replace(/\\n/g, '\n') : ''}" />
       <label for="editUserState">User State:</label>
       <input type="text" id="editUserState" value="${userstate}" />
       <label for="editCheckinState">Check-in State:</label>
@@ -206,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const formData = {
         id: document.getElementById('editUserId').value,
         username: document.getElementById('editUsername').value,
+        fullName: document.getElementById('editFullName').value,
         userstate: document.getElementById('editUserState').value,
         checkinstate: document.getElementById('editCheckinState').value,
         checkintoken: document.getElementById('editCheckinToken').value,
