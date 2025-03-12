@@ -33,6 +33,7 @@
         /* Spacing between icons and text */
         font-size: 14px;
         margin-bottom: 5px;
+        margin-top: 7px;
       }
 
       .settings-title svg {
@@ -155,6 +156,24 @@
         color: red;
       }
 
+      .light-mode-text {
+        display: inline;
+      }
+
+      .dark-mode-text {
+        display: none;
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        .light-mode-text {
+          display: none;
+        }
+        
+        .dark-mode-text {
+          display: inline;
+        }
+      }
+
       @media (max-width: 768px) {
         .settings-box {
           width: 95%;
@@ -204,7 +223,12 @@
           </div>
           <br />
           Modules: <span id="modules">Loading..</span>
-          <p>Change your course <a href="/api/app/onboarding">here</a>.</p>
+          <div style="margin-top: 10px;" class="cta-button-container">
+            <a style="text-decoration: none;" href="/api/app/onboarding">
+              <div class="cta-button">Change course</div>
+            </a>
+          </div>
+          <p style="font-size: 12px; color: var(--text-color);">Are these details wrong? <a href="/support">Contact support</a></p>
         </div>
       </div>
 
@@ -213,13 +237,19 @@
           PERSONALISE
           <!-- <span id="change-customise" class="link-unavailable">Customise</span> -->
         </div>
-        <p class="settings-details">
+        <!-- <p class="settings-details">
           Change your theme. If signed in, this will change the theme for all your devices!
-        </p>
+        </p> -->
         <div class="settings-details">
           <p>
-            Themes are currently unavailable! <br /><br />To use dark mode, ensure you are signed in
-            and have enabled dark mode in your device's settings.
+            <span class="light-mode-text">
+              To use dark mode, ensure you are signed in
+              and have enabled dark mode in your device's settings.
+            </span>
+            <span class="dark-mode-text">
+              To use light mode, ensure you are signed in
+              and have disabled dark mode in your device's settings.
+            </span>
           </p>
           <!--
                     <div id="theme-selection-container">

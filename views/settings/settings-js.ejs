@@ -141,14 +141,18 @@
 
       // Update signInText to be their email
       signInTextLink.textContent = email;
-
-      // Create and append the CTA button
+      
+      // Create and append the CTA button in a new div below the account details
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.marginTop = '10px';
+      
       const ctaButton = document.createElement('a');
       ctaButton.href = '/account';
       ctaButton.className = 'cta-button';
       ctaButton.textContent = 'Account settings';
-      ctaButton.style.marginLeft = '10px';
-      accountDetailsSpan.parentNode.appendChild(ctaButton);
+      
+      buttonContainer.appendChild(ctaButton);
+      accountDetailsSpan.parentNode.parentNode.appendChild(buttonContainer);
     } else {
       // User is not signed in, use session consent timestamp
       oldestTimestamp = data.sessionConsentTimestamp;
@@ -163,7 +167,7 @@
       // Update individual elements if they exist
       if (institutionNameSpan) institutionNameSpan.textContent = institution_name;
       if (courseNameSpan) courseNameSpan.textContent = course_name;
-      if (yearSpan) yearSpan.textContent = year;
+      if (yearSpan) yearSpan.textContent = "Year " + year;
       if (modulesSpan)
         modulesSpan.textContent = modules.map((module) => module.module_name).join(', ');
     } else {
