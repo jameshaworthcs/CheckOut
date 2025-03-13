@@ -296,6 +296,61 @@
         </div>
       </div>
 
+      <div class="settings-box">
+        <div class="settings-title">
+          RESET
+        </div>
+        <div class="settings-details">
+          <p>
+            Reset your course, preferences and cache. This will return you to the onboarding page.
+            <br /><br />
+            Please not that this will not delete your account, to do so please use the data control options above.  
+            <br /><br />
+            <a id="reset-button" class="cta-button">Reset course and preferences</a>
+          </p>
+
+          <script>
+            document.getElementById('reset-button').addEventListener('click', function() {
+              // Change button to loading state
+              const button = this;
+              const originalText = button.textContent;
+              button.textContent = 'Resetting...';
+              button.disabled = true;
+              
+              // Clear localStorage
+              localStorage.clear();
+              
+              // Clear cookies
+              document.cookie.split(';').forEach(function (c) {
+                document.cookie = c
+                  .replace(/^ +/, '')
+                  .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+              });
+              
+              // Delete session via API
+              fetch('/api/data/session/delete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+              .then(response => {
+                // Redirect to homepage with timestamp
+                const timestamp = Date.now();
+                window.location.href = `/?tid=${timestamp}`;
+              })
+              .catch(error => {
+                // If there's an error, restore button and show error
+                button.textContent = originalText;
+                button.disabled = false;
+                console.error('Error resetting:', error);
+                alert('There was an error resetting your data. Please try again.');
+              });
+            });
+          </script>
+        </div>
+      </div>
+
       <br />
       <hr />
 

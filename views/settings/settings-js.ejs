@@ -158,6 +158,18 @@
       oldestTimestamp = data.sessionConsentTimestamp;
       accountDetailsSpan.innerHTML =
         'Not signed in. <a href="/account">Sign in</a> to save your preferences, style your username and more.';
+      
+      // Create and append the CTA button in a new div below the account details for non-signed in users
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.marginTop = '10px';
+      
+      const ctaButton = document.createElement('a');
+      ctaButton.href = '/account';
+      ctaButton.className = 'cta-button';
+      ctaButton.textContent = 'Create account or sign in';
+      
+      buttonContainer.appendChild(ctaButton);
+      accountDetailsSpan.parentNode.parentNode.appendChild(buttonContainer);
     }
 
     // Update course details if we have course data
