@@ -508,7 +508,7 @@ function fetchEverythingData(callback) {
 
               // Fetch modules for the current course
               const modulesQuery = `
-                  SELECT module_code, module_name
+                  SELECT module_code, module_name, module_tibl_code
                   FROM Modules
                   WHERE institution_id = ? AND course_id = ?
               `;
@@ -532,7 +532,10 @@ function fetchEverythingData(callback) {
                 // Format modules for the current course
                 const courseModules = {};
                 modules.forEach((module) => {
-                  courseModules[module.module_code] = module.module_name;
+                  courseModules[module.module_code] = {
+                    module_name: module.module_name,
+                    module_tibl_code: module.module_tibl_code,
+                  };
                 });
 
                 // Assign modules data to course and proceed to next course
@@ -1166,6 +1169,7 @@ app.post('/api/app/add/module', function (req, res) {
   const courseCode = req.body.crs;
   const moduleCode = req.body.md;
   const moduleName = req.body.newModuleName;
+  const moduleTiblCode = req.body.tbl;
 
   // Validate API key
   if (!validateAPIKey(req.body.apiKey, req.userState)) {
@@ -1173,7 +1177,7 @@ app.post('/api/app/add/module', function (req, res) {
   }
 
   // Validate input data
-  if (!institutionId || !yearNumber || !courseCode || !moduleCode || !moduleName) {
+  if (!institutionId || !yearNumber || !courseCode || !moduleCode || !moduleName || !moduleTiblCode) {
     return res
       .status(400)
       .json({ success: false, reason: 'Missing required parameters in request body.' });
@@ -1181,8 +1185,8 @@ app.post('/api/app/add/module', function (req, res) {
 
   // Insert the new module into the database
   const query = `
-      INSERT INTO Modules (institution_id, year_id, course_id, module_code, module_name)
-      SELECT ?, Y.year_id, C.course_id, ?, ?
+      INSERT INTO Modules (institution_id, year_id, course_id, module_code, module_name, module_tibl_code)
+      SELECT ?, Y.year_id, C.course_id, ?, ?, ?
       FROM Years Y
       JOIN Courses C ON Y.institution_id = C.institution_id AND Y.year_id = C.year_id
       WHERE Y.institution_id = ? AND Y.year_number = ? AND C.course_code = ?
@@ -1190,7 +1194,7 @@ app.post('/api/app/add/module', function (req, res) {
 
   db.query(
     query,
-    [institutionId, moduleCode, moduleName, institutionId, yearNumber, courseCode],
+    [institutionId, moduleCode, moduleName, moduleTiblCode, institutionId, yearNumber, courseCode],
     function (err, result) {
       if (err) {
         console.error('Error adding new module:', err);

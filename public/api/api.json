@@ -1453,9 +1453,13 @@
                   "apiKey": {
                     "type": "string",
                     "description": "API key (private)"
+                  },
+                  "tbl": {
+                    "type": "string",
+                    "description": "Tibl code"
                   }
                 },
-                "required": ["inst", "yr", "newModuleName", "md", "crs", "apiKey"]
+                "required": ["inst", "yr", "newModuleName", "md", "crs", "apiKey", "tbl"]
               },
               "example": {
                 "inst": "yrk",
@@ -1463,7 +1467,8 @@
                 "newModuleName": "Software",
                 "crs": "cs_y1_uoy",
                 "md": "soft",
-                "apiKey": "your-api-key"
+                "apiKey": "your-api-key",
+                "tbl": "COM00011C"
               }
             }
           }
