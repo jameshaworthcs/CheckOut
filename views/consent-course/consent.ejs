@@ -42,16 +42,36 @@
       </p>
       <div class="course-box">
         <div class="course-title">
-          COURSE
-          <a class="box-link" href="/api/app/onboarding">Change course</a>
+          SELECT COURSE
+          <a class="box-link" href="/api/app/onboarding">More courses</a>
         </div>
-        <div class="course-details" data-inst="yrk" data-yr="2" data-crs="cs">
+        <div class="course-details" data-inst="yrk" data-yr="" data-crs="cs">
           <%- include('../global/icons/inst'); %>
           <span id="inst_name">York</span>
-          <%- include('../global/icons/yr'); %>
-          <span id="yr">2</span>
           <%- include('../global/icons/crs'); %>
           <span id="crs_name">Computer Science</span>
+          
+          <div class="year-selector-container" id="year-selector-container">
+            <%- include('../global/icons/yr'); %>
+            <div class="year-selector">
+              <button class="year-btn" data-year="1">Year 1</button>
+              <button class="year-btn" data-year="2">Year 2</button>
+              <span id="yr" style="display: none;"></span>
+            </div>
+          </div>
+          
+          <div class="year-display-container" id="year-display-container" style="display: none;">
+            <%- include('../global/icons/yr'); %>
+            <span id="yr_display"></span>
+          </div>
+          
+          <div id="year-error-message" style="display: none;">
+            Please select your year of study
+          </div>
+          
+          <div class="not-cs-link" id="not-cs-link">
+            <a href="/api/app/onboarding">Not doing Computer Science at York?</a>
+          </div>
         </div>
       </div>
       <div class="customise-box">

@@ -91,6 +91,7 @@
     /* Spacing between icons and text */
     font-size: 14px;
     margin-bottom: 5px;
+    flex-wrap: wrap;
   }
 
   .course-details svg {
@@ -412,5 +413,84 @@
     .light-mode-text {
       display: none;
     }
+  }
+
+  .year-selector-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .year-selector {
+    display: flex;
+    gap: 10px;
+    margin-left: 5px;
+  }
+  
+  .year-display-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  #yr_display {
+    margin-left: 5px;
+    font-weight: bold;
+  }
+  
+  .year-btn {
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--accent-colour);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  
+  .year-btn.active {
+    background-color: var(--accent-colour);
+    font-weight: bold;
+  }
+  
+  .not-cs-link {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  .not-cs-link a {
+    color: var(--subtext-colour);
+    text-decoration: none;
+  }
+  
+  .not-cs-link a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Validation styles */
+  .validation-error {
+    border: 2px solid #ff3b30 !important;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.5) !important;
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+  
+  #year-error-message {
+    color: #ff3b30;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+    width: 100%;
+    text-align: center;
   }
 </style>

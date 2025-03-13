@@ -10,17 +10,36 @@
     // Get the course-details div and its associated elements
     const courseDetailsDiv = document.querySelector('.course-details');
     const instNameSpan = document.getElementById('inst_name');
-    const yrSpan = courseDetailsDiv.querySelector('#yr');
+    const yrSpan = document.getElementById('yr');
     const crsNameSpan = document.getElementById('crs_name');
+    const yearButtons = document.querySelectorAll('.year-btn');
+    const courseBox = document.querySelector('.course-box');
+    const yearSelectorContainer = document.getElementById('year-selector-container');
+    const yearDisplayContainer = document.getElementById('year-display-container');
+    const yrDisplaySpan = document.getElementById('yr_display');
+    const notCsLink = document.getElementById('not-cs-link');
 
     // Update the data attributes and text content if localStorage values are available
     if (inst) {
       courseDetailsDiv.setAttribute('data-inst', inst);
     }
+    
+    // Handle year display/selection based on localStorage
     if (yr) {
+      // If year is in localStorage, hide selector and show display
       courseDetailsDiv.setAttribute('data-yr', yr);
       yrSpan.textContent = yr;
+      yrDisplaySpan.textContent = yr;
+      
+      yearSelectorContainer.style.display = 'none';
+      yearDisplayContainer.style.display = 'flex';
+    } else {
+      // If no year in localStorage, show selector and hide display
+      yearSelectorContainer.style.display = 'flex';
+      yearDisplayContainer.style.display = 'none';
     }
+    
+    // Handle course and institution
     if (crs) {
       courseDetailsDiv.setAttribute('data-crs', crs);
     }
@@ -30,6 +49,30 @@
     if (crsName) {
       crsNameSpan.textContent = crsName;
     }
+    
+    // Hide "Not doing CS at York" if different course or institution
+    if ((inst && inst !== 'yrk') || (crs && crs !== 'cs')) {
+      notCsLink.style.display = 'none';
+    }
+    
+    // Add click event listeners to year buttons
+    yearButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const selectedYear = this.getAttribute('data-year');
+        
+        // Update the active button
+        yearButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update the data attribute and hidden span
+        courseDetailsDiv.setAttribute('data-yr', selectedYear);
+        yrSpan.textContent = selectedYear;
+        
+        // Remove validation error if present
+        courseBox.classList.remove('validation-error');
+        document.getElementById('year-error-message').style.display = 'none';
+      });
+    });
   });
 
   function adjustFooterPosition() {
@@ -118,9 +161,6 @@
   }
 
   document.getElementById('continue-btn').addEventListener('click', function () {
-    // Show the loading overlay
-    showLoadingOverlay(450);
-
     // Get the course details from the DOM
     const courseDetailsDiv = document.querySelector('.course-details');
     const courseData = {
@@ -128,6 +168,22 @@
       yr: courseDetailsDiv.getAttribute('data-yr'),
       crs: courseDetailsDiv.getAttribute('data-crs'),
     };
+    
+    // Check if year is selected
+    if (!courseData.yr) {
+      // Show validation error
+      const courseBox = document.querySelector('.course-box');
+      courseBox.classList.add('validation-error');
+      document.getElementById('year-error-message').style.display = 'block';
+      
+      // Scroll to course box
+      courseBox.scrollIntoView({ behavior: 'smooth' });
+      
+      return; // Stop execution
+    }
+
+    // Show the loading overlay
+    showLoadingOverlay(450);
 
     // const themeSelectionDiv = document.getElementById('theme-selection');
     // const themeID = themeSelectionDiv.getAttribute('data-selected');
