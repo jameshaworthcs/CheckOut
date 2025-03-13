@@ -7,12 +7,9 @@
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="stylesheet" href="/static/css/select2.css" />
-    <title>CheckOut Onboarding</title>
+    <title>Course Selector - CheckOut</title>
+    <%- include('./global/head'); %>
     <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
 
       .overlay {
         display: none;
@@ -57,88 +54,7 @@
       .dismiss-button:hover {
         text-decoration: underline; /* Add underline on hover if desired */
       }
-    </style>
-    <script>
-      //   document.addEventListener('DOMContentLoaded', function () {
-      //     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-      //     if (isIOS && !hasSeenOverlayToday()) { // Only target iOS users, if overlay not seen today
-      //       const overlay = document.createElement('div');
-      //       overlay.classList.add('overlay');
-
-      //       overlay.innerHTML = `
-      //         <div class="overlay-content">
-      //           <h2 style="color: white;">Get our iOS App!</h2><br>
-      //           <p style="color: white;">Experience the best CheckOut experience with the dedicated iOS app. Download it now from TestFlight:</p>
-      //           <br>
-      //           <a href="https://testflight.apple.com/join/J0g5rCJJ" class="download-button">
-      //             img removed
-      //           </a>
-      //           <br>
-      //           <button style="color:#bebebe;" class="dismiss-button" onclick="dismissOverlay()">Use web version</button>
-      //         </div>
-      //       `;
-
-      //       document.body.appendChild(overlay);
-      //       overlay.style.display = 'flex';
-      //       // Initially hide the "Use web version" button
-      //   const webVersionButton = document.querySelector('.dismiss-button');
-      //   webVersionButton.style.opacity = '0';
-
-      //   // After a short delay, fade it in
-      //   setTimeout(function() {
-      //       webVersionButton.classList.add('show');
-      //   }, 1500); // Fade in after 1 second (adjust delay if needed)
-      //     }
-      //   });
-
-      //   function dismissOverlay() {
-      //     const overlay = document.querySelector('.overlay');
-      //     overlay.style.display = 'none';
-      //     markOverlayAsSeen();
-      //     $('.select2-selection__arrow').trigger('click');
-      //             var inputField = document.querySelector('.select2-search__field');
-      //             if (inputField) {
-      //                 inputField.focus();
-      //                 inputField.setAttribute('placeholder', 'Search universities..');
-      //             }
-      //   }
-
-      //   function hasSeenOverlayToday() {
-      //     const lastSeenDate = getCookie('lastSeenDate');
-      //     if (lastSeenDate) {
-      //       const today = new Date().toDateString();
-      //       console.log(today)
-      //       return today === new Date(lastSeenDate).toDateString();
-      //     }
-      //     return false;
-      //   }
-
-      //   function markOverlayAsSeen() {
-      //     const oneHour = 1 / 24; // 1 hour in days
-      //     const expires = new Date();
-      //     expires.setTime(expires.getTime() + oneHour * 60 * 60 * 1000);
-      //     setCookie('lastSeenDate', expires.toUTCString(), oneHour);
-      //   }
-
-      //   function setCookie(name, value, days) {
-      //     const expires = new Date();
-      //     expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      //     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-      //   }
-
-      //   function getCookie(name) {
-      //     const match = document.cookie.match(new RegExp(`${name}=([^;]+)`));
-      //     return match ? match[1] : null;
-      //   }
-    </script>
-    <style>
       body {
-        font-family: 'Inter', sans-serif;
-        color: #1d1d1d;
-        font-size: 19px;
-        background: #0d1116;
-        display: block;
         margin: 8px;
       }
       .mainContent {
@@ -148,10 +64,9 @@
         max-width: 400px;
         margin: 0 auto;
         padding: 20px;
-        background-color: var(--form-bg-color);
-        color: #ffffff;
+        background-color: var(--content-background);
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow);
         transition: background-color 0.5s;
       }
       .headerWelcome {
@@ -248,7 +163,6 @@
         border: 1px solid #cccccc94;
         border-radius: 5px;
         background-color: #3b3b3b;
-        color: white; /* Text color */
       }
       .select2-selection__rendered {
         font-size: 14px;
@@ -266,6 +180,30 @@
         bottom: 0;
         background: rgba(255, 255, 255, 0.7);
         z-index: 1000;
+      }
+
+      .select2-container--default .select2-results__option--highlighted[aria-selected] {
+          background-color: #5897fb;
+          color: var(--text-colour);
+      }
+
+      .select2-container--default .select2-results>.select2-results__options {
+        background-color: var(--secondary-background);
+        color: var(--text-colour);
+      }
+
+      .select2-search--dropdown {
+        background-color: var(--secondary-background);
+        color: var(--text-colour);
+      }
+
+      .topIcon {
+        background-image: var(--tick-image);
+        background-repeat: no-repeat;
+        background-size: 34px;
+        float: right;
+        height: 34px;
+        width: 34px;
       }
 
       .loader {
@@ -296,15 +234,10 @@
         <div class="loader"></div>
       </div>
       <div class="headerDiv">
-        <img
-          class="topIcon"
-          src="data:image/webp;base64,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"
-          height="35px"
-          alt=""
-        /><br />
+        <div class="topIcon" role="img" alt=""></div><br />
         <h3 class="headerWelcome">Welcome to CheckOut</h3>
-        <p style="white-space: pre-line" id="action-text1">Let's setup your CheckOut experience.</p>
-        <p id="action-text">Select institution:</p>
+        <p class="subtext" style="white-space: pre-line" id="action-text1">Let's select your course.</p>
+        <p id="action-text">Start by selecting your institution:</p>
       </div>
       <div class="setup-form">
         <select id="selectionBox"></select>
@@ -322,7 +255,7 @@
           >.
         </p>
         <p id="versionText" class="footerText" hidden>
-          v2.30.beta<br /><a
+          v2.3 production<br /><a
             id="startAgain"
             class="footerText footerTextLink"
             href="javascript:location.reload()"
@@ -362,7 +295,7 @@
                           var button1 = $('<a>', {
                               text: 'FAQ & Contact',
                               class: 'next-button',
-                              href: '/faq',
+                              href: '/learn-faq',
                               target: '_parent'
                           }).appendTo(buttonContainer);
                           return; // Stop further execution
@@ -424,7 +357,7 @@
                           var button1 = $('<a>', {
                               text: 'FAQ & Contact',
                               class: 'next-button',
-                              href: '/faq',
+                              href: '/learn-faq',
                               target: '_parent'
                           }).appendTo(buttonContainer);
                       return; // Stop further execution
