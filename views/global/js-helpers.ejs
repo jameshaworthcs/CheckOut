@@ -226,14 +226,14 @@
       });
 
       // Add click event listener to document to close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        // Check if dropdown is open and click is outside dropdown and CTA button
-        if (dropdownMenu.style.display === 'flex' && 
-            !dropdownMenu.contains(event.target) && 
-            !ctaButton.contains(event.target)) {
-          closeDropdownMenu();
-        }
-      });
+      // document.addEventListener('click', function(event) {
+      //   // Check if dropdown is open and click is outside dropdown and CTA button
+      //   if (dropdownMenu.style.display === 'flex' && 
+      //       !dropdownMenu.contains(event.target) && 
+      //       !ctaButton.contains(event.target)) {
+      //     closeDropdownMenu();
+      //   }
+      // });
     }
   });
 
