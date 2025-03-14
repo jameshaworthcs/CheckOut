@@ -86,11 +86,11 @@ function fetchDataAndRender(append = false) {
       const pagination = data.pagination;
       const container = document.getElementById('activeClasses');
       const ipCount = Object.keys(stats.ipCounts).length;
-      const ipCountText = ipCount === 1 ? 'IP' : 'different IPs';
+      const ipCountText = ipCount === 1 ? 'IP address' : 'IP addresses';
       const deviceCount = Object.keys(stats.deviceIDCounts).length;
-      const deviceCountText = deviceCount === 1 ? 'device' : 'different devices';
+      const deviceCountText = deviceCount === 1 ? 'device' : 'devices';
       const userCount = Object.keys(stats.usernameCounts).length;
-      const userCountText = userCount === 1 ? 'account' : 'different accounts';
+      const userCountText = userCount === 1 ? 'account' : 'accounts';
       const totalCount = stats.totalCount;
       const totalCountText = totalCount === 1 ? 'code' : 'codes';
 
