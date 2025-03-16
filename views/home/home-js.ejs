@@ -1111,7 +1111,7 @@
 
                   session.codes.forEach(code => {
                       const reportLink = document.createElement('li');
-                      reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}">Report code (${code.checkinCode})</a>`;
+                      reportLink.innerHTML = `<a href="/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.codeIDs}">Report code (${code.checkinCode})</a>`;
                       linksList.appendChild(reportLink);
                   });
               }
@@ -1232,7 +1232,7 @@
                       codeItem.appendChild(copyBtn);
 
                       const reportLink = document.createElement('a');
-                      reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
+                      reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.codeIDs}`;
                       reportLink.className = 'report-link';
                       reportLink.textContent = 'Report';
                       codeItem.appendChild(reportLink);
@@ -1775,7 +1775,7 @@
           codeItem.appendChild(copyBtn);
 
           const reportLink = document.createElement('a');
-          reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.id}`;
+          reportLink.href = `/support?pre=report-code&chc=${code.checkinCode}&codeID=${code.codeIDs}`;
           reportLink.className = 'report-link';
           reportLink.textContent = 'Report';
           codeItem.appendChild(reportLink);
