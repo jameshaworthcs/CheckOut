@@ -409,12 +409,12 @@ const securityCheck = async (req, res, next) => {
               features.push('<a href="/manage">admin services</a>');
             msg =
               features.length > 0
-                ? `While CheckOut is on holiday, you still have access to: ${features.join(' and ')}`
-                : 'Your account does not have access to any special features during the holiday.';
+                ? `While CheckOut is asleep, you still have access to: ${features.join(' and ')}`
+                : 'Your account does not have access to any special features while CheckOut is asleep.';
           }
         } else {
           msg =
-            '<a href="/login?login_redirect=index&source=bedtime">Login</a> to check if you have access to AutoCheckin or admin services during the holiday.';
+            '<a href="/login?login_redirect=index&source=bedtime">Login</a> to check if you have access to AutoCheckin or admin services while CheckOut is asleep.';
         }
 
         return res.render('bedtime-christmas/bedtime.ejs', {
