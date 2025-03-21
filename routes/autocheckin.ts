@@ -257,6 +257,8 @@ app.get('*', function (req, res) {
 module.exports = app;
 module.exports.checkedIn = checkedIn;
 
+// Old AutoCheckin code prior to seperate AutoCheckin server
+
 // // Generate random interval between 1 and 5 hours (in milliseconds)
 // function getRandomInterval() {
 //   const minHours = 1;
