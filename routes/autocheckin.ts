@@ -24,8 +24,8 @@ function log(email, state, message) {
 app.get('/auto/c/:cookie', async function (req, res) {
   var cookie = req.params.cookie;
   if (cookie) {
-    const userID = req.session.user.id;
-    const apikey = req.apikey;
+    const userID = req.session.user ? req.session.user.id : null;
+    const apikey = req.apitoken;
     db.query(
       'UPDATE users SET checkintoken = ?, checkinstate = 1 WHERE id = ? OR api_token = ?',
       [cookie, userID, apikey],
@@ -187,8 +187,8 @@ function checkedIn(email, chc, callback) {
 }
 
 app.get('/auto/state', function (req, res) {
-  const userID = req.session.user.id;
-  const apikey = req.apikey;
+  const userID = req.session.user ? req.session.user.id : null;
+  const apikey = req.apitoken;
   db.query(
     'SELECT checkinReport, checkinReportTime, checkinstate, username FROM users WHERE id = ? OR api_token = ?',
     [userID, apikey],
@@ -200,8 +200,8 @@ app.get('/auto/state', function (req, res) {
 });
 
 app.get('/auto', function (req, res) {
-  const userID = req.session.user.id;
-  const apikey = req.apikey;
+  const userID = req.session.user ? req.session.user.id : null;
+  const apikey = req.apitoken;
   db.query('SELECT * FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
     if (err) throw err;
     if (
@@ -231,8 +231,8 @@ app.get('/auto/emailwelcome', function (req, res) {
 });
 
 app.get('/auto/welcome', function (req, res) {
-  const userID = req.session.user.id;
-  const apikey = req.apikey;
+  const userID = req.session.user ? req.session.user.id : null;
+  const apikey = req.apitoken;
   db.query('SELECT * FROM users WHERE id = ? OR api_token = ?', [userID, apikey], (err, result) => {
     if (err) throw err;
     if (
