@@ -1,3 +1,6 @@
+// CheckOut (c) 2023-2025
+// All rights reserved.
+
 /// <reference types="node" />
 
 // Import Node and NPM modules
