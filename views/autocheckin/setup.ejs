@@ -2,15 +2,8 @@
 <html lang="en">
   <head>
     <%- include('../global/head'); %>
-    <title>Welcome to AutoCheckin</title>
+    <title>Setup AutoCheckin</title>
     <%- include('./styles/shared'); %>
-    <style>
-      img.webstore-img {
-        width: 186px;
-        display: block;
-        margin: 0 auto;
-      }
-    </style>
   </head>
 
   <body>
@@ -41,53 +34,91 @@
     </div>
     <div class="content">
       <p class="sub-text">
-        <b>Congratulations, you've been accepted.</b><br /><br /><span class="subtext"
-          >This won't take long.</span
-        >
+        <b>Welcome to AutoCheckin!</b><br />Let's get you set up in just a few quick steps.
       </p>
-      <div class="info-section">
-        <h3>Instructions</h3>
-        <ol class="styled-list">
-          <li>
-            Use a laptop or PC with a Chrome-based browser<br /><small
-              >You'll need to be using a laptop or PC with a browser like Google Chrome, Microsoft
-              Edge, or Brave.</small
-            >
-          </li>
-          <li>
-            Install the extension<br /><small
-              >Click the link below to install the extension from the Chrome Web Store.</small
-            >
-          </li>
-          <a
-            target="_blank"
-            href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"
-            ><img
-              class="webstore-img"
-              src="/static/images/webstore.svg"
-              alt="Chrome webstore link"
-              srcset=""
-          /></a>
-          <li>
-            Sign into checkin<br /><small
-              >After installing the extension, open a new tab and navigate to
-              <a target="_blank" href="https://checkin.york.ac.uk/">checkin.york.ac.uk</a><br />Sign
-              in, and you should land on the 'Self Registration' page.</small
-            >
-          </li>
-          <li>
-            Run the AutoCheckin extension<br /><small
-              >On the 'Self Registration' page, click the AutoCheckin extension icon you just
-              installed.</small
-            >
-          </li>
-        </ol>
-      </div>
+
+      <div class="setup-steps"> 
+        <div class="step">
+          <div class="step-icon">
+            <%- include('../global/icons/desktop'); %> 
+          </div>
+          <div class="step-content">
+            <h3>Use a Laptop/PC & Chrome-based Browser</h3>
+            <p>
+              First, make sure you're on a computer using <b>Google Chrome</b>, <b>Microsoft Edge</b>, or <b>Brave</b>. AutoCheckin requires a browser extension.
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+           <div class="step-icon">
+             <%- include('../global/icons/download'); %> 
+          </div>
+          <div class="step-content">
+            <h3>Install the Extension</h3>
+            <p>
+              Click the button below to visit the Chrome Web Store and add the <b>AutoCheckin extension</b> to your browser.
+            </p>
+            <div class="step-action">
+               <a
+                target="_blank"
+                href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"
+                class="button-primary"
+                >
+                Install Extension
+              </a>
+              <a
+                target="_blank"
+                href="https://chromewebstore.google.com/detail/autocheckin/ffhkpdpblbbjdanohkbhfojgjkhdemfl"
+                style="display: block; margin-top: 1rem;"
+                ><img
+                  class="webstore-img"
+                  src="/static/images/webstore.svg"
+                  alt="Chrome Webstore link"
+                  srcset=""
+              /></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">
+            <%- include('../global/icons/login'); %> 
+          </div>
+          <div class="step-content">
+            <h3>Sign into University Check-in</h3>
+            <p>
+              Next, open a new tab and go to the University's check-in page. Sign in until you see the <b>'Self Registration'</b> page.
+            </p>
+             <div class="step-action">
+               <a target="_blank" href="https://checkin.york.ac.uk/" class="button-secondary">
+                Go to checkin.york.ac.uk
+               </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">
+            <%- include('../global/icons/click'); %> 
+          </div>
+          <div class="step-content">
+            <h3>Run AutoCheckin</h3>
+            <p>
+              <b>Final Step:</b> Once you're on the University's <b>'Self Registration'</b> page, find and click the AutoCheckin icon <img src="/static/fav.svg" alt="AutoCheckin Icon" class="extension-icon-inline"/> in your browser's toolbar (usually top-right).
+              <br/><br/>The extension will then take over and redirect you automatically when it's done!
+            </p>
+          </div>
+        </div>
+      </div> 
+      
     </div>
+
     <div class="footer">
+      <button class="button-secondary help-button" onclick="modalHelper.open('setup-help-modal')">Need Help?</button>
       <p id="termsText" class="termsText">
-        Need help? <a class="tosLink" href="/support">Get in touch</a> <br /><br />
-        <a class="tosLink" href="/">return to CheckOut</a>
+        <a class="tosLink" href="/support?pre=autocheckin">Contact Support</a> | 
+        <a class="tosLink" href="/">Return to CheckOut</a>
       </p>
     </div>
 
@@ -95,23 +126,64 @@
       function adjustFooterPosition() {
         const content = document.querySelector('.content');
         const footer = document.querySelector('.footer');
+        const header = document.querySelector('.header');
+        
+        if (!content || !footer || !header) return;
+
         const contentHeight = content.scrollHeight;
         const viewportHeight = window.innerHeight;
-        const headerHeight = document.querySelector('.header').offsetHeight;
+        const headerHeight = header.offsetHeight;
         const footerHeight = footer.offsetHeight;
+        const navbar = document.querySelector('.navbar');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
 
-        if (contentHeight + headerHeight + footerHeight > viewportHeight) {
-          footer.style.position = 'sticky';
-          footer.style.bottom = '0';
-          footer.style.marginTop = 'auto';
+        const buffer = 20; 
+
+        if (contentHeight + headerHeight + footerHeight + navbarHeight + buffer > window.innerHeight) {
+           if (footer.style.position === 'fixed') {
+             footer.style.position = 'relative'; 
+             footer.style.bottom = 'auto';
+          }
         } else {
-          footer.style.position = 'relative';
-          footer.style.bottom = 'auto';
+          footer.style.position = 'fixed';
+          footer.style.bottom = '0';
+          footer.style.left = '0';
+          footer.style.right = '0';
         }
       }
 
       document.addEventListener('DOMContentLoaded', adjustFooterPosition);
       window.addEventListener('resize', adjustFooterPosition);
+
+      window.addEventListener('load', () => {
+          setTimeout(adjustFooterPosition, 100);
+      });
     </script>
+
+    <!-- Add script to create the help modal -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        modalHelper.create({
+          id: 'setup-help-modal',
+          title: 'Having Trouble?',
+          content: `
+            <p>If you're stuck setting up AutoCheckin, here are a few common tips:</p>
+            <ul>
+              <li>Make sure you are using a Chrome-based browser (Chrome, Edge, Brave) on a laptop or desktop computer.</li>
+              <li>Ensure the AutoCheckin extension is installed and enabled in your browser's extensions list.</li>
+              <li>Double-check you are signed into <a href="https://checkin.york.ac.uk/" target="_blank">checkin.york.ac.uk</a> and on the 'Self Registration' page *before* clicking the extension icon.</li>
+              <li>Try refreshing the check-in page after installing the extension.</li>
+            </ul>
+            <p>If you still need help, please get in touch:</p>
+            <div style="text-align: center; margin-top: 1.5rem;">
+              <a href="/support?pre=autocheckin" class="button-primary">Contact Support</a>
+            </div>
+          `,
+          showCloseButton: true,
+          showEscText: true 
+        });
+      });
+    </script>
+
   </body>
 </html>

@@ -5,13 +5,17 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    min-height: 100vh; /* Ensure footer sticks to bottom */
+    background-color: var(--page-background); /* Added for consistency */
+    color: var(--text-colour); /* Added for consistency */
   }
 
   .header {
     padding: 20px;
     text-align: center;
-    font-size: 21px;
+    font-size: 24px; /* Slightly larger */
     border-bottom: 0;
+    margin-top: 2rem; /* Add space */
   }
 
   .header-content {
@@ -23,7 +27,7 @@
 
   .header-content svg {
     margin-left: -1px;
-    height: 25px;
+    height: 28px; /* Slightly larger */
     transform: translate(0, -7px);
     fill: var(--text-colour);
   }
@@ -32,223 +36,279 @@
     padding: 20px;
     overflow-y: auto;
     box-sizing: border-box;
-    max-width: 800px;
+    max-width: 700px; /* Slightly narrower for focus */
     width: 90%;
-    margin: 0 auto;
+    margin: 2rem auto; /* More vertical margin */
+    flex-grow: 1; /* Allow content to push footer down */
   }
 
   .sub-text {
     text-align: center;
     line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem; /* More space */
+    font-size: 1.1rem;
+    color: var(--subtext-colour);
   }
 
-  .info-section {
+  .sub-text b {
+    color: var(--text-colour); /* Ensure bold text uses main text color */
+    font-size: 1.2rem;
+  }
+
+  .setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Remove gap, connectors will handle spacing */
+    margin-top: 2rem;
+    position: relative; /* Needed for connector pseudo-elements */
+  }
+
+  .step {
     background: var(--content-background);
-    padding: 1.5rem;
-    border-radius: 6px;
-    margin-bottom: 1.5rem;
-    padding-top: 0;
+    border: 1px solid var(--accent-colour);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+    display: flex;
+    align-items: flex-start; 
+    gap: 1.5rem;
+    position: relative; /* Needed for connector */
+    margin-bottom: 2.5rem; /* Space between steps */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add transition for hover */
   }
 
-  .info-section h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+  /* Add hover effect to steps */
+  .step:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow2); 
   }
 
-  .styled-list {
-    list-style-type: none;
-    padding-left: 0;
-    counter-reset: list-counter;
-    margin: 0;
+  /* Step Connectors */
+  .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: calc(2rem + 20px); /* Align with center of icon (padding + icon_width/2) */
+      top: calc(1.5rem + 40px + 10px); /* Align below icon (padding + icon_height + small_gap) */
+      bottom: -1.5rem; /* Extend down towards the next step */
+      width: 2px;
+      background-color: var(--accent-colour);
+      z-index: -1; /* Place behind content */
+      opacity: 0.6;
   }
 
-  .styled-list li {
-    counter-increment: list-counter;
-    position: relative;
-    margin-bottom: 1.5rem;
-    padding-left: 2.5rem;
+  /* Animation delay for steps */
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.4s; }
+  .step:nth-child(3) { animation-delay: 0.6s; }
+  .step:nth-child(4) { animation-delay: 0.8s; }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .styled-list li::before {
-    content: counter(list-counter);
-    width: 1.8rem;
-    height: 1.8rem;
-    line-height: 1.8rem;
+  .step-icon {
+    flex-shrink: 0;
+    width: 40px; /* Consistent icon size */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    border: 1.7px solid var(--secondary-accent-colour);
-    color: var(--text-colour);
-    text-align: center;
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-    top: 0;
     background-color: var(--secondary-background);
+    border: 2px solid var(--secondary-accent-colour);
   }
 
-  .styled-list li small {
+  .step-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--action-colour);
+    transition: transform 0.3s ease; /* Add transition */
+  }
+
+  /* Animate icon slightly on step hover */
+  .step:hover .step-icon svg {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .step-content h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--text-colour);
+  }
+
+  .step-content p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--subtext-colour);
+    font-size: 0.95rem;
+  }
+
+  /* Style for emphasized extension icon */
+  .extension-icon-inline {
+    width: 18px; /* Slightly larger */
+    height: 18px;
+    vertical-align: -3px; /* Adjust vertical alignment */
+    margin: 0 2px;
+    padding: 2px;
+    background-color: var(--secondary-background);
+    border-radius: 3px;
+    border: 1px solid var(--accent-colour);
+  }
+
+  .step-content p a {
+     font-weight: 500; /* Make links slightly bolder */
+  }
+
+  .step-action {
+    margin-top: 1rem;
+  }
+
+  .button-primary, .button-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: none;
+    text-align: center;
+  }
+
+  .button-primary {
+    background-color: var(--cta-background-main);
+    color: var(--cta-button-colour-main);
+  }
+
+  .button-primary:hover {
+    background-color: var(--action-highlight-colour-main);
+    transform: translateY(-1px);
+  }
+
+  .button-secondary {
+    background-color: var(--cta-background);
+    color: var(--cta-button-colour);
+    border: var(--cta-border);
+  }
+
+  .button-secondary:hover {
+    background-color: var(--action-highlight-colour);
+    transform: translateY(-1px);
+  }
+
+  img.webstore-img {
+    width: 186px;
     display: block;
-    margin-top: 0.5rem;
-    color: var(--secondary-text-colour);
+    margin-top: 1rem; /* Add space above */
+    border-radius: 4px; /* Slight rounding */
+    transition: transform 0.2s ease;
+  }
+
+  img.webstore-img:hover {
+     transform: scale(1.03); /* Subtle hover effect */
   }
 
   .footer {
     background-color: var(--page-background);
-    padding: 10px 20px;
+    padding: 20px; /* More padding */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
-    margin-top: auto;
-  }
-
-  #errorText {
-    color: rgb(255, 80, 80);
-    margin-block-start: 0;
-    margin-block-end: 0;
+    border-top: 1px solid var(--accent-colour); /* Add subtle top border */
+    margin-top: auto; /* Stick to bottom */
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .termsText {
     text-align: center;
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: var(--secondary-text-colour);
+    margin-bottom: 0; /* Remove default margin */
+    font-size: 0.9rem;
+    color: var(--subtext-colour);
   }
 
   .tosLink,
   .tosLink:active,
   .tosLink:visited {
+    color: var(--action-colour); /* Ensure links use theme color */
     text-decoration: none;
+    font-weight: 500;
   }
 
-  #continue-btn {
-    background-color: var(--action-colour);
-    color: var(--cta-button-colour-main);
-    border: none;
-    padding: 15px;
-    font-size: 0.87rem;
-    font-weight: 550;
-    cursor: pointer;
-    width: 100%;
-    max-width: 300px;
-    box-sizing: border-box;
-    border-radius: 5px;
-    margin: 1rem 0;
+  .tosLink:hover {
+    text-decoration: underline;
   }
 
-  #continue-btn:hover {
-    opacity: 0.9;
-    background-color: var(--action-highlight-colour-main);
+  /* Help Button / Modal Trigger */
+  .help-button {
+    margin-top: 1rem; /* Space above footer links */
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 
-  #continue-btn.grey,
-  #continue-btn.grey:hover {
-    background-color: lightgrey;
-    cursor: not-allowed;
-  }
-
-  @media (prefers-color-scheme: light) {
-    #continue-btn.grey,
-    #continue-btn.grey:hover {
-      color: var(--text-colour);
-    }
-  }
-
+  /* Loading Overlay (Unchanged from original) */
   #loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95); display: flex; justify-content: center;
+    align-items: center; z-index: 1000; visibility: hidden; opacity: 0;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s; /* Delay visibility change */
+  }
+   #loading-overlay.visible {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.2s ease;
   }
 
-  #loading-content {
-    text-align: center;
-    position: relative;
-  }
 
-  #loading-svg {
-    opacity: 1;
-  }
+  #loading-content { text-align: center; position: relative; }
+  #loading-svg { opacity: 1; }
 
   .loader {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 2s linear infinite;
-    position: absolute;
-    top: calc(100% + 20px);
-    left: 50%;
-    margin: 5px 0 0 -20px;
+    border: 3px solid #f3f3f3; border-top: 3px solid #3498db;
+    border-radius: 50%; width: 20px; height: 20px;
+    animation: spin 1s linear infinite; position: absolute;
+    top: calc(100% + 10px); /* Closer to SVG */
+    left: 50%; transform: translateX(-50%); /* Center horizontally */
+    margin: 0;
   }
 
   @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+    0% { transform: translateX(-50%) rotate(0deg); }
+    100% { transform: translateX(-50%) rotate(360deg); }
   }
 
-  /* Feature bubbles */
-  .feature-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .feature-item {
-    background: var(--secondary-background);
-    padding: 1rem 1.5rem;
-    border-radius: 6px;
-    color: var(--text-colour);
-  }
-
-  .feature-item.left {
-    align-self: flex-start;
-  }
-
-  .feature-item.right {
-    align-self: flex-end;
-  }
-
-  /* Media queries */
-  @media (min-width: 601px) {
-    #continue-btn:not(.grey)::after {
-      content: ' [ENTER]';
-      font-size: 0.87rem;
-      font-weight: 550;
-    }
-
-    .footer {
-      background-color: var(--page-background);
-    }
-  }
-
+  /* Responsive */
   @media (max-width: 600px) {
-    .content {
-      margin: 1rem auto;
-      padding: 10px;
-    }
-
-    .info-section {
-      padding: 1rem;
-    }
-
-    #continue-btn {
-      max-width: 100%;
+    .header { font-size: 20px; margin-top: 1rem; }
+    .header-content svg { height: 24px; }
+    .content { width: 95%; padding: 15px; margin: 1rem auto; }
+    .sub-text { font-size: 1rem; margin-bottom: 1.5rem; }
+    .sub-text b { font-size: 1.1rem; }
+    .setup-steps { gap: 1.5rem; margin-top: 1.5rem; }
+    .step { flex-direction: column; align-items: center; text-align: center; gap: 1rem; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+    .step:hover { transform: none; box-shadow: var(--shadow); } /* Disable hover transform on mobile */
+    .step-icon { margin-bottom: 0.5rem; }
+    .step-content h3 { font-size: 1.1rem; }
+    .step-content p { font-size: 0.9rem; }
+    .button-primary, .button-secondary { width: 100%; padding: 14px; font-size: 1rem; }
+    .footer { padding: 15px; }
+    .termsText { font-size: 0.85rem; }
+    /* Adjust connector position for mobile */
+    .step:not(:last-child)::after {
+        left: 50%;
+        transform: translateX(-50%);
+        top: calc(1rem + 40px + 5px); /* padding + icon_height + gap */
+        bottom: -1rem; /* Adjust spacing */
     }
   }
+
 </style>

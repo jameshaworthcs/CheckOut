@@ -3,204 +3,7 @@
   <head>
     <%- include('../global/head'); %>
     <title>Welcome to AutoCheckin</title>
-    <style>
-      /* :root {
-        --font: 'Segoe UI', SegoeUI, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    } */
-
-      /* html {
-        scrollbar-color: #222744 #0A0520;
-    } */
-
-      body {
-        margin: 0 auto;
-        /* font-family: var(--font);
-        background-color: #0A0520; */
-        /* color: white; */
-        display: flex;
-        flex-direction: column;
-        /* min-height: 100vh; */
-        width: 100%;
-        /* max-width: 500px; */
-      }
-
-      /* button {
-        font-family: var(--font);
-    } */
-
-      .header {
-        /* background-color: var(--page-background); */
-        padding: 20px;
-        text-align: center;
-        font-size: 21px;
-        border-bottom: 0;
-        /* Remove default border */
-      }
-
-      .header-content {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        /* transform: translate(13px, -4px); */
-        margin-top: 10px;
-      }
-
-      .header-content svg {
-        margin-left: -1px;
-        height: 25px;
-        transform: translate(0, -7px);
-        fill: var(--text-colour);
-      }
-
-      .content {
-        padding: 20px;
-        overflow-y: auto;
-        box-sizing: border-box;
-        max-width: 500px;
-        margin: 0 auto;
-      }
-
-      .sub-text {
-        text-align: center;
-        line-height: 15px;
-        margin-block-start: 0;
-      }
-
-      .footer {
-        background-color: var(--page-background);
-        padding: 10px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
-
-      #errorText {
-        color: rgb(255, 80, 80);
-        margin-block-start: 0;
-        margin-block-end: 0;
-      }
-
-      .termsText {
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 14px;
-        color: #ccc;
-      }
-
-      .tosLink,
-      .tosLink:active,
-      .tosLink:visited {
-        /* color: #58a6ff; */
-        text-decoration: none;
-      }
-
-      #continue-btn {
-        background-color: var(--action-colour);
-        color: var(--cta-button-colour);
-        border: none;
-        padding: 15px;
-        font-size: 0.87rem;
-        font-weight: 550;
-        cursor: pointer;
-        width: 100%;
-        box-sizing: border-box;
-        border-radius: 5px;
-        /* Rounded button */
-      }
-
-      #continue-btn:hover {
-        background-color: var(--action-highlight-colour);
-      }
-
-      #continue-btn.grey,
-      #continue-btn.grey:hover {
-        background-color: lightgrey;
-        cursor: not-allowed;
-      }
-
-      #loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        visibility: hidden;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-      }
-
-      #loading-content {
-        text-align: center;
-        position: relative;
-      }
-
-      #loading-svg {
-        opacity: 1;
-      }
-
-      .loader {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #3498db;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        animation: spin 2s linear infinite;
-        position: absolute;
-        top: calc(100% + 20px);
-        left: 50%;
-        margin: 5px 0 0 -20px;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* Add [ENTER] text and adjust styles for desktop */
-      @media (min-width: 601px) {
-        #cta-button:not(.grey)::after {
-          content: ' [ENTER]';
-          font-size: 0.87rem;
-          font-weight: 550;
-        }
-
-        .footer {
-          background-color: transparent;
-        }
-      }
-
-      @media (max-width: 600px) {
-        .content {
-          flex: 1;
-          max-width: 100%;
-          padding: 10px;
-        }
-
-        #continue-btn {
-          max-width: 100%;
-        }
-      }
-
-      .warning-text {
-        background-color: var(--warning-background);
-        color: var(--warning-text);
-        border: 1px solid var(--warning-border);
-        padding: 10px;
-        border-radius: 5px;
-      }
-    </style>
+    <%- include('./styles/shared'); %>
   </head>
 
   <body>
@@ -230,16 +33,35 @@
       </div>
     </div>
     <div class="content">
-      <p class="sub-text">
-        <b>Setup is complete.</b><br /><br /><span class="subtext">It's time to relax.</span>
-        <br><br>
+      <p class="sub-text" style="margin-bottom: 3rem;">
+        <b>Setup Complete! AutoCheckin is Active.</b><br />
+        <span class="subtext">You're all set for automatic check-ins.</span>
       </p>
-      <div class="warning-text">
-        <p><b>Notice:</b> The AutoCheckin dashboard is new and still being developed. For any questions, please contact <a href="/support">support</a>.</p> 
+
+      <div class="info-section">
+        <h3>What Happens Now?</h3>
+        <ul class="styled-list" style="list-style-type: disc; padding-left: 20px;">
+          <li>
+            <b>No More Extension Clicks:</b> You don't need to click the AutoCheckin browser extension anymore.
+          </li>
+          <li>
+            <b>Server Automation:</b> Our servers will now keep you signed into the university system and handle your check-ins automatically in the background.
+          </li>
+           <li>
+            <b>Submit Codes Here:</b> When you receive a check-in code, just submit it on the main CheckOut website as usual.
+          </li>
+          <li>
+            <b>Monitor Progress:</b> The dashboard (coming up next!) shows you the status of your automated check-ins and account activity.
+          </li>
+        </ul>
+      </div>
+
+      <div class="warning-text" style="margin-top: 1.5rem;"> 
+        <p><b>Notice:</b> The AutoCheckin dashboard is new and still being developed. For any questions, please contact <a href="/support?pre=autocheckin">support</a>.</p> 
       </div> 
-      <br>
-      <div style="text-align: center;">
-        <button class="cta-button cta-button-main" id="cta-button">Explore AutoCheckin</button>
+      
+      <div style="text-align: center; margin-top: 2.5rem; margin-bottom: 1rem;"> 
+        <button class="cta-button cta-button-main" id="cta-button">View AutoCheckin Dashboard</button>
       </div>
     </div>
 
@@ -251,7 +73,10 @@
             !activeElement ||
             (activeElement && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()))
           ) {
-            document.getElementById('cta-button').click();
+            const ctaButton = document.getElementById('cta-button');
+            if (ctaButton) {
+                ctaButton.click();
+            }
           }
         }
       });
@@ -260,6 +85,8 @@
         const overlay = document.getElementById('loading-overlay');
         const clipRect = document.getElementById('clip-rect');
         const spinner = document.getElementById('loading-spinner');
+        
+        if (!overlay || !clipRect || !spinner) return;
 
         overlay.style.visibility = 'visible';
         overlay.style.opacity = '1';
@@ -297,10 +124,16 @@
         };
 
         function removeOverlay() {
-          overlay.style.opacity = '0';
-          overlay.style.visibility = 'hidden';
-          clipRect.setAttribute('width', '0');
-          spinner.style.display = 'none';
+          if (overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+          }
+          if (clipRect) {
+            clipRect.setAttribute('width', '0');
+          }
+           if (spinner) {
+            spinner.style.display = 'none';
+           }
           window.overlayDone = false;
           animationCompleted = false;
         }
@@ -314,40 +147,22 @@
         return urlObj.toString();
       }
 
-      document.getElementById('cta-button').addEventListener('click', function () {
-        // Function to preload the page and then swap the content or reload the page
-        function preloadAndSwapPage(url) {
-          let preloadedPage;
+      const ctaButton = document.getElementById('cta-button');
+      if (ctaButton) {
+          ctaButton.addEventListener('click', function () {
+            // Show loading overlay before navigating
+            showLoadingOverlay(450); 
+            
+            // Calculate the target URL
+            let updatedUrl = '/auto?nocache=' + new Date().getTime();
 
-          // Use the Fetch API to preload the page with the updated URL
-          fetch(url)
-            .then((response) => response.text())
-            .then((html) => {
-              preloadedPage = html;
-            })
-            .catch((error) => {
-              console.error('Error preloading the page:', error);
-            });
-
-          // Wait 500ms, then swap the page content with the preloaded content
-          setTimeout(() => {
-            if (preloadedPage) {
-              document.open();
-              document.write(preloadedPage);
-              history.pushState({}, null, '/auto?nocache=' + new Date().getTime());
-              document.close();
-            } else {
-              // Fallback to a regular reload if preloading fails
-              window.location.href = url;
-            }
-          }, 300);
-        }
-        // Continue to autocheckin
-        showLoadingOverlay(450);
-        //let currentUrl = window.location.href;
-        let updatedUrl = '/auto?nocache=' + new Date().getTime();
-        preloadAndSwapPage(updatedUrl);
-      });
+            // Perform standard navigation after a short delay 
+            // to allow the overlay to become visible.
+            setTimeout(() => {
+               window.location.href = updatedUrl;
+            }, 50); // Small delay (50ms) should be enough
+          });
+      }
     </script>
   </body>
 </html>
