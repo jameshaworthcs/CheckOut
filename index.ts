@@ -649,6 +649,10 @@ app.get('/history', (req: AppRequest, res: Response) => {
   res.render('history/history.ejs', { username: req.username });
 });
 
+app.get('/sunset', (req: AppRequest, res: Response) => {
+  res.render('sunset.ejs', { username: req.username });
+});
+
 app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
 
 // 404 handler

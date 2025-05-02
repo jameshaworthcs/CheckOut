@@ -1,3 +1,87 @@
+<style>
+/* Styles for the sunset notice banner */
+.sunset-notice-wrapper {
+  background-color: #fff3cd; /* Light warning yellow */
+  color: #856404; /* Dark yellow text */
+  border-bottom: 1px solid #ffeeba;
+  /* Padding removed from wrapper */
+  width: 100%; /* Ensure it takes full width */
+}
+/* Apply padding to the inner navbar element */
+.navbar.sunset-notice {
+    padding: 0.75rem 1rem;
+}
+.sunset-notice .site-notice {
+  /* Use flexbox for layout */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  flex-wrap: wrap; /* Allow wrapping on very small screens */
+  gap: 0.5em; /* Space between text and link */
+  margin: 0;
+  padding: 0;
+  font-size: 0.95em;
+  text-align: center; /* Fallback text alignment */
+}
+.sunset-notice .site-notice a {
+  color: #0056b3; /* Link blue */
+  font-weight: 600;
+  text-decoration: underline;
+  /* Added for SVG alignment */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em; /* Space between text and arrow */
+}
+.sunset-notice .site-notice a:hover {
+  color: #003d80;
+}
+/* Style for the arrow SVG */
+.sunset-notice .promo-arrow {
+  width: 1em; /* Size relative to font size */
+  height: 1em;
+  fill: currentColor; /* Use the link's text color */
+  vertical-align: middle; /* Helps alignment */
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .sunset-notice-wrapper {
+    background-color: #3e300a; /* Darker yellow */
+    color: #ffeeba;
+    border-bottom-color: #5a480f;
+  }
+  .sunset-notice .site-notice a {
+    color: #90cdf4; /* Light blue */
+  }
+  .sunset-notice .site-notice a:hover {
+    color: #63b3ed;
+  }
+  /* Ensure SVG color matches in dark mode */
+  .sunset-notice .promo-arrow {
+      fill: currentColor;
+  }
+}
+</style>
+
+<div class="navbar-wrapper sunset-notice-wrapper">
+  <div class="navbar sunset-notice">
+    <p class="site-notice">
+      <span>CheckOut will cease operations on May 9th, 2025.</span> <a href="/sunset">Learn more about the transition and data deletion<svg
+              class="promo-arrow"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.47 4.22c-.3.3-.3.77 0 1.06L15.19 12l-6.72 6.72a.75.75 0 1 0 1.06 1.06l7.25-7.25c.3-.3.3-.77 0-1.06L9.53 4.22a.75.75 0 0 0-1.06 0Z"
+                fill="currentColor" /* Ensures it inherits color */
+              ></path></svg
+          ></a>
+    </p>
+  </div>
+</div>
+
 <% if (typeof site_notice !== 'undefined') { %>
 <div class="navbar-wrapper">
   <div class="navbar">

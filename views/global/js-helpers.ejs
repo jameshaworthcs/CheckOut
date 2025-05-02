@@ -16,6 +16,14 @@
     const menuItems = document.querySelectorAll('.menu-item');
     const ctaButton = document.getElementById('navbar-cta-button');
 
+    // Hide sunset notice on /sunset path
+    if (window.location.pathname.startsWith('/sunset')) {
+      const sunsetNotice = document.querySelector('.sunset-notice-wrapper');
+      if (sunsetNotice) {
+        sunsetNotice.style.display = 'none';
+      }
+    }
+
     ///////////////////
     // Logo Animation //
     ///////////////////

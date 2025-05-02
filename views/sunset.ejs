@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./global/head'); %>
+    <title>Sunset - CheckOut</title>
+    <style>
+        @keyframes rain {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 50px)); /* Fall past the bottom */
+                opacity: 0.1; /* Fade out */
+            }
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Modern font stack */
+            /* Removed background gradient and animation */
+            margin: 0;
+            color: #333;
+            line-height: 1.6; /* Base line height */
+            position: relative; /* Needed for z-index stacking */
+            overflow-x: hidden; /* Prevent horizontal scroll from icons */
+        }
+
+        #raining-icons-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place behind content */
+            overflow: hidden;
+            pointer-events: none; /* Make it non-interactive */
+        }
+
+        .raining-icon {
+            position: absolute;
+            width: 25px; /* Adjust size as needed */
+            height: 25px;
+            top: -40px; /* Start above the screen */
+            animation-name: rain;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            will-change: transform, opacity; /* Performance hint */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column; /* Stack navbar and content */
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem; /* Consistent padding */
+            box-sizing: border-box; /* Include padding in height calculation */
+        }
+
+        /* Ensure navbar takes its space */
+        /* Assuming your navbar has a class or ID, adjust if needed */
+        /* We'll add margin-top to content instead if navbar is static */
+
+        .content {
+            max-width: 700px; /* Slightly wider */
+            width: 100%; /* Responsive width */
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly more opaque */
+            padding: 2.5rem 3rem; /* More horizontal padding */
+            border-radius: 16px; /* Smoother corners */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle inner border */
+            text-align: center;
+            margin-top: 80px; /* Add space below potential navbar, adjust as needed */
+            margin-bottom: 2rem; /* Space at the bottom */
+        }
+
+        .content h1 {
+            color: #1a253c; /* Darker, more sophisticated blue */
+            margin-bottom: 1.8rem;
+            font-weight: 700; /* Bolder */
+            font-size: 2.2em; /* Larger heading */
+            letter-spacing: -0.5px; /* Tighter spacing */
+        }
+
+        .content p {
+            color: #4a5568; /* Softer grey */
+            line-height: 1.75;
+            margin-bottom: 1.3rem;
+            font-size: 1.1em; /* Slightly larger */
+        }
+
+        .content strong {
+            color: #e53e3e; /* Vibrant red highlight */
+            font-weight: 600;
+        }
+
+        .content a.return-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #5691c8 0%, #4e7ac4 100%); /* Gradient button */
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px; /* Rounded button */
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .content a.return-link:hover {
+            background: linear-gradient(135deg, #4e7ac4 0%, #5691c8 100%); /* Reverse gradient on hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px); /* Subtle lift */
+            text-decoration: none;
+        }
+
+        /* Countdown Timer Styles */
+        .countdown-container {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0; /* Lighter separator */
+        }
+
+        .countdown-title {
+            font-weight: 600; /* Bolder title */
+            color: #2d3748; /* Dark grey */
+            margin-bottom: 1.5rem; /* More space below title */
+            font-size: 1.15em;
+         }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 1.5rem; /* Increased gap */
+            margin-top: 0.5rem;
+        }
+
+        .countdown-item {
+            background-color: #f7fafc; /* Very light grey */
+            padding: 1rem 1.2rem;
+            border-radius: 8px; /* Rounded items */
+            min-width: 75px; /* Slightly wider */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edf2f7; /* Subtle border */
+            transition: transform 0.2s ease;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-3px); /* Lift on hover */
+        }
+
+        .countdown-item span {
+            display: block;
+        }
+
+        .countdown-item .number {
+            font-size: 2.2em; /* Larger numbers */
+            font-weight: 700; /* Bolder */
+            color: #2c5282; /* Deep blue */
+            line-height: 1.1; /* Adjust line height for large font */
+        }
+
+        .countdown-item .label {
+            font-size: 0.75em; /* Slightly smaller label */
+            color: #718096; /* Medium grey */
+            text-transform: uppercase;
+            margin-top: 0.4rem;
+            font-weight: 500; /* Medium weight */
+            letter-spacing: 0.5px; /* Spacing */
+        }
+
+        /* Style for the finished countdown message */
+        .countdown-finished p {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c5282; /* Same blue as numbers */
+            margin-top: 1rem; /* Add some space */
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .content h1 {
+                color: #e2e8f0; /* Light text */
+            }
+            .content p {
+                color: #cbd5e0; /* Light text */
+            }
+            .content {
+                background-color: #1a202c; /* Dark background */
+                color: #e2e8f0; /* Light text */
+            }
+            .raining-icon {
+                filter: invert(1); /* Invert color for dark mode */
+            }
+            
+        }
+
+    </style>
+  </head>
+
+<body>
+    <div id="raining-icons-container"></div> <!-- Container for icons -->
+    <%- include('./global/navbar'); %>
+    <div class="container">
+        <div class="content">
+            <h1>An Important Update Regarding CheckOut</h1>
+            <p>We're writing to inform you that CheckOut will be ceasing operations at the end of the current academic semester. This decision comes due to operational reasons.</p>
+            <p>Simultaneously, we are excited to announce that the CheckOut platform will be made <strong>open source</strong>. We believe this will allow the community to potentially build upon the work we've started, and a link to the repository will be posted here once it's live.</p>
+            <p>Additionally, the accompanying <strong>AutoCheckin</strong> service will also cease operations. However, AutoCheckin is already open source and available on <a href="https://github.com/jameshaworthcs/autocheckin" target="_blank" rel="noopener noreferrer">GitHub</a> for those who wish to continue using or developing it independently.</p>
+            <p>The CheckOut team has truly enjoyed providing this service, and we appreciate your support throughout its operation.</p>
+            <p>A link to a dedicated portal where users with existing accounts can download their data will be posted here soon. Please note that all user data will be <strong>permanently deleted on 1st July 2025</strong>, in accordance with our Terms of Use.</p>
+            <p>We thank you for being a part of the CheckOut journey.</p>
+
+             <!-- Countdown Timers -->
+            <div class="countdown-container">
+                <p class="countdown-title">Open Sourcing & End of Service Countdown:</p>
+                <div id="countdown-service" class="countdown">
+                    <div class="countdown-item"><span id="days-service" class="number">0</span><span class="label">Days</span></div>
+                    <div class="countdown-item"><span id="hours-service" class="number">0</span><span class="label">Hours</span></div>
+                    <div class="countdown-item"><span id="minutes-service" class="number">0</span><span class="label">Minutes</span></div>
+                    <div class="countdown-item"><span id="seconds-service" class="number">0</span><span class="label">Seconds</span></div>
+                 </div>
+            </div>
+
+            <div class="countdown-container">
+                 <p class="countdown-title">Data Deletion Countdown:</p>
+                 <div id="countdown-deletion" class="countdown">
+                    <div class="countdown-item"><span id="days-deletion" class="number">0</span><span class="label">Days</span></div>
+                    <div class="countdown-item"><span id="hours-deletion" class="number">0</span><span class="label">Hours</span></div>
+                    <div class="countdown-item"><span id="minutes-deletion" class="number">0</span><span class="label">Minutes</span></div>
+                    <div class="countdown-item"><span id="seconds-deletion" class="number">0</span><span class="label">Seconds</span></div>
+                 </div>
+            </div>
+
+            <!-- Optional: Link to open source repo later -->
+            <!-- <p>The open source repository will be available at [Link Here] soon.</p> -->
+            <a href="/" class="return-link">Return to CheckOut</a>
+        </div>
+    </div>
+
+    <script>
+        function startCountdown(targetDate, elementPrefix) {
+            const countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Display the result in the element
+                const daysEl = document.getElementById(`days-${elementPrefix}`);
+                const hoursEl = document.getElementById(`hours-${elementPrefix}`);
+                const minutesEl = document.getElementById(`minutes-${elementPrefix}`);
+                const secondsEl = document.getElementById(`seconds-${elementPrefix}`);
+
+                if (daysEl) daysEl.innerText = days;
+                if (hoursEl) hoursEl.innerText = hours;
+                if (minutesEl) minutesEl.innerText = minutes;
+                if (secondsEl) secondsEl.innerText = seconds;
+
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    const countdownElement = document.getElementById(`countdown-${elementPrefix}`);
+                    if (countdownElement) {
+                        countdownElement.innerHTML = "<p>The time has arrived!</p>";
+                        countdownElement.classList.add('countdown-finished'); // Add class for styling
+                    }
+                }
+            }, 1000);
+        }
+
+        // Set the date we're counting down to
+        // Note: Months are 0-indexed (0 = January, 1 = February, ...)
+        const serviceEndDate = new Date(2025, 4, 9, 16, 30, 0).getTime(); // May 9th, 2025, 4:30 PM
+        const deletionDate = new Date(2025, 6, 1, 12, 0, 0).getTime();   // July 1st, 2025, 12:00 PM (Midday)
+
+
+        // Start the countdowns
+        startCountdown(serviceEndDate, 'service');
+        startCountdown(deletionDate, 'deletion');
+
+        // --- Raining Icons ---
+        function createRainingIcons(containerId, iconSrc, count) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            for (let i = 0; i < count; i++) {
+                const icon = document.createElement('img');
+                icon.src = iconSrc;
+                icon.classList.add('raining-icon');
+
+                // Randomize horizontal position, duration, and delay
+                const randomLeft = Math.random() * 100; // Percentage
+                const randomDuration = Math.random() * 5 + 7; // Duration between 7s and 12s
+                const randomDelay = Math.random() * 10; // Delay up to 10s
+
+                icon.style.left = `${randomLeft}vw`;
+                icon.style.animationDuration = `${randomDuration}s`;
+                icon.style.animationDelay = `${randomDelay}s`;
+
+                container.appendChild(icon);
+            }
+        }
+
+        // Create 10 raining icons (reduced frequency)
+        createRainingIcons('raining-icons-container', '/static/images/icons/sunset.png', 10);
+        // --- End Raining Icons ---
+
+    </script>
+
+</body>
+</html>
+
+
