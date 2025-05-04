@@ -472,6 +472,8 @@ function auth(service, req, res, next) {
               msg = 'Sign in to access admin features.';
             } else if (req.url.startsWith('/applogin')) {
               msg = 'Sign in to the mobile app.';
+            } else if (req.url.startsWith('/secure/hostedapps/service-reauth')) {
+              msg = 'Sign in to the data download service.';
             } else {
               msg =
                 'Sign in with your .ac.uk email to save your history, personalise CheckOut and use AutoCheckin.';

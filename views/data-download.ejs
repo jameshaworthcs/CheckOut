@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./global/head'); %>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Data Download - CheckOut</title>
+    <style>
+      body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 16px;
+        background-color: #c0c0c0;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+      }
+
+      .page-container {
+        padding: 20px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .archaic-container {
+        display: block;
+        position: relative;
+        text-align: left;
+        max-width: 450px;
+        margin: 20px auto;
+        padding: 15px;
+        background-color: #dcdcdc;
+        border: 2px outset #a0a0a0;
+      }
+
+      .archaic-container h2 {
+        font-size: 1.2em;
+        margin-top: 0;
+        margin-bottom: 10px;
+        text-align: center;
+        border-bottom: 1px solid #a0a0a0;
+        padding-bottom: 5px;
+      }
+
+      .archaic-container p {
+        margin-bottom: 15px;
+      }
+
+      .account-list {
+        border: 1px solid #a0a0a0;
+        background-color: #f0f0f0;
+        margin-bottom: 15px;
+        padding: 10px;
+      }
+
+      .account-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dotted #a0a0a0;
+      }
+
+      .account-item:last-child {
+        border-bottom: none;
+      }
+
+      .account-item span {
+        font-weight: bold;
+      }
+
+      .account-item .email {
+        font-size: 0.9em;
+        color: #333333;
+        display: block;
+        margin-top: 2px;
+      }
+
+      .archaic-button {
+        background-color: #d0d0d0;
+        border: 2px outset #a0a0a0;
+        padding: 4px 8px;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        color: black;
+      }
+
+      .archaic-button:active {
+        border-style: inset;
+      }
+
+      .archaic-container hr {
+        border: none;
+        border-top: 1px solid #a0a0a0;
+        margin: 15px 0;
+      }
+
+      .archaic-link,
+      .archaic-link:visited,
+      .archaic-link:active {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .archaic-link:hover {
+        color: navy;
+      }
+
+      .error-box {
+        margin-bottom: 15px;
+        background-color: #ffdddd;
+        border: 1px solid #ff0000;
+        color: #cc0000;
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      .termsText {
+        font-size: 10px;
+        text-align: center;
+        margin-top: 15px;
+        color: #555555;
+      }
+
+      .spinner-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(192, 192, 192, 0.8);
+        z-index: 1000;
+        padding: 24px;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 18px;
+        color: black;
+        font-weight: bold;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .archaic-navbar {
+        background-color: #b0b0b0;
+        border-bottom: 2px outset #909090;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .archaic-navbar img {
+        height: 24px;
+        width: 24px;
+        margin-right: 15px;
+        filter: grayscale(100%);
+        border: 1px solid #888888;
+      }
+
+      .archaic-navbar a {
+        color: #000080;
+        text-decoration: none;
+        margin-right: 15px;
+        font-size: 14px;
+      }
+
+      .archaic-navbar a:hover {
+        text-decoration: underline;
+      }
+
+      .archaic-footer {
+        background-color: #b0b0b0;
+        border-top: 2px outset #909090;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+        color: #333333;
+        margin-top: 20px;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="archaic-navbar">
+      <img src="/static/fav.svg" alt="Logo">
+      <a href="/">Home</a>
+      <a href="/account">Account</a>
+      <a href="/legal/terms">Terms</a>
+    </div>
+
+    <div class="page-container">
+
+      <div class="archaic-container" id="downloadScreen">
+        <h2>Download Your Data</h2>
+        <p>Click the button below to download a zip archive of your account data.</p>
+        <p>
+          Account: <span><b><%= userData.username %></b></span> (<span class="email"><%= email %></span>)
+        </p>
+
+        <hr>
+
+        <a href="/secure/apps/data-download/download" class="archaic-button" id="downloadButton">Download Data</a>
+        <p style="font-size: 12px; margin-top: 10px;">Your data will be downloaded as a .zip file.</p>
+
+      </div>
+
+    </div>
+
+    <div class="archaic-footer">
+      You have 60 seconds to start downloading your data.
+    </div>
+
+    <div class="spinner-container hidden" id="loadingSpinner">
+      Loading... Please wait.
+    </div>
+
+    <script>
+      // displayNotice function is assumed to exist globally or be included via head
+      // If not, it needs to be defined or included here.
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const downloadScreen = document.getElementById('downloadScreen');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const downloadButton = document.getElementById('downloadButton');
+
+        // Simple error display fallback if displayNotice isn't available
+        if (typeof displayNotice === 'undefined') {
+            window.displayNotice = function(message, type, title, duration) {
+                alert(`${title || type || 'Notice'}: ${message}`);
+            }
+        }
+
+      });
+    </script>
+  </body>
+</html>

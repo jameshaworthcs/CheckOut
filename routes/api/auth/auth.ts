@@ -12,7 +12,11 @@ db.query = util.promisify(db.query); // Promisify db.query for async/await
 
 const allowedDomains = ['.ac.uk', 'j-h.ai', 'realjamesh.co.uk', 'jemedia.xyz', 'jameshaworth.dev'];
 
-// Function to validate email domain
+/**
+ * Validates if the email domain is allowed or matches a specific hash.
+ * @param {string} email - The email address to validate.
+ * @returns {{success: boolean, msg?: string}}
+ */
 function validateEmailDomain(email) {
   // Check if email hash matches the allowed hash
   const emailHash = crypto.createHash('sha512').update(email).digest('hex');
@@ -29,7 +33,11 @@ function validateEmailDomain(email) {
   return { success: false, msg: 'Invalid email domain. Try again with your .ac.uk email.' };
 }
 
-// Function to validate verified email
+/**
+ * Checks if the email address was marked as verified by the OAuth provider.
+ * @param {boolean} email_verified - The verification status from the OAuth provider.
+ * @returns {{success: boolean, msg?: string}}
+ */
 function validateVerifiedEmail(email_verified) {
   if (email_verified == true) {
     return { success: true };
@@ -40,7 +48,12 @@ function validateVerifiedEmail(email_verified) {
   };
 }
 
-// Send a welcome email to new users
+/**
+ * Sends a welcome email to a new user.
+ * @param {string} email - The recipient's email address.
+ * @param {string} username - The recipient's username.
+ * @param {string} rootDomain - The root domain of the application (for links).
+ */
 function welcomeEmail(email, username, rootDomain) {
   const data = {
     username,
@@ -58,7 +71,20 @@ function welcomeEmail(email, username, rootDomain) {
   });
 }
 
-// Login
+/**
+ * Handles user login or registration based on OAuth details.
+ * Validates email domain and verification status.
+ * Creates a new user if one doesn't exist, otherwise logs in the existing user.
+ * Sends a welcome email to new users.
+ * Sets user ID in the session.
+ * @param {object} req - The Express request object.
+ * @param {string} email - User's email.
+ * @param {boolean} email_verified - Whether the email is verified by OAuth.
+ * @param {string} name - User's full name.
+ * @param {string} shortname - User's preferred short name/username.
+ * @param {string} avatarURI - URI for the user's avatar (not currently used in user creation).
+ * @returns {Promise<{success: boolean, msg: string, newUser?: boolean, error?: string}>}
+ */
 async function login(req, email, email_verified, name, shortname, avatarURI) {
   try {
     // Sneaky email re-write
@@ -123,7 +149,13 @@ async function login(req, email, email_verified, name, shortname, avatarURI) {
   }
 }
 
-// Authenticate on every request
+/**
+ * Middleware-like function to authenticate a user on each request.
+ * Checks for a valid session ID or API key (in headers).
+ * Populates `req` with user details (`loggedIn`, `useremail`, `userState`, `userID`, etc.)
+ * or sets default anonymous user values if authentication fails.
+ * @param {object} req - The Express request object.
+ */
 async function authenticateUser(req) {
   try {
     let userQuery = `SELECT checkinState, checkinReport, sync, api_token, id, email, username, userstate FROM users WHERE id = ? OR api_token = ?`;
@@ -165,7 +197,10 @@ async function authenticateUser(req) {
   }
 }
 
-// Logout endpoint
+/**
+ * POST /api/auth/logout
+ * Logs the user out by removing their ID from the session.
+ */
 app.post('/api/auth/logout', (req, res) => {
   if (req.session.user) {
     delete req.session.user.id; // Remove the user ID from the session
@@ -173,7 +208,12 @@ app.post('/api/auth/logout', (req, res) => {
   res.redirect('/success/logout'); // Redirect to the logout success page
 });
 
-// API Key Login
+/**
+ * POST /api/auth/apikey/login
+ * Authenticates a user based on a provided API key.
+ * Uses timing-safe comparison to prevent timing attacks.
+ * Sets the user ID in the session upon successful authentication.
+ */
 app.post('/api/auth/apikey/login', async (req, res) => {
   try {
     const apiKey = req.body.apiKey;
@@ -226,13 +266,17 @@ app.post('/api/auth/apikey/login', async (req, res) => {
   }
 });
 
-// Modify the JWT signing to use a dedicated secret
+// Use a dedicated, high-entropy secret for JWT signing
 const JWT_SECRET = process.env.JWT_SECRET; // This should be set to a high-entropy value
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable must be set');
 }
 
-// Update the app token endpoint
+/**
+ * GET /api/auth/apptoken
+ * Generates a short-lived (1 minute) JWT (apptoken) for authenticated users.
+ * Used for operations requiring a temporary, verified token.
+ */
 app.get('/api/auth/apptoken', async (req, res) => {
   try {
     if (!req.loggedIn || !req.userID) {
@@ -275,7 +319,13 @@ app.get('/api/auth/apptoken', async (req, res) => {
   }
 });
 
-// Verify App Token
+/**
+ * POST /api/auth/verifyapptoken
+ * Verifies a provided apptoken (JWT).
+ * Checks signature, expiration (max 1 min), issue time, and algorithm.
+ * Fetches user details if the token is valid and the user is active.
+ * Returns user details upon successful verification.
+ */
 app.post('/api/auth/verifyapptoken', async (req, res) => {
   try {
     const { apptoken } = req.body;
@@ -339,6 +389,59 @@ app.post('/api/auth/verifyapptoken', async (req, res) => {
     }
   } catch (error) {
     console.error('Verify app token error:', error);
+    res.status(500).json({
+      success: false,
+      msg: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * GET /api/auth/service-token
+ * Generates a short-lived (1 minute) JWT (servicetoken) for authenticated users.
+ * Includes userID, username, and useremail in the payload.
+ * Sets the token securely in an HttpOnly, Secure cookie.
+ * Used for authenticating subsequent requests to secure app services.
+ */
+app.get('/api/auth/service-token', async (req, res) => {
+  try {
+    if (!req.loggedIn || !req.userID) {
+      return res.status(401).json({
+        success: false,
+        msg: 'User not authenticated'
+      });
+    }
+
+    const payload = {
+      userID: req.userID,
+      username: req.username,
+      useremail: req.useremail,
+      iat: Math.floor(Date.now() / 1000)
+    };
+
+    const options = {
+      expiresIn: '1m',
+      algorithm: 'HS256' // Explicitly specify the algorithm
+    };
+
+    jwt.sign(payload, JWT_SECRET, options, (err, token) => {
+      if (err) {
+        console.error('Error generating JWT:', err);
+        return res.status(500).json({
+          success: false,
+          msg: 'Failed to generate token'
+        });
+      }
+
+      // set jwt securely in cookie for 1 minute
+      res.cookie('servicetoken', token, { maxAge: 1 * 60 * 1000, secure: true, httpOnly: true });
+      
+      res.json({
+        success: true
+      });
+    });
+  } catch (error) {
+    console.error('Service login error:', error);
     res.status(500).json({
       success: false,
       msg: 'Internal server error'

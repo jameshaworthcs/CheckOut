@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../../global/head'); %>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Authentication - CheckOut</title>
+    <style>
+      /* Archaic Web Design Styles */
+      body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 16px; /* Slightly smaller default */
+        background-color: #c0c0c0; /* Classic grey */
+        color: #000000;
+        margin: 0;
+        padding: 0;
+      }
+
+      .page-container {
+        padding: 20px;
+        width: 100%;
+        box-sizing: border-box; /* Ensure padding doesn't overflow */
+      }
+
+      .archaic-container {
+        display: block;
+        position: relative;
+        text-align: left; /* Align text left */
+        max-width: 450px; /* Slightly wider for list look */
+        margin: 20px auto; /* Center horizontally */
+        padding: 15px;
+        background-color: #dcdcdc; /* Lighter grey */
+        border: 2px outset #a0a0a0; /* Bevelled border */
+      }
+
+      .archaic-container h2 {
+        font-size: 1.2em;
+        margin-top: 0;
+        margin-bottom: 10px;
+        text-align: center;
+        border-bottom: 1px solid #a0a0a0;
+        padding-bottom: 5px;
+      }
+
+      .archaic-container p {
+        margin-bottom: 15px;
+      }
+
+      .account-list {
+        border: 1px solid #a0a0a0;
+        background-color: #f0f0f0; /* Even lighter grey */
+        margin-bottom: 15px;
+        padding: 10px;
+      }
+
+      .account-item {
+        display: flex; /* Use flex for simple alignment */
+        justify-content: space-between; /* Space out name and button */
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dotted #a0a0a0; /* Dotted separator */
+      }
+
+      .account-item:last-child {
+        border-bottom: none;
+      }
+
+      .account-item span {
+        font-weight: bold;
+      }
+
+      .account-item .email {
+        font-size: 0.9em;
+        color: #333333; /* Dark grey for email */
+        display: block; /* Put email on a new line */
+        margin-top: 2px;
+      }
+
+      /* Standard archaic button style */
+      .archaic-button {
+        background-color: #d0d0d0;
+        border: 2px outset #a0a0a0;
+        padding: 4px 8px;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none; /* Remove underline if it's an <a> */
+        color: black; /* Ensure button text is black */
+      }
+
+      .archaic-button:active {
+        border-style: inset; /* Pressed look */
+      }
+
+      .archaic-container hr {
+        border: none;
+        border-top: 1px solid #a0a0a0;
+        margin: 15px 0;
+      }
+
+      /* Standard blue link */
+      .archaic-link,
+      .archaic-link:visited,
+      .archaic-link:active {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px; /* Smaller link text */
+      }
+
+      .archaic-link:hover {
+        color: navy; /* Darker blue on hover */
+      }
+
+      /* Basic error box */
+      .error-box {
+        margin-bottom: 15px;
+        background-color: #ffdddd;
+        border: 1px solid #ff0000;
+        color: #cc0000;
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      /* Terms text - keep small */
+      .termsText {
+        font-size: 10px;
+        text-align: center;
+        margin-top: 15px;
+        color: #555555;
+      }
+
+      /* Spinner Replacement */
+      .spinner-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(192, 192, 192, 0.8); /* Semi-transparent grey overlay */
+        z-index: 1000;
+        padding: 24px;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 18px;
+        color: black;
+        font-weight: bold;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* Remove styles not needed for archaic look */
+      /* .headerWelcome, .headerDiv, .topIcon, .container, .other-sign-in-options, */
+      /* .tosLink, .back-button, .spinner, .confirmation-container, */
+      /* .connection-graphic, .confirmation-title, .switch-account (replaced by archaic-link) */
+      /* Remove specific button styles like cta-button */
+
+      /* Archaic Navbar Styles */
+      .archaic-navbar {
+        background-color: #b0b0b0; /* Slightly darker grey */
+        border-bottom: 2px outset #909090;
+        padding: 5px 10px;
+        display: flex; /* Simple layout */
+        align-items: center;
+      }
+
+      .archaic-navbar img {
+        height: 24px; /* Small logo */
+        width: 24px;
+        margin-right: 15px;
+        filter: grayscale(100%); /* Make logo grey */
+        border: 1px solid #888888;
+      }
+
+      .archaic-navbar a {
+        color: #000080; /* Navy blue */
+        text-decoration: none;
+        margin-right: 15px;
+        font-size: 14px;
+      }
+
+      .archaic-navbar a:hover {
+        text-decoration: underline;
+      }
+
+      /* Archaic Footer Styles */
+      .archaic-footer {
+        background-color: #b0b0b0;
+        border-top: 2px outset #909090;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+        color: #333333;
+        margin-top: 20px; /* Add some space above footer */
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <!-- Archaic Navbar -->
+    <div class="archaic-navbar">
+      <img src="/static/fav.svg" alt="Logo">
+      <a href="/">Home</a>
+      <a href="/account">Account</a>
+      <a href="/legal/terms">Terms</a>
+    </div>
+
+    <div class="page-container">
+
+      <!-- Archaic Confirmation/Selection Screen -->
+      <div class="archaic-container" id="confirmationScreen">
+        <h2>Select Account</h2>
+        <p>Choose the account to use for the Data Download Service:</p>
+
+        <div class="account-list">
+          <div class="account-item">
+            <div>
+              <span><b><%= userData.username %></b></span>
+              <div class="email"><%= email %></div>
+            </div>
+            <!-- Reusing ID for script compatibility -->
+            <button class="archaic-button" id="continueButton">Select</button>
+          </div>
+          <!-- Hypothetical placeholder for how multiple accounts might look -->
+          <!-- <div class="account-item">
+            <span><i>another_user@example.com</i></span>
+            <button class="archaic-button" disabled>Select</button>
+          </div> -->
+        </div>
+
+        <hr>
+
+        <a href="#" class="archaic-link" id="switchAccount">
+          Use a different account
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- Archaic Footer -->
+    <div class="archaic-footer">
+      Access will be granted for 60 seconds.
+    </div>
+
+    <!-- Basic Loading Indicator -->
+    <div class="spinner-container hidden" id="loadingSpinner">
+      Loading... Please wait.
+    </div>
+
+    <script>
+      // displayNotice function is assumed to exist globally or be included via head
+      // If not, it needs to be defined or included here.
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const confirmationScreen = document.getElementById('confirmationScreen');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const continueButton = document.getElementById('continueButton'); // Now the 'Select' button
+        const switchAccountLink = document.getElementById('switchAccount'); // The link
+
+        async function handleServiceLogin() {
+          try {
+            // Hide confirmation, show loading text
+            if (confirmationScreen) confirmationScreen.style.display = 'none'; // Hide instead of adding class for simplicity
+            if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+
+            const response = await fetch('/api/auth/service-token');
+            // Check if response is OK before parsing JSON
+            if (!response.ok) {
+                 // Try to get error message from body, otherwise use status text
+                 let errorMessage = `HTTP error ${response.status}: ${response.statusText}`;
+                 try {
+                     const errorData = await response.json();
+                     errorMessage = errorData.errorMessage || errorMessage;
+                 } catch (jsonError) {
+                     // Ignore JSON parsing error if response body is not JSON or empty
+                 }
+                 throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Get existing parameters from the current URL
+                const currentParams = new URLSearchParams(window.location.search);
+                // Redirect using only the original parameters
+                window.location.href = `/secure/apps/data-download?${currentParams.toString()}`;
+            } else {
+              // Use displayNotice or a simple alert
+              alert(data.errorMessage || 'Authentication failed. Please close this window and try again.');
+              if (loadingSpinner) loadingSpinner.classList.add('hidden'); // Hide loading
+              if (confirmationScreen) confirmationScreen.style.display = 'block'; // Show confirmation again
+            }
+          } catch (error) {
+             // Use displayNotice or a simple alert
+            alert(`Error during login: ${error.message || 'Please close this window and try again.'}`);
+            if (loadingSpinner) loadingSpinner.classList.add('hidden'); // Hide loading
+            if (confirmationScreen) confirmationScreen.style.display = 'block'; // Show confirmation again
+          }
+        }
+
+        async function handleSwitchAccount(event) {
+          event.preventDefault(); // Prevent default link behavior
+          try {
+            // Optional: Show loading indicator
+            if (confirmationScreen) confirmationScreen.style.display = 'none';
+            if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+
+            const response = await fetch('/api/auth/logout', {
+              method: 'POST'
+            });
+
+            // Check if logout was successful
+            if (response.ok) {
+              // Reload the page to trigger the login flow again
+              window.location.reload();
+            } else {
+               // Try to get error message
+               let errorMessage = `Logout failed (Status: ${response.status})`;
+               try {
+                   const errorData = await response.json();
+                   errorMessage = errorData.errorMessage || errorMessage;
+               } catch (jsonError) { /* Ignore */ }
+               throw new Error(errorMessage);
+            }
+          } catch (error) {
+            // Use displayNotice or a simple alert
+            alert(`Logout Error: ${error.message || 'Please try again.'}`);
+            // Hide loading, show confirmation again
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            if (confirmationScreen) confirmationScreen.style.display = 'block';
+          }
+        }
+
+        // Attach listeners only if elements exist
+        if (continueButton) {
+            continueButton.addEventListener('click', handleServiceLogin);
+        }
+        if (switchAccountLink) {
+            switchAccountLink.addEventListener('click', handleSwitchAccount);
+        }
+
+        // Simple error display fallback if displayNotice isn't available
+        if (typeof displayNotice === 'undefined') {
+            window.displayNotice = function(message, type, title, duration) {
+                alert(`${title || type || 'Notice'}: ${message}`);
+            }
+        }
+
+      });
+    </script>
+  </body>
+</html>

@@ -179,10 +179,10 @@ const manageRouter = require('./routes/manage/manage');
 const secureRoute = require('./routes/secure');
 const { getRealIp } = require('./routes/secure');
 const { authenticateUser } = require('./routes/api/auth/auth');
-
 const outsource = require('./outsource/outsource');
 const apiRouter = require('./routes/api/api');
 const { auth } = require('./routes/secure');
+const dataDownloadRouter = require('./routes/data-download');
 
 // Initialize Express app and configure settings
 const app: express.Application = express();
@@ -601,6 +601,9 @@ app.use((req: AppRequest, res: Response, next: NextFunction): void => {
       autoRouter(req, res, next);
     });
   }
+  if (req.url.startsWith('/secure/apps/data-download')) {
+    return dataDownloadRouter(req, res, next);
+  }
   next();
 });
 
@@ -634,6 +637,12 @@ app.get('/data', (req: AppRequest, res: Response) => {
 app.get('/applogin', (req: AppRequest, res: Response) => {
   secureRoute.auth('account', req, res, () => {
     res.render('account/auth/applogin.ejs', { username: req.username });
+  });
+});
+
+app.get('/secure/hostedapps/service-reauth', (req: AppRequest, res: Response) => {
+  secureRoute.auth('account', req, res, () => {
+    res.render('account/auth/service-login.ejs', { username: req.username, email: req.useremail });
   });
 });
 
