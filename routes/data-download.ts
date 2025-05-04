@@ -41,7 +41,7 @@ app.get('/secure/apps/data-download/download', async (req: AppRequest, res: Resp
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userID = decoded.userID;
-        const username = decoded.username; // Assuming username is needed, though not used in queries below
+        const username = decoded.username;
         const useremail = decoded.useremail;
 
         res.header('Content-Type', 'application/zip');
@@ -60,17 +60,13 @@ app.get('/secure/apps/data-download/download', async (req: AppRequest, res: Resp
 
         archive.pipe(res);
 
-        // Fetch Account Data (users table)
-        const [accountRows] = await db.query('SELECT * FROM users WHERE id = ?', [userID]);
-        // console.log(userID, accountRows); // Keep this log for verification - Removed in cleanup
+        const accountRows = await db.query('SELECT * FROM users WHERE id = ?', [userID]);
 
-        let accountDataToAppend = {}; // Default to empty object
+        let accountDataToAppend = {};
 
         if (accountRows && accountRows.length > 0) {
-            accountDataToAppend = accountRows[0]; // Use the first row
-            // console.log("Account data found:", accountDataToAppend); // Removed in cleanup
+            accountDataToAppend = accountRows[0];
 
-            // Parse sync column if it exists and is a string
             if (accountDataToAppend.sync && typeof accountDataToAppend.sync === 'string') {
                try {
                  accountDataToAppend.sync = JSON.parse(accountDataToAppend.sync);
@@ -84,8 +80,7 @@ app.get('/secure/apps/data-download/download', async (req: AppRequest, res: Resp
         archive.append(JSON.stringify(accountDataToAppend, null, 2), { name: 'account.json' });
 
 
-        // Fetch TK Log (codes table) - Using useremail
-        const [tkResult] = await db.query(
+        const tkResult = await db.query(
             `SELECT * FROM codes WHERE
              (username != 'anon@checkout.ac.uk' AND username != 'guest@checkout.ac.uk' AND username = ?)
              ORDER BY timestamp DESC`,
@@ -93,7 +88,6 @@ app.get('/secure/apps/data-download/download', async (req: AppRequest, res: Resp
           );
         archive.append(JSON.stringify(tkResult || [], null, 2), { name: 'tk_log.json' });
 
-        // Fetch Request Log (request_log table) - Using userID
         const [requestLogResult] = await db2.query(
             'SELECT * FROM request_log WHERE user_id = ? ORDER BY timestamp DESC',
             [userID]
@@ -101,8 +95,7 @@ app.get('/secure/apps/data-download/download', async (req: AppRequest, res: Resp
         archive.append(JSON.stringify(requestLogResult || [], null, 2), { name: 'request_log.json' });
 
 
-        // Fetch AutoCheckin Log (autoCheckinLog table) - Using useremail
-        const [autoCheckinResult] = await db.query(
+        const autoCheckinResult = await db.query(
             'SELECT * FROM autoCheckinLog WHERE email = ? ORDER BY timestamp DESC',
             [useremail]
         );
