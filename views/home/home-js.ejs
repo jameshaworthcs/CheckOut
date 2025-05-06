@@ -1079,7 +1079,7 @@
               }
 
               sessionBox.appendChild(codesSection);
-              if (!session.codes || session.codes.length === 0 && session.rejectID == 384) {
+              if (!session.codes || session.codes.length === 0 && session.rejectID == 387) {
                   const sessionDivWarning = document.createElement('div');
                   sessionDivWarning.className = 'sessionOption warning';
                   sessionDivWarning.style.display = 'flex';
@@ -1088,6 +1088,40 @@
                                                  </svg>
                                                  <div class="toprowdiv"><p class="toprowclass">This lecture is cancelled. <a href="#" onclick="event.preventDefault(); if (navigator.share) { navigator.share({ title: document.title, text: 'Check out this site!', url: window.location.href }).then(() => console.log('Successfully shared')).catch((error) => console.log('Error sharing:', error)); } else { alert('Share API not supported in your browser.'); }">Share this service with others</a>.</p></div>`;
                   sessionBox.appendChild(sessionDivWarning);
+
+                  // Disable input and button, and add overlay
+                  const formRow = codesSection.querySelector('.form-row');
+                  if (formRow) {
+                      const chcInput = formRow.querySelector(`#chc-${session.rejectID}`);
+                      const submitButton = formRow.querySelector(`#submit-button-${session.rejectID}`);
+
+                      if (chcInput) {
+                          chcInput.disabled = true;
+                          chcInput.style.backgroundColor = '#e0e0e0'; // Grey out
+                      }
+                      if (submitButton) {
+                          submitButton.disabled = true;
+                          submitButton.style.backgroundColor = '#e0e0e0'; // Grey out
+                          submitButton.style.cursor = 'not-allowed';
+                      }
+
+                      const overlay = document.createElement('div');
+                      overlay.textContent = 'Cancelled';
+                      overlay.style.position = 'absolute';
+                      overlay.style.top = '0';
+                      overlay.style.left = '0';
+                      overlay.style.width = '100%';
+                      overlay.style.height = '100%';
+                      overlay.style.backgroundColor = 'rgba(200, 200, 200, 0.7)';
+                      overlay.style.color = 'black';
+                      overlay.style.display = 'flex';
+                      overlay.style.alignItems = 'center';
+                      overlay.style.justifyContent = 'center';
+                      overlay.style.zIndex = '10';
+                      overlay.style.borderRadius = '5px'; // Optional: match input/button border radius
+                      formRow.style.position = 'relative'; // Needed for absolute positioning of overlay
+                      formRow.appendChild(overlay);
+                  }
               }
 
               const linksContainer = document.createElement('div');
