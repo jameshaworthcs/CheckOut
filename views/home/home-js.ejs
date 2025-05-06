@@ -1749,10 +1749,14 @@
           }
 
           const activityReferences = sessions.map((session, index) => {
-              if (index === sessions.length - 1 && sessions.length > 1) {
-                  return `and <i>${session.activityReference}</i>`;
+              let refText = `<i>${session.activityReference}</i>`;
+              if (containerType === 'classes' && session.activityID === 387) {
+                  refText += '<span style="color: red;"> (Cancelled)</span>';
               }
-              return `<i>${session.activityReference}</i>`;
+              if (index === sessions.length - 1 && sessions.length > 1) {
+                  return `and ${refText}`;
+              }
+              return refText;
           }).join(', ').replace(/, ([^,]*)$/, ' $1');
 
           // Check for the span element and update if it exists
