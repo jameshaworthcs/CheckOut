@@ -195,8 +195,8 @@ app.use(compression({ level: 6 }));
 
 // Environment and feature flag type definitions
 const isProduction: boolean = process.env.NODE_ENV !== 'development';
-const useMinification: boolean = isProduction;
-const useMiniCache: boolean = isProduction;
+const useMinification: boolean = false; //isProduction;
+const useMiniCache: boolean = false; //isProduction;
 
 // Security configuration with helmet, environment aware
 // app.use(helmet({
