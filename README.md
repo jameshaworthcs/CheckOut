@@ -7,6 +7,9 @@
   </picture>
 </p>
 
+> [!IMPORTANT]  
+> CheckOut is no longer actively maintained. To contribute to this repository, please fork it. This project is licensed under the MIT License.
+
 Welcome to the **CheckOut** repository! Follow these instructions to get the application up and running smoothly.
 
 ---
@@ -192,8 +195,10 @@ Key development dependencies include:
 - ts-node
 - Various type definitions (@types/\*)
 
+**Note:** The project was halfway through being converted from JavaScript to TypeScript when it was discontinued, so be prepared to disable your type checker before diving in!
+
 ---
 
 ## **Need Help?**
 
-If you encounter any issues during setup, feel free to open an issue in the repository or use our [on-site support form](https://checkout.ac/support).
+This project is no longer maintained. For any other inquiries, please reach out to JEM MEDIA at legal@jemedia.xyz.
