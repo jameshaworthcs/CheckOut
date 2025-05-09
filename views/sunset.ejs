@@ -204,23 +204,12 @@
         <div class="content">
             <h1>An Important Update Regarding CheckOut</h1>
             <p>We're writing to inform you that CheckOut will be ceasing operations at the end of the current academic semester. This decision comes due to operational reasons.</p>
-            <p>Simultaneously, we are excited to announce that the CheckOut platform will be made <strong>open source</strong>. We believe this will allow the community to potentially build upon the work we've started, and a link to the repository will be posted here once it's live.</p>
+            <p>Simultaneously, we are excited to announce that the CheckOut platform is and available on <a href="https://github.com/jameshaworthcs/checkout" target="_blank" rel="noopener noreferrer">GitHub</a>. We believe this will allow the community to potentially build upon the work we've started.</p>
             <p>Additionally, the accompanying <strong>AutoCheckin</strong> service will also cease operations. However, AutoCheckin is already open source and available on <a href="https://github.com/jameshaworthcs/autocheckin" target="_blank" rel="noopener noreferrer">GitHub</a> for those who wish to continue using or developing it independently.</p>
             <p>The CheckOut team has truly enjoyed providing this service, and we appreciate your support throughout its operation.</p>
-            <p>Users with existing accounts can download their data using the link below. Please note that all user data will be <strong>permanently deleted on 1st July 2025</strong>, in accordance with our Terms of Use.</p>
+            <p>Users with existing accounts can download their data using the link below. Please note that all user data will be <strong>permanently deleted on 15th May 2025</strong>, in accordance with our Terms of Use.</p>
             <a href="/secure/apps/data-download" class="return-link" style="margin-top: 1rem; background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);">Download Your Data</a>
             <p>We thank you for being a part of the CheckOut journey.</p>
-
-             <!-- Countdown Timers -->
-            <div class="countdown-container">
-                <p class="countdown-title">Open Sourcing & End of Service Countdown:</p>
-                <div id="countdown-service" class="countdown">
-                    <div class="countdown-item"><span id="days-service" class="number">0</span><span class="label">Days</span></div>
-                    <div class="countdown-item"><span id="hours-service" class="number">0</span><span class="label">Hours</span></div>
-                    <div class="countdown-item"><span id="minutes-service" class="number">0</span><span class="label">Minutes</span></div>
-                    <div class="countdown-item"><span id="seconds-service" class="number">0</span><span class="label">Seconds</span></div>
-                 </div>
-            </div>
 
             <div class="countdown-container">
                  <p class="countdown-title">Data Deletion Countdown:</p>
@@ -231,10 +220,7 @@
                     <div class="countdown-item"><span id="seconds-deletion" class="number">0</span><span class="label">Seconds</span></div>
                  </div>
             </div>
-
-            <!-- Optional: Link to open source repo later -->
-            <!-- <p>The open source repository will be available at [Link Here] soon.</p> -->
-            <a href="/" class="return-link">Return to CheckOut</a>
+            <p>Contact support <a href="/support">here</a> for more information.</p>
         </div>
     </div>
 
@@ -275,12 +261,10 @@
 
         // Set the date we're counting down to
         // Note: Months are 0-indexed (0 = January, 1 = February, ...)
-        const serviceEndDate = new Date(2025, 4, 9, 16, 30, 0).getTime(); // May 9th, 2025, 4:30 PM
-        const deletionDate = new Date(2025, 6, 1, 12, 0, 0).getTime();   // July 1st, 2025, 12:00 PM (Midday)
+        const deletionDate = new Date(2025, 4, 15, 12, 0, 0).getTime();   // May 15th, 2025, 12:00 PM (Midday)
 
 
         // Start the countdowns
-        startCountdown(serviceEndDate, 'service');
         startCountdown(deletionDate, 'deletion');
 
         // --- Raining Icons ---
