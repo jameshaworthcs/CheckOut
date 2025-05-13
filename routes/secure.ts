@@ -354,9 +354,7 @@ const securityCheck = async (req, res, next) => {
       '/manage',
       '/robots.txt',
       '/applogin',
-      '/login',
-      '/sunset',
-      '/' // All pages for sunset
+      '/login'
     ];
     if (
       req.consented == false &&

@@ -573,23 +573,6 @@ app.get('/api/docs', (req: Request, res: Response) => {
   res.render('api.ejs');
 });
 
-// Sunset redirects
-
-// /auto -> /sunset
-app.get('/auto', (req: AppRequest, res: Response) => {
-  res.redirect('/sunset');
-});
-
-// /history -> /sunset
-app.get('/history', (req: AppRequest, res: Response) => {
-  res.redirect('/sunset');
-});
-
-// /api/docs -> /sunset
-app.get('/api/docs', (req: AppRequest, res: Response) => {
-  res.redirect('/sunset');
-});
-
 // Route handlers delegation based on URL
 app.use((req: AppRequest, res: Response, next: NextFunction): void => {
   if (req.url.startsWith('/api/app')) {
@@ -679,11 +662,7 @@ app.get('/sunset', (req: AppRequest, res: Response) => {
   res.render('sunset.ejs', { username: req.username });
 });
 
-app.get('/', (req: AppRequest, res: Response) => {
-  res.redirect('/sunset');
-});
-
-//app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
+app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
 
 // 404 handler
 app.get('*', (req: AppRequest, res: Response) => {
