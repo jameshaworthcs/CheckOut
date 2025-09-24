@@ -1,4 +1,11 @@
-#!/bin/bash
+﻿#!/usr/bin/env bash
+
+# Ensure script runs with bash (avoid being invoked with sh/dash)
+if [ -z "$BASH_VERSION" ]; then
+    exec bash "$0" "$@"
+fi
+
+set -euo pipefail
 
 # Variables
 DB_USER="checkout"
@@ -9,7 +16,7 @@ COMBINED_FILE="checkout_combined.sql"
 TEMP_USERS_FILE="temp_users.sql"
 
 # Tables to include data
-DATA_TABLES="Courses Institutions Modules Years globalapp perms tibl_test_test_course_0 users_dev"
+DATA_TABLES="Courses Institutions Modules Years globalapp perms users_dev"
 
 # Prompt for MySQL password
 read -sp "Enter MySQL password for user '$DB_USER': " DB_PASS
@@ -17,7 +24,7 @@ echo
 
 # Step 1: Export schema for all tables
 echo "Exporting schema for all tables..."
-mysqldump -u "$DB_USER" -p"$DB_PASS" --no-data "$DB_NAME" > "$SCHEMA_FILE"
+mysqldump -u "$DB_USER" -p"$DB_PASS" --no-data --no-tablespaces "$DB_NAME" > "$SCHEMA_FILE"
 if [ $? -ne 0 ]; then
     echo "Error exporting schema. Exiting."
     exit 1
@@ -25,7 +32,7 @@ fi
 
 # Step 2: Export data for specific tables
 echo "Exporting data for selected tables..."
-mysqldump -u "$DB_USER" -p"$DB_PASS" --no-create-info "$DB_NAME" $DATA_TABLES > "$DATA_FILE"
+mysqldump -u "$DB_USER" -p"$DB_PASS" --no-create-info --no-tablespaces "$DB_NAME" $DATA_TABLES > "$DATA_FILE"
 if [ $? -ne 0 ]; then
     echo "Error exporting data. Exiting."
     exit 1
@@ -58,7 +65,7 @@ skip && /^;$/ {skip=0; next}
 ' "$SCHEMA_FILE" > "$SCHEMA_FILE.tmp" && mv "$SCHEMA_FILE.tmp" "$SCHEMA_FILE"
 
 # Extract data for users_dev and rename it to users
-mysqldump -u "$DB_USER" -p"$DB_PASS" --no-create-info "$DB_NAME" users_dev | sed 's/`users_dev`/`users`/g' >> "$TEMP_USERS_FILE"
+mysqldump -u "$DB_USER" -p"$DB_PASS" --no-create-info --no-tablespaces "$DB_NAME" users_dev | sed 's/`users_dev`/`users`/g' >> "$TEMP_USERS_FILE"
 if [ $? -ne 0 ]; then
     echo "Error extracting data for users_dev. Exiting."
     exit 1

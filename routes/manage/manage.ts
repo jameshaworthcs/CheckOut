@@ -89,6 +89,22 @@ app.get('/manage/permissions', function (req, res) {
   });
 });
 
+// Manage courses/modules/years/institutions
+app.get('/manage/courses', function (req, res) {
+  res.render('manage/courses/courses.ejs', {
+    username: req.username,
+    email: req.useremail,
+  });
+});
+
+// Manage timetables
+app.get('/manage/timetables', function (req, res) {
+  res.render('manage/timetables/timetables.ejs', {
+    username: req.username,
+    email: req.useremail,
+  });
+});
+
 // Manage support requests
 app.get('/manage/support', function (req, res) {
   res.render('manage/support/support.ejs', { username: req.username, email: req.useremail });

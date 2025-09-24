@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../../global/head'); %>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Timetables - CheckOut</title>
+    <style>
+      .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+      h1 { margin-bottom: 12px; }
+      .filters { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 12px 0; }
+      .section { padding: 12px; border: 1px solid #eee; border-radius: 6px; background: #fff; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #eee; padding: 8px; vertical-align: top; }
+      th { background: #fafafa; text-align: left; }
+      .actions { display: flex; gap: 6px; }
+      .muted { color: #777; font-size: 12px; }
+      .row-inputs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+      .sticky { position: sticky; top: 0; background: #fff; z-index: 1; }
+    </style>
+  </head>
+  <body>
+    <%- include('../../global/navbar'); %>
+    <div class="container">
+      <h1>Timetable Sessions</h1>
+
+      <div class="section">
+        <div class="filters">
+          <input type="date" id="filter_start_date" placeholder="Start date" />
+          <input type="date" id="filter_end_date" placeholder="End date" />
+          <select id="filter_course"><option value="">All courses</option></select>
+          <select id="filter_module"><option value="">All modules</option></select>
+          <input id="filter_staff" placeholder="Staff" />
+          <input id="filter_location" placeholder="Location" />
+        </div>
+        <div class="actions">
+          <button onclick="loadSessions()">Search</button>
+          <button onclick="resetFilters()">Reset</button>
+          <button onclick="openCreateRow()">Add Session</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <table>
+          <thead class="sticky">
+            <tr>
+              <th style="width: 110px;">Date</th>
+              <th style="width: 90px;">Start</th>
+              <th style="width: 90px;">End</th>
+              <th>Module (tibl)</th>
+              <th>Description</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sessions"></tbody>
+        </table>
+        <p class="muted">Changes apply immediately. <b>Deletes are permanent</b>.</p>
+      </div>
+    </div>
+
+    <script>
+      function toParams(obj){ return Object.entries(obj).filter(([,v]) => v!==undefined && v!==null && v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&'); }
+      async function fetchJSON(url, opts) {
+        const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts || {}));
+        const j = await res.json();
+        if (!j || j.success === false) console.warn('API error for', url, j);
+        return j;
+      }
+
+      async function loadFilters() {
+        const [courses, modules] = await Promise.all([
+          fetchJSON('/manage/api/courses/courses'),
+          fetchJSON('/manage/api/courses/modules')
+        ]);
+        const courseSel = document.getElementById('filter_course');
+        const moduleSel = document.getElementById('filter_module');
+        courseSel.innerHTML = '<option value="">All courses</option>' + (courses.data||[]).map(c=>`<option value="${c.course_id}">${c.institution_id}/${c.course_code} - ${c.course_name}</option>`).join('');
+        moduleSel.innerHTML = '<option value="">All modules</option>' + (modules.data||[]).map(m=>`<option value="${m.module_id}" data-tibl="${m.module_tibl_code||''}">${m.institution_id}/${m.module_code} - ${m.module_name}${m.module_tibl_code?` (${m.module_tibl_code})`:''}</option>`).join('');
+      }
+
+      function collectFilters() {
+        return {
+          start_date: document.getElementById('filter_start_date').value,
+          end_date: document.getElementById('filter_end_date').value,
+          course_id: document.getElementById('filter_course').value,
+          module_id: document.getElementById('filter_module').value,
+          staff: document.getElementById('filter_staff').value,
+          location: document.getElementById('filter_location').value,
+        };
+      }
+
+      function resetFilters(){
+        ['filter_start_date','filter_end_date','filter_course','filter_module','filter_staff','filter_location'].forEach(id=>{ const el=document.getElementById(id); if(el.tagName==='SELECT'){ el.selectedIndex=0; } else { el.value=''; }});
+        loadSessions();
+      }
+
+      function renderRow(r){
+        const id = r.id;
+        return `
+          <tr>
+            <td><input type=\"date\" id=\"sd_${id}\" value=\"${r.start_date? r.start_date.substring(0,10):''}\" /></td>
+            <td><input type=\"time\" id=\"st_${id}\" value=\"${r.start_time||''}\" /></td>
+            <td><input type=\"time\" id=\"et_${id}\" value=\"${r.end_time||''}\" /></td>
+            <td><input id=\"mtc_${id}\" placeholder=\"module_tibl_code\" value=\"${r.module_tibl_code||''}\" /></td>
+            <td><input id=\"desc_${id}\" placeholder=\"description\" value=\"${r.activity_reference||''}\" /></td>
+            <td><input id=\"notes_${id}\" placeholder=\"notes\" value=\"${r.notes||''}\" /></td>
+            <td class=\"actions\">
+              <button onclick=\"saveRow(${id})\">Save</button>
+              <button onclick=\"duplicateRow(${id})\">Duplicate</button>
+              <button onclick=\"toggleMore(${id})\">More</button>
+              <button onclick=\"deleteRow(${id})\">Delete</button>
+            </td>
+          </tr>
+          <tr id=\"more_${id}\" style=\"display:none;\">
+            <td colspan=\"8\">
+              <div class=\"row-inputs\">
+                <input id=\"act_${id}\" placeholder=\"activityID\" value=\"${r.activityID||0}\" />
+                <input id=\"sday_${id}\" placeholder=\"start_day\" value=\"${r.start_day||''}\" />
+                <input id=\"ed_${id}\" type=\"date\" placeholder=\"end_date\" value=\"${r.end_date? r.end_date.substring(0,10):''}\" />
+                <input id=\"dur_${id}\" placeholder=\"duration\" value=\"${r.duration||''}\" />
+                <input id=\"dept_${id}\" placeholder=\"department\" value=\"${r.department||''}\" />
+                <input id=\"size_${id}\" placeholder=\"size\" value=\"${r.size||''}\" />
+                <input id=\"mdesc_${id}\" placeholder=\"module_description\" value=\"${r.module_description||''}\" />
+                <input id=\"wp_${id}\" placeholder=\"weekly_pattern\" value=\"${r.weekly_pattern||''}\" />
+                <input id=\"onl_${id}\" placeholder=\"online_location\" value=\"${r.online_location||''}\" />
+                <input id=\"onld_${id}\" placeholder=\"online_session_details\" value=\"${r.online_session_details||''}\" />
+                <input id=\"staff_${id}\" placeholder=\"staff\" value=\"${r.staff||''}\" />
+                <input id=\"loc_${id}\" placeholder=\"location\" value=\"${r.location||''}\" />
+              </div>
+            </td>
+          </tr>`;
+      }
+
+      function renderCreateRow(){
+        const id = 'new';
+        return `
+          <tr>
+            <td><input type=\"date\" id=\"sd_${id}\" /></td>
+            <td><input type=\"time\" id=\"st_${id}\" /></td>
+            <td><input type=\"time\" id=\"et_${id}\" /></td>
+            <td><input id=\"mtc_${id}\" placeholder=\"module_tibl_code\" /></td>
+            <td><input id=\"desc_${id}\" placeholder=\"description\" /></td>
+            <td><input id=\"notes_${id}\" placeholder=\"notes\" /></td>
+            <td class=\"actions\">
+              <button onclick=\"createRow()\">Create</button>
+              <button onclick=\"toggleMore('new')\">More</button>
+              <button onclick=\"cancelCreateRow()\">Cancel</button>
+            </td>
+          </tr>
+          <tr id=\"more_new\" style=\"display:none;\">
+            <td colspan=\"8\">
+              <div class=\"row-inputs\">
+                <input id=\"act_${id}\" placeholder=\"activityID\" />
+                
+                <input id=\"sday_${id}\" placeholder=\"start_day\" />
+                <input id=\"ed_${id}\" type=\"date\" placeholder=\"end_date\" />
+                <input id=\"dur_${id}\" placeholder=\"duration\" />
+                <input id=\"dept_${id}\" placeholder=\"department\" />
+                <input id=\"size_${id}\" placeholder=\"size\" />
+                <input id=\"mdesc_${id}\" placeholder=\"module_description\" />
+                <input id=\"wp_${id}\" placeholder=\"weekly_pattern\" />
+                <input id=\"onl_${id}\" placeholder=\"online_location\" />
+                <input id=\"onld_${id}\" placeholder=\"online_session_details\" />
+                <input id=\"staff_${id}\" placeholder=\"staff\" />
+                <input id=\"loc_${id}\" placeholder=\"location\" />
+              </div>
+            </td>
+          </tr>`;
+      }
+
+      function openCreateRow(){
+        const tbody = document.getElementById('sessions');
+        if(!document.getElementById('sd_new')){
+          tbody.insertAdjacentHTML('afterbegin', renderCreateRow());
+        }
+      }
+      function cancelCreateRow(){
+        const el = document.getElementById('sd_new');
+        if(el){ el.closest('tr').remove(); }
+      }
+
+      async function loadSessions(){
+        const q = toParams(collectFilters());
+        const resp = await fetchJSON('/manage/api/timetables/sessions' + (q? ('?'+q):''));
+        const rows = resp.data || [];
+        const tbody = document.getElementById('sessions');
+        tbody.innerHTML = rows.map(renderRow).join('');
+      }
+
+      async function createRow(){
+        const body = collectRowValues('new');
+        await fetchJSON('/manage/api/timetables/sessions', { method: 'POST', body: JSON.stringify(body) });
+        await loadSessions();
+      }
+      async function saveRow(id){
+        const body = collectRowValues(id);
+        await fetchJSON('/manage/api/timetables/sessions/' + id, { method: 'PUT', body: JSON.stringify(body) });
+        await loadSessions();
+      }
+      async function deleteRow(id){
+        if(!confirm('Delete session '+id+'?')) return;
+        await fetchJSON('/manage/api/timetables/sessions/' + id, { method: 'DELETE' });
+        await loadSessions();
+      }
+      async function duplicateRow(id){
+        await fetchJSON('/manage/api/timetables/sessions/' + id + '/duplicate', { method: 'POST' });
+        await loadSessions();
+      }
+
+      function collectRowValues(id){
+        return {
+          start_date: getVal('sd_'+id),
+          start_time: getVal('st_'+id),
+          end_time: getVal('et_'+id),
+          module_tibl_code: getVal('mtc_'+id),
+          activity_reference: getVal('desc_'+id),
+          notes: getVal('notes_'+id),
+          // more fields
+          activityID: toInt(getVal('act_'+id), 0),
+          start_day: getVal('sday_'+id),
+          end_date: getVal('ed_'+id) || getVal('sd_'+id),
+          duration: getVal('dur_'+id),
+          department: getVal('dept_'+id),
+          size: toInt(getVal('size_'+id), null),
+          module_description: getVal('mdesc_'+id),
+          weekly_pattern: getVal('wp_'+id),
+          online_location: getVal('onl_'+id),
+          online_session_details: getVal('onld_'+id),
+          staff: getVal('staff_'+id),
+          location: getVal('loc_'+id),
+        };
+      }
+      function getVal(id){ const el=document.getElementById(id); return el? el.value: ''; }
+      function toInt(v, d){ const n = parseInt(v,10); return Number.isFinite(n)? n : d; }
+
+      function toggleMore(id){
+        const tr = document.getElementById('more_' + id);
+        if (tr) tr.style.display = (tr.style.display==='none'||tr.style.display==='') ? 'table-row' : 'none';
+      }
+
+      (async function init(){
+        await loadFilters();
+        await loadSessions();
+      })();
+    </script>
+  </body>
+</html>
+
+

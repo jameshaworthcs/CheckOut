@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../../global/head'); %>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <title>Courses - CheckOut</title>
+    <style>
+      .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+      h1 { margin-bottom: 12px; }
+      h2 { margin: 0; font-size: 18px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #eee; padding: 8px; }
+      th { background: #fafafa; text-align: left; }
+      .form-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0; }
+      .form-row input, .form-row select { width: 100%; }
+      .actions { display: flex; gap: 6px; }
+      .section { margin-bottom: 16px; border: 1px solid #eee; border-radius: 6px; background: #fff; overflow: hidden; }
+      .section-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; cursor: pointer; background: #f8f8f8; border-bottom: 1px solid #eee; }
+      .section-body { padding: 12px; display: none; }
+      .section.open .section-body { display: block; }
+      .muted { color: #777; font-size: 12px; }
+      .danger { color: #b10000; }
+      .controls { margin: 8px 0; }
+      .pill { font-size: 12px; color: #555; }
+    </style>
+  </head>
+  <body>
+    <%- include('../../global/navbar'); %>
+    <div class="container">
+      <h1>Courses & Modules</h1>
+
+      <!-- Modules first -->
+      <div class="section open" id="sec-modules">
+        <div class="section-header" onclick="toggleSection('sec-modules')">
+          <h2>Modules</h2>
+          <span class="pill">click to collapse/expand</span>
+        </div>
+        <div class="section-body">
+          <div class="controls">
+            <div class="form-row">
+              <select id="module_inst"></select>
+              <select id="module_year_id"></select>
+              <select id="module_course_id"></select>
+              <input id="module_code" placeholder="module_code (internal)" />
+              <input id="module_name" placeholder="module_name" />
+              <input id="module_tibl_code" placeholder="module_tibl_code (tibl)" />
+              <button onclick="createModule()">Add</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>module_id</th><th>institution_id</th><th>year_id</th><th>course_id</th><th>module_code</th><th>module_name</th><th>module_tibl_code</th><th>Actions</th></tr></thead>
+            <tbody id="modules"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section open" id="sec-institutions">
+        <div class="section-header" onclick="toggleSection('sec-institutions')">
+          <h2>Institutions</h2>
+          <span class="pill">click to collapse/expand</span>
+        </div>
+        <div class="section-body">
+          <div class="controls">
+            <div class="form-row">
+              <input id="inst_id" placeholder="institution_id (e.g. yrk)" />
+              <input id="inst_name" placeholder="name" />
+              <button onclick="createInstitution()">Add</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>institution_id</th><th>name</th><th>Actions</th></tr></thead>
+            <tbody id="institutions"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section" id="sec-years">
+        <div class="section-header" onclick="toggleSection('sec-years')">
+          <h2>Years</h2>
+          <span class="pill">click to collapse/expand</span>
+        </div>
+        <div class="section-body">
+          <div class="controls">
+            <div class="form-row">
+              <select id="year_inst_sel"></select>
+              <input id="year_number" placeholder="year_number" />
+              <button onclick="createYear()">Add</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>year_id</th><th>institution_id</th><th>year_number</th><th>Actions</th></tr></thead>
+            <tbody id="years"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section" id="sec-courses">
+        <div class="section-header" onclick="toggleSection('sec-courses')">
+          <h2>Courses</h2>
+          <span class="pill">click to collapse/expand</span>
+        </div>
+        <div class="section-body">
+          <div class="controls">
+            <div class="form-row">
+              <select id="course_inst_sel"></select>
+              <select id="course_year_sel"></select>
+              <input id="course_code" placeholder="course_code (e.g. cs)" />
+              <input id="course_name" placeholder="course_name" />
+              <input id="course_tibl" placeholder="tibl (0/1)" />
+              <button onclick="createCourse()">Add</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>course_id</th><th>institution_id</th><th>year_id</th><th>course_code</th><th>course_name</th><th>tibl</th><th>Actions</th></tr></thead>
+            <tbody id="courses"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="muted">Changes apply immediately. Be careful. <span class="danger">Deletes are permanent.</span></p>
+    </div>
+
+    <script>
+      async function fetchJSON(url, opts) {
+        const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts || {}));
+        const j = await res.json();
+        if (!j || j.success === false) {
+          console.warn('API error for', url, j);
+        }
+        return j;
+      }
+
+      function rowButton(label, onclick) { return `<button onclick=\"${onclick}\">${label}</button>`; }
+
+      function toggleSection(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('open');
+      }
+
+      // datasets in memory for dropdowns
+      let DATA_INSTITUTIONS = [];
+      let DATA_YEARS = [];
+      let DATA_COURSES = [];
+
+      // remember last selections for module add form
+      function getLastSel(key, fallback) {
+        try { const v = localStorage.getItem(key); return v !== null ? v : fallback; } catch (e) { return fallback; }
+      }
+      function setLastSel(key, value) {
+        try { localStorage.setItem(key, String(value)); } catch (e) {}
+      }
+
+      function populateModuleAddDropdowns() {
+        const instSel = document.getElementById('module_inst');
+        const yearSel = document.getElementById('module_year_id');
+        const courseSel = document.getElementById('module_course_id');
+        const lastInst = getLastSel('mod_last_inst', DATA_INSTITUTIONS[0] ? DATA_INSTITUTIONS[0].institution_id : '');
+        const lastYear = getLastSel('mod_last_year', DATA_YEARS[0] ? DATA_YEARS[0].year_id : '');
+        const lastCourse = getLastSel('mod_last_course', DATA_COURSES[0] ? DATA_COURSES[0].course_id : '');
+        instSel.innerHTML = DATA_INSTITUTIONS.map(i => `<option value="${i.institution_id}" ${i.institution_id==lastInst?'selected':''}>${i.institution_id} - ${i.name}</option>`).join('');
+        yearSel.innerHTML = DATA_YEARS.map(y => `<option value="${y.year_id}" ${String(y.year_id)==String(lastYear)?'selected':''}>${y.year_id} (inst: ${y.institution_id}, y${y.year_number})</option>`).join('');
+        courseSel.innerHTML = DATA_COURSES.map(c => `<option value="${c.course_id}" ${String(c.course_id)==String(lastCourse)?'selected':''}>${c.course_id} (${c.institution_id}/${c.course_code})</option>`).join('');
+        instSel.onchange = function() { setLastSel('mod_last_inst', instSel.value); };
+        yearSel.onchange = function() { setLastSel('mod_last_year', yearSel.value); };
+        courseSel.onchange = function() { setLastSel('mod_last_course', courseSel.value); };
+      }
+
+      function populateYearAddDropdown() {
+        const yearInst = document.getElementById('year_inst_sel');
+        yearInst.innerHTML = DATA_INSTITUTIONS.map(i => `<option value="${i.institution_id}">${i.institution_id} - ${i.name}</option>`).join('');
+      }
+
+      function populateCourseAddDropdowns() {
+        const instSel = document.getElementById('course_inst_sel');
+        const yearSel = document.getElementById('course_year_sel');
+        instSel.innerHTML = DATA_INSTITUTIONS.map(i => `<option value="${i.institution_id}">${i.institution_id} - ${i.name}</option>`).join('');
+        function regenYears() {
+          const inst = instSel.value;
+          const years = DATA_YEARS.filter(y => y.institution_id === inst);
+          yearSel.innerHTML = years.map(y => `<option value="${y.year_id}">${y.year_id} (y${y.year_number})</option>`).join('');
+        }
+        instSel.onchange = regenYears;
+        regenYears();
+      }
+
+      function moduleRowSelects(r) {
+        const instOpts = DATA_INSTITUTIONS.map(i => `<option value="${i.institution_id}" ${i.institution_id===r.institution_id?'selected':''}>${i.institution_id}</option>`).join('');
+        const yearOpts = DATA_YEARS.map(y => `<option value="${y.year_id}" ${y.year_id===r.year_id?'selected':''}>${y.year_id}</option>`).join('');
+        const courseOpts = DATA_COURSES.map(c => `<option value="${c.course_id}" ${c.course_id===r.course_id?'selected':''}>${c.course_id}</option>`).join('');
+        return {
+          inst: `<select id="module_inst_${r.module_id}">${instOpts}</select>`,
+          year: `<select id="module_year_${r.module_id}">${yearOpts}</select>`,
+          course: `<select id="module_course_${r.module_id}">${courseOpts}</select>`
+        };
+      }
+
+      async function loadAll() {
+        const [inst, yrs, crs, mods] = await Promise.all([
+          fetchJSON('/manage/api/courses/institutions'),
+          fetchJSON('/manage/api/courses/years'),
+          fetchJSON('/manage/api/courses/courses'),
+          fetchJSON('/manage/api/courses/modules')
+        ]);
+
+        DATA_INSTITUTIONS = inst.data || [];
+        DATA_YEARS = yrs.data || [];
+        DATA_COURSES = crs.data || [];
+        populateModuleAddDropdowns();
+        populateYearAddDropdown();
+        populateCourseAddDropdowns();
+
+        const institutions = document.getElementById('institutions');
+        institutions.innerHTML = (inst.data||[]).map(r => `
+          <tr>
+            <td><input value="${r.institution_id}" disabled /></td>
+            <td><input id="inst_name_${r.institution_id}" value="${r.name||''}" /></td>
+            <td class="actions">
+              ${rowButton('Save', `updateInstitution('${r.institution_id}')`)}
+              ${rowButton('Delete', `deleteInstitution('${r.institution_id}')`)}
+            </td>
+          </tr>`).join('');
+
+        const years = document.getElementById('years');
+        years.innerHTML = (yrs.data||[]).map(r => `
+          <tr>
+            <td>${r.year_id}</td>
+            <td><input id="year_inst_${r.year_id}" value="${r.institution_id||''}" /></td>
+            <td><input id="year_num_${r.year_id}" value="${r.year_number||''}" /></td>
+            <td class="actions">
+              ${rowButton('Save', `updateYear(${r.year_id})`)}
+              ${rowButton('Delete', `deleteYear(${r.year_id})`)}
+            </td>
+          </tr>`).join('');
+
+        const courses = document.getElementById('courses');
+        courses.innerHTML = (crs.data||[]).map(r => `
+          <tr>
+            <td>${r.course_id}</td>
+            <td><input id="course_inst_${r.course_id}" value="${r.institution_id||''}" /></td>
+            <td><input id="course_year_${r.course_id}" value="${r.year_id||''}" /></td>
+            <td><input id="course_code_${r.course_id}" value="${r.course_code||''}" /></td>
+            <td><input id="course_name_${r.course_id}" value="${r.course_name||''}" /></td>
+            <td><input id="course_tibl_${r.course_id}" value="${r.tibl||0}" /></td>
+            <td class="actions">
+              ${rowButton('Save', `updateCourse(${r.course_id})`)}
+              ${rowButton('Delete', `deleteCourse(${r.course_id})`)}
+            </td>
+          </tr>`).join('');
+
+        const modules = document.getElementById('modules');
+        modules.innerHTML = (mods.data||[]).map(r => {
+          const sels = moduleRowSelects(r);
+          return `
+          <tr>
+            <td>${r.module_id}</td>
+            <td>${sels.inst}</td>
+            <td>${sels.year}</td>
+            <td>${sels.course}</td>
+            <td><input id="module_code_${r.module_id}" value="${r.module_code||''}" /></td>
+            <td><input id="module_name_${r.module_id}" value="${r.module_name||''}" /></td>
+            <td><input id="module_tibl_code_${r.module_id}" value="${r.module_tibl_code||''}" /></td>
+            <td class="actions">
+              ${rowButton('Save', `updateModule(${r.module_id})`)}
+              ${rowButton('Delete', `deleteModule(${r.module_id})`)}
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      // Create
+      async function createInstitution() {
+        const id = document.getElementById('inst_id').value;
+        const name = document.getElementById('inst_name').value;
+        await fetchJSON('/manage/api/courses/institutions', { method: 'POST', body: JSON.stringify({ institution_id: id, name }) });
+        loadAll();
+      }
+      async function createYear() {
+        const institution_id = document.getElementById('year_inst_sel').value;
+        const year_number = parseInt(document.getElementById('year_number').value, 10) || 0;
+        await fetchJSON('/manage/api/courses/years', { method: 'POST', body: JSON.stringify({ institution_id, year_number }) });
+        loadAll();
+      }
+      async function createCourse() {
+        const institution_id = document.getElementById('course_inst_sel').value;
+        const year_id = parseInt(document.getElementById('course_year_sel').value, 10) || null;
+        const course_code = document.getElementById('course_code').value;
+        const course_name = document.getElementById('course_name').value;
+        const tibl = parseInt(document.getElementById('course_tibl').value, 10) ? 1 : 0;
+        await fetchJSON('/manage/api/courses/courses', { method: 'POST', body: JSON.stringify({ institution_id, year_id, course_code, course_name, tibl }) });
+        loadAll();
+      }
+      async function createModule() {
+        const institution_id = document.getElementById('module_inst').value;
+        const year_id = parseInt(document.getElementById('module_year_id').value, 10) || null;
+        const course_id = parseInt(document.getElementById('module_course_id').value, 10) || null;
+        const module_code = document.getElementById('module_code').value;
+        const module_name = document.getElementById('module_name').value;
+        const module_tibl_code = document.getElementById('module_tibl_code').value || null;
+        await fetchJSON('/manage/api/courses/modules', { method: 'POST', body: JSON.stringify({ institution_id, year_id, course_id, module_code, module_name, module_tibl_code }) });
+        loadAll();
+      }
+
+      // Update
+      async function updateInstitution(id) {
+        const name = document.getElementById('inst_name_' + id).value;
+        await fetchJSON('/manage/api/courses/institutions/' + id, { method: 'PUT', body: JSON.stringify({ name }) });
+        loadAll();
+      }
+      async function updateYear(id) {
+        const institution_id = document.getElementById('year_inst_' + id).value;
+        const year_number = parseInt(document.getElementById('year_num_' + id).value, 10) || 0;
+        await fetchJSON('/manage/api/courses/years/' + id, { method: 'PUT', body: JSON.stringify({ institution_id, year_number }) });
+        loadAll();
+      }
+      async function updateCourse(id) {
+        const institution_id = document.getElementById('course_inst_' + id).value;
+        const year_id = parseInt(document.getElementById('course_year_' + id).value, 10) || null;
+        const course_code = document.getElementById('course_code_' + id).value;
+        const course_name = document.getElementById('course_name_' + id).value;
+        const tibl = parseInt(document.getElementById('course_tibl_' + id).value, 10) ? 1 : 0;
+        await fetchJSON('/manage/api/courses/courses/' + id, { method: 'PUT', body: JSON.stringify({ institution_id, year_id, course_code, course_name, tibl }) });
+        loadAll();
+      }
+      async function updateModule(id) {
+        const institution_id = document.getElementById('module_inst_' + id).value;
+        const year_id = parseInt(document.getElementById('module_year_' + id).value, 10) || null;
+        const course_id = parseInt(document.getElementById('module_course_' + id).value, 10) || null;
+        const module_code = document.getElementById('module_code_' + id).value;
+        const module_name = document.getElementById('module_name_' + id).value;
+        const module_tibl_code = document.getElementById('module_tibl_code_' + id).value || null;
+        await fetchJSON('/manage/api/courses/modules/' + id, { method: 'PUT', body: JSON.stringify({ institution_id, year_id, course_id, module_code, module_name, module_tibl_code }) });
+        loadAll();
+      }
+
+      // Delete
+      async function deleteInstitution(id) {
+        if (!confirm('Delete institution ' + id + '?')) return;
+        await fetchJSON('/manage/api/courses/institutions/' + id, { method: 'DELETE' });
+        loadAll();
+      }
+      async function deleteYear(id) {
+        if (!confirm('Delete year ' + id + '?')) return;
+        await fetchJSON('/manage/api/courses/years/' + id, { method: 'DELETE' });
+        loadAll();
+      }
+      async function deleteCourse(id) {
+        if (!confirm('Delete course ' + id + '?')) return;
+        await fetchJSON('/manage/api/courses/courses/' + id, { method: 'DELETE' });
+        loadAll();
+      }
+      async function deleteModule(id) {
+        if (!confirm('Delete module ' + id + '?')) return;
+        await fetchJSON('/manage/api/courses/modules/' + id, { method: 'DELETE' });
+        loadAll();
+      }
+
+      loadAll();
+    </script>
+  </body>
+</html>

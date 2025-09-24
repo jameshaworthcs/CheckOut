@@ -22,6 +22,8 @@ var permissionsAPIRouter = require('./permissions-api.ts');
 
 // Support API router
 var supportAPIRouter = require('./support-api.ts');
+var coursesAPIRouter = require('./courses-api.ts');
+var timetablesAPIRouter = require('./timetables-api.ts');
 
 // Handle code log API
 app.use((req, res, next) => {
@@ -89,6 +91,24 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   if (req.url.startsWith('/manage/api/support/')) {
     return supportAPIRouter(req, res, next);
+  } else {
+    next();
+  }
+});
+
+// Handle courses API
+app.use((req, res, next) => {
+  if (req.url.startsWith('/manage/api/courses/')) {
+    return coursesAPIRouter(req, res, next);
+  } else {
+    next();
+  }
+});
+
+// Handle timetables API
+app.use((req, res, next) => {
+  if (req.url.startsWith('/manage/api/timetables/')) {
+    return timetablesAPIRouter(req, res, next);
   } else {
     next();
   }

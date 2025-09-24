@@ -52,91 +52,36 @@
    * 
    * @param {boolean} [refreshSubmit=true] - If true, refreshes the submit form as well.
    */
-  function setup(refreshSubmit = true) {
-      lastSetupCall = Date.now();
-      
+  function setup() {
       getV2().then(data => {
-          // Check if we have a previous response and if this is not a full refresh
-          if (previousApiResponse && !refreshSubmit) {
-              // Check if a new code is available by comparing the current and previous responses
-              const hasNewCode = checkForNewCodes(previousApiResponse, data);
-              
-              // If a new code is available and user hasn't recently submitted a code, display a message
-              if (hasNewCode && !userSubmittedCode) {
-                  // Check if the message box already exists
-                  const existingMessageBox = document.querySelector('.classes-message-box');
-                  if (!existingMessageBox) {
-                      displayInBoxMessage(
-                          'classes-box', 
-                          'Normal', 
-                          'A new code is available!', 
-                          'Show', 
-                          'javascript:void(0);'
-                      );
-                      
-                      // Add click event to the message link to call setup with refreshSubmit=true
-                      const messageLink = document.getElementById('classes-box-message-link-href');
-                      if (messageLink) {
-                          messageLink.addEventListener('click', function(e) {
-                              e.preventDefault();
-                              setup(true);
-                          });
-                      }
-                  }
-              }
-          }
-          
-          // Store the current response for future comparison
           previousApiResponse = data;
-          
           const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
           const username = userInfo.username;
           const autoInfo = userInfo.autoInfo || 'skip';
-          if (autoInfo !== 'skip') {
-              fillAutoLink(autoInfo);
-          }
+          if (autoInfo !== 'skip') fillAutoLink(autoInfo);
           fillUsername(username);
-          if (refreshSubmit) {
-              if (tibl) {
-                  fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
-                  fillSubmitForm(sessionCount, msg, sessions);
-              } else {
-                  fillSubmitFormNonTibl(legacy_modules);
-                  // Show error for non-timetabled courses
-                  const classesBoxElement = document.getElementById('classes-box');
-                  classesBoxElement.innerHTML = `<div class="error-box">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
-                          <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
-                      </svg>
-                      <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>
-                  </div>`;
-                  document.querySelector('.classes-box-skeleton').classList.add('hidden');
-                  document.querySelector('.classes-box').classList.remove('hidden');
-              }
-          }
-          // Only fill codes display and fetch upcoming sessions for timetabled courses
           if (tibl) {
+              fillSubmitForm(sessionCount, msg, sessions);
               fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+              fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
+          } else {
+              fillSubmitFormNonTibl(legacy_modules);
+              const classesBoxElement = document.getElementById('classes-box');
+              classesBoxElement.innerHTML = `<div class="error-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
+                      <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
+                  </svg>
+                  <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>
+              </div>`;
+              document.querySelector('.classes-box-skeleton').classList.add('hidden');
+              document.querySelector('.classes-box').classList.remove('hidden');
           }
-          
-          resetRefreshTimer();
       }).catch(error => {
           console.error(error);
-          if (error.response && error.response.msg) {
-              displayNotice(error.response.msg, 'error', 'Network error', 0);
-              if (refreshSubmit) {
-                  showErrorBox(error.response.msg, 'submit-form');
-                  showErrorBox(error.response.msg, 'classes-box');
-              }
-              showErrorBox(error.response.msg, 'classes-content');
-          } else {
-              if (refreshSubmit) {
-                  showErrorBox("Something went wrong. Unable to connect to authoritative servers.", 'submit-form');
-              }
-              showErrorBox("Something went wrong. Retrying...", 'classes-content');
-          }
-          
-          resetRefreshTimer();
+          const msg = (error && error.response && error.response.msg) ? error.response.msg : 'Something went wrong. Unable to connect to API.';
+          displayNotice(msg, 'error', 'Network error', 0);
+          showErrorBox(msg, 'submit-form');
+          showErrorBox(msg, 'classes-content');
       });
   }
 
@@ -178,140 +123,285 @@
   }
 
   /**
+   * Detects if non-code data has changed between responses (e.g., sessions list or timings).
+   * @param {Object} prevResponse
+   * @param {Object} currResponse
+   * @returns {boolean}
+   */
+  function checkForNewData(prevResponse, currResponse) {
+      try {
+          if (!prevResponse || !currResponse) return false;
+          // Compare high-level counts
+          if (prevResponse.sessionCount !== currResponse.sessionCount) return true;
+          // Compare sessions by ID rather than index (order may change)
+          const normalizeSession = (s) => ({
+              rejectID: String(s.rejectID),
+              moduleCode: String(s.moduleCode),
+              description: String(s.description || ''),
+              startDate: String(s.startDate || ''),
+              startTime: String(s.startTime || ''),
+              endDate: String(s.endDate || ''),
+              endTime: String(s.endTime || ''),
+              location: String(s.location || ''),
+              codesCount: Number(s.codesCount != null ? s.codesCount : (s.codes ? s.codes.length : 0))
+          });
+
+          const toMapById = (sessions) => {
+              const map = new Map();
+              (sessions || []).forEach(s => {
+                  const n = normalizeSession(s);
+                  map.set(n.rejectID, n);
+              });
+              return map;
+          };
+
+          const prevMap = toMapById(prevResponse.sessions);
+          const currMap = toMapById(currResponse.sessions);
+
+          if (prevMap.size !== currMap.size) return true;
+
+          for (const [id, prev] of prevMap.entries()) {
+              const curr = currMap.get(id);
+              if (!curr) return true; // removed or ID changed
+              if (
+                  prev.moduleCode !== curr.moduleCode ||
+                  prev.description !== curr.description ||
+                  prev.startDate !== curr.startDate ||
+                  prev.startTime !== curr.startTime ||
+                  prev.endDate !== curr.endDate ||
+                  prev.endTime !== curr.endTime ||
+                  prev.location !== curr.location ||
+                  prev.codesCount !== curr.codesCount
+              ) {
+                  return true;
+              }
+          }
+
+          // Compare nextSessions by start time and references where present
+          const normalizeNext = (s) => ({
+              activityID: String(s.activityID || s.rejectID || ''),
+              activityReference: String(s.activityReference || ''),
+              startDate: String(s.startDate || ''),
+              startTime: String(s.startTime || '')
+          });
+          const toMapNext = (sessions) => {
+              const map = new Map();
+              (sessions || []).forEach(s => {
+                  const n = normalizeNext(s);
+                  map.set(n.activityID, n);
+              });
+              return map;
+          };
+          const prevNextMap = toMapNext(prevResponse.nextSessions);
+          const currNextMap = toMapNext(currResponse.nextSessions);
+          if (prevNextMap.size !== currNextMap.size) return true;
+          for (const [id, p] of prevNextMap.entries()) {
+              const c = currNextMap.get(id);
+              if (!c) return true;
+              if (p.activityReference !== c.activityReference || p.startDate !== c.startDate || p.startTime !== c.startTime) return true;
+          }
+
+          return false;
+      } catch (e) {
+          console.warn('checkForNewData failed, assuming changes:', e);
+          return true;
+      }
+  }
+
+  /**
    * Sets up the page using cached data provided by the server.
    * Utilizes server-rendered data to simulate an API response.
    */
   function setupCached() {
-      const data = <% if (typeof v2Data !== 'undefined') { %><%- v2Data %><% } else { %>{}<% } %>;
+      // v2Data may be an object already or a JSON string. Handle both safely with double-parse.
+      const __raw = '<%- (typeof v2Data !== "undefined" ? JSON.stringify(v2Data) : "") %>';
+      let data = {};
+      try {
+          const first = __raw ? JSON.parse(__raw) : null; // either object or string
+          data = (typeof first === 'string') ? JSON.parse(first) : (first || {});
+      } catch (_) {
+          data = {};
+      }
 
-      Promise.resolve(data).then(data => {
-          const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
-          if (tibl) {
-              fillSubmitForm(sessionCount, msg, sessions);
-              fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
-              fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
-          } else {
-              fillSubmitFormNonTibl(legacy_modules);
-              // Show error for non-timetabled courses
-              const classesBoxElement = document.getElementById('classes-box');
-              classesBoxElement.innerHTML = `<div class="error-box">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="icon-sm">
-                      <path fill="currentColor" d="M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0"></path>
-                  </svg>
-                  <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>
-              </div>`;
-              document.querySelector('.classes-box-skeleton').classList.add('hidden');
-              document.querySelector('.classes-box').classList.remove('hidden');
-          }
-      }).catch(error => {
-          console.error(error);
-          if (error.response && error.response.msg) {
-              displayNotice(error.response.msg, 'error', 'Network error', 0);
-              showErrorBox(error.response.msg, 'submit-form');
-              showErrorBox(error.response.msg, 'classes-content');
-          } else {
-              displayNotice(error.response.msg, 'error', 'Network error', 0);
-              showErrorBox(error.response.msg, 'classes-box');
-              showErrorBox("Something went wrong. Unable to connect to API.", 'submit-form');
-              showErrorBox("Something went wrong. Unable to connect to API.", 'classes-content');
-          }
-      });
-  }
+      // If no cached data, do nothing; live fetch will take over later
+      if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+          return;
+      }
 
-  // Initiate cached setup on page load
-  setupCached();
+      // Render synchronously from cached data when present (wait for containers if needed)
+      try {
+          const renderFromCache = () => {
+              if (window.__cachedRendered) return true;
+              const submitFormEl = document.getElementById('submit-form');
+              const classesBox = document.getElementById('classes-box');
+              const classesContent = document.getElementById('classes-content');
+              if (!submitFormEl || !classesBox || !classesContent) return false;
 
-  let lastSetupCall = Date.now();
-  let refreshInterval = 2500; // 2.5 seconds
-  let refreshTimer;
-  let refreshEnabled = true;
-  let blockAllRefresh = false;
-  let lastUserInteraction = 0;
-  let interactionDelay = 60000; // 60 seconds
-  let previousApiResponse = null; // Store the previous API response for comparison
-  let userSubmittedCode = false; // Track if user has submitted a code recently
-  let codeSubmissionTimeout = 60000; // 60 seconds timeout for code submission tracking
-  let codeSubmissionTimer = null; // Timer for resetting the userSubmittedCode flag
+              window.__hasCachedV2 = true;
+              previousApiResponse = data;
 
-  /**
-   * Resets the refresh timer to schedule the next refresh check.
-   */
-  function resetRefreshTimer() {
-      clearTimeout(refreshTimer);
-      refreshTimer = setTimeout(checkIfShouldRefresh, refreshInterval);
-  }
+              const { sessionCount, msg, userPerms, sessions, userInfo, tibl, legacy_modules, nextSessions, courseInfo } = data;
 
-  /**
-   * Checks if the page should refresh based on user interaction and refresh settings.
-   */
-  function checkIfShouldRefresh() {
-      const now = Date.now();
-      const dropdownMenu = document.getElementById('dropdown-menu');
-      
-      // Check if any modals are actually visible
-      let anyModalVisible = false;
-      if (typeof modalHelper !== 'undefined' && modalHelper.activeModals.size > 0) {
-          // Check each modal to see if it's actually visible
-          modalHelper.activeModals.forEach(modalId => {
-              const modal = document.getElementById(modalId);
-              if (modal && (modal.style.display === 'block' || getComputedStyle(modal).display === 'block')) {
-                  anyModalVisible = true;
+              // Hide skeletons immediately
+              const classesBoxSkel = document.querySelector('.classes-box-skeleton');
+              const classesBoxEl = document.querySelector('.classes-box');
+              const classesSkel = document.querySelector('.classes-skeleton');
+              const classesContentEl = document.querySelector('.classes-content');
+              if (classesBoxSkel) classesBoxSkel.classList.add('hidden');
+              if (classesBoxEl) classesBoxEl.classList.remove('hidden');
+              if (classesSkel) classesSkel.style.display = 'none';
+              if (classesContentEl) classesContentEl.style.display = 'block';
+
+              if (tibl) {
+                  fillSubmitForm(sessionCount, msg, sessions);
+                  fillCodesDisplay(sessionCount, msg, sessions, nextSessions);
+                  fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
+              } else {
+                  fillSubmitFormNonTibl(legacy_modules);
+                  const classesBoxElement = document.getElementById('classes-box');
+                  if (classesBoxElement && courseInfo) {
+                      classesBoxElement.innerHTML = `<div class=\"error-box\">\n                      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"none\" viewBox=\"0 0 24 24\" class=\"icon-sm\">\n                          <path fill=\"currentColor\" d=\"M12.853 5.314a1 1 0 0 0-1.706 0L3.713 17.479A1 1 0 0 0 4.566 19h14.868a1 1 0 0 0 .853-1.521zM9.44 4.271c1.17-1.914 3.95-1.914 5.12 0l7.434 12.165c1.221 1.999-.217 4.564-2.56 4.564H4.566c-2.343 0-3.781-2.565-2.56-4.564zM12 9a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1m-1.148 7.5a1.15 1.15 0 1 1 2.3 0 1.15 1.15 0 0 1-2.3 0\"></path>\n                      </svg>\n                      <p>This course is not currently supported.<br>Current course: ${courseInfo.course_name} in year ${courseInfo.year} at ${courseInfo.institution_name}</p>\n                  </div>`;
+                  }
               }
+
+              window.__cachedRendered = true;
+              return true;
+          };
+
+          // Try to render immediately. If elements aren't ready, use a MutationObserver
+          // to render as soon as they are added to the DOM. This is faster than rAF.
+          if (!renderFromCache()) {
+              const observer = new MutationObserver((mutations, obs) => {
+                  if (renderFromCache()) {
+                      obs.disconnect(); // We're done, so clean up the observer
+                  }
+              });
+              observer.observe(document.body, {
+                  childList: true,
+                  subtree: true
+              });
+          }
+      } catch (e) {
+          console.error('setupCached failed to render cached data:', e);
+      }
+
+      // If no cached data is available, leave skeletons to be filled later by live fetch
+  }
+
+  // Call setupCached immediately so nothing delays cached rendering
+  try { setupCached(); } catch (_) {}
+
+  // ---------------------------------------------------------------------------
+  // RefreshManager: concise, reliable refresh controller for classes box
+  // ---------------------------------------------------------------------------
+  let previousApiResponse = null;
+
+  const RefreshManager = (() => {
+      const POLL_MS = 2500;
+      const IDLE_MS = 30000; // 30 seconds
+
+      let timerId = null;
+      let lastClassesInteractionTs = 0; // interactions within classes UI only
+      let blockedReason = null; // 'modal' | 'submission' | 'typing' | null
+      let pendingChange = false; // change detected while blocked
+
+      function isModalOpen() {
+          if (typeof modalHelper === 'undefined' || !modalHelper.activeModals) return false;
+          for (const modalId of modalHelper.activeModals) {
+              const modal = document.getElementById(modalId);
+              if (modal && (modal.style.display === 'block' || getComputedStyle(modal).display === 'block')) return true;
+          }
+          return false;
+      }
+
+      function detectChange(prev, curr) {
+          if (!prev || !curr) return false;
+          if (checkForNewCodes(prev, curr)) return true;
+          return checkForNewData(prev, curr);
+      }
+
+      function informChangePrompt() {
+          const existing = document.querySelector('.classes-message-box');
+          if (existing) return;
+          displayInBoxMessage('classes-box', 'Normal', 'Information has changed', 'Refresh', 'javascript:void(0);');
+          const link = document.getElementById('classes-box-message-link-href');
+          if (link) link.addEventListener('click', (e) => {
+              e.preventDefault();
+              forceRefresh();
           });
       }
-      
-      // Don't refresh if dropdown menu is open, if any modals are visible, or if refresh is blocked
-      if (blockAllRefresh || 
-          (dropdownMenu && dropdownMenu.style.display === 'flex') ||
-          anyModalVisible) {
-          return;
-      } else if (!refreshEnabled) {
-          showRefreshLoader();
-          setup(false);
-      } else if ((now - lastSetupCall >= refreshInterval)) {
-          // Check if enough time has passed since the last setup call
-          // If user recently interacted, only refresh data that doesn't affect the form
-          const shouldRefreshForm = (now - lastUserInteraction > interactionDelay);
-          showRefreshLoader();
-          setup(shouldRefreshForm);
-      } else {
-          resetRefreshTimer();
-      }
-  }
 
-  /**
-   * Cancels the refresh timer.
-   *
-   * @param {boolean} [hardCancel=false] - If true, blocks all future refreshes.
-   */
-  function cancelRefresh(hardCancel = false) {
-      if (hardCancel) {
-          blockAllRefresh = true;
+      function autoRefreshClasses(curr) {
+          const { sessionCount, msg, sessions, nextSessions, tibl } = curr;
+          if (tibl) fillClasses(sessionCount, msg, sessions, false, null, nextSessions);
       }
-      refreshEnabled = false;
-      clearTimeout(refreshTimer);
-  }
 
-  /**
-   * Updates the timestamp of the last user interaction and resets the refresh timer.
-   */
-  function userInteraction() {
-      lastUserInteraction = Date.now();
-      resetRefreshTimer();
-  }
-
-  /**
-   * Displays the refresh loader briefly during page refresh.
-   */
-  function showRefreshLoader() {
-      const loader = document.getElementById('refresh-loader');
-      if (loader) {
-          loader.style.display = 'block';
-          setTimeout(() => {
-              loader.style.display = 'none';
-          }, 500);
+      function forceRefresh() {
+          if (!previousApiResponse) return;
+          autoRefreshClasses(previousApiResponse);
+          const box = document.querySelector('.classes-message-box');
+          if (box && box.parentElement) box.parentElement.removeChild(box);
+          pendingChange = false;
       }
-  }
+
+      async function tick() {
+          clearTimeout(timerId);
+          try {
+              const curr = await getV2();
+              const changed = detectChange(previousApiResponse, curr);
+              if (changed) {
+                  const now = Date.now();
+                  const neverInteracted = !lastClassesInteractionTs;
+                  const idleLongEnough = neverInteracted || (now - lastClassesInteractionTs) > IDLE_MS;
+                  const modalOpen = isModalOpen();
+                  const blocked = blockedReason !== null || modalOpen;
+                  const hasNewCode = previousApiResponse ? checkForNewCodes(previousApiResponse, curr) : false;
+
+                  // Always inform
+                  if (!blocked && (idleLongEnough || hasNewCode)) {
+                      previousApiResponse = curr;
+                      autoRefreshClasses(curr);
+                      const prompt = document.querySelector('.classes-message-box');
+                      if (prompt && prompt.parentElement) prompt.parentElement.removeChild(prompt);
+                  } else {
+                      pendingChange = true;
+                      informChangePrompt();
+                      // do not mutate classes while blocked or interacting
+                      previousApiResponse = curr; // still advance baseline so next diff is accurate
+                  }
+              } else if (pendingChange && !isModalOpen() && blockedReason === null) {
+                  // If a change is pending and we are now unblocked, keep the prompt visible
+                  informChangePrompt();
+              }
+          } catch (_) {
+              // Silent polling failure
+          } finally {
+              timerId = setTimeout(tick, POLL_MS);
+          }
+      }
+
+      return {
+          start() {
+              if (timerId) return;
+              lastClassesInteractionTs = 0;
+              timerId = setTimeout(tick, POLL_MS);
+          },
+          noteClassesInteraction() {
+              lastClassesInteractionTs = Date.now();
+          },
+          block(reason) {
+              blockedReason = reason;
+          },
+          unblock(reason) {
+              if (blockedReason === reason) blockedReason = null;
+          },
+          onModalStateChange() {
+              // when modal closes and a change is pending, surface prompt (auto refresh still requires idle)
+              if (!isModalOpen() && pendingChange) informChangePrompt();
+          },
+          forceRefresh
+      };
+  })();
 
   /**
    * Displays a message box inside a specified container element.
@@ -441,11 +531,23 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-      setup();
+      // First try to render from cached data synchronously
+      setupCached();
+      // If cached data did not render, fetch live data
+      if (!window.__hasCachedV2) {
+          setup();
+      }
+      RefreshManager.start();
 
       // Legacy UI toggle functionality
       const toggle = document.querySelector('.legacy-ui-toggle');
       const container = document.querySelector('.legacy-ui-container');
+
+      // Safeguard: if elements don't exist, skip attaching listeners
+      if (!toggle || !container) {
+          console.warn('Legacy UI toggle elements not found; skipping toggle setup');
+          return;
+      }
 
       // Load preference from cache
       if (cacheManager.get().showLegacyUI) {
@@ -486,21 +588,28 @@
               });
           }
       });
+
+      // Guard refresh while the user is entering a code
+      attachInputRefreshGuards();
   });
 
   document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible' && refreshEnabled) {
-          let now = Date.now();
-          if (now - lastSetupCall >= refreshInterval && now - lastUserInteraction > interactionDelay) {
-              setup();
-          } else {
-              resetRefreshTimer();
-          }
+      if (document.visibilityState === 'visible') {
+          // don't count as classes interaction; polling will pick up
       }
   });
 
-  document.addEventListener('click', userInteraction);
-  document.addEventListener('keydown', userInteraction);
+  // Only treat clicks/keys inside the classes UI as interaction that defers auto-refresh
+  const classesInteractionHandler = (e) => {
+      const target = e.target;
+      const classesBox = document.getElementById('classes-box');
+      const classesContent = document.getElementById('classes-content');
+      if ((classesBox && classesBox.contains(target)) || (classesContent && classesContent.contains(target))) {
+          RefreshManager.noteClassesInteraction();
+      }
+  };
+  document.addEventListener('click', classesInteractionHandler, true);
+  document.addEventListener('keydown', classesInteractionHandler, true);
 
   /**
    * Fetches data from the v2 API endpoint.
@@ -789,6 +898,9 @@
 
       document.querySelector('.submit-skeleton').classList.add('hidden');
       document.querySelector('.submit-form').classList.remove('hidden');
+
+      // Ensure refresh guards are attached to newly created inputs
+      attachInputRefreshGuards();
 
       if (sessionCount !== 0) {
           setupSelectableOptions('sessionOptionForm', 'md');
@@ -1173,7 +1285,7 @@
               helpText.className = 'modal-help-text';
               helpText.innerHTML = `<hr>
                                       <p>Click on the verified/unverified status to learn more about a code.</p>
-                                      <p>Please give feedback on this new interface on the <a href="/support">support page</a>.</p>
+                                      <p><span style="color: grey;">Report a problem</span> with this new interface on the <a href="/support">support page</a>.</p>
                                     `;
 
               optionsModalContent.appendChild(linksList);
@@ -1310,6 +1422,9 @@
 
       document.querySelector('.classes-box-skeleton').classList.add('hidden');
       document.querySelector('.classes-box').classList.remove('hidden');
+
+      // Ensure refresh guards are attached to any inline submission inputs
+      attachInputRefreshGuards();
 
       if (nextSessions && nextSessions.length > 0) {
           fetchUpNext(nextSessions, 'classes');
@@ -1965,7 +2080,7 @@
    * @param {string} activityID - The ID of the activity to display.
    */
   function openActivityModal(activityID) {
-      //cancelRefresh(true); (Now outdated because of modalHelper)
+  // cancel refresh handled by RefreshManager & modalHelper
 
       // Ensure overlay exists
       let modalOverlay = document.getElementById('activityModalOverlay');
@@ -1987,6 +2102,7 @@
       modal.style.display = 'block';
       document.addEventListener('keydown', escKeyListener);
       modalOverlay.addEventListener('click', overlayClickListener);
+      RefreshManager.onModalStateChange();
   }
 
   /**
@@ -2007,6 +2123,7 @@
       modal.style.display = 'none';
       document.removeEventListener('keydown', escKeyListener);
       modalOverlay.removeEventListener('click', overlayClickListener);
+      RefreshManager.onModalStateChange();
   }
 
   /**
@@ -2047,6 +2164,7 @@
       modalOverlay.style.display = 'none';
       document.removeEventListener('keydown', escKeyListener);
       modalOverlay.removeEventListener('click', overlayClickListener);
+      RefreshManager.onModalStateChange();
   }
 
   /**
@@ -2224,7 +2342,7 @@
       }
 
       startSpinner(submitButton.id);
-      cancelRefresh(false);
+      RefreshManager.block('submission');
 
       if (!validateGrpField(formIdentifier)) {
           return;
@@ -2247,11 +2365,13 @@
                   }
                   // Mark that a code has been submitted to prevent showing new code message
                   markCodeSubmitted();
-                  setup(false);
+                  // Keep refresh blocked during success UI; unblock after
+                  setTimeout(() => RefreshManager.unblock('submission'), 1500);
               } else {
                   endSpinner(submitButton.id);
                   displayNotice(wpfs.msg, 'error', 'Submission error', 0);
                   tryAgainButton(submitButton.id);
+                  RefreshManager.unblock('submission');
               }
           })
           .catch(error => {
@@ -2259,7 +2379,34 @@
               displayNotice(error, 'error', 'Submission error', 0);
               endSpinner(submitButton.id);
               tryAgainButton(submitButton.id);
+              RefreshManager.unblock('submission');
           });
+  }
+
+  // Attach guards to stop refresh once the user starts entering a code
+  function attachInputRefreshGuards() {
+      document.querySelectorAll('.chc-input').forEach(input => {
+          if (input.dataset.refreshGuardAttached === 'true') return;
+          input.dataset.refreshGuardAttached = 'true';
+
+          const disableRefresh = () => {
+              RefreshManager.block('typing');
+          };
+
+          input.addEventListener('focus', disableRefresh);
+          input.addEventListener('input', () => {
+              if (input.value && input.value.length > 0) {
+                  disableRefresh();
+              }
+          });
+
+          input.addEventListener('blur', () => {
+              // When input is cleared or blurred, allow refreshes again
+              if (!input.value || input.value.length === 0) {
+                  RefreshManager.unblock('typing');
+              }
+          });
+      });
   }
 
   /**
@@ -2391,6 +2538,7 @@
               modalHelper.enableClose('auto-splash-modal');
 
               ws.close();
+              RefreshManager.unblock('submission');
           };
 
           ws.onerror = function() {
@@ -2447,6 +2595,7 @@
               };
               submitInfoArea.appendChild(document.createElement('br'));
               submitInfoArea.appendChild(closeButton);
+              RefreshManager.unblock('submission');
           }, TIMEOUT_DURATION);
 
           // Ensure cleanup on component unmount
@@ -2489,6 +2638,7 @@
           button.innerHTML = '';
           button.appendChild(spinnerContainer);
           button.disabled = true;
+          RefreshManager.block('submission');
       }
   }
 
@@ -2505,6 +2655,7 @@
           button.style.height = '';
           delete buttonData[id];
           button.disabled = false;
+          RefreshManager.unblock('submission');
       }
   }
 
@@ -2706,13 +2857,38 @@
       userSubmittedCode = true;
       
       // Clear any existing timer
-      if (codeSubmissionTimer) {
-          clearTimeout(codeSubmissionTimer);
+      if (window.__codeSubmissionTimer) {
+          clearTimeout(window.__codeSubmissionTimer);
       }
       
       // Set a timer to reset the flag after the timeout period
-      codeSubmissionTimer = setTimeout(() => {
+      const timeoutMs = 60000; // 60s
+      window.__codeSubmissionTimer = setTimeout(() => {
           userSubmittedCode = false;
-      }, codeSubmissionTimeout);
+          window.__codeSubmissionTimer = null;
+      }, timeoutMs);
   }
+
+  // Suppress transient error notices while cached render is in progress
+  (function suppressNoticesDuringCachedRender() {
+      try {
+          window.__suppressNotices = true;
+          function wrap(name) {
+              const orig = window[name];
+              window['__orig_' + name] = orig;
+              window[name] = function() {
+                  if (window.__suppressNotices && window.__hasCachedV2) {
+                      return; // swallow during cached-first paint
+                  }
+                  if (typeof window['__orig_' + name] === 'function') {
+                      return window['__orig_' + name].apply(this, arguments);
+                  }
+              };
+          }
+          if (typeof window.displayNotice === 'function') wrap('displayNotice');
+          if (typeof window.showErrorBox === 'function') wrap('showErrorBox');
+      } catch (_) {
+          // ignore
+      }
+  })();
 </script>

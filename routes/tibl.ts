@@ -3,6 +3,21 @@ var db = require('../databases/database.ts');
 let moduleCache = null;
 let cacheTimeout = null;
 
+async function getModuleCodesForCourse(inst, crs, yr) {
+  const query = `
+    SELECT m.module_tibl_code
+    FROM Modules m
+    JOIN Courses c ON c.course_id = m.course_id
+    JOIN Years y ON y.year_id = m.year_id
+    WHERE c.institution_id = ?
+      AND c.course_code = ?
+      AND y.year_number = ?
+      AND m.module_tibl_code IS NOT NULL
+  `;
+  const rows = await db.query(query, [inst, crs, Number(yr)]);
+  return rows.map((r) => r.module_tibl_code);
+}
+
 async function getModuleInfo(tiblModuleCode) {
   // Initialize or refresh cache if needed
   if (!moduleCache) {
@@ -82,10 +97,8 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
     activeAPI.userInfo = { username: 'Cached', perms: 'cached' };
   }
 
-  const tibl_id = `tibl_${inst}_${crs}_${yr}`;
-
   try {
-    const extractedData = await fetchInProgressRowsPromise(tibl_id);
+    const extractedData = await fetchInProgressRowsPromise(inst, crs, yr);
     const nextSessions = await fetchFutureActivityPromise(inst, crs, yr);
     activeAPI.nextSessions = nextSessions;
 
@@ -129,9 +142,9 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
   }
 }
 
-function fetchInProgressRowsPromise(tibl_id) {
+function fetchInProgressRowsPromise(inst, crs, yr) {
   return new Promise((resolve, reject) => {
-    fetchInProgressRows(tibl_id, (err, inProgressRows, extractedData) => {
+    fetchInProgressRowsUnified(inst, crs, yr, (err, inProgressRows, extractedData) => {
       if (err) {
         reject(err);
       } else {
@@ -141,42 +154,46 @@ function fetchInProgressRowsPromise(tibl_id) {
   });
 }
 
-async function fetchInProgressRows(tibl_id, callback) {
-  const query = `
-    SELECT *
-    FROM ${tibl_id}  
-    WHERE DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Europe/London'), '%Y-%m-%d') BETWEEN DATE_FORMAT(STR_TO_DATE(\`Start date\`, '%Y-%m-%d'), '%Y-%m-%d')
-        AND DATE_FORMAT(STR_TO_DATE(\`End date\`, '%Y-%m-%d'), '%Y-%m-%d')
-        AND CONVERT_TZ(NOW(), 'UTC', 'Europe/London') BETWEEN 
-            STR_TO_DATE(CONCAT(\`Start date\`, ' ', \`Start time\`), '%Y-%m-%d %H:%i') AND
-            STR_TO_DATE(CONCAT(\`End date\`, ' ', \`End time\`), '%Y-%m-%d %H:%i');
-  `;
-
+async function fetchInProgressRowsUnified(inst, crs, yr, callback) {
   try {
-    const result = await db.query(query);
+    const moduleCodes = await getModuleCodesForCourse(inst, crs, yr);
+    if (!moduleCodes || moduleCodes.length === 0) {
+      return callback(null, [], []);
+    }
+    const placeholders = moduleCodes.map(() => '?').join(',');
+    const query = `
+      SELECT *
+      FROM TimetableSessions
+      WHERE module_tibl_code IN (${placeholders})
+        AND DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Europe/London'), '%Y-%m-%d') BETWEEN DATE_FORMAT(start_date, '%Y-%m-%d') AND DATE_FORMAT(end_date, '%Y-%m-%d')
+        AND CONVERT_TZ(NOW(), 'UTC', 'Europe/London') BETWEEN 
+            STR_TO_DATE(CONCAT(DATE_FORMAT(start_date, '%Y-%m-%d'), ' ', TIME_FORMAT(start_time, '%H:%i')), '%Y-%m-%d %H:%i') AND
+            STR_TO_DATE(CONCAT(DATE_FORMAT(end_date, '%Y-%m-%d'), ' ', TIME_FORMAT(end_time, '%H:%i')), '%Y-%m-%d %H:%i');
+    `;
+    const result = await db.query(query, moduleCodes);
     const inProgressRows = result.filter((row) => true);
     const extractedData = await Promise.all(
       inProgressRows.map(async (row) => {
-        const moduleInfo = await getModuleInfo(row['Module code']);
+        const moduleInfo = await getModuleInfo(row['module_tibl_code']);
         return {
-          activityReference: row['Activity reference'],
-          size: row['Size'],
-          startTime: row['Start time'],
-          endTime: row['End time'],
-          location: row['Location(s)'],
-          sysMd: row['Module code'],
+          activityReference: row['activity_reference'],
+          size: row['size'],
+          startTime: row['start_time'],
+          endTime: row['end_time'],
+          location: row['location'],
+          sysMd: row['module_tibl_code'],
           moduleCode: moduleInfo.moduleCode,
-          tiblModuleCode: row['Module code'],
+          tiblModuleCode: row['module_tibl_code'],
           activityID: row['activityID'],
-          day: row['Start day'],
-          date: row['Start date'],
-          endDate: row['End date'],
+          day: row['start_day'],
+          date: row['start_date'],
+          endDate: row['end_date'],
         };
       })
     );
     callback(null, inProgressRows, extractedData);
   } catch (err) {
-    console.error('Error fetching in-progress rows:', err);
+    console.error('Error fetching in-progress rows (unified):', err);
     callback(err);
   }
 }
@@ -194,52 +211,45 @@ function fetchFutureActivityPromise(inst, crs, yr) {
 }
 
 async function fetchFutureActivity(inst, crs, yr, callback) {
-  const tibl_id = db.escapeId(`tibl_${inst}_${crs}_${yr}`);
-  const query = `
-    SELECT *
-    FROM ${tibl_id}
-    WHERE DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Europe/London'), '%Y-%m-%d %H:%i') < STR_TO_DATE(CONCAT(\`Start date\`, ' ', \`Start time\`), '%Y-%m-%d %H:%i')
-    ORDER BY STR_TO_DATE(CONCAT(\`Start date\`, ' ', \`Start time\`), '%Y-%m-%d %H:%i')
-    LIMIT 1;
-  `;
-
   try {
-    const result = await db.query(query);
-    //console.log('result:', result);
-    if (result.length === 0) {
-      return callback(null, [], []);
+    const moduleCodes = await getModuleCodesForCourse(inst, crs, yr);
+    if (!moduleCodes || moduleCodes.length === 0) {
+      return callback(null, []);
     }
-
-    const nextStartTime = result[0]['Start time'];
-    const nextStartDate = result[0]['Start date'];
-    //console.log('nextStartTime:', nextStartTime);
-    //console.log('nextStartDate:', nextStartDate);
+    const placeholders = moduleCodes.map(() => '?').join(',');
+    const firstQuery = `
+      SELECT start_date, start_time
+      FROM TimetableSessions
+      WHERE module_tibl_code IN (${placeholders})
+        AND DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Europe/London'), '%Y-%m-%d %H:%i') < DATE_FORMAT(STR_TO_DATE(CONCAT(start_date, ' ', start_time), '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i')
+      ORDER BY start_date ASC, start_time ASC
+      LIMIT 1
+    `;
+    const result = await db.query(firstQuery, moduleCodes);
+    if (!result || result.length === 0) {
+      return callback(null, []);
+    }
+    const nextStartDate = result[0]['start_date'];
+    const nextStartTime = result[0]['start_time'];
+    const tsString = `${nextStartDate.toISOString().substring(0, 10)} ${nextStartTime}`;
 
     const nextSessionsQuery = `
       SELECT *
-      FROM ${tibl_id}
-      WHERE STR_TO_DATE(CONCAT(\`Start date\`, ' ', \`Start time\`), '%Y-%m-%d %H:%i:%s') = STR_TO_DATE('${nextStartDate.toISOString().substring(0, 10)} ${nextStartTime}', '%Y-%m-%d %H:%i:%s');
+      FROM TimetableSessions
+      WHERE module_tibl_code IN (${placeholders})
+        AND STR_TO_DATE(CONCAT(start_date, ' ', start_time), '%Y-%m-%d %H:%i:%s') = STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
     `;
-    //console.log('nextSessionsQuery:', nextSessionsQuery);
-
-    const nextSessionsResult = await db.query(nextSessionsQuery);
+    const nextSessionsResult = await db.query(nextSessionsQuery, [...moduleCodes, tsString]);
     const extractedData = nextSessionsResult.map((row) => ({
-      activityReference: row['Activity reference'],
-      //size: row['Size'],
-      startTime: row['Start time'],
-      //endTime: row['End time'],
-      location: row['Location(s)'],
-      //sysMd: row['Module code'],
-      //moduleCode: moduleCodeMapping[row['Module code']] || null,
+      activityReference: row['activity_reference'],
+      startTime: row['start_time'],
+      location: row['location'],
       activityID: row['activityID'],
-      //day: row['Start day'],
-      startDate: row['Start date'],
-      //endDate: row['End date'],
+      startDate: row['start_date'],
     }));
-
     callback(null, extractedData);
   } catch (err) {
-    console.error('Error fetching future activity:', err);
+    console.error('Error fetching future activity (unified):', err);
     callback(err);
   }
 }
@@ -247,8 +257,7 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
 // only for legacy site:
 
 function webGen(frame, ios, inst, crs, yr, req, res, next) {
-  const tibl_id = db.escapeId(`tibl_${inst}_${crs}_${yr}`);
-  fetchInProgressRows(tibl_id, (err, inProgressRows, extractedData) => {
+  fetchInProgressRowsUnified(inst, crs, yr, (err, inProgressRows, extractedData) => {
     if (err) {
       return next(err);
     }
@@ -347,7 +356,7 @@ function webGen(frame, ios, inst, crs, yr, req, res, next) {
 }
 
 function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
-  fetchInProgressRows('tibl_yrk_cs_1', (err, inProgressRows, extractedData) => {
+  fetchInProgressRowsUnified(inst, crs, yr, (err, inProgressRows, extractedData) => {
     if (err) {
       return next(err);
     }
@@ -440,7 +449,7 @@ function webGenCodes(frame, codesObject, inst, crs, yr, req, res, next) {
 }
 
 module.exports = {
-  fetchInProgressRows,
+  fetchInProgressRows: fetchInProgressRowsUnified,
   webGen,
   webGenCodes,
   apiGenCodes,

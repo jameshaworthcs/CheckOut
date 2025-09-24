@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (aarch64)
 --
 -- Host: localhost    Database: checkout_dev
 -- ------------------------------------------------------
--- Server version	8.0.41-0ubuntu0.24.04.1
+-- Server version	8.0.42-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,7 +34,7 @@ CREATE TABLE `Courses` (
   KEY `year_id` (`year_id`),
   CONSTRAINT `Courses_ibfk_1` FOREIGN KEY (`institution_id`) REFERENCES `Institutions` (`institution_id`),
   CONSTRAINT `Courses_ibfk_2` FOREIGN KEY (`year_id`) REFERENCES `Years` (`year_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,7 +73,44 @@ CREATE TABLE `Modules` (
   CONSTRAINT `Modules_ibfk_1` FOREIGN KEY (`institution_id`) REFERENCES `Institutions` (`institution_id`),
   CONSTRAINT `Modules_ibfk_2` FOREIGN KEY (`year_id`) REFERENCES `Years` (`year_id`),
   CONSTRAINT `Modules_ibfk_3` FOREIGN KEY (`course_id`) REFERENCES `Courses` (`course_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `TimetableSessions`
+--
+
+DROP TABLE IF EXISTS `TimetableSessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `TimetableSessions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `activityID` int NOT NULL,
+  `activity_reference` varchar(500) DEFAULT NULL,
+  `module_tibl_code` varchar(255) DEFAULT NULL,
+  `start_day` varchar(50) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `start_time` time DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
+  `duration` varchar(50) DEFAULT NULL,
+  `type` varchar(50) DEFAULT NULL,
+  `staff` varchar(255) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `department` varchar(255) DEFAULT NULL,
+  `size` int DEFAULT NULL,
+  `module_description` varchar(255) DEFAULT NULL,
+  `weekly_pattern` varchar(255) DEFAULT NULL,
+  `online_location` varchar(50) DEFAULT NULL,
+  `online_session_details` varchar(255) DEFAULT NULL,
+  `notes` varchar(1000) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_ts_time` (`start_date`,`start_time`),
+  KEY `idx_ts_module` (`module_tibl_code`),
+  KEY `idx_ts_time_module` (`start_date`,`start_time`,`module_tibl_code`),
+  KEY `idx_ts_activity` (`activityID`)
+) ENGINE=InnoDB AUTO_INCREMENT=805 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -172,7 +209,7 @@ CREATE TABLE `codes` (
   `source` varchar(255) DEFAULT NULL,
   `verifiedInfo` json DEFAULT NULL,
   PRIMARY KEY (`codeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8257 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8270 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -287,7 +324,7 @@ CREATE TABLE `request_log` (
   `post_data` text,
   `device_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=768156 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=778193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,161 +424,6 @@ CREATE TABLE `theory1` (
   `ip` varchar(50) NOT NULL,
   `useragent` varchar(1000) NOT NULL,
   `tk` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tibl_test_test_course_0`
---
-
-DROP TABLE IF EXISTS `tibl_test_test_course_0`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tibl_test_test_course_0` (
-  `Description` varchar(255) DEFAULT NULL,
-  `Module code` varchar(50) DEFAULT NULL,
-  `Start week` varchar(50) DEFAULT NULL,
-  `Start day` varchar(50) DEFAULT NULL,
-  `Start date` date DEFAULT NULL,
-  `Start time` time DEFAULT NULL,
-  `End day` varchar(50) DEFAULT NULL,
-  `End date` date DEFAULT NULL,
-  `End time` time DEFAULT NULL,
-  `Duration` varchar(50) DEFAULT NULL,
-  `Type` varchar(50) DEFAULT NULL,
-  `Staff member(s)` varchar(255) DEFAULT NULL,
-  `Location(s)` varchar(255) DEFAULT NULL,
-  `Student(s)` varchar(255) DEFAULT NULL,
-  `Department` varchar(255) DEFAULT NULL,
-  `Size` int DEFAULT NULL,
-  `Activity reference` varchar(500) DEFAULT NULL,
-  `Activity details` varchar(255) DEFAULT NULL,
-  `Draft` varchar(50) DEFAULT NULL,
-  `Module description` varchar(255) DEFAULT NULL,
-  `Number of students` varchar(50) DEFAULT NULL,
-  `Weekly pattern` varchar(255) DEFAULT NULL,
-  `This activity takes place on location` varchar(50) DEFAULT NULL,
-  `This activity takes place online` varchar(50) DEFAULT NULL,
-  `Online session details` varchar(255) DEFAULT NULL,
-  `Description2` varchar(255) DEFAULT NULL,
-  `activityID` int NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`activityID`)
-) ENGINE=InnoDB AUTO_INCREMENT=100313 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tibl_yrk_cs_1`
---
-
-DROP TABLE IF EXISTS `tibl_yrk_cs_1`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tibl_yrk_cs_1` (
-  `Description` varchar(255) DEFAULT NULL,
-  `Module code` varchar(50) DEFAULT NULL,
-  `Start week` varchar(50) DEFAULT NULL,
-  `Start day` varchar(50) DEFAULT NULL,
-  `Start date` date DEFAULT NULL,
-  `Start time` time DEFAULT NULL,
-  `End day` varchar(50) DEFAULT NULL,
-  `End date` date DEFAULT NULL,
-  `End time` time DEFAULT NULL,
-  `Duration` varchar(50) DEFAULT NULL,
-  `Type` varchar(50) DEFAULT NULL,
-  `Staff member(s)` varchar(255) DEFAULT NULL,
-  `Location(s)` varchar(255) DEFAULT NULL,
-  `Student(s)` varchar(255) DEFAULT NULL,
-  `Department` varchar(255) DEFAULT NULL,
-  `Size` int DEFAULT NULL,
-  `Activity reference` varchar(500) DEFAULT NULL,
-  `Activity details` varchar(255) DEFAULT NULL,
-  `Draft` varchar(50) DEFAULT NULL,
-  `Module description` varchar(255) DEFAULT NULL,
-  `Number of students` varchar(50) DEFAULT NULL,
-  `Weekly pattern` varchar(255) DEFAULT NULL,
-  `This activity takes place on location` varchar(50) DEFAULT NULL,
-  `This activity takes place online` varchar(50) DEFAULT NULL,
-  `Online session details` varchar(255) DEFAULT NULL,
-  `Description2` varchar(255) DEFAULT NULL,
-  `activityID` int NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`activityID`)
-) ENGINE=InnoDB AUTO_INCREMENT=42315 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tibl_yrk_cs_1_v2`
---
-
-DROP TABLE IF EXISTS `tibl_yrk_cs_1_v2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tibl_yrk_cs_1_v2` (
-  `Description` varchar(255) DEFAULT NULL,
-  `Module code` varchar(50) DEFAULT NULL,
-  `Start week` varchar(50) DEFAULT NULL,
-  `Start day` varchar(50) DEFAULT NULL,
-  `Start date` date DEFAULT NULL,
-  `Start time` time DEFAULT NULL,
-  `End day` varchar(50) DEFAULT NULL,
-  `End date` date DEFAULT NULL,
-  `End time` time DEFAULT NULL,
-  `Duration` varchar(50) DEFAULT NULL,
-  `Type` varchar(50) DEFAULT NULL,
-  `Staff member(s)` varchar(255) DEFAULT NULL,
-  `Location(s)` varchar(255) DEFAULT NULL,
-  `Student(s)` varchar(255) DEFAULT NULL,
-  `Department` varchar(255) DEFAULT NULL,
-  `Size` int DEFAULT NULL,
-  `Activity reference` varchar(500) DEFAULT NULL,
-  `Activity details` varchar(255) DEFAULT NULL,
-  `Draft` varchar(50) DEFAULT NULL,
-  `Module description` varchar(255) DEFAULT NULL,
-  `Number of students` varchar(50) DEFAULT NULL,
-  `Weekly pattern` varchar(255) DEFAULT NULL,
-  `This activity takes place on location` varchar(50) DEFAULT NULL,
-  `This activity takes place online` varchar(50) DEFAULT NULL,
-  `Online session details` varchar(255) DEFAULT NULL,
-  `Description2` varchar(255) DEFAULT NULL,
-  `activityID` int NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`activityID`)
-) ENGINE=InnoDB AUTO_INCREMENT=42315 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tibl_yrk_cs_2`
---
-
-DROP TABLE IF EXISTS `tibl_yrk_cs_2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tibl_yrk_cs_2` (
-  `Description` varchar(255) DEFAULT NULL,
-  `Module code` varchar(50) DEFAULT NULL,
-  `Start week` varchar(50) DEFAULT NULL,
-  `Start day` varchar(50) DEFAULT NULL,
-  `Start date` date DEFAULT NULL,
-  `Start time` time DEFAULT NULL,
-  `End day` varchar(50) DEFAULT NULL,
-  `End date` date DEFAULT NULL,
-  `End time` time DEFAULT NULL,
-  `Duration` varchar(50) DEFAULT NULL,
-  `Type` varchar(50) DEFAULT NULL,
-  `Staff member(s)` varchar(255) DEFAULT NULL,
-  `Location(s)` varchar(255) DEFAULT NULL,
-  `Student(s)` varchar(255) DEFAULT NULL,
-  `Department` varchar(255) DEFAULT NULL,
-  `Size` int DEFAULT NULL,
-  `Activity reference` varchar(500) DEFAULT NULL,
-  `Activity details` varchar(255) DEFAULT NULL,
-  `Draft` varchar(50) DEFAULT NULL,
-  `Module description` varchar(255) DEFAULT NULL,
-  `Number of students` varchar(50) DEFAULT NULL,
-  `Weekly pattern` varchar(255) DEFAULT NULL,
-  `This activity takes place on location` varchar(50) DEFAULT NULL,
-  `This activity takes place online` varchar(50) DEFAULT NULL,
-  `Online session details` varchar(255) DEFAULT NULL,
-  `Description2` varchar(255) DEFAULT NULL,
-  `activityID` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -652,12 +534,12 @@ CREATE TABLE `y1-theory-2` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-17  1:12:22
--- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
+-- Dump completed on 2025-09-24 20:58:00
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (aarch64)
 --
 -- Host: localhost    Database: checkout_dev
 -- ------------------------------------------------------
--- Server version	8.0.41-0ubuntu0.24.04.1
+-- Server version	8.0.42-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -689,12 +571,12 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-17  1:12:22
--- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
+-- Dump completed on 2025-09-24 20:58:00
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (aarch64)
 --
 -- Host: localhost    Database: checkout_dev
 -- ------------------------------------------------------
--- Server version	8.0.41-0ubuntu0.24.04.1
+-- Server version	8.0.42-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -713,7 +595,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Courses` WRITE;
 /*!40000 ALTER TABLE `Courses` DISABLE KEYS */;
-INSERT INTO `Courses` VALUES (3,'yrk',2,'cs','Computer Science',1),(4,'ysj',1,'history_y1_ysj','History',0),(5,'ysj',1,'psych_y1_ysj','Psychology',0),(6,'ysj',2,'cs_y2_ysj','Computer Science',0),(7,'ark',5,'example-ark-y5','Example yr5 Course',0),(8,'ark',8,'test_ark_y4','Test Course',0),(11,'test',9,'test_course','Test Uni Course',1),(12,'demo',10,'demo-crs','Demonstration Course',0),(14,'yrk',1,'cs','Computer Science',0);
+INSERT INTO `Courses` VALUES (3,'yrk',2,'cs','Computer Science',1),(11,'test',9,'test_course','Test Uni Course',1),(14,'yrk',1,'cs','Computer Science',0),(15,'yrk',6,'cs','Computer Science',1);
 /*!40000 ALTER TABLE `Courses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -723,7 +605,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Institutions` WRITE;
 /*!40000 ALTER TABLE `Institutions` DISABLE KEYS */;
-INSERT INTO `Institutions` VALUES ('aberdeen','University of Aberdeen'),('abertay','Abertay University'),('aberystwyth','Aberystwyth University'),('arden','Arden University'),('ark','Anglia Ruskin University'),('aston','Aston University'),('bangor','Bangor University'),('bath','University of Bath'),('bathspa','University of Bath Spa'),('bcu','Birmingham City University'),('bedfordshire','University of Bedfordshire'),('birmingham','University of Birmingham'),('bolton','University of Bolton'),('bournemouth','Bournemouth University'),('bradford','University of Bradford'),('brighton','University of Brighton'),('bristol','University of Bristol'),('brookes','Oxford Brookes University'),('brunel','Brunel University London'),('buckingham','University of Buckingham'),('bucks','Buckinghamshire New University'),('caledonian','Glasgow Caledonian University'),('cambridge','University of Cambridge'),('canterbury','Canterbury Christ Church University'),('cardiff','Cardiff University'),('cardiffmet','Cardiff Metropolitan University'),('chester','University of Chester'),('chichester','University of Chichester'),('city','City, University of London'),('coventry','Coventry University'),('cranfield','Cranfield University'),('cumbria','University of Cumbria'),('demo','Demo Institution'),('derby','University of Derby'),('dmu','De Montfort University'),('dundee','University of Dundee'),('durham','Durham University'),('edgehill','Edge Hill University'),('edinburgh','University of Edinburgh'),('essex','University of Essex'),('exeter','University of Exeter'),('falmouth','Falmouth University'),('glasgow','University of Glasgow'),('glos','University of Gloucestershire'),('goldsmiths','Goldsmiths, University of London'),('greenwich','University of Greenwich'),('harper','Harper Adams University'),('herts','University of Hertfordshire'),('hope','Liverpool Hope University'),('huddersfield','University of Huddersfield'),('hull','University of Hull'),('imperial','Imperial College London'),('kcl','King\'s College London'),('keele','Keele University'),('kent','University of Kent'),('kingston','Kingston University'),('lancaster','Lancaster University'),('lboro','Loughborough University'),('leeds','University of Leeds'),('leedsarts','Leeds Arts University'),('leedsbeckett','Leeds Beckett University'),('leedstrinity','Leeds Trinity University'),('leicester','University of Leicester'),('lincoln','University of Lincoln'),('liverpool','University of Liverpool'),('ljmu','Liverpool John Moores University'),('londonmet','London Metropolitan University'),('lsbu','London South Bank University'),('lse','London School of Economics and Political Science'),('manchester','University of Manchester'),('marjon','Plymouth Marjon University'),('mdx','Middlesex University'),('mmu','Manchester Metropolitan University'),('napier','Edinburgh Napier University'),('newcastle','Newcastle University'),('northampton','University of Northampton'),('northumbria','Northumbria University'),('nottingham','University of Nottingham'),('ntu','Nottingham Trent University'),('open','Open University'),('oxford','University of Oxford'),('plymouth','University of Plymouth'),('portsmouth','University of Portsmouth'),('qmul','Queen Mary University of London'),('qub','Queen\'s University Belfast'),('queenmargaret','Queen Margaret University, Edinburgh'),('rau','Royal Agricultural University'),('ravensbourne','Ravensbourne University London'),('rca','Royal College of Art'),('reading','University of Reading'),('regents','Regent\'s University London'),('rhul','Royal Holloway, University of London'),('roehampton','University of Roehampton'),('rvc','Royal Veterinary College'),('salford','University of Salford'),('sheffield','University of Sheffield'),('shu','Sheffield Hallam University'),('solent','Solent University'),('southampton','University of Southampton'),('southwales','University of South Wales'),('staffs','Staffordshire University'),('standrews','University of St Andrews'),('stgeorges','St George\'s, University of London'),('stirling','University of Stirling'),('stmarys','St Mary\'s University, Twickenham'),('strathclyde','University of Strathclyde'),('suffolk','University of Suffolk'),('sunderland','University of Sunderland'),('surrey','University of Surrey'),('sussex','University of Sussex'),('swansea','Swansea University'),('teesside','Teesside University'),('test','Test University'),('trinitystd','University of Wales, Trinity Saint David'),('ual','University of the Arts London'),('uca','University for the Creative Arts'),('uclan','University of Central Lancashire'),('uea','University of East Anglia'),('uel','University of East London'),('ulster','University of Ulster'),('uwe','University of the West of England'),('uws','University of the West of Scotland'),('wales','University of Wales'),('warwick','University of Warwick'),('westlondon','University of West London'),('westminster','University of Westminster'),('winchester','University of Winchester'),('wolverhampton','University of Wolverhampton'),('worcester','University of Worcester'),('yrk','University of York'),('ysj','York St John University');
+INSERT INTO `Institutions` VALUES ('test','Test University'),('yrk','University of York');
 /*!40000 ALTER TABLE `Institutions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -733,7 +615,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Modules` WRITE;
 /*!40000 ALTER TABLE `Modules` DISABLE KEYS */;
-INSERT INTO `Modules` VALUES (5,'yrk',2,3,'eng1','Engineering','COM00019I'),(6,'ysj',1,4,'history-1','History Part 1',NULL),(7,'ysj',1,4,'history-2','History Part 2',NULL),(8,'ysj',1,5,'psychology-1','Psychology - The Human Mind',NULL),(9,'ysj',2,6,'software-3','Software Part 3',NULL),(10,'ark',8,8,'example','Example Module',NULL),(11,'test',9,11,'module1','Example Module 1',NULL),(12,'test',9,11,'module2','Example Module 2',NULL),(14,'demo',10,12,'demo1','Demonstration Module 1',NULL),(15,'demo',10,12,'demo2','Demonstration Module 2',NULL),(16,'yrk',2,3,'sys2','Systems','COM00029I'),(17,'yrk',2,3,'the3','Theory','COM00027I');
+INSERT INTO `Modules` VALUES (5,'yrk',2,3,'eng1','Engineering','COM00019I'),(12,'test',9,11,'test','Test Module','test'),(16,'yrk',2,3,'sys2','Systems','COM00029I'),(17,'yrk',2,3,'the3','Theory','COM00027I'),(19,'yrk',6,15,'rocs','ROCS','COM00066H'),(20,'yrk',6,15,'quco','QUCO','COM00042H'),(21,'yrk',6,15,'qual','QUAL','COM00058H'),(22,'yrk',6,15,'plei','PLEI','COM00065H'),(23,'yrk',6,15,'nets','NETS','COM00056H'),(26,'yrk',6,15,'lptc','LPTC','LAW00062H'),(27,'yrk',6,15,'deep','DEEP','COM00049H'),(28,'yrk',6,15,'tecc','TECC','COM00054H'),(30,'yrk',6,15,'hipc','HIPC','COM00036H'),(31,'yrk',6,15,'hint','HINT','COM00040H'),(32,'yrk',6,15,'ehac','EHAC','COM00064H'),(33,'yrk',6,15,'eng2','ENG2','COM00055H'),(34,'yrk',6,15,'embs','EMBS','COM00003H'),(35,'yrk',6,15,'ctap','CTAP','COM00048H'),(36,'yrk',6,15,'vico','VICO','COM00038H'),(37,'yrk',6,15,'evac','EVAC','COM00037H'),(38,'yrk',6,15,'auro','AURO','COM00052H'),(39,'yrk',6,15,'aips','AIPS','COM00050H'),(40,'yrk',6,15,'prbx','PRBX','COM00015H');
 /*!40000 ALTER TABLE `Modules` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -743,7 +625,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Years` WRITE;
 /*!40000 ALTER TABLE `Years` DISABLE KEYS */;
-INSERT INTO `Years` VALUES (1,'yrk',1),(2,'yrk',2),(3,'ysj',1),(4,'ysj',2),(5,'ark',5),(6,'yrk',3),(7,'yrk',4),(8,'ark',4),(9,'test',0),(10,'demo',1);
+INSERT INTO `Years` VALUES (1,'yrk',1),(2,'yrk',2),(6,'yrk',3),(9,'test',0);
 /*!40000 ALTER TABLE `Years` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -753,7 +635,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `globalapp` WRITE;
 /*!40000 ALTER TABLE `globalapp` DISABLE KEYS */;
-INSERT INTO `globalapp` VALUES (1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,139,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,140,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,141,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,142,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,143,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,144,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,145,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,146,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,147,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,148,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Easter!','https://rejectdopamine.com/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,149,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter!','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'App is unavailable while classes are not in session.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,150,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable, please try again later','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'App is unavailable while classes are not in session.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,151,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable, please try again later','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'App is unavailable while classes are not in session.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,152,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'App is unavailable while classes are not in session.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,153,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Easter','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,154,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,155,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,156,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,157,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,158,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,159,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,160,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,161,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,162,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,163,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,164,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','beta.checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,165,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','beta.checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(1,0,'Unavailable out of term time.','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,166,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','beta.checkout.ac','deprecated',1,1,'30',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,167,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,168,0,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,169,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,170,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','localhost:4000','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,171,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','checkout.ac','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,172,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','localhost:4000','deprecated',1,0,'5',1,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,173,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','localhost:4000','deprecated',1,0,'5',0,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84'),(0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,174,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','localhost:4000','deprecated',1,1,'5',0,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84');
+INSERT INTO `globalapp` VALUES (0,0,'Not available','https://checkout.ac/','Example message for when android app is disabled, to display to users','https://example-learn-more-url.com/','deprecated','deprecated','deprecated','yrk',0,174,1,0,'Message to display to all users during a boycott','https://boycott-example-learn-more.com','localhost:4000','deprecated',1,1,'5',0,'09:00','19:00','Unavailable outside of term time.','https://www.youtube.com/watch?v=cc2-4ci4G84');
 /*!40000 ALTER TABLE `globalapp` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -765,16 +647,6 @@ LOCK TABLES `perms` WRITE;
 /*!40000 ALTER TABLE `perms` DISABLE KEYS */;
 INSERT INTO `perms` VALUES ('anon','[\"register\"]',1,100),('normal','[\"register\", \"account\"]',2,500),('banned','[\"test\"]',3,3),('sysop','[\"sysop\", \"mod\", \"register\", \"autocheckin\", \"account\", \"autosysop\"]',5,0),('moderator','[\"register\", \"account\", \"mod\"]',6,1000),('autocheckin','[\"autocheckin\"]',7,500),('autosysop','[\"normal\", \"autosysop\"]',9,0);
 /*!40000 ALTER TABLE `perms` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `tibl_test_test_course_0`
---
-
-LOCK TABLES `tibl_test_test_course_0` WRITE;
-/*!40000 ALTER TABLE `tibl_test_test_course_0` DISABLE KEYS */;
-INSERT INTO `tibl_test_test_course_0` VALUES ('Lecture (Theory) - COM00016C-A','dev.friday-16:00-23:59','Week 1, Semester 2','Mon','2024-04-08','00:00:00','Mon','2030-02-01','00:00:00','1:00','Lecture','Appiah, Kofi (Dr)','PZA/103 Lecture Theatre, Campus East - Piazza Building','','Computer Science',231,'Local development','','No','Software 2: Object Oriented Data Structures & Algorithms','','','No','No','','',100000),('Lecture 2 - COM00014C-A','COM00014C','Week 2, Semester 2','Tue','2024-02-20','11:30:00','Tue','2030-02-01','12:30:00','1:00','Lecture','King, Steve (Prof), Miyazawa, Alvaro (Dr)','PZA/103 Lecture Theatre, Campus East - Piazza Building','','Computer Science',231,'Lecture 2','','No','Theory 2: Formal Languages & Automata','','','No','No','','',100001),('Lecture 1 - COM00014C-A','COM00014C','Week 1, Semester 2','Mon','2030-01-01','17:30:00','Mon','2030-02-01','18:30:00','1:00','Lecture','King, Steve (Prof), Miyazawa, Alvaro (Dr)','PZA/103 Lecture Theatre, Campus East - Piazza Building','','Computer Science',231,'Lecture 1','','No','Theory 2: Formal Languages & Automata','','','No','No','','',100002);
-/*!40000 ALTER TABLE `tibl_test_test_course_0` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -796,4 +668,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-17  1:12:22
+-- Dump completed on 2025-09-24 20:58:00

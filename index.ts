@@ -662,7 +662,7 @@ app.get('/sunset', (req: AppRequest, res: Response) => {
   res.render('sunset.ejs', { username: req.username });
 });
 
-app.get('/', (req: AppRequest, res: Response) => appRouter(req, res));
+app.get('/', (req: AppRequest, res: Response, next: NextFunction) => appRouter(req, res, next));
 
 // 404 handler
 app.get('*', (req: AppRequest, res: Response) => {

@@ -2516,6 +2516,106 @@
         }
       }
     },
+    "/manage/api/courses/institutions": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "List institutions",
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Create institution",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "name": { "type": "string" } }, "required": ["institution_id","name"] } } } },
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/manage/api/courses/institutions/{id}": {
+      "put": {
+        "tags": ["Manage"],
+        "summary": "Update institution",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] } } } },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete institution",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/manage/api/courses/years": {
+      "get": { "tags": ["Manage"], "summary": "List years", "responses": { "200": { "description": "OK" } } },
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Create year",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_number": { "type": "integer" } }, "required": ["institution_id","year_number"] } } } },
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/manage/api/courses/years/{id}": {
+      "put": {
+        "tags": ["Manage"],
+        "summary": "Update year",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_number": { "type": "integer" } }, "required": ["institution_id","year_number"] } } } },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete year",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/manage/api/courses/courses": {
+      "get": { "tags": ["Manage"], "summary": "List courses", "responses": { "200": { "description": "OK" } } },
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Create course",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_id": { "type": "integer" }, "course_code": { "type": "string" }, "course_name": { "type": "string" }, "tibl": { "type": "boolean" } }, "required": ["institution_id","course_code","course_name"] } } } },
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/manage/api/courses/courses/{id}": {
+      "put": {
+        "tags": ["Manage"],
+        "summary": "Update course",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_id": { "type": "integer" }, "course_code": { "type": "string" }, "course_name": { "type": "string" }, "tibl": { "type": "boolean" } } } } } },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete course",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/manage/api/courses/modules": {
+      "get": { "tags": ["Manage"], "summary": "List modules", "responses": { "200": { "description": "OK" } } },
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Create module",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_id": { "type": "integer" }, "course_id": { "type": "integer" }, "module_code": { "type": "string" }, "module_name": { "type": "string" }, "module_tibl_code": { "type": "string" } }, "required": ["institution_id","module_code","module_name"] } } } },
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/manage/api/courses/modules/{id}": {
+      "put": {
+        "tags": ["Manage"],
+        "summary": "Update module",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "institution_id": { "type": "string" }, "year_id": { "type": "integer" }, "course_id": { "type": "integer" }, "module_code": { "type": "string" }, "module_name": { "type": "string" }, "module_tibl_code": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete module",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
     "/manage/api/autocheckin/autocheckers": {
     "get": {
       "tags": ["Manage"],
@@ -2619,10 +2719,147 @@
         }
       }
     }
-  }
+  },
+    "/manage/api/timetables/sessions": {
+      "get": {
+        "tags": ["Manage"],
+        "summary": "List timetable sessions",
+        "description": "Lists timetable sessions with optional filters by date range, course, module, staff, and location.",
+        "parameters": [
+          { "name": "start_date", "in": "query", "required": false, "description": "Filter sessions starting on or after this date (YYYY-MM-DD)", "schema": { "type": "string", "format": "date", "example": "2025-02-18" } },
+          { "name": "end_date", "in": "query", "required": false, "description": "Filter sessions starting on or before this date (YYYY-MM-DD)", "schema": { "type": "string", "format": "date", "example": "2025-03-31" } },
+          { "name": "course_id", "in": "query", "required": false, "description": "Filter by course ID (matches any module belonging to this course)", "schema": { "type": "integer", "example": 3 } },
+          { "name": "module_id", "in": "query", "required": false, "description": "Filter by module ID (matches sessions with that module's tibl code)", "schema": { "type": "integer", "example": 17 } },
+          { "name": "staff", "in": "query", "required": false, "description": "Filter by staff (contains)", "schema": { "type": "string", "example": "Smith" } },
+          { "name": "location", "in": "query", "required": false, "description": "Filter by location (contains)", "schema": { "type": "string", "example": "CS/1" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessions retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": [
+                    {
+                      "id": 101,
+                      "activityID": 0,
+                      "activity_reference": null,
+                      "module_tibl_code": "COM00029I",
+                      "start_day": "Tue",
+                      "start_date": "2025-02-18",
+                      "start_time": "15:30:00",
+                      "end_date": "2025-02-18",
+                      "end_time": "16:30:00",
+                      "duration": "60",
+                      "type": "Seminar",
+                      "staff": "Dr Smith",
+                      "location": "CS/1",
+                      "department": "CS",
+                      "size": 24,
+                      "module_description": "Systems",
+                      "weekly_pattern": "Wk 2-10",
+                      "online_location": null,
+                      "online_session_details": null,
+                      "notes": null,
+                      "created_at": "2025-02-17T09:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Create a timetable session",
+        "description": "Creates a new record in TimetableSessions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TimetableSessionBody" },
+              "example": {
+                "module_tibl_code": "COM00029I",
+                "start_date": "2025-02-18",
+                "start_time": "15:30:00",
+                "end_time": "16:30:00",
+                "type": "Seminar",
+                "staff": "Dr Smith",
+                "location": "CS/1",
+                "notes": "Grp 6"
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Created", "content": { "application/json": { "example": { "success": true } } } } }
+      }
+    },
+    "/manage/api/timetables/sessions/{id}": {
+      "put": {
+        "tags": ["Manage"],
+        "summary": "Update a timetable session",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "Session ID", "schema": { "type": "integer", "example": 101 } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TimetableSessionBody" },
+              "example": { "location": "CS/2", "notes": "Room change" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated", "content": { "application/json": { "example": { "success": true } } } } }
+      },
+      "delete": {
+        "tags": ["Manage"],
+        "summary": "Delete a timetable session",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "Session ID", "schema": { "type": "integer", "example": 101 } }
+        ],
+        "responses": { "200": { "description": "Deleted", "content": { "application/json": { "example": { "success": true } } } } }
+      }
+    },
+    "/manage/api/timetables/sessions/{id}/duplicate": {
+      "post": {
+        "tags": ["Manage"],
+        "summary": "Duplicate a timetable session",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "Session ID to duplicate", "schema": { "type": "integer", "example": 101 } }
+        ],
+        "responses": { "200": { "description": "Duplicated", "content": { "application/json": { "example": { "success": true } } } } }
+      }
+    }
   },
   "components": {
     "schemas": {
+      "TimetableSessionBody": {
+        "type": "object",
+        "properties": {
+          "activityID": { "type": "integer" },
+          "activity_reference": { "type": "string" },
+          "module_tibl_code": { "type": "string" },
+          "start_day": { "type": "string" },
+          "start_date": { "type": "string", "format": "date" },
+          "start_time": { "type": "string", "format": "time" },
+          "end_date": { "type": "string", "format": "date" },
+          "end_time": { "type": "string", "format": "time" },
+          "duration": { "type": "string" },
+          "type": { "type": "string" },
+          "staff": { "type": "string" },
+          "location": { "type": "string" },
+          "department": { "type": "string" },
+          "size": { "type": "integer" },
+          "module_description": { "type": "string" },
+          "weekly_pattern": { "type": "string" },
+          "online_location": { "type": "string" },
+          "online_session_details": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
       "app_submit_body": {
         "type": "object",
         "properties": {
