@@ -134,7 +134,7 @@ Create a MySQL user specifically for the application:
    **Note:** it will ask you for a password, use password 'development'. **Ignore error about users_dev not existing.**
 
    ```bash
-   sudo mysql -u checkout -p checkout_dev < checkout_combined.sql
+   sudo mysql -u checkout -p checkout_dev < checkout_schema.sql
    ```
 
 3. Configure timezone support
