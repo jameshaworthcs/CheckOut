@@ -37,6 +37,10 @@
       // If no year in localStorage, show selector and hide display
       yearSelectorContainer.style.display = 'flex';
       yearDisplayContainer.style.display = 'none';
+
+      // Pre-select Year 3 by default (no button UI)
+      courseDetailsDiv.setAttribute('data-yr', '3');
+      yrSpan.textContent = '3';
     }
     
     // Handle course and institution
@@ -55,24 +59,7 @@
       notCsLink.style.display = 'none';
     }
     
-    // Add click event listeners to year buttons
-    yearButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const selectedYear = this.getAttribute('data-year');
-        
-        // Update the active button
-        yearButtons.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        
-        // Update the data attribute and hidden span
-        courseDetailsDiv.setAttribute('data-yr', selectedYear);
-        yrSpan.textContent = selectedYear;
-        
-        // Remove validation error if present
-        courseBox.classList.remove('validation-error');
-        document.getElementById('year-error-message').style.display = 'none';
-      });
-    });
+    // No year buttons anymore; ensure validation state is clear
   });
 
   function adjustFooterPosition() {

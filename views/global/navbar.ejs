@@ -61,7 +61,87 @@
       fill: currentColor;
   }
 }
+
+/* Welcome back notice (celebratory, compact) */
+.welcome-notice-wrapper {
+  background-color: #e6fff5; /* Mint */
+  color: #0f5132; /* Deep green text */
+  border-bottom: 1px solid #c6ffe9;
+  width: 100%;
+}
+.navbar.welcome-notice { padding: 0.6rem 1rem; }
+.welcome-notice .site-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  padding: 0;
+  font-size: 0.95em;
+  text-align: center;
+}
+.welcome-notice .site-notice a {
+  color: #0b7285;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.welcome-notice .site-notice a:hover { color: #095d6a; }
+
+.welcome-notice .close-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 0.95em;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+.welcome-notice .close-button:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcome-notice-wrapper {
+    background-color: #123a2e;
+    color: #b7ffe3;
+    border-bottom-color: #0f2f26;
+  }
+  .welcome-notice .site-notice a { color: #8be9ff; }
+  .welcome-notice .site-notice a:hover { color: #5dd6f5; }
+  .welcome-notice .close-button:hover { background: rgba(255,255,255,0.08); }
+}
 </style>
+
+<div class="welcome-notice-wrapper">
+  <div id="welcome-notice" class="navbar welcome-notice" role="status" aria-live="polite">
+    <p class="site-notice">
+      🎉 CheckOut is live again! Coming soon: iOS & Android apps, plus support for more years and courses.
+      <a href="/support">Ask Support →</a>
+      <button id="close-welcome-notice-button" class="close-button" aria-label="Dismiss notice">✕</button>
+    </p>
+  </div>
+  <script>
+  (function(){
+    try {
+      var storageKey = 'checkout_cache';
+      var raw = localStorage.getItem(storageKey);
+      var cache = raw ? JSON.parse(raw) : {};
+      var banner = document.getElementById('welcome-notice');
+      var btn = document.getElementById('close-welcome-notice-button');
+      function hide(){ if(banner){ banner.style.display = 'none'; } }
+      if (cache && cache.hideWelcomeNotice === true) { hide(); }
+      if (btn) {
+        btn.addEventListener('click', function(){
+          cache = cache && typeof cache === 'object' ? cache : {};
+          cache.hideWelcomeNotice = true;
+          try { localStorage.setItem(storageKey, JSON.stringify(cache)); } catch(e){}
+          hide();
+        });
+      }
+    } catch (e) {}
+  })();
+  </script>
+</div>
 
 <% if (typeof site_notice !== 'undefined') { %>
 <div class="navbar-wrapper">

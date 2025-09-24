@@ -72,6 +72,7 @@
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 10px;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -418,21 +419,30 @@
   .year-selector-container {
     display: flex;
     align-items: center;
-    margin-top: 10px;
-    width: 100%;
+    margin-top: 0;
+    width: auto;
+    margin-left: 5px;
+  }
+  
+  .year-label {
+    margin-left: 5px;
+    font-weight: 600;
+    white-space: nowrap;
   }
   
   .year-selector {
     display: flex;
     gap: 10px;
     margin-left: 5px;
+    width: auto;
   }
   
   .year-display-container {
     display: flex;
     align-items: center;
-    margin-top: 10px;
-    width: 100%;
+    margin-top: 0;
+    width: auto;
+    margin-left: 5px;
   }
   
   #yr_display {
@@ -449,6 +459,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    display: block;
   }
   
   .year-btn.active {
@@ -473,6 +486,32 @@
   }
   
   /* Validation styles */
+  /* Celebratory box styling for the welcome back message */
+  .customise-box.celebrate {
+    border-color: var(--action-highlight-colour);
+    box-shadow: var(--shadow), 0 0 18px var(--action-highlight-colour);
+    position: relative;
+  }
+
+  .customise-box.celebrate::before {
+    content: '🎉';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 16px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .customise-box.celebrate {
+      animation: celebrateGlow 2.2s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes celebrateGlow {
+    from { box-shadow: var(--shadow), 0 0 6px var(--action-highlight-colour); }
+    to   { box-shadow: var(--shadow), 0 0 20px var(--action-highlight-colour); }
+  }
+
   .validation-error {
     border: 2px solid #ff3b30 !important;
     box-shadow: 0 0 8px rgba(255, 59, 48, 0.5) !important;
