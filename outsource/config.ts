@@ -17,7 +17,7 @@ export interface CourseInfo {
 export const defaultCourseInfo: CourseInfo = {
   institution: 'yrk',
   course: 'cs',
-  year: '2'
+  year: '3'
 };
 
 /**

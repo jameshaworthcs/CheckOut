@@ -1433,6 +1433,7 @@ app.get('/', async function (req, res) {
           site_notice,
           v2Data: JSON.stringify(cachedResponse),
           cacheUsername: true,
+          mobile: req.query.mobile === '1',
         });
 
         // Optional: Clean up entries older than 1 day (86400 seconds)

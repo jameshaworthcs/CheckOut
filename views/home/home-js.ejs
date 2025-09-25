@@ -48,6 +48,32 @@
   }
 
   /**
+   * Normalizes various error types into a descriptive string.
+   * @param {any} err
+   * @returns {string}
+   */
+  function describeError(err) {
+      try {
+          if (!err) return 'Unknown error';
+          if (typeof err === 'string') return err;
+          // Error instance with message
+          if (err instanceof Error && err.message) return err.message;
+          // Fetch Response-like
+          if (err.status && err.statusText) return `HTTP ${err.status}: ${err.statusText}`;
+          // Event
+          if (typeof Event !== 'undefined' && err instanceof Event) return `Event: ${err.type || 'unknown'}`;
+          // Axios-style error
+          if (err.response && (err.response.message || err.response.msg)) return err.response.message || err.response.msg;
+          // Generic object
+          if (err.message) return String(err.message);
+          if (err.msg) return String(err.msg);
+          return JSON.stringify(err);
+      } catch (_) {
+          return 'Unexpected error';
+      }
+  }
+
+  /**
    * Sets up the page by fetching API data and updating the UI.
    * 
    * @param {boolean} [refreshSubmit=true] - If true, refreshes the submit form as well.
@@ -1031,6 +1057,24 @@
               topRowDiv.appendChild(sessionInfo);
               sessionBox.appendChild(topRowDiv);
 
+              // Add notes infobox if present
+              const __notes1 = (session.notes || '').toString().trim();
+              if (__notes1) {
+                  const noteBox = document.createElement('div');
+                  noteBox.className = 'info-box';
+
+                  const emojiSpan = document.createElement('span');
+                  emojiSpan.textContent = 'ℹ️';
+                  emojiSpan.className = 'info-emoji';
+
+                  const noteText = document.createElement('span');
+                  noteText.textContent = __notes1;
+
+                  noteBox.appendChild(emojiSpan);
+                  noteBox.appendChild(noteText);
+                  sessionBox.appendChild(noteBox);
+              }
+
               const codesSection = document.createElement('div');
               codesSection.className = 'code-content';
 
@@ -1492,6 +1536,24 @@
 
               const codeContent = document.createElement('div');
               codeContent.className = 'code-content';
+
+              // Add notes infobox if present (selected view)
+              const __notes2 = (session.notes || '').toString().trim();
+              if (__notes2) {
+                  const noteBox = document.createElement('div');
+                  noteBox.className = 'info-box';
+
+                  const emojiSpan = document.createElement('span');
+                  emojiSpan.textContent = 'ℹ️';
+                  emojiSpan.className = 'info-emoji';
+
+                  const noteText = document.createElement('span');
+                  noteText.textContent = __notes2;
+
+                  noteBox.appendChild(emojiSpan);
+                  noteBox.appendChild(noteText);
+                  sessionDiv.appendChild(noteBox);
+              }
 
               let codesHtml;
               if (!session.codes || session.codes.length === 0) {
@@ -2175,47 +2237,68 @@
    * @throws {Error} If the submission process fails.
    */
   async function wsp1(jsonObject) {
-      const encoder = new TextEncoder();
-      const data = JSON.stringify(jsonObject);
-      const base64Data = btoa(data);
-
-      async function hashWithAlgorithm(algorithm, data) {
-          const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
-          return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+      // Fallback helper to request websocket options without Web Crypto
+      async function requestWsOptionsFallback() {
+          const response = await fetch('/api/submit/options', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              // Pretend-encrypted payload; server should accept and return ws options
+              body: JSON.stringify({ chc: jsonObject.chc, fallback: true })
+          });
+          let responseData = null;
+          try { responseData = await response.json(); } catch (_) {}
+          if (response.ok && responseData && responseData.success) {
+              return { ws: responseData.ws, ws1: responseData.ws1, jt: responseData.jt, autoSplash: responseData.autoSplash };
+          }
+          const serverMsg = (responseData && (responseData.reason || responseData.message || responseData.msg)) ? `: ${responseData.reason || responseData.message || responseData.msg}` : '';
+          throw new Error(`Failed to prepare submission (fallback) [${response.status}]${serverMsg}`);
       }
 
-      const hash1 = await hashWithAlgorithm('SHA-256', base64Data);
-      const hash2 = await hashWithAlgorithm('SHA-384', hash1);
-      const hash3 = await hashWithAlgorithm('SHA-512', hash2);
+      try {
+          if (!(window.crypto && window.crypto.subtle)) {
+              // iOS WebView or older browsers: no SubtleCrypto
+              return await requestWsOptionsFallback();
+          }
 
-      const finalData = `reject${hash3}${navigator.userAgent}`;
-      const finalHash = await hashWithAlgorithm('SHA-256', finalData);
+          const encoder = new TextEncoder();
+          const data = JSON.stringify(jsonObject);
+          const base64Data = btoa(data);
 
-      const jkh = await (async () => {
-          let data = new TextEncoder().encode(new Date().toLocaleDateString('en-US', { weekday: 'long' }) + navigator.userAgent);
-          let hashBuffer = await crypto.subtle.digest('SHA-256', data);
-          let hashArray = Array.from(new Uint8Array(hashBuffer));
-          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      })();
+          async function hashWithAlgorithm(algorithm, data) {
+              const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(data));
+              return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+          }
 
-      const response = await fetch('/api/submit/options', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ [jkh]: finalHash, "chc": jsonObject.chc })
-      });
+          const hash1 = await hashWithAlgorithm('SHA-256', base64Data);
+          const hash2 = await hashWithAlgorithm('SHA-384', hash1);
+          const hash3 = await hashWithAlgorithm('SHA-512', hash2);
 
-      const responseData = await response.json();
-      if (responseData.success) {
-          return {
-              ws: responseData.ws,
-              ws1: responseData.ws1,
-              jt: responseData.jt,
-              autoSplash: responseData.autoSplash
-          };
-      } else {
-          throw new Error('Submission failed');
+          const finalData = `reject${hash3}${navigator.userAgent}`;
+          const finalHash = await hashWithAlgorithm('SHA-256', finalData);
+
+          const jkh = await (async () => {
+              const enc = new TextEncoder();
+              let data = enc.encode(new Date().toLocaleDateString('en-US', { weekday: 'long' }) + navigator.userAgent);
+              let hashBuffer = await crypto.subtle.digest('SHA-256', data);
+              let hashArray = Array.from(new Uint8Array(hashBuffer));
+              return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          })();
+
+          const response = await fetch('/api/submit/options', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ [jkh]: finalHash, "chc": jsonObject.chc })
+          });
+          let responseData = null;
+          try { responseData = await response.json(); } catch (_) {}
+          if (response.ok && responseData && responseData.success) {
+              return { ws: responseData.ws, ws1: responseData.ws1, jt: responseData.jt, autoSplash: responseData.autoSplash };
+          }
+          // If server rejects, try fallback once with clearer errors
+          return await requestWsOptionsFallback();
+      } catch (_) {
+          // Any unexpected error: fallback path
+          return await requestWsOptionsFallback();
       }
   }
 
@@ -2260,11 +2343,14 @@
 
               socket.addEventListener('error', (error) => {
                   console.error('WebSocket error:', error);
-                  reject(error);
+                  const msg = (error && error.message) ? error.message : (error && error.type) ? `Event: ${error.type}` : 'Unknown error';
+                  reject(new Error(`WebSocket error while connecting to ${ws1}: ${msg}`));
               });
 
               socket.addEventListener('close', (event) => {
-                  reject("WS connection failed, unable to submit code at this time.");
+                  const code = (typeof event.code !== 'undefined') ? event.code : 'unknown';
+                  const reason = (event && event.reason) ? ` Reason: ${event.reason}` : '';
+                  reject(new Error(`WebSocket closed (code ${code}) while using ${ws1}.${reason}`));
               });
 
           } catch (error) {
@@ -2376,7 +2462,7 @@
           })
           .catch(error => {
               console.error(error);
-              displayNotice(error, 'error', 'Submission error', 0);
+              displayNotice(describeError(error), 'error', 'Submission error', 0);
               endSpinner(submitButton.id);
               tryAgainButton(submitButton.id);
               RefreshManager.unblock('submission');

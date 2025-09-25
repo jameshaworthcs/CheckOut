@@ -130,6 +130,7 @@ async function apiGenCodes(codesObject, inst, crs, yr, req, cachedUser = true) {
             location: session.location ? session.location.split(' ')[0] : '',
             codesCount: sessionCodes.length,
             codes: sessionCodes,
+            notes: session.notes,
           };
         })
       );
@@ -188,6 +189,7 @@ async function fetchInProgressRowsUnified(inst, crs, yr, callback) {
           day: row['start_day'],
           date: row['start_date'],
           endDate: row['end_date'],
+          notes: row['notes'],
         };
       })
     );
@@ -246,6 +248,7 @@ async function fetchFutureActivity(inst, crs, yr, callback) {
       location: row['location'],
       activityID: row['activityID'],
       startDate: row['start_date'],
+      notes: row['notes'],
     }));
     callback(null, extractedData);
   } catch (err) {

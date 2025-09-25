@@ -801,10 +801,13 @@
   </head>
   <body>
     <!-- data-instant-intensity="viewport-all"> -->
+    <% if (!mobile) { %>
     <%- include('../global/navbar'); %>
+    <% } %>
 
     <div class="main-content">
       <div class="left-column">
+        <% if (!mobile) { %>
         <div class="pre-box">
           <h1>Welcome to CheckOut</h1>
           <p class="subtext">Discover and share CheckOut codes easily.</p>
@@ -822,6 +825,7 @@
               ></path></svg
           ></a>
         </div>
+        <% } %>
 
         <div class="box-container">
           <div class="box">
@@ -897,7 +901,9 @@
           </div>
         </div>
       </div>
+      <% if (!mobile) { %>
       <div class="right-column"></div>
+      <% } %>
     </div>
 
     <!-- <script src="/static/js/home-v1.1.js"></script> -->
