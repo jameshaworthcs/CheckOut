@@ -124,17 +124,41 @@
   (function(){
     try {
       var storageKey = 'checkout_cache';
-      var raw = localStorage.getItem(storageKey);
-      var cache = raw ? JSON.parse(raw) : {};
+      
+      // Helper function to safely get cache
+      function getCache() {
+        try {
+          var raw = localStorage.getItem(storageKey);
+          return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+          return {};
+        }
+      }
+      
+      // Helper function to safely update cache
+      function updateCache(updater) {
+        try {
+          var cache = getCache();
+          updater(cache);
+          localStorage.setItem(storageKey, JSON.stringify(cache));
+          return cache;
+        } catch (e) {
+          console.error('Failed to update cache:', e);
+        }
+      }
+      
+      var cache = getCache();
+      console.log(cache)
       var banner = document.getElementById('welcome-notice');
       var btn = document.getElementById('close-welcome-notice-button');
       function hide(){ if(banner){ banner.style.display = 'none'; } }
       if (cache && cache.hideWelcomeNotice === true) { hide(); }
       if (btn) {
         btn.addEventListener('click', function(){
-          cache = cache && typeof cache === 'object' ? cache : {};
-          cache.hideWelcomeNotice = true;
-          try { localStorage.setItem(storageKey, JSON.stringify(cache)); } catch(e){}
+          updateCache(function(cache) {
+            cache.hideWelcomeNotice = true;
+          });
+          console.log('Updated cache:', getCache());
           hide();
         });
       }
